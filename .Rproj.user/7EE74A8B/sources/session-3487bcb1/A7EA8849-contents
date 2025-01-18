@@ -27,8 +27,6 @@
 #' # Without rounding
 #' pretty_number(1250, round = FALSE) # "1.2k"
 #'
-#' @author Nicolas Foss, Ed.D., MS
-#'
 pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
 
   # Error check: Ensure `x` is numeric or integer

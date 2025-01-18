@@ -36,9 +36,7 @@
 #' # View results
 #' results$intervals
 #' results$bin_stats
-#'
-#' @author Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas J. Napoli, Ph.D., MS
-#'
+
 nonlinear_bins <- function(data,
                            Ps_col,
                            divisor1 = 5,
@@ -48,7 +46,7 @@ nonlinear_bins <- function(data,
                            ) {
 
   # Select and sort the column
-  survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
+  survival_data <- data |> dplyr::pull({{ col }}) |> sort()
   total <- length(survival_data)
 
   # Step 1: Find indices for level thresholds
