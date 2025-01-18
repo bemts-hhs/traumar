@@ -47,15 +47,15 @@ which are derived from survival probability and mortality data, using establishe
 (Flora, 1978; Boyd et al., 1987; Mock et al., 2004). It computes the W-score, M-score,
 and Z-score based on the provided dataset and calculates performance metrics for trauma programs.
 }
-\details{
-The function computes three scores:
-\itemize{
-  \item W-score: A measure of the hospital's performance compared to expected survival.
-  \item M-score: A measure of the patient case mix similarity to the Major Trauma Outcomes Study (MTOS).
-  \item Z-score: A measure of the difference between observed and predicted outcomes, based on the selected method.
-}
+\examples{
+# Example dataset with 1000 simulated Ps values using rbeta
+set.seed(123)  # Setting seed for reproducibility
+df <- data.frame(Ps = rbeta(1000, shape1 = 5, shape2 = 1),  # Simulated Ps values
+                 outcome = sample(c(1, 0), 1000, replace = TRUE))  # Random outcome (1 or 0)
 
-The function checks the validity of the data columns and alerts the user if any issues are detected.
+# Calculate trauma performance (W, M, Z scores)
+trauma_performance(df, Ps_col = Ps, outcome_col = outcome)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS
