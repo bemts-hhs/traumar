@@ -4,24 +4,24 @@
 \alias{stat_sig}
 \title{Assign Significance Codes Based on P-Values}
 \usage{
-stat_sig(data, p_val_col, p_message = FALSE)
+stat_sig(data, p_val_col)
 }
 \arguments{
-\item{data}{A data frame containing the p-value column to be assessed for significance.}
+\item{data}{A data frame containing the p-value column to be assessed for
+significance.}
 
-\item{p_val_col}{A numeric column name (or unquoted variable name) representing the p-values to be categorized.
-The column should be numeric and contain p-values between 0 and 1.}
-
-\item{p_message}{A logical value (`TRUE` or `FALSE`). If `TRUE`, a message explaining the significance of p-values will be shown.
-Default is `FALSE`.}
+\item{p_val_col}{A numeric column name (or unquoted variable name)
+representing the p-values to be categorized. The column should be numeric
+and contain p-values between 0 and 1.}
 }
 \value{
-A data frame with an additional column `significance_value` containing the assigned significance codes for each p-value.
-  If `p_message` is `TRUE`, a message is printed with guidance on interpreting p-values.
+A data frame with an additional column `significance_value`
+  containing the assigned significance codes for each p-value.
 }
 \description{
-This function assigns significance codes to a p-value column in a data frame based on commonly accepted significance thresholds.
-It also provides an option to display a message about p-value interpretation when requested.
+This function assigns significance codes to a p-value column in a data frame
+based on commonly accepted significance thresholds. It also provides an
+option to display a message about p-value interpretation when requested.
 }
 \details{
 The significance codes are assigned as follows:
@@ -31,13 +31,12 @@ The significance codes are assigned as follows:
 - `"."` for p-values ≤ 0.1 and > 0.05
 - `"<>"` for p-values > 0.1
 
-Additionally, a message explaining the significance of p-values and their interpretation can be displayed if the `p_message`
-argument is set to `TRUE`.
+Additionally, a message explaining the significance of p-values and their
+interpretation can be displayed if the `p_message` argument is set to `TRUE`.
 }
 \examples{
 # Example usage of the stat_sig function
 data <- data.frame(p_value = c(0.001, 0.03, 0.12, 0.05, 0.07))
 stat_sig(data, p_val_col = p_value)
-stat_sig(data, p_val_col = p_value, p_message = TRUE)
 
 }

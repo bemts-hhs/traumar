@@ -2,31 +2,38 @@
 % Please edit documentation in R/trauma_case_mix.r
 \name{trauma_case_mix}
 \alias{trauma_case_mix}
-\title{View the Current Patient Population Case Mix Compared to the Major Trauma Study Case Mix}
+\title{View the Current Patient Population Case Mix Compared to the Major Trauma
+Study Case Mix}
 \usage{
 trauma_case_mix(df, Ps_col, outcome_col)
 }
 \arguments{
 \item{df}{A data frame containing patient data.}
 
-\item{Ps_col}{The name of the column containing the probability of survival (Ps) values.}
+\item{Ps_col}{The name of the column containing the probability of survival
+(Ps) values.}
 
-\item{outcome_col}{The name of the column containing the binary outcome data (e.g., 1 for dead, 0 for alive).}
+\item{outcome_col}{The name of the column containing the binary outcome data
+(e.g., 1 for dead, 0 for alive).}
 }
 \value{
-A data frame containing the Ps ranges, the fraction of patients in each range in the current population,
-and the MTOS distribution for each range.
+A data frame containing the Ps ranges, the fraction of patients in
+  each range in the current population, and the MTOS distribution for each
+  range.
 }
 \description{
-This function compares the current patient population's case mix (based on probability of survival, Ps)
-to the MTOS case mix by binning patients into specific Ps ranges. It returns the fraction of patients
-in each range and compares it to the MTOS distribution.
+This function compares the current patient population's case mix (based on
+probability of survival, Ps) to the MTOS case mix by binning patients into
+specific Ps ranges. It returns the fraction of patients in each range and
+compares it to the MTOS distribution.
 }
 \details{
-The function checks whether the `outcome_col` contains exactly two unique values representing a binary outcome.
-It also ensures that `Ps_col` contains numeric values within the range 0 to 100. If any values exceed 1,
-they are converted to decimal format. The patients are then grouped into predefined Ps ranges, and the
-function compares the fraction of patients in each range with the MTOS case mix distribution.
+The function checks whether the `outcome_col` contains exactly two
+unique values representing a binary outcome. It also ensures that `Ps_col`
+contains numeric values within the range 0 to 100. If any values exceed 1,
+they are converted to decimal format. The patients are then grouped into
+predefined Ps ranges, and the function compares the fraction of patients in
+each range with the MTOS case mix distribution.
 }
 \examples{
 # Example dataset with 1000 simulated Ps values using rbeta

@@ -14,19 +14,25 @@ nonlinear_bins(
 )
 }
 \arguments{
-\item{data}{A `data.frame` or `tibble` containing the probability of survival data for a set of patients.}
+\item{data}{A `data.frame` or `tibble` containing the probability of survival
+data for a set of patients.}
 
-\item{Ps_col}{The column in `data` containing the probability of survival values for a set of patients.}
+\item{Ps_col}{The column in `data` containing the probability of survival
+values for a set of patients.}
 
-\item{divisor1}{A parameter to control the width of the probability of survival range bins.
-Affects the creation of step sizes for the beginning of each bin range. Defaults to `5`.}
+\item{divisor1}{A parameter to control the width of the probability of
+survival range bins. Affects the creation of step sizes for the beginning
+of each bin range. Defaults to `5`.}
 
-\item{divisor2}{A parameter to control the width of the probability of survival range bins.
-Affects the creation of step sizes for the beginning of each bin range. Defaults to `5`.}
+\item{divisor2}{A parameter to control the width of the probability of
+survival range bins. Affects the creation of step sizes for the beginning
+of each bin range. Defaults to `5`.}
 
-\item{threshold_1}{A parameter to decide where data indices will begin to create step sizes. Defaults to `0.9`.}
+\item{threshold_1}{A parameter to decide where data indices will begin to
+create step sizes. Defaults to `0.9`.}
 
-\item{threshold_2}{A parameter to decide where data indices will end to create step sizes. Defaults to `0.99`.}
+\item{threshold_2}{A parameter to decide where data indices will end to
+create step sizes. Defaults to `0.99`.}
 }
 \value{
 A list with `intervals` and `bin_stats` objects:
@@ -34,15 +40,15 @@ A list with `intervals` and `bin_stats` objects:
 * `bin_stats`: A `tibble` with columns `bin_number`, `bin_start`, `bin_end`, `mean`, `sd`, `count`, and `percent`.
 }
 \description{
-This function generates nonlinear bins for probability of survival data based on specified thresholds
-and divisors. It calculates bin statistics, including mean, standard deviation, count, and percentage
-for each bin.
+This function generates nonlinear bins for probability of survival data based
+on specified thresholds and divisors. It calculates bin statistics, including
+mean, standard deviation, count, and percentage for each bin.
 }
 \examples{
 # Generate example data with high negative skewness
 set.seed(123)
-survival_probs <- rbeta(1000, shape1 = 2, shape2 = 8)
-example_data <- data.frame(patient_id = 1:1000, survival_probability = survival_probs)
+survival_probs <- rbeta(10000, shape1 = 5, shape2 = 1)
+example_data <- data.frame(patient_id = 1:10000, survival_probability = survival_probs)
 
 # Apply the nonlinear_bins function
 results <- nonlinear_bins(data = example_data,
@@ -58,5 +64,6 @@ results$bin_stats
 
 }
 \author{
-Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas J. Napoli, Ph.D., MS
+Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
+  J. Napoli, Ph.D., MS
 }

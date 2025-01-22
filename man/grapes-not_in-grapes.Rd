@@ -2,7 +2,7 @@
 % Please edit documentation in R/not_in.r
 \name{\%not_in\%}
 \alias{\%not_in\%}
-\title{Negation of `%in%`: Check if Elements Are Not in a Vector}
+\title{Check if Elements Are Not in a Vector}
 \usage{
 x \%not_in\% y
 }
@@ -12,14 +12,16 @@ x \%not_in\% y
 \item{y}{A vector of values to check against.}
 }
 \value{
-A logical vector of the same length as `x`, where `TRUE` indicates the corresponding element
-in `x` is not found in `y`, and `FALSE` indicates it is found in `y`.
+A logical vector of the same length as `x`, where `TRUE` indicates
+  the corresponding element in `x` is not found in `y`, and `FALSE` indicates
+  it is found in `y`.
 }
 \description{
-This function returns a logical vector indicating whether each element of `x` is **not** in `y`.
-It is the negation of the `%in%` operator.
+This function returns a logical vector indicating whether each
+  element of `x` is not in `y`.
 }
 \examples{
+
 # Example vectors
 x <- c("apple", "banana", "cherry")
 y <- c("banana", "grape")

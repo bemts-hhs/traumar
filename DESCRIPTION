@@ -1,17 +1,35 @@
 Package: traumar
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Calculate Metrics Relevant to Trauma System Performance
 Version: 0.1.0
 Authors@R: c(
     person(
-      "Jane", "Doe",
-      email = "jane@example.com",
+      "Nicolas", "Foss",
+      email = "nicolas.foss@hhs.iowa.gov",
       role = c("aut", "cre")
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: Hospitals, hospital systems, and even trauma systems that provide care to injured patients
+    may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives
+    of injured patients.  This R package provides robust functions driven by the academic literature to 
+    automate the calculation of relevant metrics, and provide some helper functions for the data analysis
+    journey.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
+Suggests: 
+    broom,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    cli (>= 3.6.3),
+    dplyr (>= 1.1.4),
+    ggplot2 (>= 3.5.1),
+    rlang (>= 1.1.5),
+    stats,
+    tibble (>= 3.2.1),
+    tidyr (>= 1.3.1),
+    tidyselect (>= 1.2.1),
+    utils,
+    lubridate (>= 1.9.4)

@@ -7,17 +7,20 @@
 pretty_percent(variable, n_decimal = 0.1)
 }
 \arguments{
-\item{variable}{A numeric vector representing proportions (e.g., `0.25` for 25%) to format as percentages.}
+\item{variable}{A numeric vector representing proportions to format as
+percentages.}
 
-\item{n_decimal}{A numeric value specifying the number of decimal places. Defaults to `0.1`.}
+\item{n_decimal}{A numeric value specifying the number of decimal places.
+Defaults to `0.1`.}
 }
 \value{
 A character vector containing the formatted percentages.
 }
 \description{
-This function formats numeric variables as percentages with a specified number of decimal places.
-It refines the output by removing unnecessary trailing zeros after the decimal point and ensures
-the percentage sign is correctly applied without extraneous characters, resulting in a polished,
+This function formats numeric variables as percentages with a specified
+number of decimal places. It refines the output by removing unnecessary
+trailing zeros after the decimal point and ensures the percentage sign is
+correctly applied without extraneous characters, resulting in a polished,
 human-readable percentage representation.
 }
 \examples{

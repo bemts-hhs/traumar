@@ -6,7 +6,7 @@
 \usage{
 theme_cleaner(
   base_size = 12,
-  base_family = "Work Sans",
+  base_family = "sans",
   base_color = "#70C8B8",
   base_color_title = "#03617A",
   title_text_size = ceiling(base_size * 1.1),
@@ -25,53 +25,74 @@ theme_cleaner(
 )
 }
 \arguments{
-\item{base_size}{Numeric. Default font size for plot elements. Defaults to `12`.}
+\item{base_size}{Numeric. Default font size for plot elements. Defaults to
+`12`.}
 
-\item{base_family}{Character. Font family used for text in the plot. Defaults to `"Work Sans"`.}
+\item{base_family}{Character. Font family used for text in the plot. Defaults
+to `"Work Sans"`.}
 
-\item{base_color}{Character. Hex color code for primary plot elements (e.g., axis text, legend text). Defaults to `"#70C8B8"`.}
+\item{base_color}{Character. Hex color code for primary plot elements (e.g.,
+axis text, legend text). Defaults to `"#70C8B8"`.}
 
-\item{base_color_title}{Character. Hex color code for plot title and legend title text. Defaults to `"#03617A"`.}
+\item{base_color_title}{Character. Hex color code for plot title and legend
+title text. Defaults to `"#03617A"`.}
 
-\item{title_text_size}{Numeric. Font size for plot title text. Defaults to `base_size * 1.1`.}
+\item{title_text_size}{Numeric. Font size for plot title text. Defaults to
+`base_size * 1.1`.}
 
-\item{subtitle_text_size}{Numeric. Font size for plot subtitle text. Defaults to `base_size * 1.05`.}
+\item{subtitle_text_size}{Numeric. Font size for plot subtitle text. Defaults
+to `base_size * 1.05`.}
 
-\item{caption_color}{Character. Hex color code for plot caption text. Defaults to `"#19405B"`.}
+\item{caption_color}{Character. Hex color code for plot caption text.
+Defaults to `"#19405B"`.}
 
-\item{legend_position}{Character. Legend position on the plot. Accepts "top", "bottom", "left", or "right". Defaults to `"top"`.}
+\item{legend_position}{Character. Legend position on the plot. Accepts "top",
+"bottom", "left", or "right". Defaults to `"top"`.}
 
-\item{vjust_title}{Numeric. Vertical justification of the plot title. Defaults to `0`.}
+\item{vjust_title}{Numeric. Vertical justification of the plot title.
+Defaults to `0`.}
 
-\item{vjust_subtitle}{Numeric. Vertical justification of the plot subtitle. Defaults to `0`.}
+\item{vjust_subtitle}{Numeric. Vertical justification of the plot subtitle.
+Defaults to `0`.}
 
-\item{hjust_title}{Numeric. Horizontal justification of the plot title. Defaults to `0`.}
+\item{hjust_title}{Numeric. Horizontal justification of the plot title.
+Defaults to `0`.}
 
-\item{hjust_subtitle}{Numeric. Horizontal justification of the plot subtitle. Defaults to `0`.}
+\item{hjust_subtitle}{Numeric. Horizontal justification of the plot subtitle.
+Defaults to `0`.}
 
-\item{axis_lines}{Logical. If `TRUE`, axis lines are drawn in `base_color`; otherwise, they are hidden. Defaults to `FALSE`.}
+\item{axis_lines}{Logical. If `TRUE`, axis lines are drawn in `base_color`;
+otherwise, they are hidden. Defaults to `FALSE`.}
 
-\item{facets}{Logical. If `TRUE`, additional formatting for facet plots is applied. Defaults to `FALSE`.}
+\item{facets}{Logical. If `TRUE`, additional formatting for facet plots is
+applied. Defaults to `FALSE`.}
 
-\item{facet_text_size}{Numeric. If `facets = TRUE`, size formatting for facet text (`strip.text`) is applied. Defaults to `base_size`.}
+\item{facet_text_size}{Numeric. If `facets = TRUE`, size formatting for facet
+text (`strip.text`) is applied. Defaults to `base_size`.}
 
-\item{draw_panel_border}{Logical. If `TRUE`, a border is drawn around panels in facet plots. Defaults to `FALSE`.}
+\item{draw_panel_border}{Logical. If `TRUE`, a border is drawn around panels
+in facet plots. Defaults to `FALSE`.}
 
-\item{...}{Additional arguments passed to `ggplot2::theme` for further customization.}
+\item{...}{Additional arguments passed to `ggplot2::theme` for further
+customization.}
 }
 \value{
 A `ggplot2` theme object that can be applied to plots.
 }
 \description{
-A flexible and customizable theme function for creating polished and minimalistic plots using `ggplot2`.
-The `theme_cleaner` function provides various options to control the appearance of plot elements,
-including font styles, sizes, colors, axis lines, grid lines, legend, title, subtitle, captions, and facet appearance.
-The theme is highly customizable, allowing for the creation of visually appealing and clean plots.
+A flexible and customizable theme function for creating polished and
+minimalistic plots using `ggplot2`. The `theme_cleaner` function provides
+various options to control the appearance of plot elements, including font
+styles, sizes, colors, axis lines, grid lines, legend, title, subtitle,
+captions, and facet appearance. The theme is highly customizable, allowing
+for the creation of visually appealing and clean plots.
 }
 \details{
-The function customizes common plot elements like axis text, titles, subtitles, captions, legend, and facet labels.
-It is designed to work with `ggplot2` plots, providing a clean and professional look with minimal styling. You can adjust
-various aesthetic features such as font size, color, and legend position for maximum control over the appearance.
+The function customizes common plot elements like axis text, titles,
+subtitles, captions, legend, and facet labels. It is designed to work with
+`ggplot2` plots, providing a clean and professional look with minimal
+styling. You can adjust various aesthetic features such as font size, color,
+and legend position for maximum control over the appearance.
 }
 \examples{
 # Create a ggplot2 plot with the theme_cleaner theme

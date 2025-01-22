@@ -18,23 +18,29 @@ rm_bin_summary(
 \arguments{
 \item{data}{A data frame or tibble containing the data.}
 
-\item{Ps_col}{The name of the column containing the survival probabilities (Ps). Should be numeric (values between 0 and 100).}
+\item{Ps_col}{The name of the column containing the survival probabilities
+(Ps). Should be numeric (values between 0 and 100).}
 
-\item{outcome_col}{The name of the column containing the outcome data.
-It should be binary, with values indicating patient survival.
-A value of `1` or `TRUE` should represent "alive" (survived),
-while `0` or `FALSE` should represent "dead" (did not survive).
-Ensure the column contains only these two possible values.}
+\item{outcome_col}{The name of the column containing the outcome data. It
+should be binary, with values indicating patient survival. A value of `1`
+or `TRUE` should represent "alive" (survived), while `0` or `FALSE` should
+represent "dead" (did not survive). Ensure the column contains only these
+two possible values.}
 
-\item{Divisor1}{A divisor used for binning the survival probabilities (default is 5).}
+\item{Divisor1}{A divisor used for binning the survival probabilities
+(default is 5).}
 
-\item{Divisor2}{A second divisor used for binning the survival probabilities (default is 5).}
+\item{Divisor2}{A second divisor used for binning the survival probabilities
+(default is 5).}
 
-\item{Threshold_1}{The first threshold for dividing the survival probabilities (default is 0.9).}
+\item{Threshold_1}{The first threshold for dividing the survival
+probabilities (default is 0.9).}
 
-\item{Threshold_2}{The second threshold for dividing the survival probabilities (default is 0.99).}
+\item{Threshold_2}{The second threshold for dividing the survival
+probabilities (default is 0.99).}
 
-\item{Z}{The Z value used for calculating confidence intervals (default is 1.96).}
+\item{Z}{The Z value used for calculating confidence intervals (default is
+1.96).}
 }
 \value{
 A tibble containing bin-level statistics including:
@@ -48,30 +54,34 @@ A tibble containing bin-level statistics including:
   - `midpoint`: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
   - `R_b`: The width of each bin (bin_end - bin_start).
   - `AntiM_b`: The anticipated mortality for each bin, based on the midpoint.
-  - `E_b`: The error bound for the RMM estimate, calculated using the bin size and anticipated mortality.
+  - `E_b`: The error bound for the RMM estimate, calculated using the bin size
+  and anticipated mortality.
   - `numerator`: The weighted numerator for the RMM calculation.
   - `denominator`: The weighted denominator for the RMM calculation.
-  - `RMM`: The Relative Mortality Metric (RMM) for each bin, quantifying the difference between observed and expected mortality.
+  - `RMM`: The Relative Mortality Metric (RMM) for each bin,
+  quantifying the difference between observed and expected mortality.
   - `RMM_UL`: The upper 95% confidence limit for RMM.
   - `RMM_LL`: The lower 95% confidence limit for RMM.
 }
 \description{
-Calculates a bin-level summary for the Relative Mortality Metric (RMM) from Napoli et al. (2017) by grouping data into bins based on survival
-probabilities (Ps) and summarizing outcomes within each bin. This function returns statistics such as total alive,
-total dead, estimated mortality, anticipated mortality, and confidence intervals for each bin.
+Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
+Napoli et al. (2017) by grouping data into bins based on survival
+probabilities (Ps) and summarizing outcomes within each bin. This function
+returns statistics such as total alive, total dead, estimated mortality,
+anticipated mortality, and confidence intervals for each bin.
 }
 \details{
-The Relative Mortality Metric (RMM) quantifies the performance of a center
-in comparison to the anticipated mortality based on the TRISS national
+The Relative Mortality Metric (RMM) quantifies the performance of a center in
+comparison to the anticipated mortality based on the TRISS national
 benchmark. The RMM measures the difference between observed and expected
 mortality, with a range from -1 to 1.
 
 - An RMM of 0 indicates that the observed mortality aligns with the expected
-  national benchmark across all acuity levels.
+national benchmark across all acuity levels.
 - An RMM greater than 0 indicates better-than-expected performance, where
-  the center is outperforming the national benchmark.
+the center is outperforming the national benchmark.
 - An RMM less than 0 indicates under-performance, where the center’s observed
-  mortality is higher than the expected benchmark.
+mortality is higher than the expected benchmark.
 
 This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.
@@ -81,12 +91,16 @@ standards, guiding quality improvement efforts.
 set.seed(123)
 survival_probs <- rbeta(1000, shape1 = 5, shape2 = 1)
 outcomes <- sample(c(0, 1), 1000, replace = TRUE)
-example_data <- data.frame(patient_id = 1:1000, survival_probability = survival_probs, outcome = outcomes)
+example_data <- data.frame(patient_id = 1:1000,
+survival_probability = survival_probs,
+outcome = outcomes
+)
 
 # Example usage of the `rm_bin_summary` function
 rm_bin_summary(data = example_data, Ps_col = survival_probability, outcome_col = outcome)
 
 }
 \author{
-Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas J. Napoli, Ph.D., MS
+Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
+  J. Napoli, Ph.D., MS
 }

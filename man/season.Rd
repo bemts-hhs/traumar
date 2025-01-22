@@ -7,11 +7,12 @@
 season(input_date)
 }
 \arguments{
-\item{input_date}{A Date or POSIXct object representing the date to determine the season for.
-The input must be of class `Date` or `POSIXct`.}
+\item{input_date}{A Date or POSIXct object representing the date to determine
+the season for. The input must be of class `Date` or `POSIXct`.}
 }
 \value{
-A factor indicating the season corresponding to the input date. The factor levels are:
+A factor indicating the season corresponding to the input date. The
+  factor levels are:
   - "Winter" for December, January, and February.
   - "Spring" for March, April, and May.
   - "Summer" for June, July, and August.
@@ -19,9 +20,11 @@ A factor indicating the season corresponding to the input date. The factor level
   - "Undetermined" if the input is not a valid Date or POSIXct object or if the month is missing.
 }
 \description{
-This function determines the season (Winter, Spring, Summer, or Fall) based on an input date. The seasons are determined
-using the month of the year and the traditional meteorological definition of seasons (Winter: December, January, February;
-Spring: March, April, May; Summer: June, July, August; Fall: September, October, November).
+This function determines the season (Winter, Spring, Summer, or Fall) based
+on an input date. The seasons are determined using the month of the year and
+the traditional meteorological definition of seasons (Winter: December,
+January, February; Spring: March, April, May; Summer: June, July, August;
+Fall: September, October, November).
 }
 \examples{
 # Example usage of the season function
