@@ -47,7 +47,7 @@
 <div class="row">
   <main id="main" class="col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="traumar-">traumar <img src="reference/figures/try_object.png" align="right" width="200" style="display: block; margin: auto; padding-top: 3px;"><a class="anchor" aria-label="anchor" href="#traumar-"></a>
+<div class="page-header"><h1 id="traumar-">traumar <img src="reference/figures/try_object.png" align="right" width="200" style="display: block; margin: auto;"><a class="anchor" aria-label="anchor" href="#traumar-"></a>
 </h1></div>
 <p>Continuous Quality Improvement (CQI) and Process Improvement (PI) are essential pillars of healthcare, particularly in the care of injured patients. However, hospitals, trauma systems, and their trauma program managers (TPMs) often lack access to standardized quality measures derived from academic literature. The {traumar} package addresses this gap by providing tools to calculate quality measures related to relative mortality efficiently and accurately. By automating these calculations, {traumar} empowers hospital systems, trauma networks, and TPMs to focus their efforts on analyzing outcomes and driving meaningful improvements in patient care. Whether you’re seeking to enhance PI initiatives or streamline CQI processes, {traumar} serves as a valuable resource for advancing trauma care quality.</p>
 <div class="section level2">
@@ -57,6 +57,11 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"bemts-hhs/traumar"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="there-is-more">There is More!<a class="anchor" aria-label="anchor" href="#there-is-more"></a>
+</h2>
+<p>{traumar} has many functions to help you in your data analysis journey! Check out the additional package documentation at <a href="https://bemts-hhs/github.io/trauma" class="external-link">bemts-hhs/github.io/trauma</a> where you can find examples of each function the package has to offer.</p>
 </div>
 <div class="section level2">
 <h2 id="calculating-the-w-score">Calculating the W-Score<a class="anchor" aria-label="anchor" href="#calculating-the-w-score"></a>
@@ -74,7 +79,6 @@
 <span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">10000</span>  <span class="co"># Total number of patients</span></span>
 <span></span>
 <span><span class="co"># Generate survival probabilities (Ps) using a logistic distribution</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>  <span class="co"># For reproducibility</span></span>
 <span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_patients</span>, mean <span class="op">=</span> <span class="fl">2</span>, sd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Skewed towards higher values</span></span>
 <span></span>
 <span><span class="co"># Simulate survival outcomes based on Ps</span></span>
@@ -132,8 +136,47 @@
 <li>An RMM greater than 0 indicates better-than-expected performance, where the center is outperforming the national benchmark.</li>
 <li>An RMM less than 0 indicates under-performance, where the center’s observed mortality is higher than the expected benchmark.</li>
 </ul>
-<p>The RMM is helpful in that it will be sensitive to higher acuity patients as well, so if a trauma center is struggling to effectively intervene with higher acuity patients, this will be reflected in the RMM. Conversely, with the W-Score, trauma center performance may not appear to decline due to the influence of the lower acuity patients using the MTOS Distribution. {traumar} automates the calculation of the RMM as a single score, and by the non-linear binning process recommended by Napoli et al. (2017).</p>
+</div>
+<div class="section level2">
+<h2 id="non-linear-binning-algorithm">Non-Linear Binning Algorithm<a class="anchor" aria-label="anchor" href="#non-linear-binning-algorithm"></a>
+</h2>
+<p>An important part of the approach Napoli et al. (2017) took was to modify the M-Score approach of looking at linear bins of the probability of survival distribution, and make it non-linear. The {traumar} package does this for you using Dr. Napoli’s method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Apply the nonlinear_bins function</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/nonlinear_bins.html">nonlinear_bins</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                         Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span>
+<span>                         divisor1 <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                         divisor2 <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                         threshold_1 <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>                         threshold_2 <span class="op">=</span> <span class="fl">0.99</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># View intervals created by the algorithm</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">intervals</span></span>
+<span><span class="co">#&gt;  [1] 0.02257717 0.54234698 0.70154257 0.79581165 0.85714527 0.90005763</span></span>
+<span><span class="co">#&gt;  [7] 0.92518915 0.94603830 0.96266743 0.97623957 0.99957866</span></span>
+<span></span>
+<span><span class="co"># View the bin statistics</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">bin_stats</span></span>
+<span><span class="co">#&gt; # A tibble: 10 × 7</span></span>
+<span><span class="co">#&gt;    bin_number bin_start bin_end  mean      sd count percent</span></span>
+<span><span class="co">#&gt;         &lt;int&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1          1    0.0226   0.542 0.378 0.122    1111   0.111</span></span>
+<span><span class="co">#&gt;  2          2    0.542    0.702 0.628 0.0458   1111   0.111</span></span>
+<span><span class="co">#&gt;  3          3    0.702    0.796 0.752 0.0271   1111   0.111</span></span>
+<span><span class="co">#&gt;  4          4    0.796    0.857 0.829 0.0173   1111   0.111</span></span>
+<span><span class="co">#&gt;  5          5    0.857    0.900 0.879 0.0126   1110   0.111</span></span>
+<span><span class="co">#&gt;  6          6    0.900    0.925 0.913 0.00723   805   0.08 </span></span>
+<span><span class="co">#&gt;  7          7    0.925    0.946 0.936 0.00596   805   0.08 </span></span>
+<span><span class="co">#&gt;  8          8    0.946    0.963 0.954 0.00473   805   0.08 </span></span>
+<span><span class="co">#&gt;  9          9    0.963    0.976 0.970 0.00406   805   0.08 </span></span>
+<span><span class="co">#&gt; 10         10    0.976    1.00  0.987 0.00621  1226   0.123</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="the-rmm-function">The RMM function<a class="anchor" aria-label="anchor" href="#the-rmm-function"></a>
+</h2>
+<p>The RMM is helpful in that it will be sensitive to higher acuity patients as well, so if a trauma center is struggling to effectively intervene with higher acuity patients, this will be reflected in the RMM. Conversely, with the W-Score, trauma center performance may not appear to decline due to the influence of the lower acuity patients using the MTOS Distribution. {traumar} automates the calculation of the RMM as a single score, and by the non-linear binning process recommended by Napoli et al. (2017). The <code><a href="reference/rmm.html">rmm()</a></code> and <code><a href="reference/rm_bin_summary.html">rm_bin_summary()</a></code> functions call <code><a href="reference/nonlinear_bins.html">nonlinear_bins()</a></code> under the hood to produce the statistics you see below in the example:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Example usage of the `rmm()` function</span></span>
 <span><span class="fu"><a href="reference/rmm.html">rmm</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
@@ -200,11 +243,6 @@
 <span><span class="co">#&gt; 8   0.29243885  0.306857325</span></span>
 <span><span class="co">#&gt; 9   0.10532479  0.117212609</span></span>
 <span><span class="co">#&gt; 10  0.12300949  0.129127331</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="there-is-more">There is More!<a class="anchor" aria-label="anchor" href="#there-is-more"></a>
-</h2>
-<p>{traumar} has other functions to help you in your data analysis journey! Check out the additional package documentation at <a href="https://bemts-hhs/github.io/trauma" class="external-link">bemts-hhs/github.io/trauma</a> where you can find examples of each function the package has to offer.</p>
 </div>
 </div>
 
