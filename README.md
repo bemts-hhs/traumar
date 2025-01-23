@@ -9,7 +9,7 @@ status](https://www.r-pkg.org/badges/version/traumar)](https://CRAN.R-project.or
 coverage](https://codecov.io/gh/bemts-hhs/traumar/graph/badge.svg)](https://app.codecov.io/gh/bemts-hhs/traumar)
 <!-- badges: end -->
 
-<img src="man/figures/traumar_sticker.png" align="right" width="100" />
+<img src="man/figures/traumar_sticker.png" align="right" width="150" />
 
 # traumar
 
