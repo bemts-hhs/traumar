@@ -87,25 +87,32 @@ This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.
 }
 \examples{
-# Generate example data with high negative skewness
-set.seed(123)
+# Generate example data with high negative skewness set.seed(123)
 
 # Parameters
 n_patients <- 10000  # Total number of patients
 
 # Generate survival probabilities (Ps) using a logistic distribution
 set.seed(123)  # For reproducibility
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+
+Ps <- plogis(rnorm(n_patients, mean = 2,
+                    sd = 1.5)
+                    )  # Skewed towards higher values
 
 # Simulate survival outcomes based on Ps
-survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+survival_outcomes <- rbinom(n_patients,
+                            size = 1,
+                            prob = Ps
+                            )
 
 # Create data frame
 data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
 dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Example usage of the `rm_bin_summary` function
-rm_bin_summary(data = data, Ps_col = Ps, outcome_col = survival)
+rm_bin_summary(data = data, Ps_col = Ps,
+               outcome_col = survival
+               )
 
 }
 \author{
