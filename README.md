@@ -9,9 +9,7 @@ status](https://www.r-pkg.org/badges/version/traumar)](https://CRAN.R-project.or
 coverage](https://codecov.io/gh/bemts-hhs/traumar/graph/badge.svg)](https://app.codecov.io/gh/bemts-hhs/traumar)
 <!-- badges: end -->
 
-<img src="man/figures/traumar_sticker.png" align="right" width="150" />
-
-# traumar
+# traumar <img src="man/figures/try_object.png" align="right" width="200" style="display: block; margin: auto; padding-top: 3px;" />
 
 Continuous Quality Improvement (CQI) and Process Improvement (PI) are
 essential pillars of healthcare, particularly in the care of injured
