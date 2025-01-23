@@ -9,7 +9,7 @@ status](https://www.r-pkg.org/badges/version/traumar)](https://CRAN.R-project.or
 coverage](https://codecov.io/gh/bemts-hhs/traumar/graph/badge.svg)](https://app.codecov.io/gh/bemts-hhs/traumar)
 <!-- badges: end -->
 
-# traumar <img src="man/figures/try_object.png" align="right" width="200" style="display: block; margin: auto; padding-top: 3px;" />
+# traumar <img src="man/figures/try_object.png" align="right" width="200" style="display: block; margin: auto;" />
 
 Continuous Quality Improvement (CQI) and Process Improvement (PI) are
 essential pillars of healthcare, particularly in the care of injured
@@ -34,6 +34,13 @@ You can install the development version of traumar from
 pak::pak("bemts-hhs/traumar")
 ```
 
+## There is More!
+
+{traumar} has many functions to help you in your data analysis journey!
+Check out the additional package documentation at
+[bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where
+you can find examples of each function the package has to offer.
+
 ## Calculating the W-Score
 
 The W-Score tells us how many survivals (or deaths) on average out of
@@ -51,7 +58,6 @@ set.seed(123)
 n_patients <- 10000  # Total number of patients
 
 # Generate survival probabilities (Ps) using a logistic distribution
-set.seed(123)  # For reproducibility
 Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
 
 # Simulate survival outcomes based on Ps
@@ -130,6 +136,47 @@ Mortality Metric (RMM) has a scale from -1 to 1, where
 - An RMM less than 0 indicates under-performance, where the center’s
   observed mortality is higher than the expected benchmark.
 
+## Non-Linear Binning Algorithm
+
+An important part of the approach Napoli et al. (2017) took was to
+modify the M-Score approach of looking at linear bins of the probability
+of survival distribution, and make it non-linear. The {traumar} package
+does this for you using Dr. Napoli’s method:
+
+``` r
+
+# Apply the nonlinear_bins function
+results <- nonlinear_bins(data = data,
+                         Ps_col = Ps,
+                         divisor1 = 5,
+                         divisor2 = 5,
+                         threshold_1 = 0.9,
+                         threshold_2 = 0.99)
+
+# View intervals created by the algorithm
+results$intervals
+#>  [1] 0.02257717 0.54234698 0.70154257 0.79581165 0.85714527 0.90005763
+#>  [7] 0.92518915 0.94603830 0.96266743 0.97623957 0.99957866
+
+# View the bin statistics
+results$bin_stats
+#> # A tibble: 10 × 7
+#>    bin_number bin_start bin_end  mean      sd count percent
+#>         <int>     <dbl>   <dbl> <dbl>   <dbl> <dbl>   <dbl>
+#>  1          1    0.0226   0.542 0.378 0.122    1111   0.111
+#>  2          2    0.542    0.702 0.628 0.0458   1111   0.111
+#>  3          3    0.702    0.796 0.752 0.0271   1111   0.111
+#>  4          4    0.796    0.857 0.829 0.0173   1111   0.111
+#>  5          5    0.857    0.900 0.879 0.0126   1110   0.111
+#>  6          6    0.900    0.925 0.913 0.00723   805   0.08 
+#>  7          7    0.925    0.946 0.936 0.00596   805   0.08 
+#>  8          8    0.946    0.963 0.954 0.00473   805   0.08 
+#>  9          9    0.963    0.976 0.970 0.00406   805   0.08 
+#> 10         10    0.976    1.00  0.987 0.00621  1226   0.123
+```
+
+## The RMM function
+
 The RMM is helpful in that it will be sensitive to higher acuity
 patients as well, so if a trauma center is struggling to effectively
 intervene with higher acuity patients, this will be reflected in the
@@ -137,7 +184,9 @@ RMM. Conversely, with the W-Score, trauma center performance may not
 appear to decline due to the influence of the lower acuity patients
 using the MTOS Distribution. {traumar} automates the calculation of the
 RMM as a single score, and by the non-linear binning process recommended
-by Napoli et al. (2017).
+by Napoli et al. (2017). The `rmm()` and `rm_bin_summary()` functions
+call `nonlinear_bins()` under the hood to produce the statistics you see
+below in the example:
 
 ``` r
 
@@ -207,10 +256,3 @@ rm_bin_summary(data = data,
 #> 9   0.10532479  0.117212609
 #> 10  0.12300949  0.129127331
 ```
-
-## There is More!
-
-{traumar} has other functions to help you in your data analysis journey!
-Check out the additional package documentation at
-[bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where
-you can find examples of each function the package has to offer.

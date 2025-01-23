@@ -61,13 +61,11 @@
 #' @export
 #'
 #' @examples
-#' # Generate example data with high negative skewness set.seed(123)
+#' # Generate example data with high negative skewness
+#' set.seed(123)
 #'
 #' # Parameters
 #' n_patients <- 10000  # Total number of patients
-#'
-#' # Generate survival probabilities (Ps) using a logistic distribution
-#' set.seed(123)  # For reproducibility
 #'
 #' # Skewed towards higher values
 #' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
@@ -345,13 +343,11 @@ rmm <- function(data,
 #' @export
 #'
 #' @examples
-#' # Generate example data with high negative skewness set.seed(123)
+#' # Generate example data with high negative skewness
+#' set.seed(123)
 #'
 #' # Parameters
 #' n_patients <- 10000  # Total number of patients
-#'
-#' # Generate survival probabilities (Ps) using a logistic distribution
-#' set.seed(123)  # For reproducibility
 #'
 #' Ps <- plogis(rnorm(n_patients, mean = 2,
 #'                     sd = 1.5)
