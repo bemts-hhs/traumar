@@ -17,9 +17,8 @@ trauma_performance(
 \item{df}{A data frame containing patient data.}
 
 \item{Ps_col}{The name of the column containing the probability of survival
-(Ps). The values should be numeric and between 0 and 100 (percent). Values
-greater than 1 will be automatically converted to decimal format by
-dividing by 100.}
+(Ps). The values should be numeric and between 0 and 1. Values greater than
+1 will be automatically converted to decimal format by dividing by 100.}
 
 \item{outcome_col}{The name of the column containing the binary outcome data.
 
@@ -29,7 +28,7 @@ dividing by 100.}
   "No" for alive). The function will check for two unique values in this
   column and expects them to represent the outcome in a binary form.}
 
-\item{outcome}{The value representing death (default is 1). Can also be set
+\item{outcome}{The value representing mortality (default is 1). Can also be set
 to 0 or TRUE/FALSE, depending on how the outcome is encoded in
 `outcome_col`.}
 
@@ -48,18 +47,30 @@ A tibble containing the calculated scores (W-score, M-score, Z-score)
 \description{
 This function calculates trauma hospital performance based on the M, W, and Z
 scores, which are derived from survival probability and mortality data, using
-established methods (Flora, 1978; Boyd et al., 1987; Mock et al., 2004). It
+established methods (Flora, 1978; Boyd et al., 1987). It
 computes the W-score, M-score, and Z-score based on the provided dataset and
 calculates performance metrics for trauma programs.
 }
 \examples{
-# Example dataset with 1000 simulated Ps values using rbeta
-set.seed(123)  # Setting seed for reproducibility
-df <- data.frame(Ps = rbeta(10000, shape1 = 5, shape2 = 1),  # Simulated Ps values
-                 outcome = sample(c(1, 0), 10000, replace = TRUE))  # Random outcome (1 or 0)
+# Generate example data with high negative skewness
+set.seed(123)
+
+# Parameters
+n_patients <- 10000  # Total number of patients
+
+# Generate survival probabilities (Ps) using a logistic distribution
+set.seed(123)  # For reproducibility
+Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+
+# Simulate survival outcomes based on Ps
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+
+# Create data frame
+data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Calculate trauma performance (W, M, Z scores)
-trauma_performance(df, Ps_col = Ps, outcome_col = outcome)
+trauma_performance(data, Ps_col = Ps, outcome_col = death)
 
 }
 \author{

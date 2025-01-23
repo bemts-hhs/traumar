@@ -89,15 +89,23 @@ standards, guiding quality improvement efforts.
 \examples{
 # Generate example data with high negative skewness
 set.seed(123)
-survival_probs <- rbeta(1000, shape1 = 5, shape2 = 1)
-outcomes <- sample(c(0, 1), 1000, replace = TRUE)
-example_data <- data.frame(patient_id = 1:1000,
-survival_probability = survival_probs,
-outcome = outcomes
-)
+
+# Parameters
+n_patients <- 10000  # Total number of patients
+
+# Generate survival probabilities (Ps) using a logistic distribution
+set.seed(123)  # For reproducibility
+Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+
+# Simulate survival outcomes based on Ps
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+
+# Create data frame
+data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Example usage of the `rm_bin_summary` function
-rm_bin_summary(data = example_data, Ps_col = survival_probability, outcome_col = outcome)
+rm_bin_summary(data = data, Ps_col = Ps, outcome_col = survival)
 
 }
 \author{

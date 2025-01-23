@@ -1,0 +1,282 @@
+# 2021 data
+data_to_test_2021 <- trauma_2021 |>
+  dplyr::filter(!is.na(Probability_of_Survival_Calc),
+                !is.na(Death)
+  ) |>
+  mutate(Alive = dplyr::if_else(Death == 1, 0, 1),
+         Probability_of_Survival_Calc = Probability_of_Survival_Calc / 100
+  ) |>
+  distinct(Unique_Incident_ID, .keep_all = T)
+
+# 2022 data
+data_to_test_2022 <- trauma_2022 |>
+  dplyr::filter(!is.na(Probability_of_Survival_Calc),
+                !is.na(Death)
+  ) |>
+  mutate(Alive = dplyr::if_else(Death == 1, 0, 1),
+         Probability_of_Survival_Calc = Probability_of_Survival_Calc / 100
+  ) |>
+  distinct(Unique_Incident_ID, .keep_all = T)
+
+# 2023 data
+data_to_test_2023 <- trauma_2023 |>
+  dplyr::filter(!is.na(Probability_of_Survival_Calc),
+                !is.na(Death)
+                ) |>
+  mutate(Alive = dplyr::if_else(Death == 1, 0, 1),
+         Probability_of_Survival_Calc = Probability_of_Survival_Calc / 100
+         ) |>
+  distinct(Unique_Incident_ID, .keep_all = T)
+
+# 2024 data
+data_to_test_2024 <- trauma_2024 |>
+  dplyr::filter(!is.na(Probability_of_Survival_Calc),
+                !is.na(Death)
+                ) |>
+  mutate(Alive = dplyr::if_else(Death == 1, 0, 1),
+         Probability_of_Survival_Calc = Probability_of_Survival_Calc / 100
+         ) |>
+  distinct(Unique_Incident_ID, .keep_all = T)
+
+# union data
+data_to_test <- data_to_test_2021 |>
+  bind_rows(data_to_test_2022, data_to_test_2023, trauma_2024)
+
+# inspect the theoretical bins of the population
+
+# - 2021
+bins_2021 <- data_to_test_2021 |>
+  nonlinear_bins(Ps_col = Probability_of_Survival_Calc, divisor1 = 4, divisor2 = 4)
+
+# - 2022
+bins_2022 <- data_to_test_2022 |>
+  nonlinear_bins(Ps_col = Probability_of_Survival_Calc, divisor1 = 4, divisor2 = 4)
+
+# - 2023
+bins_2023 <- data_to_test_2023 |>
+  nonlinear_bins(Ps_col = Probability_of_Survival_Calc, divisor1 = 4, divisor2 = 4)
+
+# - 2024
+bins_2024 <- data_to_test_2024 |>
+  nonlinear_bins(Ps_col = Probability_of_Survival_Calc, divisor1 = 3.5, divisor2 = 3.5)
+
+# test new RMM per bin 2021
+rm_bin_2021 <- data_to_test_2021 |>
+  rm_bin_summary(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4) |>
+  mutate(Year = 2021, .before = 1)
+
+# test new RMM per bin 2022
+rm_bin_2022 <- data_to_test_2022 |>
+  rm_bin_summary(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4) |>
+  mutate(Year = 2022, .before = 1)
+
+# test new RMM per bin 2023
+rm_bin_2023 <- data_to_test_2023 |>
+  rm_bin_summary(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4) |>
+  mutate(Year = 2023, .before = 1)
+
+# test new RMM per bin 2024
+rm_bin_2024 <- data_to_test_2024 |>
+  rm_bin_summary(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 3.5, Divisor2 = 3.5) |>
+  mutate(Year = 2024, .before = 1)
+
+# test new RMM overall 2021
+rmm_2021 <- data_to_test_2021 |>
+  rmm(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4, pivot = F) |>
+  mutate(Year = 2021, .before = 1)
+
+# test new RMM overall 2022
+rmm_2022 <- data_to_test_2022 |>
+  rmm(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4, pivot = F) |>
+  mutate(Year = 2022, .before = 1)
+
+# test new RMM overall 2023
+rmm_2023 <- data_to_test_2023 |>
+  rmm(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 4, Divisor2 = 4, pivot = F) |>
+  mutate(Year = 2023, .before = 1)
+
+# test new RMM overall 2024
+rmm_2024 <- data_to_test_2024 |>
+  rmm(Ps_col = Probability_of_Survival_Calc, outcome_col = Alive, Divisor1 = 3.5, Divisor2 = 3.5, pivot = F) |>
+  mutate(Year = 2024, .before = 1)
+
+###_____________________________________________________________________________
+### W, M, and Z score estimation of performance
+###_____________________________________________________________________________
+
+# 2021 distribution
+wmz_bins_2021 <- data_to_test_2021 |>
+  trauma_case_mix(Ps_col = Probability_of_Survival_Calc, outcome_col = Death)
+
+# 2022 distribution
+wmz_bins_2022 <- data_to_test_2022 |>
+  trauma_case_mix(Ps_col = Probability_of_Survival_Calc, outcome_col = Death)
+
+# 2023 distribution
+wmz_bins_2023 <- data_to_test_2023 |>
+  trauma_case_mix(Ps_col = Probability_of_Survival_Calc, outcome_col = Death)
+
+# 2024 distribution
+wmz_bins_2024 <- data_to_test_2024 |>
+  trauma_case_mix(Ps_col = Probability_of_Survival_Calc, outcome_col = Death)
+
+# 2021 performance
+wmz_performance_2021 <- data_to_test_2021 |>
+  trauma_performance(Ps_col = Probability_of_Survival_Calc, outcome_col = Death, outcome = TRUE) |>
+  mutate(Year = 2021) |>
+  pivot_wider(id_cols = Year,
+              names_from = Calculation_Name,
+              values_from = Value
+              )
+
+# 2022 performance
+wmz_performance_2022 <- data_to_test_2022 |>
+  trauma_performance(Ps_col = Probability_of_Survival_Calc, outcome_col = Death, outcome = TRUE) |>
+  mutate(Year = 2022) |>
+  pivot_wider(id_cols = Year,
+              names_from = Calculation_Name,
+              values_from = Value
+              )
+
+# 2023 performance
+wmz_performance_2023 <- data_to_test_2023 |>
+  trauma_performance(Ps_col = Probability_of_Survival_Calc, outcome_col = Death, outcome = TRUE) |>
+  mutate(Year = 2023) |>
+  pivot_wider(id_cols = Year,
+              names_from = Calculation_Name,
+              values_from = Value
+              )
+
+# 2024 performance
+wmz_performance_2024 <- data_to_test_2024 |>
+  trauma_performance(Ps_col = Probability_of_Survival_Calc, outcome_col = Death, outcome = TRUE) |>
+  mutate(Year = 2024) |>
+  pivot_wider(id_cols = Year,
+              names_from = Calculation_Name,
+              values_from = Value
+              )
+
+###_____________________________________________________________________________
+### Longitudinal view of trauma system performance over time
+###_____________________________________________________________________________
+
+# WMZ scores union
+wmz_performance <- bind_rows(wmz_performance_2021, wmz_performance_2022, wmz_performance_2023, wmz_performance_2024)
+
+# RMM scores union
+rmm_performance <- bind_rows(rmm_2021, rmm_2022, rmm_2023, rmm_2024)
+
+# RMM bin scores union
+rm_bin_performance <- bind_rows(rm_bin_2021, rm_bin_2022, rm_bin_2023, rm_bin_2024)
+
+###_____________________________________________________________________________
+### Visualizations
+###_____________________________________________________________________________
+
+# caption helpers
+
+wmz_caption_helper <- paste0(unique(round(wmz_performance$W_Score, digits = 2)), collapse = ", ")
+
+rmm_caption_helper <- paste0(unique(round(rmm_performance$RMM, digits = 2)), collapse = ", ")
+
+# limit helpers
+
+wmz_y_limit <- max(wmz_performance$W_Score) + (0.5 * max(wmz_performance$W_Score))
+
+rmm_y_limit <- max(rmm_performance$RMM) + (0.5 * max(rmm_performance$RMM))
+
+# wmz performance viz
+wmz_performance_plot <- wmz_performance |>
+  ggplot(aes(x = factor(Year), y = round(W_Score, digits = 2), color = factor(Year))) +
+  geom_point(size = 5) +
+  geom_label(
+    aes(x = "2022", y = wmz_y_limit),
+    family = "Work Sans",
+    fontface = "bold",
+    fill = "gray",
+    color = "white",
+    label = "W-Score",
+    size = 8
+  ) +
+  scale_fill_colorblind() +
+  labs(caption = glue::glue("Values from 2021 to 2024 [{wmz_caption_helper}]"
+                            ),
+       x = "",
+       y = ""
+       ) +
+  guides(color = "none") +
+  theme_cleaner(
+    base_size = 15,
+    axis_lines = T
+  ) +
+  ylim(0, wmz_y_limit
+       )
+
+# rmm performance viz
+rmm_performance_plot <- rmm_performance |>
+  ggplot(aes(factor(Year), RMM, color = factor(Year))) +
+  geom_linerange(
+    aes(
+      x = factor(Year),
+      ymin = RMM_LL,
+      ymax = RMM_UL
+    ),
+    color = ggplot2::alpha("darkslategray", alpha = 0.5)
+  ) +
+  geom_point(size = 5) +
+  geom_label(
+    aes(x = "2022", y = rmm_y_limit),
+    family = "Work Sans",
+    fontface = "bold",
+    fill = "gray",
+    color = "white",
+    label = "RMM",
+    size = 8
+  ) +
+  scale_color_colorblind() +
+  labs(caption = glue::glue("Values from 2021 to 2024 [{rmm_caption_helper}]"
+       ),
+       x = "",
+       y = "",
+       color = ""
+       ) +
+  guides(color = "none") +
+  theme_cleaner(
+    base_size = 15,
+    axis_lines = T
+  ) +
+  ylim(0, rmm_y_limit
+       )
+
+wmz_rmm_plot <- wmz_performance_plot + rmm_performance_plot +
+  patchwork::plot_annotation(title = "Iowa Trauma System Mortality Analysis",
+                             subtitle = "Longitudinal W-Score and RMM Analyses | Complete 2021-2023 with Provisional 2024 Data",
+                             caption = "Source: Iowa ImageTrend Patient Registry\n",
+                             theme = theme_cleaner(
+                               base_size = 15,
+                               vjust_title = 1.75,
+                               vjust_subtitle = 1,
+                               title_text_size = 20,
+                               subtitle_text_size = 18
+                               )
+                             )
+
+###_____________________________________________________________________________
+### final plot of RMM performance across different bins
+###_____________________________________________________________________________
+
+# export dataframes to .csv for use in Power BI interactive content
+folder <- "C:/Users/nfoss0/OneDrive - State of Iowa HHS/Analytics/BEMTS/TRAUMA DATA/RELATIVE MORTALITY POWER BI/"
+
+# write the longitudinal WMZ scores
+write_csv(x = wmz_performance, file = paste0(folder, "wmz_performance.csv"))
+
+# write the longitudinal RMM scores overall
+write_csv(x = rmm_performance, file = paste0(folder, "rmm_performance.csv"))
+
+# write the longitudinal RMM scores for each bin
+write_csv(x = rm_bin_performance, file = paste0(folder, "rm_bin_performance.csv"))
+
+################################################################################
+### End ########################################################################
+################################################################################

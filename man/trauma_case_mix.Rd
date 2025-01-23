@@ -14,7 +14,7 @@ trauma_case_mix(df, Ps_col, outcome_col)
 (Ps) values.}
 
 \item{outcome_col}{The name of the column containing the binary outcome data
-(e.g., 1 for dead, 0 for alive).}
+(valid values are 1 or TRUE for alive, 0 or FALSE for dead).}
 }
 \value{
 A data frame containing the Ps ranges, the fraction of patients in
@@ -36,13 +36,25 @@ predefined Ps ranges, and the function compares the fraction of patients in
 each range with the MTOS case mix distribution.
 }
 \examples{
-# Example dataset with 1000 simulated Ps values using rbeta
-set.seed(123)  # Setting seed for reproducibility
-df <- data.frame(Ps = rbeta(1000, shape1 = 5, shape2 = 1),  # Simulated Ps values
-                 outcome = sample(c(1, 0), 1000, replace = TRUE))  # Random outcome (1 or 0)
+# Generate example data with high negative skewness
+set.seed(123)
+
+# Parameters
+n_patients <- 10000  # Total number of patients
+
+# Generate survival probabilities (Ps) using a logistic distribution
+set.seed(123)  # For reproducibility
+Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+
+# Simulate survival outcomes based on Ps
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+
+# Create data frame
+data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Compare the current case mix with the MTOS case mix
-trauma_case_mix(df, Ps_col = Ps, outcome_col = outcome)
+trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
 
 }
 \author{

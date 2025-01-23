@@ -208,5 +208,4 @@ rm_bin_summary(data = data,
 #> 10  0.12300949  0.129127331
 ```
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+{traumar} offers other helpful 

@@ -63,17 +63,24 @@
 #' @examples
 #' # Generate example data with high negative skewness
 #' set.seed(123)
-#' survival_probs <- rbeta(10000, shape1 = 5, shape2 = 1)
 #'
-#' outcomes <- sample(c(0, 1), 10000, replace = TRUE)
-#' example_data <- data.frame(patient_id = 1:10000,
-#' survival_probability = survival_probs,
-#' outcome = outcomes
-#' )
+#' # Parameters
+#' n_patients <- 10000  # Total number of patients
+#'
+#' # Generate survival probabilities (Ps) using a logistic distribution
+#' set.seed(123)  # For reproducibility
+#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+#'
+#' # Simulate survival outcomes based on Ps
+#' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+#'
+#' # Create data frame
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
 #' # Example usage of the `rmm` function
-#' rmm(data = example_data, Ps_col = survival_probability, outcome_col = outcome)
-#' rmm(data = example_data, Ps_col = survival_probability, outcome_col = outcome, pivot = TRUE)
+#' rmm(data = data, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5)
+#' rmm(data = data, Ps_col = survival_probability, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, pivot = TRUE)
 #'
 #' @author Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
 #'   J. Napoli, Ph.D., MS
@@ -171,7 +178,7 @@ rmm <- function(data,
   bin_df <- bin_data$bin_stats |>
     dplyr::select(bin_number, bin_start, bin_end) |>
     # Calculate the midpoint of each bin using the start and end points
-    dplyr::mutate(midpoint = bin_start + (bin_end - bin_start) / 2) |>
+    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
     dplyr::arrange(bin_number) # Sort the bins by bin_number
 
   # Initialize final_data with an additional column for bin assignments
@@ -203,7 +210,7 @@ rmm <- function(data,
       TA_b = sum({{ outcome_col }}, na.rm = TRUE), # Total number of survivors in the bin
       TD_b = sum({{ outcome_col }} == 0, na.rm = TRUE), # Total number of deaths in the bin
       N_b = dplyr::n(), # Total number of patients in the bin
-      EM_b = TD_b / (TA_b + TD_b), # Estimated mortality (TD_b / total patients)
+      EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
       .by = bin_number # Perform this calculation for each bin
     ) |>
     dplyr::arrange(bin_number) # Arrange the bins by bin_number
@@ -325,15 +332,23 @@ rmm <- function(data,
 #' @examples
 #' # Generate example data with high negative skewness
 #' set.seed(123)
-#' survival_probs <- rbeta(1000, shape1 = 5, shape2 = 1)
-#' outcomes <- sample(c(0, 1), 1000, replace = TRUE)
-#' example_data <- data.frame(patient_id = 1:1000,
-#' survival_probability = survival_probs,
-#' outcome = outcomes
-#' )
+#'
+#' # Parameters
+#' n_patients <- 10000  # Total number of patients
+#'
+#' # Generate survival probabilities (Ps) using a logistic distribution
+#' set.seed(123)  # For reproducibility
+#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+#'
+#' # Simulate survival outcomes based on Ps
+#' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+#'
+#' # Create data frame
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
 #' # Example usage of the `rm_bin_summary` function
-#' rm_bin_summary(data = example_data, Ps_col = survival_probability, outcome_col = outcome)
+#' rm_bin_summary(data = data, Ps_col = Ps, outcome_col = survival)
 #'
 #' @author Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
 #'   J. Napoli, Ph.D., MS
@@ -434,7 +449,7 @@ rm_bin_summary <- function(data,
   # Calculate the midpoint of each bin using the formula: (bin_start + bin_end) / 2
   bin_df <- bin_data$bin_stats |>
     dplyr::select(bin_number, bin_start, bin_end) |>
-    dplyr::mutate(midpoint = bin_start + (bin_end - bin_start) / 2) |>
+    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
     dplyr::arrange(bin_number) # Sort the bins by bin_number to maintain the correct order
 
   # Initialize final_data by adding a new column `bin_number` to store the bin assignment
@@ -467,7 +482,7 @@ rm_bin_summary <- function(data,
       TA_b = sum({{ outcome_col }}, na.rm = TRUE), # Total number of survivors in the bin
       TD_b = sum({{ outcome_col }} == 0, na.rm = TRUE), # Total number of deaths in the bin
       N_b = dplyr::n(), # Total number of patients in the bin
-      EM_b = TD_b / (TA_b + TD_b), # Estimated mortality rate (TD_b / total patients in bin)
+      EM_b = TD_b / N_b, # Estimated mortality rate (TD_b / total patients in bin)
       .by = bin_number # Calculate these statistics for each bin
     ) |>
     dplyr::arrange(bin_number) # Sort the bins by bin_number
