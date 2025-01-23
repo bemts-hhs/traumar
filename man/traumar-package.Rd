@@ -8,6 +8,13 @@
 \description{
 Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. This R package provides robust functions driven by the academic literature to automate the calculation of relevant metrics, and provides some helper functions for the data analysis journey.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://bemts-hhs.github.io/traumar/}
+}
+
+}
 \author{
 \strong{Maintainer}: Nicolas Foss \email{nicolas.foss@hhs.iowa.gov}
 
