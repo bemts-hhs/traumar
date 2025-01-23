@@ -129,4 +129,6 @@ rm_bin_summary(data = data,
 
 ```
 
+## There is More!
+
 {traumar} has other functions to help you in your data analysis journey! Check out the additional package documentation at [bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where you can find examples of each function the package has to offer.

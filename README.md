@@ -208,6 +208,8 @@ rm_bin_summary(data = data,
 #> 10  0.12300949  0.129127331
 ```
 
+## There is More!
+
 {traumar} has other functions to help you in your data analysis journey!
 Check out the additional package documentation at
 [bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where
