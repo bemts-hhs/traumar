@@ -33,3 +33,4 @@ Imports:
     tidyselect (>= 1.2.1),
     utils,
     lubridate (>= 1.9.4)
+URL: https://bemts-hhs.github.io/traumar/
