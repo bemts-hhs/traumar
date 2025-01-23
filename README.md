@@ -208,5 +208,7 @@ rm_bin_summary(data = data,
 #> 10  0.12300949  0.129127331
 ```
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+{traumar} has other functions to help you in your data analysis journey!
+Check out the additional package documentation at
+[bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where
+you can find examples of each function the package has to offer.
