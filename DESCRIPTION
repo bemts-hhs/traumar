@@ -1,7 +1,7 @@
 Package: traumar
 Type: Package
 Title: Calculate Metrics Relevant to Trauma System Performance
-Version: 0.0.1
+Version: 0.0.1.9000
 Authors@R: c(
     person(
       "Nicolas", "Foss",
