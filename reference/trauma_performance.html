@@ -15,7 +15,7 @@ calculates performance metrics for trauma programs."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,16 +77,16 @@ calculates performance metrics for trauma programs.</p>
 <dt id="arg-outcome-col">outcome_col<a class="anchor" aria-label="anchor" href="#arg-outcome-col"></a></dt>
 <dd><p>The name of the column containing the binary outcome data.</p>
 <p>The column should contain binary values indicating the patient outcome.
-  Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
-  (alive), or other similar binary representations (e.g., "Yes" for dead and
-  "No" for alive). The function will check for two unique values in this
-  column and expects them to represent the outcome in a binary form.</p></dd>
+Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
+(alive), or other similar binary representations (e.g., "Yes" for dead and
+"No" for alive). The function will check for two unique values in this
+column and expects them to represent the outcome in a binary form.</p></dd>
 
 
 <dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
 <dd><p>The value representing mortality (default is 1). Can also be set
 to 0 or TRUE/FALSE, depending on how the outcome is encoded in
-`outcome_col`.</p></dd>
+<code>outcome_col</code>.</p></dd>
 
 
 <dt id="arg-z-method">z_method<a class="anchor" aria-label="anchor" href="#arg-z-method"></a></dt>
@@ -103,8 +103,8 @@ information about the W, M, and Z scores will be printed to the console.</p></dd
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble containing the calculated scores (W-score, M-score, Z-score)
-  and associated performance information. If `diagnostics` is TRUE,
-  additional diagnostic information will be printed.</p>
+and associated performance information. If <code>diagnostics</code> is TRUE,
+additional diagnostic information will be printed.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>

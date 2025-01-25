@@ -11,7 +11,7 @@ option to display a message about p-value interpretation when requested."></head
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,19 +64,18 @@ and contain p-values between 0 and 1.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with an additional column `significance_value`
-  containing the assigned significance codes for each p-value.</p>
+    <p>A data frame with an additional column <code>significance_value</code>
+containing the assigned significance codes for each p-value.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The significance codes are assigned as follows:
-- `"***"` for p-values ≤ 0.001
-- `"**"` for p-values ≤ 0.01 and &gt; 0.001
-- `"*"` for p-values ≤ 0.05 and &gt; 0.01
-- `"."` for p-values ≤ 0.1 and &gt; 0.05
-- `"&lt;&gt;"` for p-values &gt; 0.1</p>
-<p>Additionally, a message explaining the significance of p-values and their
-interpretation can be displayed if the `p_message` argument is set to `TRUE`.</p>
+    <p>The significance codes are assigned as follows:</p><ul><li><p><code>"***"</code> for p-values ≤ 0.001</p></li>
+<li><p><code>"**"</code> for p-values ≤ 0.01 and &gt; 0.001</p></li>
+<li><p><code>"*"</code> for p-values ≤ 0.05 and &gt; 0.01</p></li>
+<li><p><code>"."</code> for p-values ≤ 0.1 and &gt; 0.05</p></li>
+<li><p><code>"&lt;&gt;"</code> for p-values &gt; 0.1</p></li>
+</ul><p>Additionally, a message explaining the significance of p-values and their
+interpretation can be displayed if the <code>p_message</code> argument is set to <code>TRUE</code>.</p>
     </div>
 
     <div class="section level2">

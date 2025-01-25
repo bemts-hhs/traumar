@@ -15,7 +15,7 @@ anticipated mortality, and confidence intervals for each bin."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,11 +54,11 @@ anticipated mortality, and confidence intervals for each bin.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">Ps_col</span>,</span>
 <span>  <span class="va">outcome_col</span>,</span>
+<span>  n_samples <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  Divisor1 <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  Divisor2 <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  Threshold_1 <span class="op">=</span> <span class="fl">0.9</span>,</span>
-<span>  Threshold_2 <span class="op">=</span> <span class="fl">0.99</span>,</span>
-<span>  Z <span class="op">=</span> <span class="fl">1.96</span></span>
+<span>  Threshold_2 <span class="op">=</span> <span class="fl">0.99</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -77,10 +77,15 @@ anticipated mortality, and confidence intervals for each bin.</p>
 
 <dt id="arg-outcome-col">outcome_col<a class="anchor" aria-label="anchor" href="#arg-outcome-col"></a></dt>
 <dd><p>The name of the column containing the outcome data. It
-should be binary, with values indicating patient survival. A value of `1`
-or `TRUE` should represent "alive" (survived), while `0` or `FALSE` should
+should be binary, with values indicating patient survival. A value of <code>1</code>
+should represent "alive" (survived), while <code>0</code> should
 represent "dead" (did not survive). Ensure the column contains only these
 two possible values.</p></dd>
+
+
+<dt id="arg-n-samples">n_samples<a class="anchor" aria-label="anchor" href="#arg-n-samples"></a></dt>
+<dd><p>A numeric value indicating the number of bootstrap samples
+to take from the data source.</p></dd>
 
 
 <dt id="arg-divisor-">Divisor1<a class="anchor" aria-label="anchor" href="#arg-divisor-"></a></dt>
@@ -102,53 +107,51 @@ probabilities (default is 0.9).</p></dd>
 <dd><p>The second threshold for dividing the survival
 probabilities (default is 0.99).</p></dd>
 
-
-<dt id="arg-z">Z<a class="anchor" aria-label="anchor" href="#arg-z"></a></dt>
-<dd><p>The Z value used for calculating confidence intervals (default is
-1.96).</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble containing bin-level statistics including:
-  - `bin_number`: The bin to which each patient was assigned.
-  - `TA_b`: Total alive in each bin (number of patients who survived).
-  - `TD_b`: Total dead in each bin (number of patients who did not survive).
-  - `N_b`: Total number of patients in each bin.
-  - `EM_b`: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).
-  - `bin_start`: The lower bound of the survival probability range for each bin.
-  - `bin_end`: The upper bound of the survival probability range for each bin.
-  - `midpoint`: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
-  - `R_b`: The width of each bin (bin_end - bin_start).
-  - `AntiM_b`: The anticipated mortality for each bin, based on the midpoint.
-  - `E_b`: The error bound for the RMM estimate, calculated using the bin size
-  and anticipated mortality.
-  - `numerator`: The weighted numerator for the RMM calculation.
-  - `denominator`: The weighted denominator for the RMM calculation.
-  - `RMM`: The Relative Mortality Metric (RMM) for each bin,
-  quantifying the difference between observed and expected mortality.
-  - `RMM_UL`: The upper 95<!-- % confidence limit for RMM. -->
-  - `RMM_LL`: The lower 95<!-- % confidence limit for RMM. --></p>
-    </div>
+    <p>A tibble containing bin-level statistics including:</p><ul><li><p><code>bin_number</code>: The bin to which each record was assigned.</p></li>
+<li><p><code>TA_b</code>: Total alive in each bin (number of patients who survived).</p></li>
+<li><p><code>TD_b</code>: Total dead in each bin (number of patients who did not survive).</p></li>
+<li><p><code>N_b</code>: Total number of patients in each bin.</p></li>
+<li><p><code>EM_b</code>: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).</p></li>
+<li><p><code>bin_start</code>: The lower bound of the survival probability range for each bin.</p></li>
+<li><p><code>bin_end</code>: The upper bound of the survival probability range for each bin.</p></li>
+<li><p><code>midpoint</code>: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).</p></li>
+<li><p><code>R_b</code>: The width of each bin (bin_end - bin_start).</p></li>
+<li><p><code>AntiM_b</code>: The anticipated mortality for each bin, based on the midpoint for each bin.</p></li>
+<li><p><code>numerator</code>: The weighted numerator for the RMM calculation for each bin.</p></li>
+<li><p><code>denominator</code>: The weighted denominator for the RMM calculation for each bin.</p></li>
+<li><p><code>population_RMM</code>: The final calculated Relative Mortality Metric for the population
+existing in <code>data</code> for each bin.</p></li>
+<li><p><code>lower_ci</code>: The lower bound of the 95% confidence interval calculated via a bootstrap
+sample for each bin.</p></li>
+<li><p><code>boostrap_RMM</code>: The average RMM value calculated for the boostrap sample for each bin.</p></li>
+<li><p><code>upper_ci</code>: The upper bound of the 95% confidence interval calculated via a bootstrap
+sample for each bin.</p></li>
+<li><p><code>sd_RMM</code>: The standard deviation of the RMM for the bootstrap distribution for each bin.</p></li>
+<li><p><code>se_RMM</code>: The standard error of the RMM for the bootstrap distribution for each bin.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The Relative Mortality Metric (RMM) quantifies the performance of a center in
 comparison to the anticipated mortality based on the TRISS national
 benchmark. The RMM measures the difference between observed and expected
-mortality, with a range from -1 to 1.</p>
-<p>- An RMM of 0 indicates that the observed mortality aligns with the expected
-national benchmark across all acuity levels.
-- An RMM greater than 0 indicates better-than-expected performance, where
-the center is outperforming the national benchmark.
-- An RMM less than 0 indicates under-performance, where the center’s observed
-mortality is higher than the expected benchmark.</p>
-<p>This metric helps assess how a center's mortality compares to the national
-standards, guiding quality improvement efforts.</p>
+mortality, with a range from -1 to 1.</p><ul><li><p>An RMM of 0 indicates that the observed mortality aligns with the expected
+national benchmark across all acuity levels.</p></li>
+<li><p>An RMM greater than 0 indicates better-than-expected performance, where
+the center is outperforming the national benchmark.</p></li>
+<li><p>An RMM less than 0 indicates under-performance, where the center’s observed
+mortality is higher than the expected benchmark.</p></li>
+</ul><p>This metric helps assess how a center's mortality compares to the national
+standards, guiding quality improvement efforts.<code>rm_bin_summary()</code> utilizes
+bootstrap sampling to calculate the confidence intervals via the standard
+error method.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
-  J. Napoli, Ph.D., MS</p>
+J. Napoli, Ph.D., MS</p>
     </div>
 
     <div class="section level2">
@@ -177,40 +180,6 @@ standards, guiding quality improvement efforts.</p>
 <span class="r-in"><span><span class="fu">rm_bin_summary</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
 <span class="r-in"><span>               outcome_col <span class="op">=</span> <span class="va">survival</span></span></span>
 <span class="r-in"><span>               <span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Data validation passed.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number TA_b TD_b  N_b       EM_b  bin_start   bin_end  midpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1           1  454  657 1111 0.59135914 0.02257717 0.5423470 0.2824621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2           2  686  425 1111 0.38253825 0.54234698 0.7015426 0.6219448</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3           3  850  261 1111 0.23492349 0.70154257 0.7958116 0.7486771</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4           4  922  189 1111 0.17011701 0.79581165 0.8571453 0.8264785</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5           5  971  139 1110 0.12522523 0.85714527 0.9000576 0.8786014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6           6  727   78  805 0.09689441 0.90005763 0.9251891 0.9126234</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7           7  752   53  805 0.06583851 0.92518915 0.9460383 0.9356137</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8           8  779   26  805 0.03229814 0.94603830 0.9626674 0.9543529</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9           9  783   22  805 0.02732919 0.96266743 0.9762396 0.9694535</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10         10 1213   13 1226 0.01060359 0.97623957 0.9995787 0.9879091</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           R_b    AntiM_b         E_b     numerator  denominator       RMM_LL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.51976981 0.71753793 0.026472901  6.558393e-02 0.3729545526  0.149376746</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.15919559 0.37805523 0.028513634 -7.136780e-04 0.0601847250 -0.040371760</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.09426908 0.25132289 0.025507174  1.545956e-03 0.0236919780  0.039745137</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.06133362 0.17352154 0.022268528  2.088121e-04 0.0106427043 -0.002648313</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.04291236 0.12139855 0.019213093 -1.642116e-04 0.0052094984 -0.050734668</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.02513152 0.08737661 0.019507496 -2.391967e-04 0.0021959070 -0.128435935</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.02084916 0.06438627 0.016955206 -3.027788e-05 0.0013423995 -0.039510248</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.01662913 0.04564713 0.014418476  2.219822e-04 0.0007590721  0.278020373</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.01357214 0.03054650 0.011887823  4.366569e-05 0.0004145813  0.093436964</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.02333909 0.01209088 0.006117843  3.471206e-05 0.0002821901  0.116891645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            RMM       RMM_UL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.17584965  0.202322549</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  -0.01185813  0.016655509</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   0.06525231  0.090759485</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   0.01962021  0.041888743</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  -0.03152157 -0.012308481</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  -0.10892844 -0.089420943</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.02255504 -0.005599836</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8   0.29243885  0.306857325</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9   0.10532479  0.117212609</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10  0.12300949  0.129127331</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
