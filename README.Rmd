@@ -119,8 +119,9 @@ using Dr. Napoli's method:
 # Apply the nonlinear_bins function
 results <- nonlinear_bins(data = data,
                          Ps_col = Ps,
-                         divisor1 = 5,
-                         divisor2 = 5,
+                         outcome_col = survival,
+                         divisor1 = 4,
+                         divisor2 = 4,
                          threshold_1 = 0.9,
                          threshold_2 = 0.99)
 
@@ -135,20 +136,27 @@ results$bin_stats
 
 ## The RMM function
 
-The RMM is helpful in that it will be sensitive to higher acuity patients as well, so if a trauma center is struggling to effectively intervene with higher acuity patients, this will be reflected in the RMM.  Conversely, with the W-Score, trauma center performance may not appear to decline due to the influence of the lower acuity patients using the MTOS Distribution.  {traumar} automates the calculation of the RMM as a single score, and by the non-linear binning process recommended by Napoli et al. (2017).  The `rmm()` and `rm_bin_summary()` functions call `nonlinear_bins()` under the hood to produce the statistics you see below in the example:
+The RMM is helpful in that it will be sensitive to higher acuity patients as well, so if a trauma center is struggling to effectively intervene with higher acuity patients, this will be reflected in the RMM.  Conversely, with the W-Score, trauma center performance may not appear to decline due to the influence of the lower acuity patients using the MTOS Distribution.  {traumar} automates the calculation of the RMM as a single score, and by the non-linear binning process recommended by Napoli et al. (2017).  The `rmm()` and `rm_bin_summary()` functions call `nonlinear_bins()` under the hood to produce the statistics you see below in the example.  Notice that a bootstrap sample is taken to estimate a simulated distribution of RMM scores to calculate 95% confidence intervals, while also calculating the population RMM estimate:
 
 ```{r rmm}
 
 # Example usage of the `rmm()` function
 rmm(data = data,
     Ps_col = Ps,
-    outcome_col = survival)
+    outcome_col = survival,
+    n_samples = 250,
+    Divisor1 = 4,
+    Divisor2 = 4
+    )
 
 # Pivoting can be helpful at times
 rmm(
   data = data,
   Ps_col = Ps,
   outcome_col = survival,
+  n_samples = 250,
+  Divisor1 = 4,
+  Divisor2 = 4,
   pivot = TRUE
 )
 
@@ -156,6 +164,10 @@ rmm(
 # `rm_bin_summary()` function
 rm_bin_summary(data = data,
                Ps_col = Ps,
-               outcome_col = survival)
+               outcome_col = survival,
+               Divisor1 = 4,
+               Divisor2 = 4,
+               n_samples = 250
+               )
 
 ```

@@ -18,8 +18,8 @@ trauma_case_mix(df, Ps_col, outcome_col)
 }
 \value{
 A data frame containing the Ps ranges, the fraction of patients in
-  each range in the current population, and the MTOS distribution for each
-  range.
+each range in the current population, and the MTOS distribution for each
+range.
 }
 \description{
 This function compares the current patient population's case mix (based on
@@ -28,8 +28,8 @@ specific Ps ranges. It returns the fraction of patients in each range and
 compares it to the MTOS distribution.
 }
 \details{
-The function checks whether the `outcome_col` contains exactly two
-unique values representing a binary outcome. It also ensures that `Ps_col`
+The function checks whether the \code{outcome_col} contains exactly two
+unique values representing a binary outcome. It also ensures that \code{Ps_col}
 contains numeric values within the range 0 to 100. If any values exceed 1,
 they are converted to decimal format. The patients are then grouped into
 predefined Ps ranges, and the function compares the fraction of patients in

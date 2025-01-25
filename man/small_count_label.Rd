@@ -10,18 +10,18 @@ small_count_label(var, cutoff, replacement)
 \item{var}{A numeric vector. This represents the variable to be checked
 against the cutoff.}
 
-\item{cutoff}{A numeric value representing the threshold. Values in `var`
+\item{cutoff}{A numeric value representing the threshold. Values in \code{var}
 smaller than this value will be replaced.}
 
-\item{replacement}{A string or a numeric value. If the value in `var` is
-smaller than the `cutoff`, this value will replace it. If a string is
+\item{replacement}{A string or a numeric value. If the value in \code{var} is
+smaller than the \code{cutoff}, this value will replace it. If a string is
 provided, it will replace the numeric values with the string. If a numeric
 value is provided, the replacement will also be numeric.}
 }
 \value{
-A vector with values from `var`. Values smaller than the `cutoff`
-  will be replaced by the `replacement`. If `replacement` is a string, the
-  return type will be character, otherwise, it will remain numeric.
+A vector with values from \code{var}. Values smaller than the \code{cutoff}
+will be replaced by the \code{replacement}. If \code{replacement} is a string, the
+return type will be character, otherwise, it will remain numeric.
 }
 \description{
 This function labels values in a vector as a replacement string if they are

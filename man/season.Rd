@@ -8,16 +8,18 @@ season(input_date)
 }
 \arguments{
 \item{input_date}{A Date or POSIXct object representing the date to determine
-the season for. The input must be of class `Date` or `POSIXct`.}
+the season for. The input must be of class \code{Date} or \code{POSIXct}.}
 }
 \value{
 A factor indicating the season corresponding to the input date. The
-  factor levels are:
-  - "Winter" for December, January, and February.
-  - "Spring" for March, April, and May.
-  - "Summer" for June, July, and August.
-  - "Fall" for September, October, and November.
-  - "Undetermined" if the input is not a valid Date or POSIXct object or if the month is missing.
+factor levels are:
+\itemize{
+\item "Winter" for December, January, and February.
+\item "Spring" for March, April, and May.
+\item "Summer" for June, July, and August.
+\item "Fall" for September, October, and November.
+\item "Undetermined" if the input is not a valid Date or POSIXct object or if the month is missing.
+}
 }
 \description{
 This function determines the season (Winter, Spring, Summer, or Fall) based

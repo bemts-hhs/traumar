@@ -10,17 +10,17 @@ pretty_number(x, n_decimal = 2, prefix = NULL, round = T)
 \item{x}{A numeric value or vector to be converted into a readable format.}
 
 \item{n_decimal}{An integer specifying the number of decimal places to
-include in the output. Defaults to `2`.}
+include in the output. Defaults to \code{2}.}
 
 \item{prefix}{An optional character string to prepend to the formatted number
-(e.g., "$"). Defaults to `NULL`.}
+(e.g., "$"). Defaults to \code{NULL}.}
 
 \item{round}{A logical value indicating whether to round the numbers before
-formatting. Defaults to `TRUE`.}
+formatting. Defaults to \code{TRUE}.}
 }
 \value{
 A character vector with the numbers formatted as abbreviated
-  strings. If `prefix` is provided, it is added to the formatted numbers.
+strings. If \code{prefix} is provided, it is added to the formatted numbers.
 }
 \description{
 This function converts large numeric values into readable abbreviated formats

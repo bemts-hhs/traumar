@@ -1,7 +1,7 @@
 #' Normalize a Numeric Vector
 #'
 #' This function normalizes a numeric or integer vector using one of two
-#' methods: min-max normalization (scales data to the range [0, 1]) or z-score
+#' methods: min-max normalization (scales data to the range (0, 1)) or z-score
 #' normalization (centers data around 0 with a standard deviation of 1).
 #'
 #' @param x A numeric or integer vector to be normalized.

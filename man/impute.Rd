@@ -15,16 +15,24 @@ impute(
 \item{x}{A numeric vector to be cleaned.}
 
 \item{focus}{A character string indicating the focus. Options are:
-- `"skew"`: Handle extreme values using percentile or IQR methods (default).
-- `"missing"`: Impute missing values.}
+\itemize{
+\item \code{"skew"}: Handle extreme values using percentile or IQR methods (default).
+\item \code{"missing"}: Impute missing values.
+}}
 
 \item{method}{A character string specifying the method:
-- For `focus = "skew"`:
-  - `"winsorize"`: Replace values outside specified percentiles (default).
-  - `"iqr"`: Use IQR to limit extreme values.
-- For `focus = "missing"`:
-  - `"mean"`: Replace missing values with the mean.
-  - `"median"`: Replace missing values with the median.}
+\itemize{
+\item For \code{focus = "skew"}:
+\itemize{
+\item \code{"winsorize"}: Replace values outside specified percentiles (default).
+\item \code{"iqr"}: Use IQR to limit extreme values.
+}
+\item For \code{focus = "missing"}:
+\itemize{
+\item \code{"mean"}: Replace missing values with the mean.
+\item \code{"median"}: Replace missing values with the median.
+}
+}}
 
 \item{percentile}{A numeric value (percentile > 0) for winsorization.
 If not provided, defaults to 0.01 and 0.99.}
@@ -34,8 +42,8 @@ A numeric vector with cleaned or imputed values.
 }
 \description{
 Cleans numeric columns by handling extreme values or imputing
-  missing values. The function supports two main focuses: handling skewed
-  distributions or imputing missing data.
+missing values. The function supports two main focuses: handling skewed
+distributions or imputing missing data.
 }
 \examples{
 x <- c(1, 2, 3, 100, 200, NA)

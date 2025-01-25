@@ -8,11 +8,11 @@ rm_bin_summary(
   data,
   Ps_col,
   outcome_col,
+  n_samples = 1000,
   Divisor1 = 5,
   Divisor2 = 5,
   Threshold_1 = 0.9,
-  Threshold_2 = 0.99,
-  Z = 1.96
+  Threshold_2 = 0.99
 )
 }
 \arguments{
@@ -22,10 +22,13 @@ rm_bin_summary(
 (Ps). Should be numeric (values between 0 and 100).}
 
 \item{outcome_col}{The name of the column containing the outcome data. It
-should be binary, with values indicating patient survival. A value of `1`
-or `TRUE` should represent "alive" (survived), while `0` or `FALSE` should
+should be binary, with values indicating patient survival. A value of \code{1}
+should represent "alive" (survived), while \code{0} should
 represent "dead" (did not survive). Ensure the column contains only these
 two possible values.}
+
+\item{n_samples}{A numeric value indicating the number of bootstrap samples
+to take from the data source.}
 
 \item{Divisor1}{A divisor used for binning the survival probabilities
 (default is 5).}
@@ -38,30 +41,32 @@ probabilities (default is 0.9).}
 
 \item{Threshold_2}{The second threshold for dividing the survival
 probabilities (default is 0.99).}
-
-\item{Z}{The Z value used for calculating confidence intervals (default is
-1.96).}
 }
 \value{
 A tibble containing bin-level statistics including:
-  - `bin_number`: The bin to which each patient was assigned.
-  - `TA_b`: Total alive in each bin (number of patients who survived).
-  - `TD_b`: Total dead in each bin (number of patients who did not survive).
-  - `N_b`: Total number of patients in each bin.
-  - `EM_b`: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).
-  - `bin_start`: The lower bound of the survival probability range for each bin.
-  - `bin_end`: The upper bound of the survival probability range for each bin.
-  - `midpoint`: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
-  - `R_b`: The width of each bin (bin_end - bin_start).
-  - `AntiM_b`: The anticipated mortality for each bin, based on the midpoint.
-  - `E_b`: The error bound for the RMM estimate, calculated using the bin size
-  and anticipated mortality.
-  - `numerator`: The weighted numerator for the RMM calculation.
-  - `denominator`: The weighted denominator for the RMM calculation.
-  - `RMM`: The Relative Mortality Metric (RMM) for each bin,
-  quantifying the difference between observed and expected mortality.
-  - `RMM_UL`: The upper 95% confidence limit for RMM.
-  - `RMM_LL`: The lower 95% confidence limit for RMM.
+\itemize{
+\item \code{bin_number}: The bin to which each record was assigned.
+\item \code{TA_b}: Total alive in each bin (number of patients who survived).
+\item \code{TD_b}: Total dead in each bin (number of patients who did not survive).
+\item \code{N_b}: Total number of patients in each bin.
+\item \code{EM_b}: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).
+\item \code{bin_start}: The lower bound of the survival probability range for each bin.
+\item \code{bin_end}: The upper bound of the survival probability range for each bin.
+\item \code{midpoint}: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
+\item \code{R_b}: The width of each bin (bin_end - bin_start).
+\item \code{AntiM_b}: The anticipated mortality for each bin, based on the midpoint for each bin.
+\item \code{numerator}: The weighted numerator for the RMM calculation for each bin.
+\item \code{denominator}: The weighted denominator for the RMM calculation for each bin.
+\item \code{population_RMM}: The final calculated Relative Mortality Metric for the population
+existing in \code{data} for each bin.
+\item \code{lower_ci}: The lower bound of the 95\% confidence interval calculated via a bootstrap
+sample for each bin.
+\item \code{boostrap_RMM}: The average RMM value calculated for the boostrap sample for each bin.
+\item \code{upper_ci}: The upper bound of the 95\% confidence interval calculated via a bootstrap
+sample for each bin.
+\item \code{sd_RMM}: The standard deviation of the RMM for the bootstrap distribution for each bin.
+\item \code{se_RMM}: The standard error of the RMM for the bootstrap distribution for each bin.
+}
 }
 \description{
 Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
@@ -75,16 +80,19 @@ The Relative Mortality Metric (RMM) quantifies the performance of a center in
 comparison to the anticipated mortality based on the TRISS national
 benchmark. The RMM measures the difference between observed and expected
 mortality, with a range from -1 to 1.
-
-- An RMM of 0 indicates that the observed mortality aligns with the expected
+\itemize{
+\item An RMM of 0 indicates that the observed mortality aligns with the expected
 national benchmark across all acuity levels.
-- An RMM greater than 0 indicates better-than-expected performance, where
+\item An RMM greater than 0 indicates better-than-expected performance, where
 the center is outperforming the national benchmark.
-- An RMM less than 0 indicates under-performance, where the center’s observed
+\item An RMM less than 0 indicates under-performance, where the center’s observed
 mortality is higher than the expected benchmark.
+}
 
 This metric helps assess how a center's mortality compares to the national
-standards, guiding quality improvement efforts.
+standards, guiding quality improvement efforts.\code{rm_bin_summary()} utilizes
+bootstrap sampling to calculate the confidence intervals via the standard
+error method.
 }
 \examples{
 # Generate example data with high negative skewness
@@ -115,5 +123,5 @@ rm_bin_summary(data = data, Ps_col = Ps,
 }
 \author{
 Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
-  J. Napoli, Ph.D., MS
+J. Napoli, Ph.D., MS
 }

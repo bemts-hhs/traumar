@@ -11,7 +11,7 @@ pretty_percent(variable, n_decimal = 0.1)
 percentages.}
 
 \item{n_decimal}{A numeric value specifying the number of decimal places.
-Defaults to `0.1`.}
+Defaults to \code{0.1}.}
 }
 \value{
 A character vector containing the formatted percentages.

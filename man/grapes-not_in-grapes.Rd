@@ -12,13 +12,13 @@ x \%not_in\% y
 \item{y}{A vector of values to check against.}
 }
 \value{
-A logical vector of the same length as `x`, where `TRUE` indicates
-  the corresponding element in `x` is not found in `y`, and `FALSE` indicates
-  it is found in `y`.
+A logical vector of the same length as \code{x}, where \code{TRUE} indicates
+the corresponding element in \code{x} is not found in \code{y}, and \code{FALSE} indicates
+it is found in \code{y}.
 }
 \description{
 This function returns a logical vector indicating whether each
-  element of `x` is not in `y`.
+element of \code{x} is not in \code{y}.
 }
 \examples{
 

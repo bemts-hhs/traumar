@@ -8,11 +8,11 @@ rmm(
   data,
   Ps_col,
   outcome_col,
+  n_samples = 1000,
   Divisor1 = 5,
   Divisor2 = 5,
   Threshold_1 = 0.9,
   Threshold_2 = 0.99,
-  Z = 1.96,
   pivot = FALSE
 )
 }
@@ -23,10 +23,12 @@ rmm(
 (Ps). Should be numeric (values between 0 and 100).}
 
 \item{outcome_col}{The name of the column containing the outcome data. It
-should be binary, with values indicating patient survival. A value of `1`
-or `TRUE` should represent "alive" (survived), while `0` or `FALSE` should
-represent "dead" (did not survive). Ensure the column contains only these
-two possible values.}
+should be binary, with values indicating patient survival. A value of \code{1}
+should represent "alive" (survived), while \code{0} should represent "dead"
+(did not survive). Ensure the column contains only these two possible values.}
+
+\item{n_samples}{A numeric value indicating the number of bootstrap samples
+to take from the data source.}
 
 \item{Divisor1}{A divisor used for binning the survival probabilities
 (default is 5).}
@@ -40,26 +42,28 @@ probabilities (default is 0.9).}
 \item{Threshold_2}{The second threshold for dividing the survival
 probabilities (default is 0.99).}
 
-\item{Z}{The Z value used for calculating confidence intervals (default is
-1.96).}
-
 \item{pivot}{A logical indicating whether to return the results in a long
 format (pivot = TRUE) or wide format (pivot = FALSE, default).}
 }
 \value{
 A tibble containing the Relative Mortality Metric (RMM) and related
-  statistics:
-  - `numerator`: The weighted numerator used in the
-  RMM calculation (difference between anticipated and observed mortality).
-  - `denominator`: The weighted denominator used in the RMM calculation (anticipated mortality).
-  - `E_b`: The error bound (confidence interval error) for the RMM.
-  - `RMM`: The final calculated Relative Mortality Metric.
-  - `RMM_LL`: The lower confidence limit for the RMM, adjusted with the error bound.
-  - `RMM_UL`: The upper confidence limit for the RMM, adjusted with the error bound.
-  - If `pivot = TRUE`, the results will be in long format with two columns: `coefficient`
-   and `value`, where each row corresponds to one of the calculated statistics.
-  - If `pivot = FALSE` (default), the results will be returned in wide format,
-  with each statistic as a separate column.
+statistics:
+\itemize{
+\item \code{population_RMM}: The final calculated Relative Mortality Metric for the population
+existing in \code{data}.
+\item \code{lower_ci}: The lower bound of the 95\% confidence interval calculated via a bootstrap
+sample.
+\item \code{boostrap_RMM}: The average RMM value calculated for the boostrap sample.
+\item \code{upper_ci}: The upper bound of the 95\% confidence interval calculated via a bootstrap
+sample.
+\item \code{sd_RMM}: The standard deviation of the RMM for the bootstrap distribution.
+\item \code{se_RMM}: The standard error of the RMM for the bootstrap distribution.
+\item If \code{pivot = TRUE}, the results will be in long format with two columns: \code{stat}
+and \code{value}, where each row corresponds to one of the calculated
+statistics.
+\item If \code{pivot = FALSE} (default), the results will be returned in wide format,
+with each statistic as a separate column.
+}
 }
 \description{
 Calculates the Relative Mortality Metric (RMM) from Napoli et al. (2017)
@@ -72,16 +76,18 @@ The Relative Mortality Metric (RMM) quantifies the performance of a center in
 comparison to the anticipated mortality based on the TRISS national
 benchmark. The RMM measures the difference between observed and expected
 mortality, with a range from -1 to 1.
-
-- An RMM of 0 indicates that the observed mortality aligns with the expected
+\itemize{
+\item An RMM of 0 indicates that the observed mortality aligns with the expected
 national benchmark across all acuity levels.
-- An RMM greater than 0 indicates better-than-expected performance, where
+\item An RMM greater than 0 indicates better-than-expected performance, where
 the center is outperforming the national benchmark.
-- An RMM less than 0 indicates under-performance, where the center’s observed
+\item An RMM less than 0 indicates under-performance, where the center’s observed
 mortality is higher than the expected benchmark.
+}
 
 This metric helps assess how a center's mortality compares to the national
-standards, guiding quality improvement efforts.
+standards, guiding quality improvement efforts.  \code{rmm()} utilizes bootstrap
+sampling to calculate the confidence intervals via the standard error method.
 }
 \examples{
 # Generate example data with high negative skewness
@@ -121,5 +127,5 @@ rmm(data = data, Ps_col = Ps,
 }
 \author{
 Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
-  J. Napoli, Ph.D., MS
+J. Napoli, Ph.D., MS
 }

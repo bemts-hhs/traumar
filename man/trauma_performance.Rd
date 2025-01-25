@@ -22,15 +22,15 @@ trauma_performance(
 
 \item{outcome_col}{The name of the column containing the binary outcome data.
 
-  The column should contain binary values indicating the patient outcome.
-  Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
-  (alive), or other similar binary representations (e.g., "Yes" for dead and
-  "No" for alive). The function will check for two unique values in this
-  column and expects them to represent the outcome in a binary form.}
+The column should contain binary values indicating the patient outcome.
+Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
+(alive), or other similar binary representations (e.g., "Yes" for dead and
+"No" for alive). The function will check for two unique values in this
+column and expects them to represent the outcome in a binary form.}
 
 \item{outcome}{The value representing mortality (default is 1). Can also be set
 to 0 or TRUE/FALSE, depending on how the outcome is encoded in
-`outcome_col`.}
+\code{outcome_col}.}
 
 \item{z_method}{A character vector indicating which method to use for
 calculating the Z-score. Must be one of "survival" or "mortality". The
@@ -41,8 +41,8 @@ information about the W, M, and Z scores will be printed to the console.}
 }
 \value{
 A tibble containing the calculated scores (W-score, M-score, Z-score)
-  and associated performance information. If `diagnostics` is TRUE,
-  additional diagnostic information will be printed.
+and associated performance information. If \code{diagnostics} is TRUE,
+additional diagnostic information will be printed.
 }
 \description{
 This function calculates trauma hospital performance based on the M, W, and Z

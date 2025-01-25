@@ -7,6 +7,7 @@
 nonlinear_bins(
   data,
   Ps_col,
+  outcome_col,
   divisor1 = 5,
   divisor2 = 5,
   threshold_1 = 0.9,
@@ -14,35 +15,45 @@ nonlinear_bins(
 )
 }
 \arguments{
-\item{data}{A `data.frame` or `tibble` containing the probability of survival
+\item{data}{A \code{data.frame} or \code{tibble} containing the probability of survival
 data for a set of patients.}
 
-\item{Ps_col}{The column in `data` containing the probability of survival
+\item{Ps_col}{The column in \code{data} containing the probability of survival
 values for a set of patients.}
+
+\item{outcome_col}{The name of the column containing the outcome data. It
+should be binary, with values indicating patient survival. A value of \code{1}
+should represent "alive" (survived), while \code{0} should
+represent "dead" (did not survive). Ensure the column contains only these
+two possible values.}
 
 \item{divisor1}{A parameter to control the width of the probability of
 survival range bins. Affects the creation of step sizes for the beginning
-of each bin range. Defaults to `5`.}
+of each bin range. Defaults to \code{5}.}
 
 \item{divisor2}{A parameter to control the width of the probability of
 survival range bins. Affects the creation of step sizes for the beginning
-of each bin range. Defaults to `5`.}
+of each bin range. Defaults to \code{5}.}
 
 \item{threshold_1}{A parameter to decide where data indices will begin to
-create step sizes. Defaults to `0.9`.}
+create step sizes. Defaults to \code{0.9}.}
 
 \item{threshold_2}{A parameter to decide where data indices will end to
-create step sizes. Defaults to `0.99`.}
+create step sizes. Defaults to \code{0.99}.}
 }
 \value{
-A list with `intervals` and `bin_stats` objects:
-* `intervals`: A vector of start and end-points for the probability of survival bin ranges.
-* `bin_stats`: A `tibble` with columns `bin_number`, `bin_start`, `bin_end`, `mean`, `sd`, `count`, and `percent`.
+A list with \code{intervals} and \code{bin_stats} objects:
+\itemize{
+\item \code{intervals}: A vector of start and end-points for the probability of survival bin ranges.
+\item \code{bin_stats}: A \code{tibble} with columns \code{bin_number}, \code{bin_start}, \code{bin_end}, \code{mean}, \code{sd},
+\code{alive}, \code{dead}, \code{count}, and \code{percent}.
+}
 }
 \description{
 This function generates nonlinear bins for probability of survival data based
 on specified thresholds and divisors. It calculates bin statistics, including
-mean, standard deviation, count, and percentage for each bin.
+mean, standard deviation, total alive, total dead, count, and percentage for
+each bin.
 }
 \examples{
 # Generate example data with high negative skewness
@@ -65,8 +76,9 @@ data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
 dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Apply the nonlinear_bins function
-results <- nonlinear_bins(data = example_data,
+results <- nonlinear_bins(data = data,
                           Ps_col = Ps,
+                          outcome_col = survival,
                           divisor1 = 5,
                           divisor2 = 5,
                           threshold_1 = 0.9,
@@ -79,5 +91,5 @@ results$bin_stats
 }
 \author{
 Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
-  J. Napoli, Ph.D., MS
+J. Napoli, Ph.D., MS
 }

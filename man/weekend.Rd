@@ -7,11 +7,11 @@
 weekend(input_date)
 }
 \arguments{
-\item{input_date}{A vector of `Date` or `POSIXct` objects to classify.}
+\item{input_date}{A vector of \code{Date} or \code{POSIXct} objects to classify.}
 }
 \value{
 A character vector with the classification for each date: either
-  "Weekday" or "Weekend".
+"Weekday" or "Weekend".
 }
 \description{
 This function classifies each date in a vector of dates as either "Weekday"
@@ -19,10 +19,10 @@ or "Weekend". The function returns "Weekday" for Monday to Friday and
 "Weekend" for Saturday and Sunday.
 }
 \details{
-The function checks if the `input_date` is a valid `Date` or
-  `POSIXct` object. It returns "Weekday" for dates that fall on Monday
-  through Friday and "Weekend" for dates that fall on Saturday or Sunday. If
-  the input is not of the correct class, the function will throw an error.
+The function checks if the \code{input_date} is a valid \code{Date} or
+\code{POSIXct} object. It returns "Weekday" for dates that fall on Monday
+through Friday and "Weekend" for dates that fall on Saturday or Sunday. If
+the input is not of the correct class, the function will throw an error.
 }
 \examples{
 # Example 1: Date of a weekend

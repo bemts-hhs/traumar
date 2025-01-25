@@ -10,16 +10,16 @@ normalize(x, method = c("min_max", "z_score"))
 \item{x}{A numeric or integer vector to be normalized.}
 
 \item{method}{A character string specifying the normalization method. Options
-are `"min_max"` for min-max normalization or `"z_score"` for z-score
-normalization. If no method is provided, the default is `"min_max"`.}
+are \code{"min_max"} for min-max normalization or \code{"z_score"} for z-score
+normalization. If no method is provided, the default is \code{"min_max"}.}
 }
 \value{
-A numeric vector of the same length as `x`, containing the
-  normalized values.
+A numeric vector of the same length as \code{x}, containing the
+normalized values.
 }
 \description{
 This function normalizes a numeric or integer vector using one of two
-methods: min-max normalization (scales data to the range [0, 1]) or z-score
+methods: min-max normalization (scales data to the range (0, 1)) or z-score
 normalization (centers data around 0 with a standard deviation of 1).
 }
 \examples{
