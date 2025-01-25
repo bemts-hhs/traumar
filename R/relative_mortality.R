@@ -681,4 +681,7 @@ rm_bin_summary <- function(data,
     dplyr::relocate(lower_ci, .before = bootstrap_RMM) |>
     dplyr::relocate(upper_ci, .after = bootstrap_RMM)
 
+  # complete
+  return(bin_stats_final)
+
 }

@@ -235,4 +235,19 @@ rm_bin_summary(data = data,
                Divisor2 = 4,
                n_samples = 250
                )
+#> # A tibble: 9 × 18
+#>   bin_number  TA_b  TD_b   N_b    EM_b bin_start bin_end midpoint     R_b
+#>        <int> <dbl> <dbl> <dbl>   <dbl>     <dbl>   <dbl>    <dbl>   <dbl>
+#> 1          1   614   775  1389 0.558      0.0226   0.590    0.306 0.568  
+#> 2          2   953   436  1389 0.314      0.590    0.753    0.672 0.163  
+#> 3          3  1108   281  1389 0.202      0.753    0.844    0.799 0.0907 
+#> 4          4  1208   179  1387 0.129      0.844    0.900    0.872 0.0561 
+#> 5          5   911    95  1006 0.0944     0.900    0.930    0.915 0.0303 
+#> 6          6   954    52  1006 0.0517     0.930    0.954    0.942 0.0241 
+#> 7          7   979    27  1006 0.0268     0.954    0.973    0.964 0.0190 
+#> 8          8   989    17  1006 0.0169     0.973    0.990    0.982 0.0166 
+#> 9          9   421     1   422 0.00237    0.990    1.00     0.995 0.00957
+#> # ℹ 9 more variables: AntiM_b <dbl>, numerator <dbl>, denominator <dbl>,
+#> #   population_RMM <dbl>, lower_ci <dbl>, bootstrap_RMM <dbl>, upper_ci <dbl>,
+#> #   sd_RMM <dbl>, se_RMM <dbl>
 ```
