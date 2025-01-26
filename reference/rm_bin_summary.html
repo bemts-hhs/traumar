@@ -3,11 +3,43 @@
 Napoli et al. (2017) by grouping data into bins based on survival
 probabilities (Ps) and summarizing outcomes within each bin. This function
 returns statistics such as total alive, total dead, estimated mortality,
-anticipated mortality, and confidence intervals for each bin."><meta property="og:description" content="Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
+anticipated mortality, and confidence intervals for each bin.
+The Relative Mortality Metric (RMM) quantifies the performance of a center in
+comparison to the anticipated mortality based on the TRISS national
+benchmark. The RMM measures the difference between observed and expected
+mortality, with a range from -1 to 1.
+An RMM of 0 indicates that the observed mortality aligns with the expected
+national benchmark across all acuity levels.
+An RMM greater than 0 indicates better-than-expected performance, where
+the center is outperforming the national benchmark.
+An RMM less than 0 indicates under-performance, where the center’s observed
+mortality is higher than the expected benchmark.
+
+
+This metric helps assess how a center's mortality compares to the national
+standards, guiding quality improvement efforts.rm_bin_summary() utilizes
+bootstrap sampling to calculate the confidence intervals via the standard
+error method."><meta property="og:description" content="Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
 Napoli et al. (2017) by grouping data into bins based on survival
 probabilities (Ps) and summarizing outcomes within each bin. This function
 returns statistics such as total alive, total dead, estimated mortality,
-anticipated mortality, and confidence intervals for each bin."></head><body>
+anticipated mortality, and confidence intervals for each bin.
+The Relative Mortality Metric (RMM) quantifies the performance of a center in
+comparison to the anticipated mortality based on the TRISS national
+benchmark. The RMM measures the difference between observed and expected
+mortality, with a range from -1 to 1.
+An RMM of 0 indicates that the observed mortality aligns with the expected
+national benchmark across all acuity levels.
+An RMM greater than 0 indicates better-than-expected performance, where
+the center is outperforming the national benchmark.
+An RMM less than 0 indicates under-performance, where the center’s observed
+mortality is higher than the expected benchmark.
+
+
+This metric helps assess how a center's mortality compares to the national
+standards, guiding quality improvement efforts.rm_bin_summary() utilizes
+bootstrap sampling to calculate the confidence intervals via the standard
+error method."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -46,6 +78,19 @@ Napoli et al. (2017) by grouping data into bins based on survival
 probabilities (Ps) and summarizing outcomes within each bin. This function
 returns statistics such as total alive, total dead, estimated mortality,
 anticipated mortality, and confidence intervals for each bin.</p>
+<p>The Relative Mortality Metric (RMM) quantifies the performance of a center in
+comparison to the anticipated mortality based on the TRISS national
+benchmark. The RMM measures the difference between observed and expected
+mortality, with a range from -1 to 1.</p><ul><li><p>An RMM of 0 indicates that the observed mortality aligns with the expected
+national benchmark across all acuity levels.</p></li>
+<li><p>An RMM greater than 0 indicates better-than-expected performance, where
+the center is outperforming the national benchmark.</p></li>
+<li><p>An RMM less than 0 indicates under-performance, where the center’s observed
+mortality is higher than the expected benchmark.</p></li>
+</ul><p>This metric helps assess how a center's mortality compares to the national
+standards, guiding quality improvement efforts.<code>rm_bin_summary()</code> utilizes
+bootstrap sampling to calculate the confidence intervals via the standard
+error method.</p>
     </div>
 
     <div class="section level2">
@@ -115,39 +160,22 @@ probabilities (default is 0.99).</p></dd>
 <li><p><code>TD_b</code>: Total dead in each bin (number of patients who did not survive).</p></li>
 <li><p><code>N_b</code>: Total number of patients in each bin.</p></li>
 <li><p><code>EM_b</code>: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).</p></li>
+<li><p><code>AntiS_b</code>: The anticipated survival rate for each bin.</p></li>
+<li><p><code>AntiM_b</code>: The anticipated mortality rate for each bin.</p></li>
 <li><p><code>bin_start</code>: The lower bound of the survival probability range for each bin.</p></li>
 <li><p><code>bin_end</code>: The upper bound of the survival probability range for each bin.</p></li>
 <li><p><code>midpoint</code>: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).</p></li>
 <li><p><code>R_b</code>: The width of each bin (bin_end - bin_start).</p></li>
-<li><p><code>AntiM_b</code>: The anticipated mortality for each bin, based on the midpoint for each bin.</p></li>
-<li><p><code>numerator</code>: The weighted numerator for the RMM calculation for each bin.</p></li>
-<li><p><code>denominator</code>: The weighted denominator for the RMM calculation for each bin.</p></li>
+<li><p><code>population_RMM_LL</code>: The lower bound of the 95% confidence interval for the population RMM.</p></li>
 <li><p><code>population_RMM</code>: The final calculated Relative Mortality Metric for the population
-existing in <code>data</code> for each bin.</p></li>
-<li><p><code>lower_ci</code>: The lower bound of the 95% confidence interval calculated via a bootstrap
-sample for each bin.</p></li>
-<li><p><code>boostrap_RMM</code>: The average RMM value calculated for the boostrap sample for each bin.</p></li>
-<li><p><code>upper_ci</code>: The upper bound of the 95% confidence interval calculated via a bootstrap
-sample for each bin.</p></li>
-<li><p><code>sd_RMM</code>: The standard deviation of the RMM for the bootstrap distribution for each bin.</p></li>
-<li><p><code>se_RMM</code>: The standard error of the RMM for the bootstrap distribution for each bin.</p></li>
+existing in <code>data</code>.</p></li>
+<li><p><code>population_RMM_UL</code>: The upper bound of the 95% confidence interval for the population RMM.</p></li>
+<li><p><code>population_CI</code>: The confidence interval width for the population RMM.</p></li>
+<li><p><code>bootstrap_RMM_LL</code>: The lower bound of the 95% confidence interval for the bootstrap RMM.</p></li>
+<li><p><code>bootstrap_RMM</code>: The average RMM value calculated for the bootstrap sample.</p></li>
+<li><p><code>bootstrap_RMM_UL</code>: The upper bound of the 95% confidence interval for the bootstrap RMM.</p></li>
+<li><p><code>bootstrap_CI</code>: The width of the 95% confidence interval for the bootstrap RMM.</p></li>
 </ul></div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The Relative Mortality Metric (RMM) quantifies the performance of a center in
-comparison to the anticipated mortality based on the TRISS national
-benchmark. The RMM measures the difference between observed and expected
-mortality, with a range from -1 to 1.</p><ul><li><p>An RMM of 0 indicates that the observed mortality aligns with the expected
-national benchmark across all acuity levels.</p></li>
-<li><p>An RMM greater than 0 indicates better-than-expected performance, where
-the center is outperforming the national benchmark.</p></li>
-<li><p>An RMM less than 0 indicates under-performance, where the center’s observed
-mortality is higher than the expected benchmark.</p></li>
-</ul><p>This metric helps assess how a center's mortality compares to the national
-standards, guiding quality improvement efforts.<code>rm_bin_summary()</code> utilizes
-bootstrap sampling to calculate the confidence intervals via the standard
-error method.</p>
-    </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
@@ -180,22 +208,23 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span><span class="fu">rm_bin_summary</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
 <span class="r-in"><span>               outcome_col <span class="op">=</span> <span class="va">survival</span></span></span>
 <span class="r-in"><span>               <span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 18</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number  TA_b  TD_b   N_b   EM_b bin_start bin_end midpoint    R_b AntiM_b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>          1   454   657  <span style="text-decoration: underline;">1</span>111 0.591     0.022<span style="text-decoration: underline;">6</span>   0.542    0.282 0.520   0.718 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>          2   686   425  <span style="text-decoration: underline;">1</span>111 0.383     0.542    0.702    0.622 0.159   0.378 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>          3   850   261  <span style="text-decoration: underline;">1</span>111 0.235     0.702    0.796    0.749 0.094<span style="text-decoration: underline;">3</span>  0.251 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>          4   922   189  <span style="text-decoration: underline;">1</span>111 0.170     0.796    0.857    0.826 0.061<span style="text-decoration: underline;">3</span>  0.174 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>          5   971   139  <span style="text-decoration: underline;">1</span>110 0.125     0.857    0.900    0.879 0.042<span style="text-decoration: underline;">9</span>  0.121 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>          6   727    78   805 0.096<span style="text-decoration: underline;">9</span>    0.900    0.925    0.913 0.025<span style="text-decoration: underline;">1</span>  0.087<span style="text-decoration: underline;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>          7   752    53   805 0.065<span style="text-decoration: underline;">8</span>    0.925    0.946    0.936 0.020<span style="text-decoration: underline;">8</span>  0.064<span style="text-decoration: underline;">4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>          8   779    26   805 0.032<span style="text-decoration: underline;">3</span>    0.946    0.963    0.954 0.016<span style="text-decoration: underline;">6</span>  0.045<span style="text-decoration: underline;">6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>          9   783    22   805 0.027<span style="text-decoration: underline;">3</span>    0.963    0.976    0.969 0.013<span style="text-decoration: underline;">6</span>  0.030<span style="text-decoration: underline;">5</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>         10  <span style="text-decoration: underline;">1</span>213    13  <span style="text-decoration: underline;">1</span>226 0.010<span style="text-decoration: underline;">6</span>    0.976    1.00     0.988 0.023<span style="text-decoration: underline;">3</span>  0.012<span style="text-decoration: underline;">1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: numerator &lt;dbl&gt;, denominator &lt;dbl&gt;, population_RMM &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   lower_ci &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;, upper_ci &lt;dbl&gt;, sd_RMM &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   se_RMM &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 19</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number  TA_b  TD_b   N_b   EM_b AntiS_b AntiM_b bin_start bin_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>          1   454   657  <span style="text-decoration: underline;">1</span>111 0.591    0.378   0.622    0.022<span style="text-decoration: underline;">6</span>   0.542</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>          2   686   425  <span style="text-decoration: underline;">1</span>111 0.383    0.628   0.372    0.542    0.702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>          3   850   261  <span style="text-decoration: underline;">1</span>111 0.235    0.752   0.248    0.702    0.796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>          4   922   189  <span style="text-decoration: underline;">1</span>111 0.170    0.829   0.171    0.796    0.857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>          5   971   139  <span style="text-decoration: underline;">1</span>110 0.125    0.879   0.121    0.857    0.900</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>          6   727    78   805 0.096<span style="text-decoration: underline;">9</span>   0.913   0.087    0.900    0.925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>          7   752    53   805 0.065<span style="text-decoration: underline;">8</span>   0.936   0.064    0.925    0.946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>          8   779    26   805 0.032<span style="text-decoration: underline;">3</span>   0.954   0.046    0.946    0.963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>          9   783    22   805 0.027<span style="text-decoration: underline;">3</span>   0.97    0.03     0.963    0.976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>         10  <span style="text-decoration: underline;">1</span>213    13  <span style="text-decoration: underline;">1</span>226 0.010<span style="text-decoration: underline;">6</span>   0.987   0.013    0.976    1.00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more variables: midpoint &lt;dbl&gt;, R_b &lt;dbl&gt;, population_RMM_LL &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   population_RMM &lt;dbl&gt;, population_RMM_UL &lt;dbl&gt;, population_CI &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;, bootstrap_RMM_UL &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_CI &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
