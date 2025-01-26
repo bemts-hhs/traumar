@@ -24,8 +24,8 @@ rmm(
 
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
-should represent "alive" (survived), while \code{0} should represent "dead"
-(did not survive). Ensure the column contains only these two possible values.}
+should represent "alive" (survived), while \code{0} should represent "dead" (did
+not survive). Ensure the column contains only these two possible values.}
 
 \item{n_samples}{A numeric value indicating the number of bootstrap samples
 to take from the data source.}
@@ -49,15 +49,15 @@ format (pivot = TRUE) or wide format (pivot = FALSE, default).}
 A tibble containing the Relative Mortality Metric (RMM) and related
 statistics:
 \itemize{
+\item \code{population_RMM_LL}: The lower bound of the 95\% confidence interval for the population RMM.
 \item \code{population_RMM}: The final calculated Relative Mortality Metric for the population
 existing in \code{data}.
-\item \code{lower_ci}: The lower bound of the 95\% confidence interval calculated via a bootstrap
-sample.
-\item \code{boostrap_RMM}: The average RMM value calculated for the boostrap sample.
-\item \code{upper_ci}: The upper bound of the 95\% confidence interval calculated via a bootstrap
-sample.
-\item \code{sd_RMM}: The standard deviation of the RMM for the bootstrap distribution.
-\item \code{se_RMM}: The standard error of the RMM for the bootstrap distribution.
+\item \code{population_RMM_UL}: The upper bound of the 95\% confidence interval for the population RMM.
+\item \code{population_CI}: The confidence interval width for the population RMM.
+\item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for the bootstrap RMM.
+\item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap sample.
+\item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for the bootstrap RMM.
+\item \code{bootstrap_CI}: The width of the 95\% confidence interval for the bootstrap RMM.
 \item If \code{pivot = TRUE}, the results will be in long format with two columns: \code{stat}
 and \code{value}, where each row corresponds to one of the calculated
 statistics.

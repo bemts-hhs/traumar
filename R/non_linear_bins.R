@@ -138,6 +138,10 @@ nonlinear_bins <- function(data,
     bin_end = utils::tail(intervals, -1),
     mean = numeric(length(intervals) - 1),
     sd = numeric(length(intervals) - 1),
+    Pred_Survivors_b = numeric(length(intervals) - 1),
+    Pred_Deaths_b = numeric(length(intervals) - 1),
+    AntiS_b = numeric(length(intervals) - 1),
+    AntiM_b = numeric(length(intervals) - 1),
     alive = numeric(length(intervals) - 1),
     dead = numeric(length(intervals) - 1),
     count = numeric(length(intervals) - 1),
@@ -151,26 +155,42 @@ nonlinear_bins <- function(data,
                                 (survival_data < bin_stats$bin_end[i] | i == nrow(bin_stats))]
     if (length(bin_data) > 0) {
       bin_stats$bin_number[i] <- i
-      bin_stats$mean[i] <- mean(bin_data)
-      bin_stats$sd[i] <- stats::sd(bin_data)
+      bin_stats$mean[i] <- mean(bin_data, na.rm = TRUE)
+      bin_stats$sd[i] <- stats::sd(bin_data, na.rm = TRUE)
       bin_stats$count[i] <- length(bin_data)
       bin_stats$percent[i] <- round(length(bin_data) / total, digits = 3)
 
       # Use quasiquotation to refer to columns correctly
-      bin_outcome <- data |> dplyr::filter({{ Ps_col }} %in% bin_data) |> dplyr::pull({{ outcome_col }})
+      bin_outcome <- data |>
+        dplyr::filter({{ Ps_col }} %in% bin_data) |>
+        dplyr::pull({{ outcome_col }})
 
       # Add alive and dead counts based on the outcome column
-      bin_stats$alive[i] <- sum(bin_outcome == 1)   # Count the number of alive (1)
-      bin_stats$dead[i] <- sum(bin_outcome == 0)    # Count the number of dead (0)
+      bin_stats$alive[i] <- sum(bin_outcome == 1, na.rm = TRUE)  # Count the number of alive (1)
+      bin_stats$dead[i] <- sum(bin_outcome == 0, na.rm = TRUE)   # Count the number of dead (0)
+      bin_stats$Pred_Survivors_b[i] <- round(sum(bin_data, na.rm = TRUE), digits = 3)
+      bin_stats$Pred_Deaths_b[i] <- round(sum(1 - bin_data, na.rm = TRUE), digits = 3)
 
+      # Normalize AntiS_b and AntiM_b by count
+      if (bin_stats$count[i] > 0) {  # Avoid division by zero
+        bin_stats$AntiS_b[i] <- round(bin_stats$Pred_Survivors_b[i] / bin_stats$count[i], digits = 3)
+        bin_stats$AntiM_b[i] <- round(bin_stats$Pred_Deaths_b[i] / bin_stats$count[i], digits = 3)
+      } else {
+        bin_stats$AntiS_b[i] <- NA_real_
+        bin_stats$AntiM_b[i] <- NA_real_
+      }
     } else {
-      bin_stats$mean[i] <- NA
-      bin_stats$sd[i] <- NA
+      bin_stats$mean[i] <- NA_real_
+      bin_stats$sd[i] <- NA_real_
       bin_stats$count[i] <- 0
+      bin_stats$percent[i] <- NA_real_
       bin_stats$alive[i] <- 0  # Ensure the 'alive' column is set to 0 for empty bins
       bin_stats$dead[i] <- 0   # Similarly, set 'dead' to 0 for empty bins
+      bin_stats$AntiS_b[i] <- NA_real_
+      bin_stats$AntiM_b[i] <- NA_real_
     }
   }
+
 
   return(list(intervals = intervals, bin_stats = bin_stats))
 

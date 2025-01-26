@@ -1,5 +1,15 @@
 # traumar (development version)
 
+# traumar 0.0.1.9000
+
+ * Add `probability_of_survival()` function.
+ * Added new outputs for:
+   * `rmm()`
+   * `rm_bin_summary()`
+   * `nonlinear_bins()`
+ * Updated existing tests, created new tests.
+ * Code coverage.
+
 # traumar 0.0.1
 
   * Add `trauma_case_mix()` function.

@@ -50,22 +50,21 @@ A tibble containing bin-level statistics including:
 \item \code{TD_b}: Total dead in each bin (number of patients who did not survive).
 \item \code{N_b}: Total number of patients in each bin.
 \item \code{EM_b}: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).
+\item \code{AntiS_b}: The anticipated survival rate for each bin.
+\item \code{AntiM_b}: The anticipated mortality rate for each bin.
 \item \code{bin_start}: The lower bound of the survival probability range for each bin.
 \item \code{bin_end}: The upper bound of the survival probability range for each bin.
 \item \code{midpoint}: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
 \item \code{R_b}: The width of each bin (bin_end - bin_start).
-\item \code{AntiM_b}: The anticipated mortality for each bin, based on the midpoint for each bin.
-\item \code{numerator}: The weighted numerator for the RMM calculation for each bin.
-\item \code{denominator}: The weighted denominator for the RMM calculation for each bin.
+\item \code{population_RMM_LL}: The lower bound of the 95\% confidence interval for the population RMM.
 \item \code{population_RMM}: The final calculated Relative Mortality Metric for the population
-existing in \code{data} for each bin.
-\item \code{lower_ci}: The lower bound of the 95\% confidence interval calculated via a bootstrap
-sample for each bin.
-\item \code{boostrap_RMM}: The average RMM value calculated for the boostrap sample for each bin.
-\item \code{upper_ci}: The upper bound of the 95\% confidence interval calculated via a bootstrap
-sample for each bin.
-\item \code{sd_RMM}: The standard deviation of the RMM for the bootstrap distribution for each bin.
-\item \code{se_RMM}: The standard error of the RMM for the bootstrap distribution for each bin.
+existing in \code{data}.
+\item \code{population_RMM_UL}: The upper bound of the 95\% confidence interval for the population RMM.
+\item \code{population_CI}: The confidence interval width for the population RMM.
+\item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for the bootstrap RMM.
+\item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap sample.
+\item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for the bootstrap RMM.
+\item \code{bootstrap_CI}: The width of the 95\% confidence interval for the bootstrap RMM.
 }
 }
 \description{
@@ -74,8 +73,7 @@ Napoli et al. (2017) by grouping data into bins based on survival
 probabilities (Ps) and summarizing outcomes within each bin. This function
 returns statistics such as total alive, total dead, estimated mortality,
 anticipated mortality, and confidence intervals for each bin.
-}
-\details{
+
 The Relative Mortality Metric (RMM) quantifies the performance of a center in
 comparison to the anticipated mortality based on the TRISS national
 benchmark. The RMM measures the difference between observed and expected

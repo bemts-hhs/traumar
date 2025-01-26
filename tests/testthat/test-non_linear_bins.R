@@ -16,7 +16,7 @@ test_that("nonlinear_bins handles basic functionality correctly", {
 
   # Check bin_stats structure
   expect_s3_class(result$bin_stats, "tbl_df")
-  expect_named(result$bin_stats, c("bin_number", "bin_start", "bin_end", "mean", "sd", "alive", "dead", "count", "percent"))
+  expect_named(result$bin_stats, c("bin_number", "bin_start", "bin_end", "mean", "sd", "Pred_Survivors_b", "Pred_Deaths_b", "AntiS_b", "AntiM_b", "alive", "dead", "count", "percent"))
 })
 
 test_that("nonlinear_bins produces reasonable bins for uniform data", {

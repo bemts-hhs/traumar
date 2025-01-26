@@ -34,10 +34,13 @@ You can install the development version of traumar from
 pak::pak("bemts-hhs/traumar")
 ```
 
-## There is More!
+## Helper Functions
 
 {traumar} has many functions to help you in your data analysis journey!
-Check out the additional package documentation at
+In particular, if you do not presently have access to probability of
+survival data, {traumar} provides the `probability_of_survival()`
+function to do just that using the TRISS method. Check out the
+additional package documentation at
 [bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where
 you can find examples of each function the package has to offer.
 
@@ -116,7 +119,7 @@ trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
 ## The Relative Mortality Metric
 
 [Napoli et
-al. (2017)](https://www.tandfonline.com/doi/abs/10.1080/24725579.2017.1325948)
+al.(2017)](https://www.tandfonline.com/doi/abs/10.1080/24725579.2017.1325948)
 published methods for calculating a measure of trauma center (or system)
 performance while overcoming a problem with the W-Score and the TRISS
 methodology. Given that the majority of patients seen at trauma centers
@@ -161,35 +164,38 @@ results$intervals
 
 # View the bin statistics
 results$bin_stats
-#> # A tibble: 9 × 9
-#>   bin_number bin_start bin_end  mean      sd alive  dead count percent
-#>        <int>     <dbl>   <dbl> <dbl>   <dbl> <dbl> <dbl> <dbl>   <dbl>
-#> 1          1    0.0226   0.590 0.416 0.133     614   775  1389   0.139
-#> 2          2    0.590    0.753 0.681 0.0480    953   436  1389   0.139
-#> 3          3    0.753    0.844 0.803 0.0261   1108   281  1389   0.139
-#> 4          4    0.844    0.900 0.873 0.0162   1208   179  1387   0.139
-#> 5          5    0.900    0.930 0.916 0.00879   911    95  1006   0.101
-#> 6          6    0.930    0.954 0.943 0.00699   954    52  1006   0.101
-#> 7          7    0.954    0.973 0.964 0.00545   979    27  1006   0.101
-#> 8          8    0.973    0.990 0.981 0.00485   989    17  1006   0.101
-#> 9          9    0.990    1.00  0.994 0.00253   421     1   422   0.042
+#> # A tibble: 9 × 13
+#>   bin_number bin_start bin_end  mean      sd Pred_Survivors_b Pred_Deaths_b
+#>        <int>     <dbl>   <dbl> <dbl>   <dbl>            <dbl>         <dbl>
+#> 1          1    0.0226   0.590 0.416 0.133               577.        812.  
+#> 2          2    0.590    0.753 0.681 0.0480              946.        443.  
+#> 3          3    0.753    0.844 0.803 0.0261             1116.        273.  
+#> 4          4    0.844    0.900 0.873 0.0162             1211.        176.  
+#> 5          5    0.900    0.930 0.916 0.00879             921.         84.5 
+#> 6          6    0.930    0.954 0.943 0.00699             949.         57.3 
+#> 7          7    0.954    0.973 0.964 0.00545             970.         36.0 
+#> 8          8    0.973    0.990 0.981 0.00485             987.         18.7 
+#> 9          9    0.990    1.00  0.994 0.00253             419.          2.61
+#> # ℹ 6 more variables: AntiS_b <dbl>, AntiM_b <dbl>, alive <dbl>, dead <dbl>,
+#> #   count <dbl>, percent <dbl>
 ```
 
 ## The RMM function
 
-The RMM is helpful in that it will be sensitive to higher acuity
-patients as well, so if a trauma center is struggling to effectively
-intervene with higher acuity patients, this will be reflected in the
-RMM. Conversely, with the W-Score, trauma center performance may not
-appear to decline due to the influence of the lower acuity patients
-using the MTOS Distribution. {traumar} automates the calculation of the
-RMM as a single score, and by the non-linear binning process recommended
-by Napoli et al. (2017). The `rmm()` and `rm_bin_summary()` functions
-call `nonlinear_bins()` under the hood to produce the statistics you see
-below in the example. Notice that a bootstrap sample is taken to
-estimate a simulated distribution of RMM scores to calculate 95%
-confidence intervals, while also calculating the population RMM
-estimate:
+## The RMM function
+
+The RMM is sensitive to higher acuity patients, meaning that if a trauma
+center struggles with these patients, it will be reflected in the RMM.
+In contrast, the W-Score may mask declines in performance due to the
+influence of lower acuity patients via the MTOS Distribution. The
+{traumar} package automates RMM calculation as a single score using the
+nonlinear binning method from Napoli et al. (2017). The `rmm()` and
+`rm_bin_summary()` functions internally call `nonlinear_bins()` to
+generate the non-linear binning process. The function uses a bootstrap
+process with `n_samples` repetitions to simulate an RMM distribution and
+estimate 95% confidence intervals. The RMM, along with corresponding
+confidence intervals, are provided for the population in `data`, as
+well.
 
 ``` r
 
@@ -201,10 +207,12 @@ rmm(data = data,
     Divisor1 = 4,
     Divisor2 = 4
     )
-#> # A tibble: 1 × 6
-#>   population_RMM lower_ci bootstrap_RMM upper_ci sd_RMM  se_RMM
-#>            <dbl>    <dbl>         <dbl>    <dbl>  <dbl>   <dbl>
-#> 1          0.166    0.159         0.161    0.163 0.0181 0.00114
+#> # A tibble: 1 × 8
+#>   population_RMM_LL population_RMM population_RMM_UL population_CI
+#>               <dbl>          <dbl>             <dbl>         <dbl>
+#> 1           -0.0280         0.0365             0.101        0.0645
+#> # ℹ 4 more variables: bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>,
+#> #   bootstrap_RMM_UL <dbl>, bootstrap_CI <dbl>
 
 # Pivoting can be helpful at times
 rmm(
@@ -216,15 +224,17 @@ rmm(
   Divisor2 = 4,
   pivot = TRUE
 )
-#> # A tibble: 6 × 2
-#>   stat             value
-#>   <chr>            <dbl>
-#> 1 population_RMM 0.166  
-#> 2 lower_ci       0.159  
-#> 3 bootstrap_RMM  0.161  
-#> 4 upper_ci       0.163  
-#> 5 sd_RMM         0.0181 
-#> 6 se_RMM         0.00114
+#> # A tibble: 8 × 2
+#>   stat                 value
+#>   <chr>                <dbl>
+#> 1 population_RMM_LL -0.0280 
+#> 2 population_RMM     0.0365 
+#> 3 population_RMM_UL  0.101  
+#> 4 population_CI      0.0645 
+#> 5 bootstrap_RMM_LL   0.0329 
+#> 6 bootstrap_RMM      0.0353 
+#> 7 bootstrap_RMM_UL   0.0378 
+#> 8 bootstrap_CI       0.00244
 
 # RMM calculated by non-linear bin range
 # `rm_bin_summary()` function
@@ -235,19 +245,20 @@ rm_bin_summary(data = data,
                Divisor2 = 4,
                n_samples = 250
                )
-#> # A tibble: 9 × 18
-#>   bin_number  TA_b  TD_b   N_b    EM_b bin_start bin_end midpoint     R_b
-#>        <int> <dbl> <dbl> <dbl>   <dbl>     <dbl>   <dbl>    <dbl>   <dbl>
-#> 1          1   614   775  1389 0.558      0.0226   0.590    0.306 0.568  
-#> 2          2   953   436  1389 0.314      0.590    0.753    0.672 0.163  
-#> 3          3  1108   281  1389 0.202      0.753    0.844    0.799 0.0907 
-#> 4          4  1208   179  1387 0.129      0.844    0.900    0.872 0.0561 
-#> 5          5   911    95  1006 0.0944     0.900    0.930    0.915 0.0303 
-#> 6          6   954    52  1006 0.0517     0.930    0.954    0.942 0.0241 
-#> 7          7   979    27  1006 0.0268     0.954    0.973    0.964 0.0190 
-#> 8          8   989    17  1006 0.0169     0.973    0.990    0.982 0.0166 
-#> 9          9   421     1   422 0.00237    0.990    1.00     0.995 0.00957
-#> # ℹ 9 more variables: AntiM_b <dbl>, numerator <dbl>, denominator <dbl>,
-#> #   population_RMM <dbl>, lower_ci <dbl>, bootstrap_RMM <dbl>, upper_ci <dbl>,
-#> #   sd_RMM <dbl>, se_RMM <dbl>
+#> # A tibble: 9 × 19
+#>   bin_number  TA_b  TD_b   N_b    EM_b AntiS_b AntiM_b bin_start bin_end
+#>        <int> <dbl> <dbl> <dbl>   <dbl>   <dbl>   <dbl>     <dbl>   <dbl>
+#> 1          1   614   775  1389 0.558     0.416   0.584    0.0226   0.590
+#> 2          2   953   436  1389 0.314     0.681   0.319    0.590    0.753
+#> 3          3  1108   281  1389 0.202     0.803   0.197    0.753    0.844
+#> 4          4  1208   179  1387 0.129     0.873   0.127    0.844    0.900
+#> 5          5   911    95  1006 0.0944    0.916   0.084    0.900    0.930
+#> 6          6   954    52  1006 0.0517    0.943   0.057    0.930    0.954
+#> 7          7   979    27  1006 0.0268    0.964   0.036    0.954    0.973
+#> 8          8   989    17  1006 0.0169    0.981   0.019    0.973    0.990
+#> 9          9   421     1   422 0.00237   0.994   0.006    0.990    1.00 
+#> # ℹ 10 more variables: midpoint <dbl>, R_b <dbl>, population_RMM_LL <dbl>,
+#> #   population_RMM <dbl>, population_RMM_UL <dbl>, population_CI <dbl>,
+#> #   bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>, bootstrap_RMM_UL <dbl>,
+#> #   bootstrap_CI <dbl>
 ```

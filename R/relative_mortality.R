@@ -29,10 +29,10 @@
 #'   (Ps). Should be numeric (values between 0 and 100).
 #' @param outcome_col The name of the column containing the outcome data. It
 #'   should be binary, with values indicating patient survival. A value of `1`
-#'   should represent "alive" (survived), while `0` should represent "dead"
-#'   (did not survive). Ensure the column contains only these two possible values.
+#'   should represent "alive" (survived), while `0` should represent "dead" (did
+#'   not survive). Ensure the column contains only these two possible values.
 #' @param n_samples A numeric value indicating the number of bootstrap samples
-#' to take from the data source.
+#'   to take from the data source.
 #' @param Divisor1 A divisor used for binning the survival probabilities
 #'   (default is 5).
 #' @param Divisor2 A second divisor used for binning the survival probabilities
@@ -46,15 +46,15 @@
 #'
 #' @returns A tibble containing the Relative Mortality Metric (RMM) and related
 #'   statistics:
+#'   - `population_RMM_LL`: The lower bound of the 95% confidence interval for the population RMM.
 #'   - `population_RMM`: The final calculated Relative Mortality Metric for the population
 #'   existing in `data`.
-#'   - `lower_ci`: The lower bound of the 95% confidence interval calculated via a bootstrap
-#'   sample.
-#'   - `boostrap_RMM`: The average RMM value calculated for the boostrap sample.
-#'   - `upper_ci`: The upper bound of the 95% confidence interval calculated via a bootstrap
-#'   sample.
-#'   - `sd_RMM`: The standard deviation of the RMM for the bootstrap distribution.
-#'   - `se_RMM`: The standard error of the RMM for the bootstrap distribution.
+#'   - `population_RMM_UL`: The upper bound of the 95% confidence interval for the population RMM.
+#'   - `population_CI`: The confidence interval width for the population RMM.
+#'   - `bootstrap_RMM_LL`: The lower bound of the 95% confidence interval for the bootstrap RMM.
+#'   - `bootstrap_RMM`: The average RMM value calculated for the bootstrap sample.
+#'   - `bootstrap_RMM_UL`: The upper bound of the 95% confidence interval for the bootstrap RMM.
+#'   - `bootstrap_CI`: The width of the 95% confidence interval for the bootstrap RMM.
 #'   - If `pivot = TRUE`, the results will be in long format with two columns: `stat`
 #'   and `value`, where each row corresponds to one of the calculated
 #'   statistics.
@@ -253,6 +253,8 @@ rmm <- function(data,
       TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
       N_b = sum(count), # Total number of patients in the bin
       EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
       .by = bin_number # Perform this calculation for each bin
     ) |>
     dplyr::arrange(bin_number) # Arrange the bins by bin_number
@@ -268,6 +270,8 @@ rmm <- function(data,
       TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
       N_b = sum(count), # Total number of patients in the bin
       EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
 
       # Perform this calculation for each replicate and bin
       .by = c(replicate, bin_number)
@@ -276,22 +280,24 @@ rmm <- function(data,
 
   # Join the bin statistics (bin_summary) with the bin_df for further calculations
   # The merged data will contain the bin information and corresponding statistics
+  # Not using AntiM_b = -1 * midpoint + 1
+  # i.e., Anticipated mortality (1 - midpoint, reversed scale)
   bin_stats <- bin_summary |>
     dplyr::left_join(bin_df, by = "bin_number") |>
     dplyr::mutate(
       R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      AntiM_b = -1 * midpoint + 1, # Anticipated mortality (1 - midpoint, reversed scale)
       .by = bin_number
     )
 
   # For the bootstrapped data
   # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
   # The merged data will contain the bin information and corresponding statistics
+  # Not using AntiM_b = -1 * midpoint + 1
+  # i.e., Anticipated mortality (1 - midpoint, reversed scale)
   bin_stats_boot <- bin_summary_boot |>
     dplyr::left_join(bin_df_boot, by = c("replicate", "bin_number")) |>
     dplyr::mutate(
       R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      AntiM_b = -1 * midpoint + 1, # Anticipated mortality (1 - midpoint, reversed scale)
       .by = c(replicate, bin_number)
     )
 
@@ -304,7 +310,12 @@ rmm <- function(data,
       numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
       denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
       population_RMM = numerator / denominator, # Final RMM calculation
-    )
+      population_CI = 1.96 * sqrt((sum(AntiM_b) * sum(AntiS_b)) / sum(N_b)),
+      population_RMM_LL = population_RMM - population_CI,
+      population_RMM_UL = population_RMM + population_CI
+    ) |>
+    dplyr::relocate(population_RMM_LL, .before = population_RMM) |>
+    dplyr::relocate(population_CI, .after = population_RMM_UL)
 
   # For the bootstrapped data
   # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
@@ -324,19 +335,21 @@ rmm <- function(data,
   rmm_result_ci <- rmm_result_boot |>
     dplyr::summarize(
       bootstrap_RMM = mean(RMM, na.rm = TRUE),              # Mean RMM
-      sd_RMM = sd(RMM, na.rm = TRUE),                       # Standard deviation of RMM
-      se_RMM = sd_RMM / sqrt(n_samples),                    # Standard error
-      lower_ci = bootstrap_RMM - (1.96 * se_RMM),           # Lower bound of 95% CI
-      upper_ci = bootstrap_RMM + (1.96 * se_RMM)            # Upper bound of 95% CI
+      sd_bootstrap_RMM = sd(RMM, na.rm = TRUE),                       # Standard deviation of RMM
+      se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
+      bootstrap_CI = 1.96 * se_bootstrap_RMM,                    # Standard error
+      bootstrap_RMM_LL = bootstrap_RMM - bootstrap_CI,           # Lower bound of 95% CI
+      bootstrap_RMM_UL = bootstrap_RMM + bootstrap_CI            # Upper bound of 95% CI
     )
 
   # add the confidence intervals from the bootstrap distribution
   # to the final result
   rmm_result_final <- rmm_result |>
     dplyr::bind_cols(rmm_result_ci) |>
-    dplyr::relocate(lower_ci, .before = bootstrap_RMM) |>
-    dplyr::relocate(upper_ci, .after = bootstrap_RMM) |>
-    dplyr::select(-numerator, -denominator)
+    dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+    dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+    dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+    dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
 
   # Return the final result containing the RMM and its confidence intervals
   # optionally, pivot
@@ -359,7 +372,9 @@ rmm <- function(data,
 
 }
 
-#' Bin-Level Summary for Relative Mortality Metric (RMM)
+#' @title Bin-Level Summary for Relative Mortality Metric (RMM)
+#'
+#' @description
 #'
 #' Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
 #' Napoli et al. (2017) by grouping data into bins based on survival
@@ -409,23 +424,21 @@ rmm <- function(data,
 #'   - `TD_b`: Total dead in each bin (number of patients who did not survive).
 #'   - `N_b`: Total number of patients in each bin.
 #'   - `EM_b`: Estimated mortality rate for each bin (TD_b / (TA_b + TD_b)).
+#'   - `AntiS_b`: The anticipated survival rate for each bin.
+#'   - `AntiM_b`: The anticipated mortality rate for each bin.
 #'   - `bin_start`: The lower bound of the survival probability range for each bin.
 #'   - `bin_end`: The upper bound of the survival probability range for each bin.
 #'   - `midpoint`: The midpoint of the bin range (calculated as (bin_start + bin_end) / 2).
 #'   - `R_b`: The width of each bin (bin_end - bin_start).
-#'   - `AntiM_b`: The anticipated mortality for each bin, based on the midpoint for each bin.
-#'   - `numerator`: The weighted numerator for the RMM calculation for each bin.
-#'   - `denominator`: The weighted denominator for the RMM calculation for each bin.
+#'   - `population_RMM_LL`: The lower bound of the 95% confidence interval for the population RMM.
 #'   - `population_RMM`: The final calculated Relative Mortality Metric for the population
-#'   existing in `data` for each bin.
-#'   - `lower_ci`: The lower bound of the 95% confidence interval calculated via a bootstrap
-#'   sample for each bin.
-#'   - `boostrap_RMM`: The average RMM value calculated for the boostrap sample for each bin.
-#'   - `upper_ci`: The upper bound of the 95% confidence interval calculated via a bootstrap
-#'   sample for each bin.
-#'   - `sd_RMM`: The standard deviation of the RMM for the bootstrap distribution for each bin.
-#'   - `se_RMM`: The standard error of the RMM for the bootstrap distribution for each bin.
-#'
+#'     existing in `data`.
+#'   - `population_RMM_UL`: The upper bound of the 95% confidence interval for the population RMM.
+#'   - `population_CI`: The confidence interval width for the population RMM.
+#'   - `bootstrap_RMM_LL`: The lower bound of the 95% confidence interval for the bootstrap RMM.
+#'   - `bootstrap_RMM`: The average RMM value calculated for the bootstrap sample.
+#'   - `bootstrap_RMM_UL`: The upper bound of the 95% confidence interval for the bootstrap RMM.
+#'   - `bootstrap_CI`: The width of the 95% confidence interval for the bootstrap RMM.
 #'
 #' @export
 #'
@@ -609,6 +622,8 @@ rm_bin_summary <- function(data,
       TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
       N_b = sum(count), # Total number of patients in the bin
       EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
       .by = bin_number # Perform this calculation for each bin
     ) |>
     dplyr::arrange(bin_number) # Arrange the bins by bin_number
@@ -624,6 +639,8 @@ rm_bin_summary <- function(data,
       TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
       N_b = sum(count), # Total number of patients in the bin
       EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
 
       # Perform this calculation for each replicate and bin
       .by = c(replicate, bin_number)
@@ -632,56 +649,80 @@ rm_bin_summary <- function(data,
 
   # Join the bin statistics (bin_summary) with the bin_df for further calculations
   # The merged data will contain the bin information and corresponding statistics
-  # Calculate the Relative Mortality Metric (RMM):
-  # RMM is calculated by:
-  # - Computing the weighted difference between anticipated and observed mortality.
-  # - Normalizing by the weighted anticipated mortality.
+  # Not using AntiM_b = -1 * midpoint + 1
+  # i.e. Anticipated mortality (1 - midpoint, reversed scale)
   bin_stats <- bin_summary |>
     dplyr::left_join(bin_df, by = "bin_number") |>
     dplyr::mutate(
       R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      AntiM_b = -1 * midpoint + 1, # Anticipated mortality (1 - midpoint, reversed scale)
-      numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
-      denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
-      population_RMM = numerator / denominator, # Final RMM calculation
       .by = bin_number
     )
 
   # For the bootstrapped data
   # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
   # The merged data will contain the bin information and corresponding statistics
-  # Calculate the Relative Mortality Metric (RMM):
-  # RMM is calculated by:
-  # - Computing the weighted difference between anticipated and observed mortality.
-  # - Normalizing by the weighted anticipated mortality.
-  # Calculate mean, standard deviation, and 95% confidence intervals
+  # Not sing AntiM_b = -1 * midpoint + 1
+  # i.e. Anticipated mortality (1 - midpoint, reversed scale)
   bin_stats_boot <- bin_summary_boot |>
     dplyr::left_join(bin_df_boot, by = c("replicate", "bin_number")) |>
     dplyr::mutate(
       R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      AntiM_b = -1 * midpoint + 1, # Anticipated mortality (1 - midpoint, reversed scale)
+      .by = c(replicate, bin_number)
+    )
+
+  # Calculate the Relative Mortality Metric (RMM):
+  # RMM is calculated by:
+  # - Computing the weighted difference between anticipated and observed mortality.
+  # - Normalizing by the weighted anticipated mortality.
+  rmm_result <- bin_stats |>
+    dplyr::mutate(
+      numerator = R_b * (AntiM_b - EM_b), # Weighted numerator (difference between anticipated and observed mortality)
+      denominator = R_b * AntiM_b, # Weighted denominator (anticipated mortality)
+      population_RMM = numerator / denominator, # Final RMM calculation
+      population_CI = 1.96 * sqrt((AntiM_b * AntiS_b) / N_b),
+      population_RMM_LL = population_RMM - population_CI,
+      population_RMM_UL = population_RMM + population_CI,
+      .by = bin_number
+    ) |>
+    dplyr::relocate(population_RMM_LL, .before = population_RMM) |>
+    dplyr::relocate(population_CI, .after = population_RMM_UL)
+
+  # For the bootstrapped data
+  # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
+  # RMM is calculated by:
+  # - Computing the weighted difference between anticipated and observed mortality.
+  # - Normalizing by the weighted anticipated mortality.
+  # The confidence intervals are adjusted based on the weighted error bound.
+  rmm_result_boot <- bin_stats_boot |>
+    dplyr::mutate(
       numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
       denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
       RMM = numerator / denominator, # Final RMM calculation
       .by = c(replicate, bin_number)
-    ) |>
+    )
+
+  # Calculate mean, standard deviation, and 95% confidence intervals
+  rmm_result_ci <- rmm_result_boot |>
     dplyr::summarize(
-      bootstrap_RMM = mean(RMM, na.rm = T),
-      sd_RMM = sd(RMM, na.rm = TRUE),                       # Standard deviation of RMM
-      se_RMM = sd_RMM / sqrt(n_samples),                    # Standard error
-      lower_ci = bootstrap_RMM - (1.96 * se_RMM),           # Lower bound of 95% CI
-      upper_ci = bootstrap_RMM + (1.96 * se_RMM),            # Upper bound of 95% CI
+      bootstrap_RMM = mean(RMM, na.rm = TRUE),              # Mean RMM
+      sd_bootstrap_RMM = sd(RMM, na.rm = TRUE),                       # Standard deviation of RMM
+      se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
+      bootstrap_CI = 1.96 * se_bootstrap_RMM,                    # Standard error
+      bootstrap_RMM_LL = bootstrap_RMM - bootstrap_CI,           # Lower bound of 95% CI
+      bootstrap_RMM_UL = bootstrap_RMM + bootstrap_CI,            # Upper bound of 95% CI
       .by = bin_number
     )
 
   # add the confidence intervals from the bootstrap distribution
   # to the final result
-  bin_stats_final <- bin_stats |>
-    dplyr::left_join(bin_stats_boot, by = "bin_number") |>
-    dplyr::relocate(lower_ci, .before = bootstrap_RMM) |>
-    dplyr::relocate(upper_ci, .after = bootstrap_RMM)
+  rmm_result_final <- rmm_result |>
+    dplyr::left_join(rmm_result_ci, by = "bin_number") |>
+    dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+    dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+    dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+    dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
 
   # complete
-  return(bin_stats_final)
+  return(rmm_result_final)
 
 }

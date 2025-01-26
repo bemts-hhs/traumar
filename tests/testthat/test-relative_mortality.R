@@ -40,7 +40,7 @@ testthat::test_that("rmm function computes binning correctly", {
 
   # Check if binning works as expected
   result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 100)
-  testthat::expect_true(all(c("population_RMM", "lower_ci", "bootstrap_RMM", "upper_ci", "sd_RMM", "se_RMM") %in% colnames(result)))
+  testthat::expect_true(all(c("population_RMM_LL", "population_RMM", "population_RMM_UL", "population_CI", "bootstrap_RMM_LL", "bootstrap_RMM", "bootstrap_RMM_UL", "bootstrap_CI") %in% colnames(result)))
 
   # Test that RMM is calculated
   testthat::expect_true(all(!is.na(result$population_RMM)))
@@ -57,8 +57,10 @@ testthat::test_that("rmm function calculates RMM and its confidence intervals", 
   result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 100)
 
   # Test for upper and lower bounds of RMM
-  testthat::expect_true(all(result$lower_ci <= result$bootstrap_RMM))
-  testthat::expect_true(all(result$upper_ci >= result$bootstrap_RMM))
+  testthat::expect_true(all(result$population_RMM_LL <= result$population_RMM))
+  testthat::expect_true(all(result$population_RMM_UL >= result$population_RMM))
+  testthat::expect_true(all(result$bootstrap_RMM_LL <= result$bootstrap_RMM))
+  testthat::expect_true(all(result$bootstrap_RMM_UL >= result$bootstrap_RMM))
 })
 
 testthat::test_that("rmm function handles the pivot argument correctly", {

@@ -45,13 +45,20 @@ You can install the development version of traumar from [GitHub](https://github.
 pak::pak("bemts-hhs/traumar")
 ```
 
-## There is More!
+## Helper Functions
 
-{traumar} has many functions to help you in your data analysis journey! Check out the additional package documentation at [bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where you can find examples of each function the package has to offer.
+{traumar} has many functions to help you in your data analysis journey! In
+particular, if you do not presently have access to probability of survival data,
+{traumar} provides the `probability_of_survival()` function to do just that
+using the TRISS method. Check out the additional package documentation at
+[bemts-hhs/github.io/trauma](https://bemts-hhs/github.io/trauma) where you can
+find examples of each function the package has to offer.
 
 ## Calculating the W-Score
 
-The W-Score tells us how many survivals (or deaths) on average out of every 100 cases seen in a trauma center.  Using R, we can do this with the {traumar} package.
+The W-Score tells us how many survivals (or deaths) on average out of every 100
+cases seen in a trauma center.  Using R, we can do this with the {traumar}
+package.
 
 ### First, we will create the data for these examples
 
@@ -87,7 +94,14 @@ trauma_performance(data, Ps_col = Ps, outcome_col = death)
 
 ## Comparing the Probability of Survival Distribution of your Patient Mix to the [Major Trauma Outcomes Study](https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx)
 
-The M and Z scores are calculated using methods defined in the [literature](https://journals.lww.com/jtrauma/abstract/1978/10000/a_method_for_comparing_survival_of_burn_patients.3.aspx) may not be meaningful if your the distribution of the probability of survival measure is not similar enough to the Major Trauma Outcomes Study distribution.  {traumar} provides a way to check this in your data analysis script, or even from the console.  The `trauma_performance()` function does this under the hood for you, so you can get a read out of how much confidence you can put into the Z score.
+The M and Z scores are calculated using methods defined in the
+[literature](https://journals.lww.com/jtrauma/abstract/1978/10000/a_method_for_comparing_survival_of_burn_patients.3.aspx)
+may not be meaningful if your the distribution of the probability of survival
+measure is not similar enough to the Major Trauma Outcomes Study distribution.
+{traumar} provides a way to check this in your data analysis script, or even
+from the console.  The `trauma_performance()` function does this under the hood
+for you, so you can get a read out of how much confidence you can put into the Z
+score.
 
 ```{r trauma_case_mix}
 
@@ -98,14 +112,24 @@ trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
 
 ## The Relative Mortality Metric
 
-[Napoli et al. (2017)](https://www.tandfonline.com/doi/abs/10.1080/24725579.2017.1325948) published methods for calculating a measure of trauma center (or system) performance while overcoming a problem with the W-Score and the TRISS methodology.  Given that the majority of patients seen at trauma centers will have a probability of survival over 90%, estimating performance based on the W-Score may only indicate how well a center performed with lower acuity patients.  Using Napoli et al. (2017), it is possible to calculate a score that is similar to the W-Score in its interpretability, but deals with the negatively skewed probability of survival problem by creating non-linear bins of score ranges, and then weighting a score based on the nature of those bins.  The Relative Mortality Metric (RMM) has a scale from -1 to 1, where
-
+[Napoli et al.(2017)](https://www.tandfonline.com/doi/abs/10.1080/24725579.2017.1325948)
+published methods for calculating a measure of trauma center (or system)
+performance while overcoming a problem with the W-Score and the TRISS
+methodology.  Given that the majority of patients seen at trauma centers will
+have a probability of survival over 90%, estimating performance based on the
+W-Score may only indicate how well a center performed with lower acuity
+patients.  Using Napoli et al. (2017), it is possible to calculate a score that
+is similar to the W-Score in its interpretability, but deals with the negatively
+skewed probability of survival problem by creating non-linear bins of score
+ranges, and then weighting a score based on the nature of those bins.  The
+Relative Mortality Metric (RMM) has a scale from -1 to 1, where
+ 
  * An RMM of 0 indicates that the observed mortality aligns with the expected
- national benchmark across all acuity levels.
+national benchmark across all acuity levels.
  * An RMM greater than 0 indicates better-than-expected performance, where
- the center is outperforming the national benchmark.
+the center is outperforming the national benchmark.
  * An RMM less than 0 indicates under-performance, where the center’s observed
- mortality is higher than the expected benchmark.
+mortality is higher than the expected benchmark.
 
 ## Non-Linear Binning Algorithm
 
@@ -136,7 +160,18 @@ results$bin_stats
 
 ## The RMM function
 
-The RMM is helpful in that it will be sensitive to higher acuity patients as well, so if a trauma center is struggling to effectively intervene with higher acuity patients, this will be reflected in the RMM.  Conversely, with the W-Score, trauma center performance may not appear to decline due to the influence of the lower acuity patients using the MTOS Distribution.  {traumar} automates the calculation of the RMM as a single score, and by the non-linear binning process recommended by Napoli et al. (2017).  The `rmm()` and `rm_bin_summary()` functions call `nonlinear_bins()` under the hood to produce the statistics you see below in the example.  Notice that a bootstrap sample is taken to estimate a simulated distribution of RMM scores to calculate 95% confidence intervals, while also calculating the population RMM estimate:
+## The RMM function
+
+The RMM is sensitive to higher acuity patients, meaning that if a trauma center
+struggles with these patients, it will be reflected in the RMM. In contrast, the
+W-Score may mask declines in performance due to the influence of lower acuity
+patients via the MTOS Distribution. The {traumar} package automates RMM
+calculation as a single score using the nonlinear binning method from Napoli et
+al. (2017). The `rmm()` and `rm_bin_summary()` functions internally call
+`nonlinear_bins()` to generate the non-linear binning process. The function uses 
+a bootstrap process with `n_samples` repetitions to simulate an RMM distribution and
+estimate 95% confidence intervals. The RMM, along with corresponding
+confidence intervals, are provided for the population in `data`, as well.
 
 ```{r rmm}
 
