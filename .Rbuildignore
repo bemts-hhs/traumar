@@ -11,3 +11,4 @@
 ^pkgdown$
 ^\.covrignore$
 ^cran-comments\.md$
+^revdep$
