@@ -186,7 +186,7 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parameters</span></span></span>
-<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">10000</span>  <span class="co"># Total number of patients</span></span></span>
+<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">1000</span>  <span class="co"># Total number of patients</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Skewed towards higher values</span></span></span>
 <span class="r-in"><span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_patients</span>, mean <span class="op">=</span> <span class="fl">2</span>, sd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -205,12 +205,13 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span><span class="fu">rmm</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
 <span class="r-in"><span>    outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
 <span class="r-in"><span>    Divisor1 <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>    Divisor2 <span class="op">=</span> <span class="fl">5</span></span></span>
+<span class="r-in"><span>    Divisor2 <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>    n_samples <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   population_RMM_LL population_RMM population_RMM_UL population_CI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>           -<span style="color: #BB0000;">0.038</span><span style="color: #BB0000; text-decoration: underline;">8</span>         0.036<span style="text-decoration: underline;">1</span>             0.111        0.074<span style="text-decoration: underline;">9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            -<span style="color: #BB0000;">0.232</span>        0.003<span style="text-decoration: underline;">41</span>             0.239         0.235</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_UL &lt;dbl&gt;, bootstrap_CI &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -219,19 +220,20 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span>    outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
 <span class="r-in"><span>    Divisor1 <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>    Divisor2 <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>    n_samples <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>    pivot <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stat                 value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.038</span><span style="color: #BB0000; text-decoration: underline;">8</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM     0.036<span style="text-decoration: underline;">1</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.111  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.074<span style="text-decoration: underline;">9</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL   0.035<span style="text-decoration: underline;">7</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM      0.036<span style="text-decoration: underline;">9</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL   0.038<span style="text-decoration: underline;">1</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.001<span style="text-decoration: underline;">18</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.232</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM     0.003<span style="text-decoration: underline;">41</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.239  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.235  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL  -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">5</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM     -<span style="color: #BB0000;">0.009</span><span style="color: #BB0000; text-decoration: underline;">51</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL   0.046<span style="text-decoration: underline;">5</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.056<span style="text-decoration: underline;">0</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
