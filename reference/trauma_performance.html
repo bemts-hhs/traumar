@@ -102,10 +102,30 @@ information about the W, M, and Z scores will be printed to the console.</p></dd
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble containing the calculated scores (W-score, M-score, Z-score)
-and associated performance information. If <code>diagnostics</code> is TRUE,
-additional diagnostic information will be printed.</p>
-    </div>
+    <p>A tibble containing the following calculations:</p><ul><li><p><code>N_Patients</code>: The total number of patients included in the analysis.</p></li>
+<li><p><code>N_Survivors</code>: The total number of patients who survived, based on the provided outcome data.</p></li>
+<li><p><code>N_Deaths</code>: The total number of patients who died, based on the provided outcome data.</p></li>
+<li><p><code>Predicted_Survivors</code>: The total predicted number of survivors based on the
+survival probability (<code>Ps</code>) for all patients.</p></li>
+<li><p><code>Predicted_Deaths</code>: The total predicted number of deaths, calculated as <code>1 - Ps</code> for all patients.</p></li>
+<li><p><code>Patient_Estimate</code>: The estimated number of patients who survived, calculated based
+on the W-score. This value reflects the difference between the actual and
+predicted number of survivors.</p></li>
+<li><p><code>W_Score</code>: The W-score, representing the difference between the observed and expected
+number of survivors per 100 patients. A positive W-score indicates that more
+patients survived than expected, while a negative score indicates that fewer
+patients survived than expected.</p></li>
+<li><p><code>M_Score</code>: The M-score, which compares the observed patient case mix to the Major Trauma
+Outcomes Study (MTOS) case mix. A higher score indicates that the patient mix
+is more similar to MTOS, while a lower score indicates a dissimilar mix. Based on the MTOS
+literature, an M_Score &gt;= 0.88 indicates that the Z_Score comes from distribution similar
+enough to the MTOS Ps distribution.</p></li>
+<li><p><code>Z_Score</code>: The Z-score, which quantifies the difference between the actual and predicted
+mortality (if <code>z_method = "mortality"</code>) or survival (if <code>z_method = "survival"</code>). A Z-score &gt; 1.96 is considered to point to the statistical
+significance of the W-Score at alpha = 0.05 level for survival. The positive
+Z_Score indicates that more patients survived than predicted, while a
+negative Z-score indicates fewer survivors than predicted.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p>Nicolas Foss, Ed.D., MS</p>
@@ -132,19 +152,18 @@ additional diagnostic information will be printed.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate trauma performance (W, M, Z scores)</span></span></span>
 <span class="r-in"><span><span class="fu">trauma_performance</span><span class="op">(</span><span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>, outcome_col <span class="op">=</span> <span class="va">death</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Calculation_Name        Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> N_Patients          <span style="text-decoration: underline;">10</span>000    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> N_Survivors          <span style="text-decoration: underline;">8</span>137    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> N_Deaths             <span style="text-decoration: underline;">1</span>863    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Predicted_Survivors  <span style="text-decoration: underline;">8</span>097.   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Predicted_Deaths     <span style="text-decoration: underline;">1</span>903.   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> SE_Predictions         34.2  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Patient_Estimate       40.3  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> W_Score                 0.403</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> M_Score                 0.374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Z_Score                 1.18 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Calculation_Name        Value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> N_Patients          <span style="text-decoration: underline;">10</span>000    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> N_Survivors          <span style="text-decoration: underline;">8</span>137    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> N_Deaths             <span style="text-decoration: underline;">1</span>863    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Predicted_Survivors  <span style="text-decoration: underline;">8</span>097.   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Predicted_Deaths     <span style="text-decoration: underline;">1</span>903.   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Patient_Estimate       40.3  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> W_Score                 0.403</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> M_Score                 0.374</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span> Z_Score                 1.18 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

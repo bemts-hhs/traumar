@@ -44,7 +44,7 @@ a custom prefix. It supports numbers up to the decillion range.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pretty_number</span><span class="op">(</span><span class="va">x</span>, n_decimal <span class="op">=</span> <span class="fl">2</span>, prefix <span class="op">=</span> <span class="cn">NULL</span>, round <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pretty_number</span><span class="op">(</span><span class="va">x</span>, n_decimal <span class="op">=</span> <span class="fl">2</span>, prefix <span class="op">=</span> <span class="cn">NULL</span>, truncate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,15 +65,15 @@ include in the output. Defaults to <code>2</code>.</p></dd>
 (e.g., "$"). Defaults to <code>NULL</code>.</p></dd>
 
 
-<dt id="arg-round">round<a class="anchor" aria-label="anchor" href="#arg-round"></a></dt>
-<dd><p>A logical value indicating whether to round the numbers before
-formatting. Defaults to <code>TRUE</code>.</p></dd>
+<dt id="arg-truncate">truncate<a class="anchor" aria-label="anchor" href="#arg-truncate"></a></dt>
+<dd><p>A logical value indicating whether to truncate the numbers before
+formatting. Defaults to <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A character vector with the numbers formatted as abbreviated
-strings. If <code>prefix</code> is provided, it is added to the formatted numbers.</p>
+strings. If <code>prefix</code> is provided, it prepends the formatted numbers.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -99,8 +99,8 @@ strings. If <code>prefix</code> is provided, it is added to the formatted number
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "$1.23k"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Without rounding</span></span></span>
-<span class="r-in"><span><span class="fu">pretty_number</span><span class="op">(</span><span class="fl">1250</span>, round <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># "1.2k"</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.25k"</span>
+<span class="r-in"><span><span class="fu">pretty_number</span><span class="op">(</span><span class="fl">1250</span>, truncate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># "1.2k"</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1.2k"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
