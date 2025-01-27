@@ -51,7 +51,7 @@ pak::pak("bemts-hhs/traumar")
 particular, if you do not presently have access to probability of survival data,
 {traumar} provides the `probability_of_survival()` function to do just that
 using the TRISS method. Check out the additional package documentation at
-https://bemts-hhs.github.io/traumar where you can
+https://bemts-hhs.github.io/traumar/ where you can
 find examples of each function the package has to offer.
 
 ## Calculating the W-Score
@@ -112,12 +112,11 @@ trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
 
 ## The Relative Mortality Metric
 
-[Napoli et al.(2017)](https://www.tandfonline.com/doi/abs/10.1080/24725579.2017.1325948)
-published methods for calculating a measure of trauma center (or system)
-performance while overcoming a problem with the W-Score and the TRISS
-methodology.  Given that the majority of patients seen at trauma centers will
-have a probability of survival over 90%, estimating performance based on the
-W-Score may only indicate how well a center performed with lower acuity
+Napoli et al.(2017) published methods for calculating a measure of trauma center
+(or system) performance while overcoming a problem with the W-Score and the
+TRISS methodology.  Given that the majority of patients seen at trauma centers
+will have a probability of survival over 90%, estimating performance based on
+the W-Score may only indicate how well a center performed with lower acuity
 patients.  Using Napoli et al. (2017), it is possible to calculate a score that
 is similar to the W-Score in its interpretability, but deals with the negatively
 skewed probability of survival problem by creating non-linear bins of score

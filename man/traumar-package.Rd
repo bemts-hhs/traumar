@@ -4,9 +4,9 @@
 \name{traumar-package}
 \alias{traumar}
 \alias{traumar-package}
-\title{traumar: Calculate Metrics Relevant to Trauma System Performance}
+\title{traumar: Calculate Metrics for Trauma System Performance}
 \description{
-Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. This R package provides robust functions driven by the academic literature to automate the calculation of relevant metrics, and provides some helper functions for the data analysis journey.
+Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. traumar provides robust functions driven by the academic literature to automate the calculation of relevant metrics to individuals desiring to measure the peformance of their trauma center or even a trauma system. traumar also provides some helper functions for the data analysis journey. For more information on methods used in this package, please see Napoli et al. (2017) \doi{10.1080/24725579.2017.1325948/} regarding the Relative Mortality Metric, Champion et al. (1990) \url{https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx/} on the W score, and Flora (1978) \doi{10.1097/00005373-197810000-00003/} and Boyd et al. (1987) \url{https://journals.lww.com/jtrauma/abstract/1987/04000/Evaluating_Trauma_Care__The_TRISS_Method.5.aspx/} on the M and Z scores.
 }
 \seealso{
 Useful links:
@@ -16,7 +16,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Nicolas Foss \email{nicolas.foss@hhs.iowa.gov}
+\strong{Maintainer}: Nicolas Foss \email{nicolas.foss@hhs.iowa.gov} [copyright holder]
 
 }
 \keyword{internal}
