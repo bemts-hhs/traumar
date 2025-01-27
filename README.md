@@ -76,19 +76,18 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Calculate trauma performance (W, M, Z scores)
 trauma_performance(data, Ps_col = Ps, outcome_col = death)
-#> # A tibble: 10 × 2
-#>    Calculation_Name        Value
-#>    <chr>                   <dbl>
-#>  1 N_Patients          10000    
-#>  2 N_Survivors          8137    
-#>  3 N_Deaths             1863    
-#>  4 Predicted_Survivors  8097.   
-#>  5 Predicted_Deaths     1903.   
-#>  6 SE_Predictions         34.2  
-#>  7 Patient_Estimate       40.3  
-#>  8 W_Score                 0.403
-#>  9 M_Score                 0.374
-#> 10 Z_Score                 1.18
+#> # A tibble: 9 × 2
+#>   Calculation_Name        Value
+#>   <chr>                   <dbl>
+#> 1 N_Patients          10000    
+#> 2 N_Survivors          8137    
+#> 3 N_Deaths             1863    
+#> 4 Predicted_Survivors  8097.   
+#> 5 Predicted_Deaths     1903.   
+#> 6 Patient_Estimate       40.3  
+#> 7 W_Score                 0.403
+#> 8 M_Score                 0.374
+#> 9 Z_Score                 1.18
 ```
 
 ## Comparing the Probability of Survival Distribution of your Patient Mix to the [Major Trauma Outcomes Study](https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx)

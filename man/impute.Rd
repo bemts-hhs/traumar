@@ -16,7 +16,8 @@ impute(
 
 \item{focus}{A character string indicating the focus. Options are:
 \itemize{
-\item \code{"skew"}: Handle extreme values using percentile or IQR methods (default).
+\item \code{"skew"}: Handle extreme values using percentile or
+IQR methods (default).
 \item \code{"missing"}: Impute missing values.
 }}
 

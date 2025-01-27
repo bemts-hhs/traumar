@@ -29,7 +29,7 @@ accepted significance thresholds. The significance codes are:
 data <- data.frame(p_value = c(0.001, 0.03, 0.12, 0.05, 0.07))
 
 data |>
-  mutate(significance = stat_sig(p_val_data = p_value))
+  dplyr::mutate(significance = stat_sig(p_val_data = p_value))
 
 }
 \author{
