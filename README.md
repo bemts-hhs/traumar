@@ -40,8 +40,9 @@ pak::pak("bemts-hhs/traumar")
 In particular, if you do not presently have access to probability of
 survival data, {traumar} provides the `probability_of_survival()`
 function to do just that using the TRISS method. Check out the
-additional package documentation at <https://bemts-hhs/github.io/trauma>
-where you can find examples of each function the package has to offer.
+additional package documentation at
+<https://bemts-hhs.github.io/traumar> where you can find examples of
+each function the package has to offer.
 
 ## Calculating the W-Score
 
