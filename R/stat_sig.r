@@ -2,10 +2,10 @@
 #'
 #' This function assigns significance codes to a p-value vector based on commonly
 #' accepted significance thresholds. The significance codes are:
-#' - `"***"` for p-values ≤ 0.001
-#' - `"**"` for p-values ≤ 0.01 and > 0.001
-#' - `"*"` for p-values ≤ 0.05 and > 0.01
-#' - `"."` for p-values ≤ 0.1 and > 0.05
+#' - `"***"` for p-values <= 0.001
+#' - `"**"` for p-values <= 0.01 and > 0.001
+#' - `"*"` for p-values <= 0.05 and > 0.01
+#' - `"."` for p-values <= 0.1 and > 0.05
 #' - `"<>"` for p-values > 0.1
 #'
 #' @param p_val_data A numeric vector representing the p-values to be categorized.

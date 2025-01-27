@@ -68,7 +68,7 @@
 #' set.seed(123)
 #'
 #' # Parameters
-#' n_patients <- 10000  # Total number of patients
+#' n_patients <- 1000  # Total number of patients
 #'
 #' # Skewed towards higher values
 #' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
@@ -87,7 +87,8 @@
 #' rmm(data = data, Ps_col = Ps,
 #'     outcome_col = survival,
 #'     Divisor1 = 5,
-#'     Divisor2 = 5
+#'     Divisor2 = 5,
+#'     n_samples = 5
 #'     )
 #'
 #' # pivot!
@@ -95,6 +96,7 @@
 #'     outcome_col = survival,
 #'     Divisor1 = 5,
 #'     Divisor2 = 5,
+#'     n_samples = 5,
 #'     pivot = TRUE
 #'     )
 #'
@@ -465,7 +467,8 @@ rmm <- function(data,
 #'
 #' # Example usage of the `rm_bin_summary` function
 #' rm_bin_summary(data = data, Ps_col = Ps,
-#'                outcome_col = survival
+#'                outcome_col = survival,
+#'                n_samples = 5
 #'                )
 #'
 #' @author Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas

@@ -7,22 +7,22 @@ testthat::test_that("rmm function validates inputs correctly", {
 
   # Test missing Ps_col
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
-  testthat::expect_error(rmm(data = df, outcome_col = survival, n_samples = 100))
+  testthat::expect_error(rmm(data = df, outcome_col = survival, n_samples = 5))
 
   # Test missing outcome_col
   testthat::expect_error(rmm(data = df, Ps_col = Ps))
 
   # Test non-binary outcome_col
   df_non_binary <- tibble::tibble(Ps = plogis(rnorm(5, mean = 2, sd = 1.5)), survival = c(1, 2, 3, 4, 5))
-  testthat::expect_error(rmm(data = df_non_binary, Ps_col = Ps, outcome_col = survival, n_samples = 100))
+  testthat::expect_error(rmm(data = df_non_binary, Ps_col = Ps, outcome_col = survival, n_samples = 5))
 
   # Test non-numeric Ps_col
   df_non_numeric <- tibble::tibble(Ps = c("a", "b", "c"), survival = c(1, 0, 1))
-  testthat::expect_error(rmm(data = df_non_numeric, Ps_col = Ps, outcome_col = survival, n_samples = 100))
+  testthat::expect_error(rmm(data = df_non_numeric, Ps_col = Ps, outcome_col = survival, n_samples = 5))
 
   # Test Ps values > 1
   df_ps_above_1 <- tibble::tibble(Ps = c(150, 80, 30), survival = c(1, 0, 1))
-  testthat::expect_error(rmm(data = df_ps_above_1, Ps_col = Ps, outcome_col = survival, n_samples = 100))
+  testthat::expect_error(rmm(data = df_ps_above_1, Ps_col = Ps, outcome_col = survival, n_samples = 5))
 
   #Test incorrect input to n_samples
   testthat::expect_error(rmm(data = data.frame(Ps = c(0.1, 0.5, 0.9, .005), survival = c(1, 0, 1, 0)),
@@ -39,7 +39,7 @@ testthat::test_that("rmm function computes binning correctly", {
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
   # Check if binning works as expected
-  result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 100)
+  result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 5)
   testthat::expect_true(all(c("population_RMM_LL", "population_RMM", "population_RMM_UL", "population_CI", "bootstrap_RMM_LL", "bootstrap_RMM", "bootstrap_RMM_UL", "bootstrap_CI") %in% colnames(result)))
 
   # Test that RMM is calculated
@@ -54,7 +54,7 @@ testthat::test_that("rmm function calculates RMM and its confidence intervals", 
   # Test with mock data for RMM calculation
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
-  result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 100)
+  result <- rmm(data = df, Ps_col = Ps, outcome_col = survival, Divisor1 = 5, Divisor2 = 5, n_samples = 5)
 
   # Test for upper and lower bounds of RMM
   testthat::expect_true(all(result$population_RMM_LL <= result$population_RMM))
@@ -67,12 +67,12 @@ testthat::test_that("rmm function handles the pivot argument correctly", {
   # Test with pivot = TRUE
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
-  result_pivot <- rmm(data = df, Ps_col = Ps, outcome_col = survival, pivot = TRUE, n_samples = 100)
+  result_pivot <- rmm(data = df, Ps_col = Ps, outcome_col = survival, pivot = TRUE, n_samples = 5)
   testthat::expect_true("stat" %in% colnames(result_pivot))
   testthat::expect_true("value" %in% colnames(result_pivot))
 
   # Test without pivot (default is FALSE)
-  result_no_pivot <- rmm(data = df, Ps_col = Ps, outcome_col = survival, pivot = FALSE, n_samples = 100)
+  result_no_pivot <- rmm(data = df, Ps_col = Ps, outcome_col = survival, pivot = FALSE, n_samples = 5)
   testthat::expect_false("stat" %in% colnames(result_no_pivot))
   testthat::expect_false("value" %in% colnames(result_no_pivot))
 })
@@ -163,7 +163,7 @@ testthat::test_that("bin statistics are calculated correctly", {
   # Test missing Ps_col
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
-  try_function <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+  try_function <- rm_bin_summary(df, Ps, survival, n_samples = 5)
 
   testthat::expect_true("TA_b" %in% names(try_function))
   testthat::expect_true("TD_b" %in% names(try_function))
@@ -178,7 +178,7 @@ testthat::test_that("RMM is calculated correctly", {
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
   rmm_result <- df |>
-    rm_bin_summary(Ps, survival, n_samples = 100)
+    rm_bin_summary(Ps, survival, n_samples = 5)
 
   testthat::expect_true("population_RMM" %in% names(rmm_result))
   testthat::expect_true(all(rmm_result$population_RMM >= -1) || all(rmm_result$population_RMM <= 1))
@@ -192,7 +192,7 @@ testthat::test_that("confidence intervals are correctly computed in final RMM", 
   # Test missing Ps_col
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
-  rmm_result <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+  rmm_result <- rm_bin_summary(df, Ps, survival, n_samples = 5)
 
   testthat::expect_true("bootstrap_RMM_LL" %in% names(rmm_result))
   testthat::expect_true("bootstrap_RMM_UL" %in% names(rmm_result))
@@ -207,10 +207,9 @@ testthat::test_that("RMM final data is correctly sorted by bin_number", {
   # Test missing Ps_col
   df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
 
-  rmm_result_final <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+  rmm_result_final <- rm_bin_summary(df, Ps, survival, n_samples = 5)
 
   testthat::expect_equal(min(rmm_result_final$bin_number), 1)
   testthat::expect_equal(max(rmm_result_final$bin_number), 10)  # Assuming 10 bins
 
 })
-

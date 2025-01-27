@@ -12,6 +12,8 @@ Hospitals, hospital systems, and even trauma systems that provide care to injure
 Useful links:
 \itemize{
   \item \url{https://bemts-hhs.github.io/traumar/}
+  \item \url{https://github.com/bemts-hhs/traumar}
+  \item Report bugs at \url{https://github.com/bemts-hhs/traumar/issues}
 }
 
 }

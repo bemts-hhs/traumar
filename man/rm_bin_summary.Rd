@@ -115,7 +115,8 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Example usage of the `rm_bin_summary` function
 rm_bin_summary(data = data, Ps_col = Ps,
-               outcome_col = survival
+               outcome_col = survival,
+               n_samples = 5
                )
 
 }

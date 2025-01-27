@@ -17,10 +17,10 @@ A character vector with the assigned significance codes for each p-value.
 This function assigns significance codes to a p-value vector based on commonly
 accepted significance thresholds. The significance codes are:
 \itemize{
-\item \code{"***"} for p-values ≤ 0.001
-\item \code{"**"} for p-values ≤ 0.01 and > 0.001
-\item \code{"*"} for p-values ≤ 0.05 and > 0.01
-\item \code{"."} for p-values ≤ 0.1 and > 0.05
+\item \code{"***"} for p-values <= 0.001
+\item \code{"**"} for p-values <= 0.01 and > 0.001
+\item \code{"*"} for p-values <= 0.05 and > 0.01
+\item \code{"."} for p-values <= 0.1 and > 0.05
 \item \code{"<>"} for p-values > 0.1
 }
 }
