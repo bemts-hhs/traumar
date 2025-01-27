@@ -4,27 +4,18 @@
 \alias{stat_sig}
 \title{Assign Significance Codes Based on P-Values}
 \usage{
-stat_sig(data, p_val_col)
+stat_sig(p_val_data)
 }
 \arguments{
-\item{data}{A data frame containing the p-value column to be assessed for
-significance.}
-
-\item{p_val_col}{A numeric column name (or unquoted variable name)
-representing the p-values to be categorized. The column should be numeric
-and contain p-values between 0 and 1.}
+\item{p_val_data}{A numeric vector representing the p-values to be categorized.
+The vector should contain p-values between 0 and 1.}
 }
 \value{
-A data frame with an additional column \code{significance_value}
-containing the assigned significance codes for each p-value.
+A character vector with the assigned significance codes for each p-value.
 }
 \description{
-This function assigns significance codes to a p-value column in a data frame
-based on commonly accepted significance thresholds. It also provides an
-option to display a message about p-value interpretation when requested.
-}
-\details{
-The significance codes are assigned as follows:
+This function assigns significance codes to a p-value vector based on commonly
+accepted significance thresholds. The significance codes are:
 \itemize{
 \item \code{"***"} for p-values ≤ 0.001
 \item \code{"**"} for p-values ≤ 0.01 and > 0.001
@@ -32,13 +23,15 @@ The significance codes are assigned as follows:
 \item \code{"."} for p-values ≤ 0.1 and > 0.05
 \item \code{"<>"} for p-values > 0.1
 }
-
-Additionally, a message explaining the significance of p-values and their
-interpretation can be displayed if the \code{p_message} argument is set to \code{TRUE}.
 }
 \examples{
 # Example usage of the stat_sig function
 data <- data.frame(p_value = c(0.001, 0.03, 0.12, 0.05, 0.07))
-stat_sig(data, p_val_col = p_value)
 
+data |>
+  mutate(significance = stat_sig(p_val_data = p_value))
+
+}
+\author{
+Nicolas Foss, Ed.D., MS
 }

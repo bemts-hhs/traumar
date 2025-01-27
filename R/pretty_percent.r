@@ -7,9 +7,9 @@
 #' human-readable percentage representation.
 #'
 #' @param variable A numeric vector representing proportions to format as
-#'   percentages.
+#'   percentages. The values are on a scale from 0 to 1.
 #' @param n_decimal A numeric value specifying the number of decimal places.
-#'   Defaults to `0.1`.
+#'   Defaults to `1`.
 #'
 #' @returns A character vector containing the formatted percentages.
 #'
@@ -23,14 +23,14 @@
 #'
 #' @author Nicolas Foss, Ed.D., MS
 #'
-pretty_percent <- function(variable, n_decimal = 0.1) {
+pretty_percent <- function(variable, n_decimal = 1) {
   # Ensure the input is numeric
   if (!is.numeric(variable)) {
     cli::cli_abort("The `variable` argument must be numeric. You supplied {.cls {class(variable)}}.")
   }
 
   # Ensure n_decimal is valid
-  if (!is.numeric(n_decimal) || n_decimal <= 0) {
+  if (!is.numeric(n_decimal) || n_decimal < 0) {
     cli::cli_abort("The `n_decimal` argument must be a positive numeric value. You supplied {.val {n_decimal}}.")
   }
 

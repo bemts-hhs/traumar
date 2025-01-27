@@ -57,10 +57,19 @@ small_count_label <- function(var, cutoff, replacement) {
   }
 
   # Perform the replacement based on the cutoff
-  if (!is.character(replacement)) {
+  if (
+    !is.character(replacement) ||
+
+      ( is.character(replacement) && all(var >= cutoff, na.rm = T) )
+
+      ) {
+
     output <- ifelse(var < cutoff, replacement, var)
+
   } else {
+
     output <- ifelse(var < cutoff, replacement, as.character(var))
+
   }
 
   return(output)

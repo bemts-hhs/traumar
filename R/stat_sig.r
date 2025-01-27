@@ -1,47 +1,49 @@
 #' Assign Significance Codes Based on P-Values
 #'
-#' This function assigns significance codes to a p-value column in a data frame
-#' based on commonly accepted significance thresholds. It also provides an
-#' option to display a message about p-value interpretation when requested.
-#'
-#' The significance codes are assigned as follows:
+#' This function assigns significance codes to a p-value vector based on commonly
+#' accepted significance thresholds. The significance codes are:
 #' - `"***"` for p-values ≤ 0.001
 #' - `"**"` for p-values ≤ 0.01 and > 0.001
 #' - `"*"` for p-values ≤ 0.05 and > 0.01
 #' - `"."` for p-values ≤ 0.1 and > 0.05
 #' - `"<>"` for p-values > 0.1
 #'
-#' Additionally, a message explaining the significance of p-values and their
-#' interpretation can be displayed if the `p_message` argument is set to `TRUE`.
+#' @param p_val_data A numeric vector representing the p-values to be categorized.
+#'   The vector should contain p-values between 0 and 1.
 #'
-#' @param data A data frame containing the p-value column to be assessed for
-#'   significance.
-#' @param p_val_col A numeric column name (or unquoted variable name)
-#'   representing the p-values to be categorized. The column should be numeric
-#'   and contain p-values between 0 and 1.
-#'
-#' @returns A data frame with an additional column `significance_value`
-#'   containing the assigned significance codes for each p-value.
+#' @returns A character vector with the assigned significance codes for each p-value.
 #'
 #' @export
 #'
 #' @examples
 #' # Example usage of the stat_sig function
 #' data <- data.frame(p_value = c(0.001, 0.03, 0.12, 0.05, 0.07))
-#' stat_sig(data, p_val_col = p_value)
 #'
-stat_sig <- function(data, p_val_col) {
+#' data |>
+#'   mutate(significance = stat_sig(p_val_data = p_value))
+#'
+#' @author Nicolas Foss, Ed.D., MS
+#'
+stat_sig <- function(p_val_data) {
 
-  model_out <- data |>
-    dplyr::mutate(significance_value = ifelse({{p_val_col}} <= 0.05 & {{p_val_col}} > 0.01, "*",
-                                              ifelse({{p_val_col}} <= 0.01 & {{p_val_col}} > 0.001, "**",
-                                                     ifelse({{p_val_col}} <= 0.001, "***",
-                                                            ifelse({{p_val_col}} <= 0.1 & {{p_val_col}} > 0.05, ".", "<>")
-                                                     )
-                                              )
-    )
-    )
+  # Check if the input is numeric
+  if (!is.numeric(p_val_data)) {
+    cli::cli_abort("The input {.var p_val_data} must be a numeric vector, but you supplied an object of class {.cls {class(p_val_data)}}.")
+  }
 
-  return(model_out)
+  # Check if the p-values are between 0 and 1
+  if (any(p_val_data < 0 | p_val_data > 1, na.rm = T)) {
+    cli::cli_abort("The p-values in {.var p_val_data} must be between 0 and 1.")
+  }
 
+  # Assign significance codes based on p-value thresholds
+  significance_values <- ifelse(p_val_data <= 0.05 & p_val_data > 0.01, "*",
+                                ifelse(p_val_data <= 0.01 & p_val_data > 0.001, "**",
+                                       ifelse(p_val_data <= 0.001, "***",
+                                              ifelse(p_val_data <= 0.1 & p_val_data > 0.05, ".", "<>")
+                                       )
+                                )
+  )
+
+  return(significance_values)
 }

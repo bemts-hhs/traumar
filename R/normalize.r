@@ -38,6 +38,12 @@ normalize <- function(x, method = c("min_max", "z_score")) {
 
   }
 
+  # Check for empty input
+  if (length(x) == 0) {
+    cli::cli_alert_info("Input is empty; returning an empty numeric vector.")
+    return(numeric(0))
+  }
+
   if(length(method) > 1) {
 
     method <- "min_max"

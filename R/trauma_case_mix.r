@@ -79,12 +79,12 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
   }
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
-  if (any(Ps_data < 0 | Ps_data > 100)) {
-    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 100.")
+  if (any(Ps_data < 0 | Ps_data > 100, na.rm = T)) {
+    cli::cli_abort("The input probability of survival (Ps) values must be between 0 and 100.")
   }
 
   # Notify the user if any conversions were made
-  if (any(Ps_data > 1)) {
+  if (any(Ps_data > 1, na.rm = T)) {
     cli::cli_alert_info("Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format.")
   }
 
@@ -92,8 +92,8 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
   Ps_data <- dplyr::if_else(Ps_data > 1, Ps_data / 100, Ps_data)
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
-  if (any(Ps_data < 0 | Ps_data > 100)) {
-    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 100.")
+  if (any(Ps_data < 0 | Ps_data > 1, na.rm = T)) {
+    cli::cli_abort("The rescaled probability of survival (Ps) values must be between 0 and 1.")
   }
 
   Ps_range_order <- c("0.96 - 1.00", "0.91 - 0.95", "0.76 - 0.90", "0.51 - 0.75", "0.26 - 0.50", "0.00 - 0.25")

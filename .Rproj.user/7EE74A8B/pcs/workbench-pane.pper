@@ -1,5 +1,8 @@
 {
     "TabSet1": 0,
     "TabSet2": 4,
-    "TabZoom": {}
+    "TabZoom": {
+        "MaximizedTab": "Viewer",
+        "WidgetSize": 430
+    }
 }

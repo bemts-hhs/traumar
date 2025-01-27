@@ -4,7 +4,7 @@
 \alias{pretty_number}
 \title{Convert Numbers into Readable Abbreviated Formats}
 \usage{
-pretty_number(x, n_decimal = 2, prefix = NULL, round = T)
+pretty_number(x, n_decimal = 2, prefix = NULL, truncate = FALSE)
 }
 \arguments{
 \item{x}{A numeric value or vector to be converted into a readable format.}
@@ -15,12 +15,12 @@ include in the output. Defaults to \code{2}.}
 \item{prefix}{An optional character string to prepend to the formatted number
 (e.g., "$"). Defaults to \code{NULL}.}
 
-\item{round}{A logical value indicating whether to round the numbers before
-formatting. Defaults to \code{TRUE}.}
+\item{truncate}{A logical value indicating whether to truncate the numbers before
+formatting. Defaults to \code{FALSE}.}
 }
 \value{
 A character vector with the numbers formatted as abbreviated
-strings. If \code{prefix} is provided, it is added to the formatted numbers.
+strings. If \code{prefix} is provided, it prepends the formatted numbers.
 }
 \description{
 This function converts large numeric values into readable abbreviated formats
@@ -40,7 +40,7 @@ pretty_number(1234, n_decimal = 1) # "1.2k"
 pretty_number(1234, prefix = "$")  # "$1.23k"
 
 # Without rounding
-pretty_number(1250, round = FALSE) # "1.2k"
+pretty_number(1250, truncate = TRUE) # "1.2k"
 
 }
 \author{

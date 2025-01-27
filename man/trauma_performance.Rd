@@ -40,9 +40,32 @@ default is "survival".}
 information about the W, M, and Z scores will be printed to the console.}
 }
 \value{
-A tibble containing the calculated scores (W-score, M-score, Z-score)
-and associated performance information. If \code{diagnostics} is TRUE,
-additional diagnostic information will be printed.
+A tibble containing the following calculations:
+\itemize{
+\item \code{N_Patients}: The total number of patients included in the analysis.
+\item \code{N_Survivors}: The total number of patients who survived, based on the provided outcome data.
+\item \code{N_Deaths}: The total number of patients who died, based on the provided outcome data.
+\item \code{Predicted_Survivors}: The total predicted number of survivors based on the
+survival probability (\code{Ps}) for all patients.
+\item \code{Predicted_Deaths}: The total predicted number of deaths, calculated as \code{1 - Ps} for all patients.
+\item \code{Patient_Estimate}: The estimated number of patients who survived, calculated based
+on the W-score. This value reflects the difference between the actual and
+predicted number of survivors.
+\item \code{W_Score}: The W-score, representing the difference between the observed and expected
+number of survivors per 100 patients. A positive W-score indicates that more
+patients survived than expected, while a negative score indicates that fewer
+patients survived than expected.
+\item \code{M_Score}: The M-score, which compares the observed patient case mix to the Major Trauma
+Outcomes Study (MTOS) case mix. A higher score indicates that the patient mix
+is more similar to MTOS, while a lower score indicates a dissimilar mix. Based on the MTOS
+literature, an M_Score >= 0.88 indicates that the Z_Score comes from distribution similar
+enough to the MTOS Ps distribution.
+\item \code{Z_Score}: The Z-score, which quantifies the difference between the actual and predicted
+mortality (if \code{z_method = "mortality"}) or survival (if \code{z_method = "survival"}). A Z-score > 1.96 is considered to point to the statistical
+significance of the W-Score at alpha = 0.05 level for survival. The positive
+Z_Score indicates that more patients survived than predicted, while a
+negative Z-score indicates fewer survivors than predicted.
+}
 }
 \description{
 This function calculates trauma hospital performance based on the M, W, and Z

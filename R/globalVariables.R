@@ -39,5 +39,6 @@ utils::globalVariables(c(
   "population_RMM_LL",
   "population_RMM_UL",
   "sd_bootstrap_RMM",
-  "se_bootstrap_RMM"
+  "se_bootstrap_RMM",
+  "stat_sig"
 ))

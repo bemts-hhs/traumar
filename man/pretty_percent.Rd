@@ -4,14 +4,14 @@
 \alias{pretty_percent}
 \title{Format Numeric Variables as Percentages}
 \usage{
-pretty_percent(variable, n_decimal = 0.1)
+pretty_percent(variable, n_decimal = 1)
 }
 \arguments{
 \item{variable}{A numeric vector representing proportions to format as
-percentages.}
+percentages. The values are on a scale from 0 to 1.}
 
 \item{n_decimal}{A numeric value specifying the number of decimal places.
-Defaults to \code{0.1}.}
+Defaults to \code{1}.}
 }
 \value{
 A character vector containing the formatted percentages.

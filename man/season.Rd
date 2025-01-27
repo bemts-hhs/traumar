@@ -23,7 +23,13 @@ factor levels are:
 }
 \description{
 This function determines the season (Winter, Spring, Summer, or Fall) based
-on an input date. The seasons are determined using the month of the year and
+on an input date.
+}
+\details{
+The seasons are assigned based on geographic regions similar to how seasons
+occur in the United States.
+
+The seasons are determined using the month of the year and
 the traditional meteorological definition of seasons (Winter: December,
 January, February; Spring: March, April, May; Summer: June, July, August;
 Fall: September, October, November).

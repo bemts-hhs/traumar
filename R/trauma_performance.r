@@ -27,9 +27,32 @@
 #' @param diagnostics A logical flag (default is FALSE). If TRUE, diagnostic
 #'   information about the W, M, and Z scores will be printed to the console.
 #'
-#' @return A tibble containing the calculated scores (W-score, M-score, Z-score)
-#'   and associated performance information. If `diagnostics` is TRUE,
-#'   additional diagnostic information will be printed.
+#' @return A tibble containing the following calculations:
+#'
+#' - `N_Patients`: The total number of patients included in the analysis.
+#' - `N_Survivors`: The total number of patients who survived, based on the provided outcome data.
+#' - `N_Deaths`: The total number of patients who died, based on the provided outcome data.
+#' - `Predicted_Survivors`: The total predicted number of survivors based on the
+#' survival probability (`Ps`) for all patients.
+#' - `Predicted_Deaths`: The total predicted number of deaths, calculated as `1 - Ps` for all patients.
+#' - `Patient_Estimate`: The estimated number of patients who survived, calculated based
+#' on the W-score. This value reflects the difference between the actual and
+#' predicted number of survivors.
+#' - `W_Score`: The W-score, representing the difference between the observed and expected
+#' number of survivors per 100 patients. A positive W-score indicates that more
+#' patients survived than expected, while a negative score indicates that fewer
+#' patients survived than expected.
+#' - `M_Score`: The M-score, which compares the observed patient case mix to the Major Trauma
+#' Outcomes Study (MTOS) case mix. A higher score indicates that the patient mix
+#' is more similar to MTOS, while a lower score indicates a dissimilar mix. Based on the MTOS
+#' literature, an M_Score >= 0.88 indicates that the Z_Score comes from distribution similar
+#' enough to the MTOS Ps distribution.
+#' - `Z_Score`: The Z-score, which quantifies the difference between the actual and predicted
+#' mortality (if `z_method = "mortality"`) or survival (if `z_method =
+#' "survival"`). A Z-score > 1.96 is considered to point to the statistical
+#' significance of the W-Score at alpha = 0.05 level for survival. The positive
+#' Z_Score indicates that more patients survived than predicted, while a
+#' negative Z-score indicates fewer survivors than predicted.
 #'
 #' @examples
 #' # Generate example data with high negative skewness
@@ -79,7 +102,7 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
   # Validate binary data
   unique_values <- unique(stats::na.omit(binary_data))
 
-  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2) {
+  if (!all(unique_values %in% c(0, 1, TRUE, FALSE), na.rm = T) || length(unique_values) > 2) {
     cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
   }
 
@@ -94,12 +117,12 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
   }
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
-  if (any(Ps_data < 0 | Ps_data > 100)) {
+  if (any(Ps_data < 0 | Ps_data > 100, na.rm = T)) {
     cli::cli_abort("The probability of survival (Ps) values must be between 0 and 100.")
   }
 
   # Notify the user if any conversions were made and manipulate the data if necessary
-  if (any(Ps_data > 1)) {
+  if (any(Ps_data > 1, na.rm = T)) {
     cli::cli_alert_info("Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format.")
 
     # Convert ##.## format to decimal if needed (rowwise operation but vectorized)
@@ -227,7 +250,6 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
     cli::cli_text("{symbol$arrow_right} Total deaths = {total_deaths}")
     cli::cli_text("{symbol$arrow_right} Predicted survivors = {round(sum_Ps, digits = 2)}")
     cli::cli_text("{symbol$arrow_right} Predicted deaths = {round(sum(probability_death), digits = 2)}")
-    cli::cli_text("{symbol$arrow_right} Standard error of Predictions = {round(sqrt(sum(predicted_probability_death)), digits = 2)}")
 
     cli::cli_h2("W-Score Information: Trauma Program Performance:")
 
@@ -285,7 +307,6 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
       N_Deaths = total_deaths,
       Predicted_Survivors = sum_Ps,
       Predicted_Deaths = sum(probability_death),
-      SE_Predictions = sqrt(sum(predicted_probability_death)),
       Patient_Estimate = W_score * (total_patients / 100),
       W_Score = W_score,
       M_Score = M_score,

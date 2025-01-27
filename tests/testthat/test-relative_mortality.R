@@ -120,3 +120,97 @@ testthat::test_that("rm_bin_summary validates inputs correctly", {
   df_ps_above_1 <- tibble::tibble(Ps = c(150, 80, 30), survival = c(1, 0, 1))
   testthat::expect_error(rm_bin_summary(data = df_ps_above_1, Ps_col = Ps, outcome_col = survival))
 })
+
+testthat::test_that("nonlinear_bins produces correct bin data", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  bin_data <- nonlinear_bins(
+    df,
+    Ps_col = Ps,
+    outcome_col = survival,
+    divisor1 = 5,
+    divisor2 = 5,
+    threshold_1 = 0.9,
+    threshold_2 = 0.99
+  )
+
+  testthat::expect_true("bin_stats" %in% names(bin_data))
+  testthat::expect_true("intervals" %in% names(bin_data))
+  testthat::expect_equal(nrow(bin_data$bin_stats), 10)  # assuming 5 bins
+})
+
+testthat::test_that("bootstrap data has the correct number of samples", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  bootstrap_data <- df |>
+    infer::generate(reps = 100, type = "bootstrap")
+
+  testthat::expect_equal(nrow(bootstrap_data), 100 * nrow(df))
+})
+
+testthat::test_that("bin statistics are calculated correctly", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  try_function <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+
+  testthat::expect_true("TA_b" %in% names(try_function))
+  testthat::expect_true("TD_b" %in% names(try_function))
+  testthat::expect_true("EM_b" %in% names(try_function))
+})
+
+testthat::test_that("RMM is calculated correctly", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  rmm_result <- df |>
+    rm_bin_summary(Ps, survival, n_samples = 100)
+
+  testthat::expect_true("population_RMM" %in% names(rmm_result))
+  testthat::expect_true(all(rmm_result$population_RMM >= -1) || all(rmm_result$population_RMM <= 1))
+
+})
+
+testthat::test_that("confidence intervals are correctly computed in final RMM", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  rmm_result <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+
+  testthat::expect_true("bootstrap_RMM_LL" %in% names(rmm_result))
+  testthat::expect_true("bootstrap_RMM_UL" %in% names(rmm_result))
+  testthat::expect_true("bootstrap_CI" %in% names(rmm_result))
+  testthat::expect_true(all(rmm_result$bootstrap_RMM_UL > rmm_result$bootstrap_RMM_LL))  # CI upper should be greater than lower
+})
+
+testthat::test_that("RMM final data is correctly sorted by bin_number", {
+
+  set.seed(01232025)
+
+  # Test missing Ps_col
+  df <- tibble::tibble(Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), survival = rbinom(1000, 1, prob = 0.9))
+
+  rmm_result_final <- rm_bin_summary(df, Ps, survival, n_samples = 100)
+
+  testthat::expect_equal(min(rmm_result_final$bin_number), 1)
+  testthat::expect_equal(max(rmm_result_final$bin_number), 10)  # Assuming 10 bins
+
+})
+

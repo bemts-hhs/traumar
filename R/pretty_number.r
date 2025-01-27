@@ -9,11 +9,11 @@
 #'   include in the output. Defaults to `2`.
 #' @param prefix An optional character string to prepend to the formatted number
 #'   (e.g., "$"). Defaults to `NULL`.
-#' @param round A logical value indicating whether to round the numbers before
-#'   formatting. Defaults to `TRUE`.
+#' @param truncate A logical value indicating whether to truncate the numbers before
+#'   formatting. Defaults to `FALSE`.
 #'
 #' @returns A character vector with the numbers formatted as abbreviated
-#'   strings. If `prefix` is provided, it is added to the formatted numbers.
+#'   strings. If `prefix` is provided, it prepends the formatted numbers.
 #'
 #' @export
 #'
@@ -30,11 +30,11 @@
 #' pretty_number(1234, prefix = "$")  # "$1.23k"
 #'
 #' # Without rounding
-#' pretty_number(1250, round = FALSE) # "1.2k"
+#' pretty_number(1250, truncate = TRUE) # "1.2k"
 #'
 #' @author Nicolas Foss, Ed.D., MS
 #'
-pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
+pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
 
   # Error check: Ensure `x` is numeric or integer
   if (!is.numeric(x) && !is.integer(x)) {
@@ -50,6 +50,24 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
       "n_decimal must be an {.cls integer}.",
       "You supplied a value of class {.cls {class(n_decimal)}} with value {.val {n_decimal}}."
     ))
+  }
+
+  # Error check: Ensure that `truncate` is logical
+  if(!is.logical(truncate)) {
+
+    cli::cli_abort(c(
+      "{.var truncate} must be of class {.cls logical}.",
+      "You supplid a value of class {.cls {class(truncate)}} with value {.val {truncate}}."
+    ))
+
+  }
+
+  if(!is.null(prefix) && !is.character(prefix)) {
+
+    cli::cli_abort(c("The object you passed to prefix was of class {.cls {class(prefix)}}",
+                     "i" = "You must supply a {.cls character} vector of length 1 for the prefix argument of {.fn pretty_number} to work."
+    ))
+
   }
 
   scipen_val <- options()$scipen # get current scipen setting
@@ -69,20 +87,25 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
   nonillion <- 1e30
   decillion <- 1e33
 
-  if(round == F) { # without rounding, you can get numbers like 0.6k, so you can get the next period up
-                   # it is important when using round == F to have numbers that are rounded to no further than 1 significant digit
+  # allow a toggle to truncate numbers so you can round something like
+  # 555555 to "600k" with
+  # > pretty_number(555555, truncate = T, n_decimal = 1)
+  #[1] "600k"
+  if (truncate) {
+    # When truncation is enabled, truncate to significant digits for consistent output
+    x <- signif(x, digits = n_decimal)
 
-  # get the number of characters in x
-  x_length <- nchar(x)
+    # Get the number of characters in the truncated value
+    x_length <- nchar(trunc(x))
 
   } else {
+    # When truncation is disabled, do not use round function
+    x <- round(x, digits = n_decimal)
 
-  rounded_x <- round(x)
-
-  # get the number of characters in x
-  x_length <- nchar(rounded_x)
-
+    # Get the number of characters in the value
+    x_length <- nchar(trunc(x))
   }
+
 
   # classify x
 
@@ -139,16 +162,6 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
 
   return(x_val)
 
-  } else {
-
-  if(!is.character(prefix)) {
-
-  cli::cli_h1("Problem with Input")
-
-  cli::cli_abort(c("The object you passed to prefix was of class {.cls {class(prefix)}}",
-              "i" = "You must supply a {.cls character} vector of length 1 for the prefix argument of {.fn pretty_number} to work."
-              ))
-
   }
 
   x_val <-  paste0(prefix, x_val)
@@ -156,7 +169,5 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, round = T) {
   options(scipen = scipen_val)
 
   return(x_val)
-
-  }
 
 }
