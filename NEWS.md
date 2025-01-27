@@ -1,4 +1,8 @@
-# traumar (development version)
+# traumar 1.0.0
+
+# traumar 1.0.0
+  * Release to CRAN.
+  * Completed more complete test coverage to > 90%.
 
 # traumar 0.0.1.9000
 
@@ -8,7 +12,7 @@
    * `rm_bin_summary()`
    * `nonlinear_bins()`
  * Updated existing tests, created new tests.
- * Code coverage.
+ * Started the test coverage process.
 
 # traumar 0.0.1
 
