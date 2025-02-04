@@ -177,10 +177,6 @@
 <div class="section level2">
 <h2 id="the-rmm-function">The RMM function<a class="anchor" aria-label="anchor" href="#the-rmm-function"></a>
 </h2>
-</div>
-<div class="section level2">
-<h2 id="the-rmm-function-1">The RMM function<a class="anchor" aria-label="anchor" href="#the-rmm-function-1"></a>
-</h2>
 <p>The RMM is sensitive to higher acuity patients, meaning that if a trauma center struggles with these patients, it will be reflected in the RMM. In contrast, the W-Score may mask declines in performance due to the influence of lower acuity patients via the MTOS Distribution. The {traumar} package automates RMM calculation as a single score using the nonlinear binning method from Napoli et al. (2017). The <code><a href="reference/rmm.html">rmm()</a></code> and <code><a href="reference/rm_bin_summary.html">rm_bin_summary()</a></code> functions internally call <code><a href="reference/nonlinear_bins.html">nonlinear_bins()</a></code> to generate the non-linear binning process. The function uses a bootstrap process with <code>n_samples</code> repetitions to simulate an RMM distribution and estimate 95% confidence intervals. The RMM, along with corresponding confidence intervals, are provided for the population in <code>data</code>, as well.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
