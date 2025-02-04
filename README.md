@@ -179,8 +179,6 @@ results$bin_stats
 
 ## The RMM function
 
-## The RMM function
-
 The RMM is sensitive to higher acuity patients, meaning that if a trauma
 center struggles with these patients, it will be reflected in the RMM.
 In contrast, the W-Score may mask declines in performance due to the
