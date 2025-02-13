@@ -1,0 +1,44 @@
+Package: traumar
+Type: Package
+Title: Calculate Metrics for Trauma System Performance
+Version: 1.0.0
+Authors@R: c(
+    person(
+      "Nicolas", "Foss",
+      email = "nicolas.foss@hhs.iowa.gov",
+      role = c("aut", "cre", "cph")
+    )
+  )
+Description: Hospitals, hospital systems, and even trauma systems that provide care to injured patients
+    may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives
+    of injured patients.  'traumar' provides robust functions driven by the academic literature to 
+    automate the calculation of relevant metrics to individuals desiring to measure the performance of their
+    trauma center or even a trauma system.  'traumar' also provides some helper functions for the data analysis
+    journey. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1)
+Suggests: 
+    broom,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    cli (>= 3.6.3),
+    dplyr (>= 1.1.4),
+    ggplot2 (>= 3.5.1),
+    rlang (>= 1.1.5),
+    stats,
+    tibble (>= 3.2.1),
+    tidyr (>= 1.3.1),
+    tidyselect (>= 1.2.1),
+    utils,
+    lubridate (>= 1.9.4),
+    lifecycle (>= 1.0.4),
+    infer (>= 1.0.7),
+    purrr (>= 1.0.2)
+URL: https://bemts-hhs.github.io/traumar/, https://github.com/bemts-hhs/traumar
+Roxygen: list(markdown = TRUE)
+BugReports: https://github.com/bemts-hhs/traumar/issues
