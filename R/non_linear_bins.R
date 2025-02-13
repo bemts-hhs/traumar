@@ -1,9 +1,10 @@
 #' Create Nonlinear Probability of Survival Bins
 #'
 #' This function generates nonlinear bins for probability of survival data based
-#' on specified thresholds and divisors. It calculates bin statistics, including
-#' mean, standard deviation, total alive, total dead, count, and percentage for
-#' each bin.
+#' on specified thresholds and divisors as specified in Napoli et al. (2017),
+#' Schroeder et al. (2019), and Kassar et al. (2016). This function calculates
+#' bin statistics, including mean, standard deviation, total alive, total dead,
+#' count, and percentage for each bin.
 #'
 #' @param data A `data.frame` or `tibble` containing the probability of survival
 #'   data for a set of patients.

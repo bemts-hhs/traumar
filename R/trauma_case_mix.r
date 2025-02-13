@@ -4,7 +4,8 @@
 #' This function compares the current patient population's case mix (based on
 #' probability of survival, Ps) to the MTOS case mix by binning patients into
 #' specific Ps ranges. It returns the fraction of patients in each range and
-#' compares it to the MTOS distribution.
+#' compares it to the MTOS distribution. For more information on the methods used
+#' in these calculations, please see Flora (1978) and Boyd et al. (1987).
 #'
 #' @param df A data frame containing patient data.
 #' @param Ps_col The name of the column containing the probability of survival

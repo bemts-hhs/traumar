@@ -70,9 +70,11 @@ negative Z-score indicates fewer survivors than predicted.
 \description{
 This function calculates trauma hospital performance based on the M, W, and Z
 scores, which are derived from survival probability and mortality data, using
-established methods (Flora, 1978; Boyd et al., 1987). It
-computes the W-score, M-score, and Z-score based on the provided dataset and
-calculates performance metrics for trauma programs.
+established methods. It computes the W-score, M-score, and Z-score based on
+the provided dataset and calculates performance metrics for trauma programs.
+For more information on the methods used in this function, please see
+Champion et al. (1990) on the W score, and Flora (1978) and Boyd et al.
+(1987) on the M and Z scores.
 }
 \examples{
 # Generate example data with high negative skewness

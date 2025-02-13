@@ -6,7 +6,8 @@
 #' based on patient survival probabilities (Ps) and actual outcomes. The
 #' function groups patients into bins based on their survival probability scores
 #' (Ps) and computes a weighted mortality metric along with confidence
-#' intervals.
+#' intervals. For more information on the methods used in this function, see as
+#' well Schroeder et al. (2019), and Kassar et al. (2016).
 #'
 #' The Relative Mortality Metric (RMM) quantifies the performance of a center in
 #' comparison to the anticipated mortality based on the TRISS national
@@ -382,7 +383,9 @@ rmm <- function(data,
 #' Napoli et al. (2017) by grouping data into bins based on survival
 #' probabilities (Ps) and summarizing outcomes within each bin. This function
 #' returns statistics such as total alive, total dead, estimated mortality,
-#' anticipated mortality, and confidence intervals for each bin.
+#' anticipated mortality, and confidence intervals for each bin. For more
+#' information on the methods used in this function, see as well Schroeder et
+#' al. (2019), and Kassar et al. (2016).
 #'
 #' The Relative Mortality Metric (RMM) quantifies the performance of a center in
 #' comparison to the anticipated mortality based on the TRISS national
