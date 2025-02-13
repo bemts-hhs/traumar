@@ -50,7 +50,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
   # Check for valid values in trauma_type, ignoring NA
   valid_trauma_types <- c("Blunt", "Penetrating", "Burn")
   if (!all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))) {
-    cli::cli_abort("The {.var trauma_type} column must contain only 'Blunt', 'Penetrating', or 'Burn' values.")
+    cli::cli_warn("The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'.")
   }
 
   # Warn about 'Burn' and missing values
@@ -59,18 +59,24 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
   }
 
   # Check age
-  if (any(!is.numeric(age) | age < 0, na.rm = TRUE)) {
-    cli::cli_abort("{.var age} must be a non-negative {.cls numeric} value.")
+  if (any(age < 0, na.rm = TRUE)) {
+    cli::cli_warn(c("Negative values detected in the {.var age} column.",
+                    "i" = "{.var age} must be a non-negative {.cls numeric} value."
+                    ))
   }
 
   # Check rts
-  if (any(!is.numeric(rts) | rts < 0 | rts > 7.84, na.rm = TRUE)) {
-    cli::cli_abort("{.var rts} must be a {.cls numeric} value between 0 and 7.84.")
+  if (any(rts < 0 | rts > 7.84, na.rm = TRUE)) {
+    cli::cli_warn(c("Negative values detected in the {.var rts} column.",
+                    "i" = "{.var rts} must be a {.cls numeric} value between 0 and 7.84."
+                    ))
   }
 
   # Check iss
-  if (any(!is.numeric(iss) | iss < 0 | iss > 75, na.rm = TRUE)) {
-    cli::cli_abort("{.var iss} must be a {.cls numeric} value between 0 and 75.")
+  if (any(iss < 0 | iss > 75, na.rm = TRUE)) {
+    cli::cli_warn(c("{.var iss} values less than 0 or greater than 75 were detected.",
+                     "i" = "{.var iss} must be a {.cls numeric} value between 0 and 75."
+                     ))
   }
 
   # perform calculation

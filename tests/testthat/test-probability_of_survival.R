@@ -20,6 +20,16 @@ test_that("probability_of_survival handles invalid trauma_type", {
   rts <- c(7.84, 6.90)
   iss <- c(10, 25)
 
+  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
+})
+
+# Test error in trauma_type
+test_that("probability_of_survival handles invalid trauma_type", {
+  trauma_type <- c(2, 1)
+  age <- c(30, 60)
+  rts <- c(7.84, 6.90)
+  iss <- c(10, 25)
+
   expect_error(probability_of_survival(trauma_type, age, rts, iss))
 })
 
@@ -30,7 +40,7 @@ test_that("probability_of_survival handles invalid age", {
   rts <- c(7.84, 6.90)
   iss <- c(10, 25)
 
-  expect_error(probability_of_survival(trauma_type, age, rts, iss))
+  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 })
 
 # Test invalid rts
@@ -40,7 +50,7 @@ test_that("probability_of_survival handles invalid rts", {
   rts <- c(8, 6.90)  # Out of range RTS
   iss <- c(10, 25)
 
-  expect_error(probability_of_survival(trauma_type, age, rts, iss))
+  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 })
 
 # Test invalid iss
@@ -50,7 +60,7 @@ test_that("probability_of_survival handles invalid iss", {
   rts <- c(7.84, 6.90)
   iss <- c(10, 80)  # Out of range ISS
 
-  expect_error(probability_of_survival(trauma_type, age, rts, iss))
+  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 })
 
 # Test handling of 'Burn' trauma type
@@ -64,11 +74,22 @@ test_that("probability_of_survival warns about 'Burn' trauma type", {
 })
 
 # Test NA handling
+test_that("probability_of_survival handles invalid values correctly", {
+  trauma_type <- c("Blunt", "stuff")
+  age <- c(30, 60)
+  rts <- c(7.84, NA)
+  iss <- c(10, 25)
+
+  testthat::expect_warning(probability_of_survival(trauma_type, age, rts, iss))
+
+})
+
+# Test NA handling
 test_that("probability_of_survival handles NA values correctly", {
   trauma_type <- c("Blunt", NA)
   age <- c(30, 60)
   rts <- c(7.84, NA)
-  iss <- c(10, 25)
+  iss <- c(10, NA)
 
   expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 
