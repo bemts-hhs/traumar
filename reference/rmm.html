@@ -19,7 +19,9 @@ mortality is higher than the expected benchmark.
 
 This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.  rmm() utilizes bootstrap
-sampling to calculate the confidence intervals via the standard error method."><meta property="og:description" content="Calculates the Relative Mortality Metric (RMM) from Napoli et al. (2017)
+sampling to calculate the confidence intervals via the standard error method.
+Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running rmm()."><meta property="og:description" content="Calculates the Relative Mortality Metric (RMM) from Napoli et al. (2017)
 based on patient survival probabilities (Ps) and actual outcomes. The
 function groups patients into bins based on their survival probability scores
 (Ps) and computes a weighted mortality metric along with confidence
@@ -39,7 +41,9 @@ mortality is higher than the expected benchmark.
 
 This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.  rmm() utilizes bootstrap
-sampling to calculate the confidence intervals via the standard error method."></head><body>
+sampling to calculate the confidence intervals via the standard error method.
+Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running rmm()."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -92,6 +96,8 @@ mortality is higher than the expected benchmark.</p></li>
 </ul><p>This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.  <code>rmm()</code> utilizes bootstrap
 sampling to calculate the confidence intervals via the standard error method.</p>
+<p>Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running <code>rmm()</code>.</p>
     </div>
 
     <div class="section level2">
@@ -186,7 +192,7 @@ J. Napoli, Ph.D., MS</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data with high negative skewness</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10232015</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parameters</span></span></span>
 <span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">1000</span>  <span class="co"># Total number of patients</span></span></span>
@@ -214,7 +220,7 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   population_RMM_LL population_RMM population_RMM_UL population_CI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            -<span style="color: #BB0000;">0.232</span>        0.003<span style="text-decoration: underline;">41</span>             0.239         0.235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            -<span style="color: #BB0000;">0.334</span>        -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">3</span>             0.170         0.252</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_UL &lt;dbl&gt;, bootstrap_CI &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -227,16 +233,16 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span>    pivot <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   stat                 value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.232</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM     0.003<span style="text-decoration: underline;">41</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.239  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.235  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL  -<span style="color: #BB0000;">0.065</span><span style="color: #BB0000; text-decoration: underline;">5</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM     -<span style="color: #BB0000;">0.009</span><span style="color: #BB0000; text-decoration: underline;">51</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL   0.046<span style="text-decoration: underline;">5</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.056<span style="text-decoration: underline;">0</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stat                value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.334</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM    -<span style="color: #BB0000;">0.082</span><span style="color: #BB0000; text-decoration: underline;">3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.170 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.252 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL  -<span style="color: #BB0000;">0.155</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM     -<span style="color: #BB0000;">0.086</span><span style="color: #BB0000; text-decoration: underline;">6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL  -<span style="color: #BB0000;">0.018</span><span style="color: #BB0000; text-decoration: underline;">5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.068<span style="text-decoration: underline;">2</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

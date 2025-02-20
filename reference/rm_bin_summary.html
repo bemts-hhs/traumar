@@ -21,7 +21,9 @@ mortality is higher than the expected benchmark.
 This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.rm_bin_summary() utilizes
 bootstrap sampling to calculate the confidence intervals via the standard
-error method."><meta property="og:description" content="Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
+error method.
+Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running rm_bin_summary()."><meta property="og:description" content="Calculates a bin-level summary for the Relative Mortality Metric (RMM) from
 Napoli et al. (2017) by grouping data into bins based on survival
 probabilities (Ps) and summarizing outcomes within each bin. This function
 returns statistics such as total alive, total dead, estimated mortality,
@@ -43,7 +45,9 @@ mortality is higher than the expected benchmark.
 This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.rm_bin_summary() utilizes
 bootstrap sampling to calculate the confidence intervals via the standard
-error method."></head><body>
+error method.
+Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running rm_bin_summary()."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -98,6 +102,8 @@ mortality is higher than the expected benchmark.</p></li>
 standards, guiding quality improvement efforts.<code>rm_bin_summary()</code> utilizes
 bootstrap sampling to calculate the confidence intervals via the standard
 error method.</p>
+<p>Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running <code>rm_bin_summary()</code>.</p>
     </div>
 
     <div class="section level2">
@@ -192,7 +198,7 @@ J. Napoli, Ph.D., MS</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data with high negative skewness</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10232015</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parameters</span></span></span>
 <span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">10000</span>  <span class="co"># Total number of patients</span></span></span>
@@ -217,18 +223,18 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span>               n_samples <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span>               <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 19</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number  TA_b  TD_b   N_b   EM_b AntiS_b AntiM_b bin_start bin_end</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>          1   454   657  <span style="text-decoration: underline;">1</span>111 0.591    0.378   0.622    0.022<span style="text-decoration: underline;">6</span>   0.542</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>          2   686   425  <span style="text-decoration: underline;">1</span>111 0.383    0.628   0.372    0.542    0.702</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>          3   850   261  <span style="text-decoration: underline;">1</span>111 0.235    0.752   0.248    0.702    0.796</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>          4   922   189  <span style="text-decoration: underline;">1</span>111 0.170    0.829   0.171    0.796    0.857</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>          5   971   139  <span style="text-decoration: underline;">1</span>110 0.125    0.879   0.121    0.857    0.900</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>          6   727    78   805 0.096<span style="text-decoration: underline;">9</span>   0.913   0.087    0.900    0.925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>          7   752    53   805 0.065<span style="text-decoration: underline;">8</span>   0.936   0.064    0.925    0.946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>          8   779    26   805 0.032<span style="text-decoration: underline;">3</span>   0.954   0.046    0.946    0.963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>          9   783    22   805 0.027<span style="text-decoration: underline;">3</span>   0.97    0.03     0.963    0.976</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>         10  <span style="text-decoration: underline;">1</span>213    13  <span style="text-decoration: underline;">1</span>226 0.010<span style="text-decoration: underline;">6</span>   0.987   0.013    0.976    1.00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number  TA_b  TD_b   N_b    EM_b AntiS_b AntiM_b bin_start bin_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>          1   429   688  <span style="text-decoration: underline;">1</span>117 0.616     0.379   0.621   0.008<span style="text-decoration: underline;">14</span>   0.540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>          2   685   432  <span style="text-decoration: underline;">1</span>117 0.387     0.629   0.371   0.540     0.699</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>          3   842   275  <span style="text-decoration: underline;">1</span>117 0.246     0.753   0.247   0.699     0.797</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>          4   910   207  <span style="text-decoration: underline;">1</span>117 0.185     0.83    0.17    0.797     0.859</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>          5   969   145  <span style="text-decoration: underline;">1</span>114 0.130     0.881   0.119   0.859     0.900</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>          6   714    80   794 0.101     0.913   0.087   0.900     0.926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>          7   746    48   794 0.060<span style="text-decoration: underline;">5</span>    0.937   0.063   0.926     0.947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>          8   767    27   794 0.034<span style="text-decoration: underline;">0</span>    0.955   0.045   0.947     0.963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>          9   775    19   794 0.023<span style="text-decoration: underline;">9</span>    0.97    0.03    0.963     0.978</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>         10  <span style="text-decoration: underline;">1</span>232    10  <span style="text-decoration: underline;">1</span>242 0.008<span style="text-decoration: underline;">05</span>   0.988   0.012   0.978     1.00 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more variables: midpoint &lt;dbl&gt;, R_b &lt;dbl&gt;, population_RMM_LL &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   population_RMM &lt;dbl&gt;, population_RMM_UL &lt;dbl&gt;, population_CI &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;, bootstrap_RMM_UL &lt;dbl&gt;,</span></span>
