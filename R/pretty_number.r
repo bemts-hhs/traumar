@@ -70,9 +70,10 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
 
   }
 
-  scipen_val <- options()$scipen # get current scipen setting
+  old <- options()
+  on.exit(options(old))
 
-  options(scipen = 9999) # set scipen to allow very long numbers
+  options(scipen = 9999)
 
   # set values to different orders of magnitude
   thousand <- 1e3
@@ -158,15 +159,11 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
 
   if(is.null(prefix)) {
 
-  options(scipen = scipen_val) # set option back to original setting
-
   return(x_val)
 
   }
 
   x_val <-  paste0(prefix, x_val)
-
-  options(scipen = scipen_val)
 
   return(x_val)
 

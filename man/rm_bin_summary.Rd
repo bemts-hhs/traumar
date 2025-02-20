@@ -93,10 +93,13 @@ This metric helps assess how a center's mortality compares to the national
 standards, guiding quality improvement efforts.\code{rm_bin_summary()} utilizes
 bootstrap sampling to calculate the confidence intervals via the standard
 error method.
+
+Due to the use of bootstrap sampling within the function, users should set
+the random number seed before running \code{rm_bin_summary()}.
 }
 \examples{
 # Generate example data with high negative skewness
-set.seed(123)
+set.seed(10232015)
 
 # Parameters
 n_patients <- 10000  # Total number of patients

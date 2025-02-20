@@ -25,6 +25,9 @@
 #' standards, guiding quality improvement efforts.  `rmm()` utilizes bootstrap
 #' sampling to calculate the confidence intervals via the standard error method.
 #'
+#' Due to the use of bootstrap sampling within the function, users should set
+#' the random number seed before running `rmm()`.
+#'
 #' @param data A data frame or tibble containing the data.
 #' @param Ps_col The name of the column containing the survival probabilities
 #'   (Ps). Should be numeric (values between 0 and 100).
@@ -66,7 +69,7 @@
 #'
 #' @examples
 #' # Generate example data with high negative skewness
-#' set.seed(123)
+#' set.seed(10232015)
 #'
 #' # Parameters
 #' n_patients <- 1000  # Total number of patients
@@ -195,8 +198,6 @@ rmm <- function(data,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
   )
-
-  set.seed(10232015)
 
   # Bootstrap process
   bootstrap_data <- data |>
@@ -404,6 +405,9 @@ rmm <- function(data,
 #' bootstrap sampling to calculate the confidence intervals via the standard
 #' error method.
 #'
+#' Due to the use of bootstrap sampling within the function, users should set
+#' the random number seed before running `rm_bin_summary()`.
+#'
 #' @param data A data frame or tibble containing the data.
 #' @param Ps_col The name of the column containing the survival probabilities
 #'   (Ps). Should be numeric (values between 0 and 100).
@@ -449,7 +453,7 @@ rmm <- function(data,
 #'
 #' @examples
 #' # Generate example data with high negative skewness
-#' set.seed(123)
+#' set.seed(10232015)
 #'
 #' # Parameters
 #' n_patients <- 10000  # Total number of patients
@@ -567,8 +571,6 @@ rm_bin_summary <- function(data,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
   )
-
-  set.seed(10232015)
 
   # Bootstrap process
   bootstrap_data <- data |>

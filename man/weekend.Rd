@@ -32,9 +32,9 @@ weekend(as.Date("2025-01-18"))
 weekend(as.Date("2025-01-15"))
 
 # Example 3: Date of an invalid object
-\dontrun{
+try(
 weekend("2025-01-18") # This will throw an error
-}
+)
 
 }
 \author{
