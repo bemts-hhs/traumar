@@ -30,8 +30,8 @@ You can install the development version of `traumar` from
 [GitHub](https://github.com/bemts-hhs/traumar) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("bemts-hhs/traumar")
+# install.packages("remotes")
+remotes::install_github("bemts-hhs/traumar")
 ```
 
 Additionally, you can install the CRAN version of `traumar` via:
