@@ -41,8 +41,8 @@ advancing trauma care quality.
 You can install the development version of `traumar` from [GitHub](https://github.com/bemts-hhs/traumar) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("bemts-hhs/traumar")
+# install.packages("devtools")
+devtools::install_github("bemts-hhs/traumar")
 ```
 
 Additionally, you can install the CRAN version of `traumar` via:
