@@ -1,8 +1,5 @@
-# traumar (development version)
-
 # traumar 1.0.0
 
-# traumar 1.0.0
   * Release to CRAN.
   * Completed more complete test coverage to > 90%.
 

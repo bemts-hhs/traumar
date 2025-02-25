@@ -26,12 +26,18 @@ advancing trauma care quality.
 
 ## Installation
 
-You can install the development version of traumar from
+You can install the development version of `traumar` from
 [GitHub](https://github.com/bemts-hhs/traumar) with:
 
 ``` r
 # install.packages("pak")
 pak::pak("bemts-hhs/traumar")
+```
+
+Additionally, you can install the CRAN version of `traumar` via:
+
+``` r
+install.packages("traumar")
 ```
 
 ## Helper Functions
@@ -226,10 +232,10 @@ rmm(
 #> 2 population_RMM     0.0365 
 #> 3 population_RMM_UL  0.101  
 #> 4 population_CI      0.0645 
-#> 5 bootstrap_RMM_LL   0.0329 
-#> 6 bootstrap_RMM      0.0353 
-#> 7 bootstrap_RMM_UL   0.0378 
-#> 8 bootstrap_CI       0.00244
+#> 5 bootstrap_RMM_LL   0.0343 
+#> 6 bootstrap_RMM      0.0368 
+#> 7 bootstrap_RMM_UL   0.0393 
+#> 8 bootstrap_CI       0.00247
 
 # RMM calculated by non-linear bin range
 # `rm_bin_summary()` function
