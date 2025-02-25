@@ -54,10 +54,13 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of traumar from <a href="https://github.com/bemts-hhs/traumar" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of <code>traumar</code> from <a href="https://github.com/bemts-hhs/traumar" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"bemts-hhs/traumar"</span><span class="op">)</span></span></code></pre></div>
+<p>Additionally, you can install the CRAN version of <code>traumar</code> via:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"traumar"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="helper-functions">Helper Functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a>
@@ -71,7 +74,7 @@
 <div class="section level3">
 <h3 id="first-we-will-create-the-data-for-these-examples">First, we will create the data for these examples<a class="anchor" aria-label="anchor" href="#first-we-will-create-the-data-for-these-examples"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Generate example data with high negative skewness</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
@@ -92,7 +95,7 @@
 <div class="section level3">
 <h3 id="the-w-score">The W-Score!<a class="anchor" aria-label="anchor" href="#the-w-score"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Calculate trauma performance (W, M, Z scores)</span></span>
 <span><span class="fu"><a href="reference/trauma_performance.html">trauma_performance</a></span><span class="op">(</span><span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>, outcome_col <span class="op">=</span> <span class="va">death</span><span class="op">)</span></span>
@@ -115,7 +118,7 @@
 <a class="anchor" aria-label="anchor" href="#comparing-the-probability-of-survival-distribution-of-your-patient-mix-to-the-major-trauma-outcomes-study"></a>
 </h2>
 <p>The M and Z scores are calculated using methods defined in the <a href="https://journals.lww.com/jtrauma/abstract/1978/10000/a_method_for_comparing_survival_of_burn_patients.3.aspx" class="external-link">literature</a> may not be meaningful if your the distribution of the probability of survival measure is not similar enough to the Major Trauma Outcomes Study distribution. {traumar} provides a way to check this in your data analysis script, or even from the console. The <code><a href="reference/trauma_performance.html">trauma_performance()</a></code> function does this under the hood for you, so you can get a read out of how much confidence you can put into the Z score.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Compare the current case mix with the MTOS case mix</span></span>
 <span><span class="fu"><a href="reference/trauma_case_mix.html">trauma_case_mix</a></span><span class="op">(</span><span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>, outcome_col <span class="op">=</span> <span class="va">death</span><span class="op">)</span></span>
@@ -141,7 +144,7 @@
 <h2 id="non-linear-binning-algorithm">Non-Linear Binning Algorithm<a class="anchor" aria-label="anchor" href="#non-linear-binning-algorithm"></a>
 </h2>
 <p>An important part of the approach Napoli et al. (2017) took was to modify the M-Score approach of looking at linear bins of the probability of survival distribution, and make it non-linear. The {traumar} package does this for you using Dr. Napoli’s method:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Apply the nonlinear_bins function</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/nonlinear_bins.html">nonlinear_bins</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
@@ -178,7 +181,7 @@
 <h2 id="the-rmm-function">The RMM function<a class="anchor" aria-label="anchor" href="#the-rmm-function"></a>
 </h2>
 <p>The RMM is sensitive to higher acuity patients, meaning that if a trauma center struggles with these patients, it will be reflected in the RMM. In contrast, the W-Score may mask declines in performance due to the influence of lower acuity patients via the MTOS Distribution. The {traumar} package automates RMM calculation as a single score using the nonlinear binning method from Napoli et al. (2017). The <code><a href="reference/rmm.html">rmm()</a></code> and <code><a href="reference/rm_bin_summary.html">rm_bin_summary()</a></code> functions internally call <code><a href="reference/nonlinear_bins.html">nonlinear_bins()</a></code> to generate the non-linear binning process. The function uses a bootstrap process with <code>n_samples</code> repetitions to simulate an RMM distribution and estimate 95% confidence intervals. The RMM, along with corresponding confidence intervals, are provided for the population in <code>data</code>, as well.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Example usage of the `rmm()` function</span></span>
 <span><span class="fu"><a href="reference/rmm.html">rmm</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span>
@@ -212,10 +215,10 @@
 <span><span class="co">#&gt; 2 population_RMM     0.0365 </span></span>
 <span><span class="co">#&gt; 3 population_RMM_UL  0.101  </span></span>
 <span><span class="co">#&gt; 4 population_CI      0.0645 </span></span>
-<span><span class="co">#&gt; 5 bootstrap_RMM_LL   0.0329 </span></span>
-<span><span class="co">#&gt; 6 bootstrap_RMM      0.0353 </span></span>
-<span><span class="co">#&gt; 7 bootstrap_RMM_UL   0.0378 </span></span>
-<span><span class="co">#&gt; 8 bootstrap_CI       0.00244</span></span>
+<span><span class="co">#&gt; 5 bootstrap_RMM_LL   0.0343 </span></span>
+<span><span class="co">#&gt; 6 bootstrap_RMM      0.0368 </span></span>
+<span><span class="co">#&gt; 7 bootstrap_RMM_UL   0.0393 </span></span>
+<span><span class="co">#&gt; 8 bootstrap_CI       0.00247</span></span>
 <span></span>
 <span><span class="co"># RMM calculated by non-linear bin range</span></span>
 <span><span class="co"># `rm_bin_summary()` function</span></span>
