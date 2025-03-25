@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,39 +33,77 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="traumar-100">traumar 1.0.0<a class="anchor" aria-label="anchor" href="#traumar-100"></a></h2><p class="text-muted">CRAN release: 2025-02-21</p>
-<ul><li>Release to CRAN.</li>
-<li>Completed more complete test coverage to &gt; 90%.</li>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="traumar-110">traumar 1.1.0<a class="anchor" aria-label="anchor" href="#traumar-110"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-1-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<ul><li>Added optional grouping functionality to <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>.
+<ul><li>Setting <code>group_vars = NULL</code> applies the functions to the entire dataset without subgrouping.<br></li>
+<li>For pivoting the <code><a href="../reference/rmm.html">rmm()</a></code> outputs longer, setting <code>pivot = TRUE</code> will work when <code>group_vars</code> is invoked by pivoting longer with the grouping context.</li>
+</ul></li>
 </ul></div>
+<div class="section level3">
+<h3 id="enhancements-1-1-0">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-1-0"></a></h3>
+<ul><li>Improved <code>NA</code> handling in <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>.<br></li>
+<li>Ensured RMM calculations remain within the expected range of [-1 to 1], including their 95% confidence intervals.<br></li>
+<li>Optimized <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> by replacing its internal <code>for</code> loop with <code>dplyr</code> functions, enhancing accuracy and efficiency without introducing breaking changes.</li>
+<li>Improved command line messaging and documentation within <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> regarding probability of survival values <code>Ps_col &lt; 0</code> and <code>Ps_col &gt; 1</code>. Now, these functions will throw an error if probability of survival values are <code>Ps_col &lt; 0</code> or <code>Ps_col &gt; 1</code>.</li>
+<li>The <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> function has improved data validation for the <code>Ps_col</code> variable.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.0" id="traumar-100">traumar 1.0.0<a class="anchor" aria-label="anchor" href="#traumar-100"></a></h2><p class="text-muted">CRAN release: 2025-02-21</p>
+<ul><li>Initial release to CRAN.<br></li>
+<li>Achieved comprehensive test coverage (&gt;90%).</li>
+</ul><hr></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1.9000" id="traumar-0019000">traumar 0.0.1.9000<a class="anchor" aria-label="anchor" href="#traumar-0019000"></a></h2>
-<ul><li>Add <code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code> function.</li>
-<li>Added new outputs for:
-<ul><li><code><a href="../reference/rmm.html">rmm()</a></code></li>
-<li><code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code></li>
-<li><code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code></li>
+<ul><li>Introduced <code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code> function.<br></li>
+<li>Expanded outputs for:
+<ul><li>
+<code><a href="../reference/rmm.html">rmm()</a></code><br></li>
+<li>
+<code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code><br></li>
+<li>
+<code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code><br></li>
 </ul></li>
-<li>Updated existing tests, created new tests.</li>
-<li>Started the test coverage process.</li>
-</ul></div>
+<li>Updated existing tests and added new test cases.<br></li>
+<li>Began test coverage improvements.</li>
+</ul><hr></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="traumar-001">traumar 0.0.1<a class="anchor" aria-label="anchor" href="#traumar-001"></a></h2>
-<ul><li>Add <code><a href="../reference/trauma_case_mix.html">trauma_case_mix()</a></code> function.</li>
-<li>Add <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> function.</li>
-<li>Add <code><a href="../reference/rmm.html">rmm()</a></code> function.</li>
-<li>Add <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> function.</li>
-<li>Add <code>non_linear_bins()</code> function.</li>
-<li>Add <code><a href="../reference/impute.html">impute()</a></code> function.</li>
-<li>Add <code><a href="../reference/normalize.html">normalize()</a></code> function.</li>
-<li>Add <code><a href="../reference/season.html">season()</a></code> function.</li>
-<li>Add <code><a href="../reference/weekend.html">weekend()</a></code> function.</li>
-<li>Add <code><a href="../reference/pretty_number.html">pretty_number()</a></code> function.</li>
-<li>Add <code><a href="../reference/pretty_percent.html">pretty_percent()</a></code> function.</li>
-<li>Add <code><a href="../reference/small_count_label.html">small_count_label()</a></code> function.</li>
-<li>Add <code><a href="../reference/stat_sig.html">stat_sig()</a></code> function.</li>
-<li>Add <code><a href="../reference/theme_cleaner.html">theme_cleaner()</a></code> function.</li>
-<li>Add <code>%not_in%</code> function.</li>
-<li>Package initialization</li>
+<ul><li>Introduced core package functions:
+<ul><li>
+<code><a href="../reference/trauma_case_mix.html">trauma_case_mix()</a></code><br></li>
+<li>
+<code><a href="../reference/trauma_performance.html">trauma_performance()</a></code><br></li>
+<li>
+<code><a href="../reference/rmm.html">rmm()</a></code><br></li>
+<li>
+<code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code><br></li>
+<li>
+<code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code><br></li>
+<li>
+<code><a href="../reference/impute.html">impute()</a></code><br></li>
+<li>
+<code><a href="../reference/normalize.html">normalize()</a></code><br></li>
+<li>
+<code><a href="../reference/season.html">season()</a></code><br></li>
+<li>
+<code><a href="../reference/weekend.html">weekend()</a></code><br></li>
+<li>
+<code><a href="../reference/pretty_number.html">pretty_number()</a></code><br></li>
+<li>
+<code><a href="../reference/pretty_percent.html">pretty_percent()</a></code><br></li>
+<li>
+<code><a href="../reference/small_count_label.html">small_count_label()</a></code><br></li>
+<li>
+<code><a href="../reference/stat_sig.html">stat_sig()</a></code><br></li>
+<li>
+<code><a href="../reference/theme_cleaner.html">theme_cleaner()</a></code><br></li>
+<li>
+<code>%not_in%</code><br></li>
+</ul></li>
+<li>Established package framework and initialization.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
