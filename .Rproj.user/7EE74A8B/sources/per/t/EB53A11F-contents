@@ -1,0 +1,197 @@
+#' Create Nonlinear Probability of Survival Bins
+#'
+#' This function generates nonlinear bins for probability of survival data based
+#' on specified thresholds and divisors as specified in Napoli et al. (2017),
+#' Schroeder et al. (2019), and Kassar et al. (2016). This function calculates
+#' bin statistics, including mean, standard deviation, total alive, total dead,
+#' count, and percentage for each bin.
+#'
+#' @param data A `data.frame` or `tibble` containing the probability of survival
+#'   data for a set of patients.
+#' @param Ps_col The column in `data` containing the probability of survival
+#'   values for a set of patients.
+#' @param outcome_col The name of the column containing the outcome data. It
+#'   should be binary, with values indicating patient survival. A value of `1`
+#'   should represent "alive" (survived), while `0` should represent "dead" (did
+#'   not survive). Ensure the column contains only these two possible values.
+#' @param divisor1 A parameter to control the width of the probability of
+#'   survival range bins. Affects the creation of step sizes for the beginning
+#'   of each bin range. Defaults to `5`.
+#' @param divisor2 A parameter to control the width of the probability of
+#'   survival range bins. Affects the creation of step sizes for the beginning
+#'   of each bin range. Defaults to `5`.
+#' @param threshold_1 A parameter to decide where data indices will begin to
+#'   create step sizes. Defaults to `0.9`.
+#' @param threshold_2 A parameter to decide where data indices will end to
+#'   create step sizes. Defaults to `0.99`.
+#' @param ... Optional grouping variables for bin statistics
+#'   calculations. These should be specified as unquoted column names.
+#'
+#' @returns A list with two elements:
+#'   - `intervals`: A vector defining bin boundaries for probability of survival.
+#'   - `bin_stats`: A `tibble` containing:
+#'     - `bin_number`: Bin index.
+#'     - `bin_start`, `bin_end`: Bin range.
+#'     - `mean`, `sd`: Mean and standard deviation of `Ps_col` within the bin.
+#'     - `alive`, `dead`: Count of survivors and non-survivors.
+#'     - `count`: Total records in the bin.
+#'     - `percent`: Percentage of records within each bin.
+#'
+#' @export
+#'
+#' @examples
+#' # Generate example data with high negative skewness
+#' set.seed(123)
+#'
+#' # Parameters
+#' n_patients <- 10000  # Total number of patients
+#'
+#' # Skewed towards higher values
+#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+#'
+#' # Simulate survival outcomes based on Ps
+#' survival_outcomes <- rbinom(n_patients,
+#'                             size = 1,
+#'                             prob = Ps
+#'                             )
+#'
+#' # Create data frame
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+#'
+#' # Apply the nonlinear_bins function
+#' results <- nonlinear_bins(data = data,
+#'                           Ps_col = Ps,
+#'                           outcome_col = survival,
+#'                           divisor1 = 5,
+#'                           divisor2 = 5,
+#'                           threshold_1 = 0.9,
+#'                           threshold_2 = 0.99)
+#'
+#' # View results
+#' results$intervals
+#' results$bin_stats
+#'
+#' # Example with grouping by a categorical variable
+#'
+#' # Add random group variable
+#' data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
+#'
+#' # Run the function using a single grouping variable
+#' results_grouped <- nonlinear_bins(data,
+#'                                   Ps_col = Ps,
+#'                                   outcome_col = survival,
+#'                                   group
+#'                                   )
+#'
+#' # View grouped results
+#' results_grouped$bin_stats
+#'
+#' @author Nicolas Foss, Ed.D., MS; original MATLAB implementation by Nicholas
+#'   J. Napoli, Ph.D., MS.
+#'
+nonlinear_bins <- function(data,
+                           Ps_col,
+                           outcome_col,
+                           divisor1 = 5,
+                           divisor2 = 5,
+                           threshold_1 = 0.9,
+                           threshold_2 = 0.99,
+                           ...
+                           ) {
+
+  # Validation checks using `cli` for robust error messaging:
+  # Ensures the input data is a data frame or tibble.
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
+    cli::cli_abort("The input data must be a data frame or tibble.")
+  }
+
+
+  # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
+  if (missing(Ps_col) && missing(outcome_col)) {
+    cli::cli_abort("Both {.var Ps_col} and {.var outcome_col} arguments must be provided.")
+  } else if (missing(Ps_col)) {
+    cli::cli_abort("The {.var Ps_col} argument must be provided.")
+  } else if (missing(outcome_col)) {
+    cli::cli_abort("The {.var outcome_col} argument must be provided.")
+  }
+
+  # Check if the outcome_col is binary
+  binary_data <- data |>
+    dplyr::pull({{ outcome_col }})
+
+  # Validate binary data
+  unique_values <- unique(stats::na.omit(binary_data))
+
+  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2 || length(unique_values) < 2) {
+    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
+  }
+
+  # Select and sort the column
+  survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
+  total <- length(survival_data)
+
+  # Step 1: Find indices for level thresholds
+  loc_9A <- which(survival_data > threshold_1) # Everything above 0.9 or other threshold
+  loc_9B <- which(survival_data > threshold_2) # Everything above 0.99 or other threshold
+  loc_9C <- which(survival_data > threshold_1 & survival_data <= threshold_2) # Between 0.9 and 0.99 or other thresholds
+
+  # Step 2: Define step sizes based on the data
+  step1 <- round(min(loc_9A, na.rm = TRUE) / divisor1)
+  step2 <- round(length(loc_9C) / divisor2)
+
+  # Step 3: Define intervals
+  # Check that loc_9A and loc_9B are finite before using them in seq()
+  if (is.finite(min(loc_9A)) && is.finite(min(loc_9B))) {
+
+  len <- unique(c(
+    seq(1, min(loc_9A, na.rm = TRUE), by = step1), # From start to level_1
+    seq(min(loc_9A, na.rm = TRUE), min(loc_9B, na.rm = TRUE), by = step2), # From level_1 to level_2
+    max(loc_9B, na.rm = TRUE) # Up to max
+  ))
+
+} else {
+
+  cli::cli_abort("The calculated loc_9A or loc_9B values are non-finite. Please check your data.")
+
+}
+
+  # Generate intervals based on these positions
+  intervals <- unique(survival_data[len])
+
+  # Step 4: Bin statistics
+
+  # Apply binning to each group separately
+  data <- data |>
+    dplyr::mutate(bin_number = .bincode({{ Ps_col }}, breaks = intervals, include.lowest = TRUE),
+                  bin_start = intervals[bin_number],  # Start of the bin
+                  bin_end = intervals[bin_number + 1] # End of the bin
+                  )
+
+  # Optionally group data by dynamic group_vars
+  # Or run the bin statistics on the whole dataset
+    grouped_stats <- data |>
+      dplyr::group_by(!!!rlang::ensyms(...), bin_number, bin_start, bin_end) |>
+      dplyr::summarize(
+        mean = mean({{ Ps_col }}, na.rm = TRUE),
+        sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+        Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+        Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+        AntiS_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Survivors_b / dplyr::n(), 3), NA_real_),
+        AntiM_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Deaths_b / dplyr::n(), 3), NA_real_),
+        alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+        dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+        count = dplyr::n(),
+        .groups = "drop"
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::group_by(!!!rlang::ensyms(...)) |>
+      dplyr::mutate(percent = round(count / sum(count, na.rm = TRUE), digits = 3)
+                    ) |>
+      dplyr::ungroup()
+
+  # Return a list with intervals and the bin statistics
+  return(list(intervals = intervals, bin_stats = grouped_stats))
+
+}
+

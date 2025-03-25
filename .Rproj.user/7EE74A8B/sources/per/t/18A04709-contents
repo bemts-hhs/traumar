@@ -1,0 +1,539 @@
+# Generate example data with high negative skewness
+set.seed(123)
+
+# Parameters
+n_patients <- 10000  # Total number of patients
+
+# Skewed towards higher values
+Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+
+# Simulate survival outcomes based on Ps
+survival_outcomes <- rbinom(n_patients,
+                            size = 1,
+                            prob = Ps
+)
+
+# Create data frame
+temp_data <- tibble::tibble(Ps = Ps, survival = survival_outcomes) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1),
+                year = sample(x = 2019:2023, size = n_patients, replace = TRUE)
+                )
+
+# Apply the nonlinear_bins function
+results <- nonlinear_bins(data = temp_data,
+                          Ps_col = Ps,
+                          outcome_col = survival,
+                          group_vars = year,
+                          divisor1 = 4,
+                          divisor2 = 4,
+                          threshold_1 = 0.9,
+                          threshold_2 = 0.99
+                          )
+
+# try the test function
+results_test <- nonlinear_bins_test(data = temp_data,
+                                    Ps_col = Ps,
+                                    outcome_col = survival,
+                                    divisor1 = 4,
+                                    divisor2 = 4,
+                                    threshold_1 = 0.9,
+                                    threshold_2 = 0.99)
+
+nonlinear_bins_test <- function(data,
+                           Ps_col,
+                           outcome_col,
+                           group_vars = NULL,
+                           divisor1 = 5,
+                           divisor2 = 5,
+                           threshold_1 = 0.9,
+                           threshold_2 = 0.99) {
+
+  # Validation checks
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
+    cli::cli_abort("The input data must be a data frame or tibble.")
+  }
+
+  if (missing(Ps_col) || missing(outcome_col)) {
+    cli::cli_abort("Both {.var Ps_col} and {.var outcome_col} arguments must be provided.")
+  }
+
+  binary_data <- data |> dplyr::pull({{ outcome_col }})
+  unique_values <- unique(stats::na.omit(binary_data))
+
+  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2) {
+    cli::cli_abort("The {.var outcome_col} must be binary (1/0 or TRUE/FALSE).")
+  }
+
+  # Capture group_vars as symbols
+  group_vars <- rlang::ensyms(group_vars)
+
+  # Compute binning intervals using the full dataset
+  survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
+  total <- length(survival_data)
+
+  loc_9A <- which(survival_data > threshold_1)
+  loc_9B <- which(survival_data > threshold_2)
+  loc_9C <- which(survival_data > threshold_1 & survival_data <= threshold_2)
+
+  step1 <- round(min(loc_9A) / divisor1)
+  step2 <- round(length(loc_9C) / divisor2)
+
+  len <- unique(c(
+    seq(1, min(loc_9A), by = step1),
+    seq(min(loc_9A), min(loc_9B), by = step2),
+    max(loc_9B)
+  ))
+
+  intervals <- unique(survival_data[len])
+
+  # Apply binning to each group separately
+  grouped_data <- data |>
+    dplyr::mutate(bin_number = .bincode({{ Ps_col }}, breaks = intervals, include.lowest = TRUE),
+                  bin_start = intervals[bin_number],  # Start of the bin
+                  bin_end = intervals[bin_number + 1] # End of the bin
+                  )
+
+  # Compute statistics within each bin and group
+  if (!is.null(group_vars)) {
+    grouped_stats <- grouped_data |>
+      dplyr::group_by(!!!group_vars, bin_number, bin_start, bin_end) |>
+      dplyr::summarize(
+        mean = mean({{ Ps_col }}, na.rm = TRUE),
+        sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+        Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+        Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+        AntiS_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Survivors_b / dplyr::n(), 3), NA_real_),
+        AntiM_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Deaths_b / dplyr::n(), 3), NA_real_),
+        alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+        dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+        count = dplyr::n(),
+        .groups = "drop"
+      ) |>
+      dplyr::group_by(!!!group_vars) |>
+      dplyr::mutate(percent = round(count / sum(count, na.rm = TRUE), digits = 3),
+                    ) |>
+      dplyr::ungroup()
+
+  } else {
+    grouped_stats <- grouped_data |>
+      dplyr::group_by(bin_number, bin_start, bin_end) |>
+      dplyr::summarize(
+        mean = mean({{ Ps_col }}, na.rm = TRUE),
+        sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+        Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+        Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+        AntiS_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Survivors_b / dplyr::n(), 3), NA_real_),
+        AntiM_b = dplyr::if_else(dplyr::n() > 0, round(Pred_Deaths_b / dplyr::n(), 3), NA_real_),
+        alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+        dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+        count = dplyr::n(),
+        percent = round(count / total, digits = 3),
+        .groups = "drop"
+      )
+  }
+
+  return(list(intervals = intervals, bin_stats = grouped_stats))
+}
+
+################################################################################
+### RMM  #######################################################################
+################################################################################
+
+# Generate example data with high negative skewness
+set.seed(10232015)
+
+# Parameters
+n_patients <- 1000  # Total number of patients
+
+# Skewed towards higher values
+Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+
+# Simulate survival outcomes based on Ps
+survival_outcomes <- rbinom(n_patients,
+                            size = 1,
+                            prob = Ps
+)
+
+# Create data frame
+data <- tibble::tibble(Ps = Ps, survival = survival_outcomes) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1),
+                year = sample(2019:2023, size = n_patients, replace = TRUE)
+                )
+
+# Example usage of the `rmm` function
+rmm(data = data, Ps_col = Ps,
+    outcome_col = survival,
+    Divisor1 = 5,
+    Divisor2 = 5,
+    n_samples = 100
+)
+
+# test
+rmm_test(data = data, Ps_col = Ps,
+    outcome_col = survival,
+    Divisor1 = 5,
+    Divisor2 = 5,
+    n_samples = 5,
+    group_vars = year
+)
+
+################################################################################
+### new function  ##############################################################
+################################################################################
+
+rmm_test <- function(data,
+                Ps_col,
+                outcome_col,
+                n_samples = 1000,
+                Divisor1 = 5,
+                Divisor2 = 5,
+                Threshold_1 = 0.9,
+                Threshold_2 = 0.99,
+                pivot = FALSE,
+                group_vars = NULL,
+                seed = NULL
+) {
+
+  # Validation checks using `cli` for robust error messaging:
+  # Ensures the input data is a data frame or tibble.
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
+    cli::cli_abort("The input data must be a data frame or tibble.")
+  }
+
+  # check the n_samples value
+  if(!is.numeric(n_samples) && !is.integer(n_samples)) {
+
+    cli::cli_abort("A value of class {.cls numeric} must be passed to {.var n_samples}. The value passed to {.var n_samples} was of class {.val {class(n_samples)}}, please provide a {.cls numeric} value.")
+
+  }
+
+  # No explicit validation for column existence; use tidy evaluation directly
+  ps_data <- rlang::enquo(Ps_col)     # Capture Ps_col argument
+
+  # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
+  if (missing(Ps_col) && missing(outcome_col)) {
+    cli::cli_abort("Both {.var Ps_col} and {.var outcome_col} arguments must be provided.")
+  } else if (missing(Ps_col)) {
+    cli::cli_abort("The {.var Ps_col} argument must be provided.")
+  } else if (missing(outcome_col)) {
+    cli::cli_abort("The {.var outcome_col} argument must be provided.")
+  }
+
+  # Check if the outcome_col is binary
+  binary_data <- data |>
+    dplyr::pull({{ outcome_col }})
+
+  # Validate binary data
+  unique_values <- unique(stats::na.omit(binary_data))
+
+  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2 || length(unique_values) < 2) {
+    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
+  }
+
+  # Check if Ps column is numeric
+
+  # dplyr::pull the Ps data
+  Ps_check <- data |> dplyr::pull({{ Ps_col }})
+
+  # check the Ps_check remains continuous
+  if (!is.numeric(Ps_check)) {
+    cli::cli_abort("The {.var Ps_col} must contain numeric values.")
+  }
+
+  if (any(is.na(Ps_check))) {
+    cli::cli_warn("Missing values detected in {.var Ps_col}; they will be ignored in calculations.")
+  }
+
+  # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
+  if (any(Ps_check < 0 | Ps_check > 100, na.rm = T)) {
+    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 100.")
+  }
+
+  # Notify the user and convert Ps values if necessary
+  if (any(Ps_check > 1, na.rm = TRUE)) {
+
+    cli::cli_alert_info("Probability of survival (Ps) values will be divided by 100 to convert to decimal format.")
+
+    data <- data |>
+      dplyr::mutate(!!rlang::ensym(Ps_col) := dplyr::if_else(!!ps_data > 1, !!ps_data / 100, !!ps_data))
+  }
+
+  if (!is.null(seed) && !is.numeric(seed)) {
+
+    cli::cli_warn("The value passed to {.var seed} was of class {.cls {class(seed)}}, but it should be {.cls numeric}.  The random seed will not be set.")
+
+  }
+
+  # Ensure all group_vars exist in data
+  if (!is.null(group_vars)) {
+    missing_vars <- setdiff(rlang::as_name(group_vars), names(data))
+    if (length(missing_vars) > 0) {
+      cli::cli_abort("The following group_vars are not found in {.var data}: {missing_vars}")
+    }
+  }
+
+  # No explicit validation for column existence; use tidy evaluation directly
+  # Capture group_vars as symbols
+  if (!is.null(group_vars)) {
+
+    group_vars_quos <- rlang::enquos(group_vars)
+
+  } else if (is.null(group_vars)) {
+
+    group_vars_quos <- NULL
+
+  }
+
+  # Set the random seed if a value is given
+  if(!is.null(seed) && is.numeric(seed)) {
+
+    set.seed(seed)
+
+  }
+
+  # Assume same distribution of POS scores over years
+  # Dynamically assign bins for POS scores using non-linear process
+  # specified by Napoli et al. 2017
+  # those methods are adapted using this function
+
+  # get the population level bins
+  bin_data <- nonlinear_bins(
+    data,
+    Ps_col = {{ Ps_col }},
+    outcome_col = {{ outcome_col }},
+    divisor1 = Divisor1,
+    divisor2 = Divisor2,
+    threshold_1 = Threshold_1,
+    threshold_2 = Threshold_2,
+    group_vars = group_vars_quos
+  )
+
+  # Bootstrap process
+  bootstrap_data <- data |>
+    dplyr::select({{ Ps_col }}, {{ outcome_col }}, {{ group_vars }}) |>  # Select only relevant columns
+    dplyr::group_by(!!!group_vars_quos) |>
+    infer::generate(reps = n_samples, type = "bootstrap") |>   # Generate bootstrap samples
+    dplyr::ungroup()
+
+  # bootstrapping to get bins for the population to then create
+  # the confidence intervals
+  # Nest data by replicate and optional group_vars and apply nonlinear_bins
+  bin_data_boot <- bootstrap_data |>
+    tidyr::nest(data = -replicate) |> # Nest data
+    dplyr::mutate(
+      bins = purrr::map(
+        data,
+        ~ nonlinear_bins(
+          .x, Ps_col = {{ Ps_col }}, outcome_col = {{ outcome_col }},
+          group_vars = {{ group_vars }},
+          divisor1 = Divisor1,
+          divisor2 = Divisor2,
+          threshold_1 = Threshold_1,
+          threshold_2 = Threshold_2
+        )
+      )
+    ) |>
+    dplyr::mutate(
+      bins_temp = purrr::map(bins, ~ .x$bin_stats)
+    ) |>
+    tidyr::unnest(bins_temp) |>
+    dplyr::select(-bins)
+
+  # Extract the bin intervals (start and end points of the bins)
+  intervals_data <- bin_data$intervals
+
+  # Initialize the bin_df to hold bin statistics
+  bin_df <- bin_data$bin_stats |>
+    dplyr::select({{ group_vars }}, bin_number, bin_start, bin_end) |>
+    # Calculate the midpoint of each bin using the start and end points
+    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
+    dplyr::arrange({{ group_vars }}, bin_number) # Sort the bins by bin_number
+
+  # Initialize the bind_df_boot to hold bin statistics for each replicate
+  # Initialize the bin_df with bootstrap samples
+  bin_df_boot <- bin_data_boot |>
+    dplyr::select({{ group_vars }}, replicate, bin_number, bin_start, bin_end) |>
+    # Calculate the midpoint of each bin for each bootstrap replicate
+    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
+    dplyr::arrange({{ group_vars }}, replicate, bin_number) # Sort by replicate and bin_number
+
+  # Summarize bin-level statistics:
+  # - TA_b: Total alive (patients in the bin that survived)
+  # - TD_b: Total dead (patients in the bin that did not survive)
+  # - N_b: Total number of observations (patients in the bin)
+  # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
+  bin_summary <- bin_data$bin_stats |>
+    dplyr::group_by(!!!group_vars_quos, bin_number) |> # Perform this calculation for each bin
+    dplyr::summarize(
+      TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
+      TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
+      N_b = sum(count), # Total number of patients in the bin
+      EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
+      .groups = "keep"
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::arrange({{ group_vars }}, bin_number) # Arrange the bins by bin_number
+
+  # Summarize bin-level statistics for the boostrapped data:
+  # - TA_b: Total alive (patients in the bin that survived)
+  # - TD_b: Total dead (patients in the bin that did not survive)
+  # - N_b: Total number of observations (patients in the bin)
+  # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
+  bin_summary_boot <- bin_data_boot |>
+    # Perform this calculation for each replicate and bin
+    dplyr::group_by(!!!group_vars_quos, replicate, bin_number) |>
+    dplyr::summarize(
+      TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
+      TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
+      N_b = sum(count), # Total number of patients in the bin
+      EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+      AntiS_b = AntiS_b, # keep the predicted survival data
+      AntiM_b = AntiM_b, # keep the predicted mortality data
+      .groups = "keep"
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::arrange({{ group_vars }}, replicate, bin_number) # Arrange the bins by bin_number
+
+  if (is.null(group_vars)) {
+    # Join the bin statistics (bin_summary) with the bin_df for further calculations
+    # The merged data will contain the bin information and corresponding statistics
+    # Not using AntiM_b = -1 * midpoint + 1
+    # i.e., Anticipated mortality (1 - midpoint, reversed scale)
+    bin_stats <- bin_summary |>
+      dplyr::left_join(bin_df, by = dplyr::join_by(bin_number)) |>
+      dplyr::group_by(!!!group_vars_quos, bin_number) |>
+      dplyr::mutate(
+        R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
+      ) |>
+      dplyr::ungroup()
+
+  } else {
+
+    bin_stats <- bin_summary |>
+      dplyr::left_join(bin_df, by = dplyr::join_by({{ group_vars }}, bin_number)) |>
+      dplyr::group_by(!!!group_vars_quos, bin_number) |>
+      dplyr::mutate(
+        R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
+      ) |>
+      dplyr::ungroup()
+
+  }
+
+  if (is.null(group_vars)) {
+    # For the bootstrapped data
+    # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
+    # The merged data will contain the bin information and corresponding statistics
+    # Not using AntiM_b = -1 * midpoint + 1
+    # i.e., Anticipated mortality (1 - midpoint, reversed scale)
+    bin_stats_boot <- bin_summary_boot |>
+      dplyr::left_join(bin_df_boot, by = dplyr::join_by(replicate, bin_number)) |>
+      dplyr::group_by(!!!group_vars_quos, replicate, bin_number) |>
+      dplyr::mutate(
+        R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
+      ) |>
+      dplyr::ungroup()
+
+  } else {
+
+    bin_stats_boot <- bin_summary_boot |>
+      dplyr::left_join(bin_df_boot, by = dplyr::join_by({{ group_vars }}, replicate, bin_number)) |>
+      dplyr::group_by(!!!group_vars_quos, replicate, bin_number) |>
+      dplyr::mutate(
+        R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
+      ) |>
+      dplyr::ungroup()
+
+  }
+
+  # Calculate the Relative Mortality Metric (RMM):
+  # RMM is calculated by:
+  # - Computing the weighted difference between anticipated and observed mortality.
+  # - Normalizing by the weighted anticipated mortality.
+  rmm_result <- bin_stats |>
+    dplyr::group_by(!!!group_vars_quos) |>
+    dplyr::summarize(
+      numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
+      denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
+      population_RMM = numerator / denominator, # Final RMM calculation
+      population_CI = 1.96 * sqrt((sum(AntiM_b) * sum(AntiS_b)) / sum(N_b)),
+      population_RMM_LL = population_RMM - population_CI,
+      population_RMM_UL = population_RMM + population_CI,
+      .groups = "keep"
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::relocate(population_RMM_LL, .before = population_RMM) |>
+    dplyr::relocate(population_CI, .after = population_RMM_UL)
+
+  # For the bootstrapped data
+  # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
+  # RMM is calculated by:
+  # - Computing the weighted difference between anticipated and observed mortality.
+  # - Normalizing by the weighted anticipated mortality.
+  # The confidence intervals are adjusted based on the weighted error bound.
+  rmm_result_boot <- bin_stats_boot |>
+    dplyr::group_by(!!!group_vars_quos, replicate) |>
+    dplyr::summarize(
+      numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
+      denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
+      RMM = numerator / denominator, # Final RMM calculation
+      .groups = "keep"
+    ) |>
+    dplyr::ungroup()
+
+  # Calculate mean, standard deviation, and 95% confidence intervals
+  rmm_result_ci <- rmm_result_boot |>
+    dplyr::group_by(!!!group_vars_quos) |>
+    dplyr::summarize(
+      bootstrap_RMM = mean(RMM, na.rm = TRUE), # Mean RMM
+      sd_bootstrap_RMM = sd(RMM, na.rm = TRUE), # Standard deviation of RMM
+      se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
+      bootstrap_CI = 1.96 * se_bootstrap_RMM, # Standard error
+      bootstrap_RMM_LL = bootstrap_RMM - bootstrap_CI, # Lower bound of 95% CI
+      bootstrap_RMM_UL = bootstrap_RMM + bootstrap_CI, # Upper bound of 95% CI
+      .groups = "keep"
+    ) |>
+    dplyr::ungroup()
+
+  if (is.null(group_vars)) {
+    # add the confidence intervals from the bootstrap distribution
+    # to the final result
+    rmm_result_final <- rmm_result |>
+      dplyr::bind_cols(rmm_result_ci) |>
+      dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+      dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
+
+  } else {
+
+    rmm_result_final <- rmm_result |>
+      dplyr::left_join(rmm_result_ci, by = dplyr::join_by({{ group_vars }})) |>
+      dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+      dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
+
+  }
+
+  # Return the final result containing the RMM and its confidence intervals
+  # optionally, pivot
+  if(pivot) {
+
+    rmm_result_final <- rmm_result_final |>
+      tidyr::pivot_longer(tidyselect::everything(),
+                          names_to = "stat",
+                          values_to = "value"
+      )
+
+    return(rmm_result_final)
+
+  } else if(!pivot) {
+
+    # wide result
+    return(rmm_result_final)
+
+  }
+
+}
