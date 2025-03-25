@@ -133,7 +133,7 @@ al. (2017), it is possible to calculate a score that is similar to the
 W-Score in its interpretability, but deals with the negatively skewed
 probability of survival problem by creating non-linear bins of score
 ranges, and then weighting a score based on the nature of those bins.
-The Relative Mortality Metric (RMM) has a scale from -1 to 1, where
+The Relative Mortality Metric (RMM) has a scale from -1 to 1.
 
 - An RMM of 0 indicates that the observed mortality aligns with the
   expected national benchmark across all acuity levels.
@@ -170,17 +170,17 @@ results$bin_stats
 #> # A tibble: 9 × 13
 #>   bin_number bin_start bin_end  mean      sd Pred_Survivors_b Pred_Deaths_b
 #>        <int>     <dbl>   <dbl> <dbl>   <dbl>            <dbl>         <dbl>
-#> 1          1    0.0226   0.590 0.416 0.133               577.        812.  
+#> 1          1    0.0226   0.590 0.416 0.133               578.        812.  
 #> 2          2    0.590    0.753 0.681 0.0480              946.        443.  
-#> 3          3    0.753    0.844 0.803 0.0261             1116.        273.  
+#> 3          3    0.753    0.844 0.803 0.0260             1116.        273.  
 #> 4          4    0.844    0.900 0.873 0.0162             1211.        176.  
-#> 5          5    0.900    0.930 0.916 0.00879             921.         84.5 
+#> 5          5    0.900    0.930 0.916 0.00878             922.         84.5 
 #> 6          6    0.930    0.954 0.943 0.00699             949.         57.3 
-#> 7          7    0.954    0.973 0.964 0.00545             970.         36.0 
-#> 8          8    0.973    0.990 0.981 0.00485             987.         18.7 
-#> 9          9    0.990    1.00  0.994 0.00253             419.          2.61
-#> # ℹ 6 more variables: AntiS_b <dbl>, AntiM_b <dbl>, alive <dbl>, dead <dbl>,
-#> #   count <dbl>, percent <dbl>
+#> 7          7    0.954    0.973 0.964 0.00544             970.         36.0 
+#> 8          8    0.973    0.990 0.981 0.00485             987.         18.6 
+#> 9          9    0.990    1.00  0.994 0.00253             418.          2.60
+#> # ℹ 6 more variables: AntiS_b <dbl>, AntiM_b <dbl>, alive <int>, dead <int>,
+#> #   count <int>, percent <dbl>
 ```
 
 ## The RMM function
@@ -211,7 +211,7 @@ rmm(data = data,
 #> # A tibble: 1 × 8
 #>   population_RMM_LL population_RMM population_RMM_UL population_CI
 #>               <dbl>          <dbl>             <dbl>         <dbl>
-#> 1           -0.0280         0.0365             0.101        0.0645
+#> 1           -0.0275         0.0370             0.101        0.0645
 #> # ℹ 4 more variables: bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>,
 #> #   bootstrap_RMM_UL <dbl>, bootstrap_CI <dbl>
 
@@ -228,14 +228,14 @@ rmm(
 #> # A tibble: 8 × 2
 #>   stat                 value
 #>   <chr>                <dbl>
-#> 1 population_RMM_LL -0.0280 
-#> 2 population_RMM     0.0365 
+#> 1 population_RMM_LL -0.0275 
+#> 2 population_RMM     0.0370 
 #> 3 population_RMM_UL  0.101  
 #> 4 population_CI      0.0645 
-#> 5 bootstrap_RMM_LL   0.0343 
-#> 6 bootstrap_RMM      0.0368 
+#> 5 bootstrap_RMM_LL   0.0344 
+#> 6 bootstrap_RMM      0.0369 
 #> 7 bootstrap_RMM_UL   0.0393 
-#> 8 bootstrap_CI       0.00247
+#> 8 bootstrap_CI       0.00248
 
 # RMM calculated by non-linear bin range
 # `rm_bin_summary()` function
@@ -248,8 +248,8 @@ rm_bin_summary(data = data,
                )
 #> # A tibble: 9 × 19
 #>   bin_number  TA_b  TD_b   N_b    EM_b AntiS_b AntiM_b bin_start bin_end
-#>        <int> <dbl> <dbl> <dbl>   <dbl>   <dbl>   <dbl>     <dbl>   <dbl>
-#> 1          1   614   775  1389 0.558     0.416   0.584    0.0226   0.590
+#>        <int> <int> <int> <int>   <dbl>   <dbl>   <dbl>     <dbl>   <dbl>
+#> 1          1   615   775  1390 0.558     0.416   0.584    0.0226   0.590
 #> 2          2   953   436  1389 0.314     0.681   0.319    0.590    0.753
 #> 3          3  1108   281  1389 0.202     0.803   0.197    0.753    0.844
 #> 4          4  1208   179  1387 0.129     0.873   0.127    0.844    0.900
@@ -257,7 +257,7 @@ rm_bin_summary(data = data,
 #> 6          6   954    52  1006 0.0517    0.943   0.057    0.930    0.954
 #> 7          7   979    27  1006 0.0268    0.964   0.036    0.954    0.973
 #> 8          8   989    17  1006 0.0169    0.981   0.019    0.973    0.990
-#> 9          9   421     1   422 0.00237   0.994   0.006    0.990    1.00 
+#> 9          9   420     1   421 0.00238   0.994   0.006    0.990    1.00 
 #> # ℹ 10 more variables: midpoint <dbl>, R_b <dbl>, population_RMM_LL <dbl>,
 #> #   population_RMM <dbl>, population_RMM_UL <dbl>, population_CI <dbl>,
 #> #   bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>, bootstrap_RMM_UL <dbl>,
