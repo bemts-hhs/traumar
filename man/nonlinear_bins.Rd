@@ -8,6 +8,7 @@ nonlinear_bins(
   data,
   Ps_col,
   outcome_col,
+  group_vars = NULL,
   divisor1 = 5,
   divisor2 = 5,
   threshold_1 = 0.9,
@@ -18,14 +19,16 @@ nonlinear_bins(
 \item{data}{A \code{data.frame} or \code{tibble} containing the probability of survival
 data for a set of patients.}
 
-\item{Ps_col}{The column in \code{data} containing the probability of survival
-values for a set of patients.}
+\item{Ps_col}{The name of the column containing the survival probabilities
+(Ps). Should be numeric on a scale from 0 to 1.}
 
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
-should represent "alive" (survived), while \code{0} should
-represent "dead" (did not survive). Ensure the column contains only these
-two possible values.}
+should represent "alive" (survived), while \code{0} should represent "dead" (did
+not survive). Ensure the column contains only these two possible values.}
+
+\item{group_vars}{Optional grouping variables for bin statistics
+calculations. These should be specified as quoted column names.}
 
 \item{divisor1}{A parameter to control the width of the probability of
 survival range bins. Affects the creation of step sizes for the beginning
@@ -42,11 +45,23 @@ create step sizes. Defaults to \code{0.9}.}
 create step sizes. Defaults to \code{0.99}.}
 }
 \value{
-A list with \code{intervals} and \code{bin_stats} objects:
+A list with two elements:
 \itemize{
-\item \code{intervals}: A vector of start and end-points for the probability of survival bin ranges.
-\item \code{bin_stats}: A \code{tibble} with columns \code{bin_number}, \code{bin_start}, \code{bin_end}, \code{mean}, \code{sd},
-\code{alive}, \code{dead}, \code{count}, and \code{percent}.
+\item \code{intervals}: A vector defining bin boundaries for probability of
+survival.
+\item \code{bin_stats}: A \code{tibble} containing:
+\itemize{
+\item \code{bin_number}: Bin index.
+\item \code{bin_start}, \code{bin_end}: Bin range.
+\item \code{mean}, \code{sd}: Mean and standard deviation of \code{Ps_col} within the bin.
+\item \code{Pred_Survivors_b}, \code{Pred_Deaths_b}: Predicted counts of survivors and
+decedents, respectively.
+\item \code{AntiS_b}, \code{AntiM_b}: Anticipated proportion survived, and deceased,
+respectively.
+\item \code{alive}, \code{dead}: Count of observed survivors and non-survivors.
+\item \code{count}: Total records in the bin.
+\item \code{percent}: Percentage of records within each bin.
+}
 }
 }
 \description{
@@ -55,6 +70,14 @@ on specified thresholds and divisors as specified in Napoli et al. (2017),
 Schroeder et al. (2019), and Kassar et al. (2016). This function calculates
 bin statistics, including mean, standard deviation, total alive, total dead,
 count, and percentage for each bin.
+}
+\details{
+Like other statistical computing functions, \code{nonlinear_bins()} is happiest
+without missing data.  It is best to pass complete probability of survival
+and outcome data to the function for optimal performance. With smaller
+datasets, this is especially helpful.  However, \code{nonlinear_bins()} will
+handle \code{NA} values and throw a warning about missing probability of survival
+values, if any exist in \code{Ps_col}.
 }
 \examples{
 # Generate example data with high negative skewness
@@ -89,8 +112,43 @@ results <- nonlinear_bins(data = data,
 results$intervals
 results$bin_stats
 
+# Example with grouping by a categorical variable
+
+# Add random group variable
+data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
+
+# Run the function using a single grouping variable
+results_grouped <- nonlinear_bins(data,
+                                  Ps_col = Ps,
+                                  outcome_col = survival,
+                                  group_vars = "group"
+                                  )
+
+# View grouped results
+results_grouped$bin_stats
+
+}
+\references{
+Kassar, O.M., Eklund, E.A., Barnhardt, W.F., Napoli, N.J., Barnes, L.E.,
+Young, J.S. (2016). Trauma survival margin analysis: A dissection of trauma
+center performance through initial lactate. The American Surgeon, 82(7),
+649-653. \url{doi:10.1177/000313481608200733}
+
+Napoli, N. J., Barnhardt, W., Kotoriy, M. E., Young, J. S., & Barnes, L. E.
+(2017). Relative mortality analysis: A new tool to evaluate clinical
+performance in trauma centers. IISE Transactions on Healthcare Systems
+Engineering, 7(3), 181–191. \url{doi:10.1080/24725579.2017.1325948}
+
+Schroeder, P. H., Napoli, N. J., Barnhardt, W. F., Barnes, L. E., & Young, J.
+S. (2018). Relative mortality analysis of the “golden hour”: A comprehensive
+acuity stratification approach to address disagreement in current literature.
+Prehospital Emergency Care, 23(2), 254–262.
+\url{doi:10.1080/10903127.2018.1489021}
+}
+\seealso{
+\code{\link[=rmm]{rmm()}}, and \code{\link[=rm_bin_summary]{rm_bin_summary()}}
 }
 \author{
-Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
+Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas
 J. Napoli, Ph.D., MS
 }

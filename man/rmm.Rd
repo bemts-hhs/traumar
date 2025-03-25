@@ -8,24 +8,30 @@ rmm(
   data,
   Ps_col,
   outcome_col,
+  group_vars = NULL,
   n_samples = 1000,
   Divisor1 = 5,
   Divisor2 = 5,
   Threshold_1 = 0.9,
   Threshold_2 = 0.99,
-  pivot = FALSE
+  pivot = FALSE,
+  seed = NULL
 )
 }
 \arguments{
 \item{data}{A data frame or tibble containing the data.}
 
 \item{Ps_col}{The name of the column containing the survival probabilities
-(Ps). Should be numeric (values between 0 and 100).}
+(Ps). Should be numeric on a scale from 0 to 1.}
 
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
 should represent "alive" (survived), while \code{0} should represent "dead" (did
 not survive). Ensure the column contains only these two possible values.}
+
+\item{group_vars}{Optional character vector specifying grouping variables for
+stratified analysis. If \code{NULL}, the calculation is performed on the entire
+dataset.}
 
 \item{n_samples}{A numeric value indicating the number of bootstrap samples
 to take from the data source.}
@@ -43,26 +49,38 @@ probabilities (default is 0.9).}
 probabilities (default is 0.99).}
 
 \item{pivot}{A logical indicating whether to return the results in a long
-format (pivot = TRUE) or wide format (pivot = FALSE, default).}
+format (\code{pivot = TRUE}) or wide format (\code{pivot = FALSE}, default). Use with
+caution in tandem with \code{group_vars} if the grouping variable is of a
+different class than \code{rmm()}'s outputs, such as \code{factor} or \code{character}
+grouping variables.}
+
+\item{seed}{Optional numeric value to set a random seed for reproducibility.
+If \code{NULL} (default), no seed is set.}
 }
 \value{
 A tibble containing the Relative Mortality Metric (RMM) and related
 statistics:
 \itemize{
-\item \code{population_RMM_LL}: The lower bound of the 95\% confidence interval for the population RMM.
-\item \code{population_RMM}: The final calculated Relative Mortality Metric for the population
-existing in \code{data}.
-\item \code{population_RMM_UL}: The upper bound of the 95\% confidence interval for the population RMM.
+\item \code{population_RMM_LL}: The lower bound of the 95\% confidence interval for
+the population RMM.
+\item \code{population_RMM}: The final calculated Relative Mortality Metric for the
+population existing in \code{data}.
+\item \code{population_RMM_UL}: The upper bound of the 95\% confidence interval for
+the population RMM.
 \item \code{population_CI}: The confidence interval width for the population RMM.
-\item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for the bootstrap RMM.
-\item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap sample.
-\item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for the bootstrap RMM.
-\item \code{bootstrap_CI}: The width of the 95\% confidence interval for the bootstrap RMM.
-\item If \code{pivot = TRUE}, the results will be in long format with two columns: \code{stat}
-and \code{value}, where each row corresponds to one of the calculated
+\item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for
+the bootstrap RMM.
+\item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap
+sample.
+\item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for
+the bootstrap RMM.
+\item \code{bootstrap_CI}: The width of the 95\% confidence interval for the
+bootstrap RMM.
+\item If \code{pivot = TRUE}, the results will be in long format with two columns:
+\code{stat} and \code{value}, where each row corresponds to one of the calculated
 statistics.
-\item If \code{pivot = FALSE} (default), the results will be returned in wide format,
-with each statistic as a separate column.
+\item If \code{pivot = FALSE} (default), the results will be returned in wide
+format, with each statistic as a separate column.
 }
 }
 \description{
@@ -87,18 +105,26 @@ mortality is higher than the expected benchmark.
 }
 
 This metric helps assess how a center's mortality compares to the national
-standards, guiding quality improvement efforts.  \code{rmm()} utilizes bootstrap
+standards, guiding quality improvement efforts. \code{rmm()} utilizes bootstrap
 sampling to calculate the confidence intervals via the standard error method.
+}
+\details{
+Like other statistical computing functions, \code{rmm()} is happiest
+without missing data.  It is best to pass complete probability of survival
+and outcome data to the function for optimal performance. With smaller
+datasets, this is especially helpful.  However, \code{rmm()} will
+handle \code{NA} values and throw a warning about missing probability of survival
+values, if any exist in \code{Ps_col}.
 
-Due to the use of bootstrap sampling within the function, users should set
-the random number seed before running \code{rmm()}.
+Due to the use of bootstrap sampling within the function, users should
+consider setting the random number \code{seed} within \code{rmm()} for reproducibility.
 }
 \examples{
 # Generate example data with high negative skewness
 set.seed(10232015)
 
 # Parameters
-n_patients <- 1000  # Total number of patients
+n_patients <- 10000  # Total number of patients
 
 # Skewed towards higher values
 Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
@@ -116,22 +142,76 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 # Example usage of the `rmm` function
 rmm(data = data, Ps_col = Ps,
     outcome_col = survival,
-    Divisor1 = 5,
-    Divisor2 = 5,
-    n_samples = 5
+    Divisor1 = 4,
+    Divisor2 = 4,
+    n_samples = 100
     )
 
 # pivot!
 rmm(data = data, Ps_col = Ps,
     outcome_col = survival,
-    Divisor1 = 5,
-    Divisor2 = 5,
-    n_samples = 5,
+    Divisor1 = 4,
+    Divisor2 = 4,
+    n_samples = 100,
     pivot = TRUE
     )
 
+# Create example grouping variable (e.g., hospital)
+hospital <- sample(c("Hospital A", "Hospital B"), n_patients, replace = TRUE)
+
+# Create data frame
+data <- data.frame(
+  Ps = Ps,
+  survival = survival_outcomes,
+  hospital = hospital
+) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+
+# Example usage of the `rmm` function with grouping by hospital
+rmm(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  group_vars = "hospital",
+  Divisor1 = 4,
+  Divisor2 = 4,
+  n_samples = 100
+)
+
+# Pivoted output for easier visualization
+rmm(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  group_vars = "hospital",
+  Divisor1 = 4,
+  Divisor2 = 4,
+  n_samples = 100,
+  pivot = TRUE
+)
+
+}
+\references{
+Kassar, O.M., Eklund, E.A., Barnhardt, W.F., Napoli, N.J., Barnes, L.E.,
+Young, J.S. (2016). Trauma survival margin analysis: A dissection of trauma
+center performance through initial lactate. The American Surgeon, 82(7),
+649-653. \url{doi:10.1177/000313481608200733}
+
+Napoli, N. J., Barnhardt, W., Kotoriy, M. E., Young, J. S., & Barnes, L. E.
+(2017). Relative mortality analysis: A new tool to evaluate clinical
+performance in trauma centers. IISE Transactions on Healthcare Systems
+Engineering, 7(3), 181–191. \url{doi:10.1080/24725579.2017.1325948}
+
+Schroeder, P. H., Napoli, N. J., Barnhardt, W. F., Barnes, L. E., & Young, J.
+S. (2018). Relative mortality analysis of the “golden hour”: A comprehensive
+acuity stratification approach to address disagreement in current literature.
+Prehospital Emergency Care, 23(2), 254–262.
+\url{doi:10.1080/10903127.2018.1489021}
+}
+\seealso{
+\code{\link[=rm_bin_summary]{rm_bin_summary()}}, and \code{\link[=nonlinear_bins]{nonlinear_bins()}}
 }
 \author{
-Nicolas Foss, Ed.D, MS, original paper and code in MATLAB by Nicholas
+Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas
 J. Napoli, Ph.D., MS
 }

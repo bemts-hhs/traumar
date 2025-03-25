@@ -40,5 +40,10 @@ utils::globalVariables(c(
   "population_RMM_UL",
   "sd_bootstrap_RMM",
   "se_bootstrap_RMM",
-  "stat_sig"
+  "stat_sig",
+  "group_vars",
+  "grouped_data",
+  "grouped_stats",
+  "Pred_Survivors_b",
+  "Pred_Deaths_b"
 ))

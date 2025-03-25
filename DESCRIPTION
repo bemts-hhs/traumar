@@ -1,7 +1,7 @@
 Package: traumar
 Type: Package
 Title: Calculate Metrics for Trauma System Performance
-Version: 1.0.0.9000
+Version: 1.1.0
 Authors@R: c(
     person(
       "Nicolas", "Foss",
@@ -36,7 +36,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    cli (>= 3.6.3),
+    cli (>= 3.6.4),
     dplyr (>= 1.1.4),
     ggplot2 (>= 3.5.1),
     rlang (>= 1.1.5),
@@ -48,7 +48,7 @@ Imports:
     lubridate (>= 1.9.4),
     lifecycle (>= 1.0.4),
     infer (>= 1.0.7),
-    purrr (>= 1.0.2)
+    purrr (>= 1.0.4)
 URL: https://bemts-hhs.github.io/traumar/, https://github.com/bemts-hhs/traumar
 Roxygen: list(markdown = TRUE)
 BugReports: https://github.com/bemts-hhs/traumar/issues
