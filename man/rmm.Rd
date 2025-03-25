@@ -9,7 +9,7 @@ rmm(
   Ps_col,
   outcome_col,
   group_vars = NULL,
-  n_samples = 1000,
+  n_samples = 100,
   Divisor1 = 5,
   Divisor2 = 5,
   Threshold_1 = 0.9,
@@ -144,7 +144,7 @@ rmm(data = data, Ps_col = Ps,
     outcome_col = survival,
     Divisor1 = 4,
     Divisor2 = 4,
-    n_samples = 100
+    n_samples = 10
     )
 
 # pivot!
@@ -152,7 +152,7 @@ rmm(data = data, Ps_col = Ps,
     outcome_col = survival,
     Divisor1 = 4,
     Divisor2 = 4,
-    n_samples = 100,
+    n_samples = 10,
     pivot = TRUE
     )
 
@@ -175,7 +175,7 @@ rmm(
   group_vars = "hospital",
   Divisor1 = 4,
   Divisor2 = 4,
-  n_samples = 100
+  n_samples = 10
 )
 
 # Pivoted output for easier visualization
@@ -186,7 +186,7 @@ rmm(
   group_vars = "hospital",
   Divisor1 = 4,
   Divisor2 = 4,
-  n_samples = 100,
+  n_samples = 10,
   pivot = TRUE
 )
 

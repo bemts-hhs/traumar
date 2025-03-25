@@ -9,7 +9,7 @@ rm_bin_summary(
   Ps_col,
   outcome_col,
   group_vars = NULL,
-  n_samples = 1000,
+  n_samples = 100,
   Divisor1 = 5,
   Divisor2 = 5,
   Threshold_1 = 0.9,
@@ -147,7 +147,7 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 # Example usage of the `rm_bin_summary` function
 rm_bin_summary(data = data, Ps_col = Ps,
                outcome_col = survival,
-               n_samples = 100,
+               n_samples = 10,
                Divisor1 = 4,
                Divisor2 = 4
                )
@@ -168,7 +168,7 @@ rm_bin_summary(
   Ps_col = Ps,
   outcome_col = survival,
   group_vars = "hospital", # Stratifies by hospital
-  n_samples = 100,
+  n_samples = 10,
   Divisor1 = 4,
   Divisor2 = 4
 )

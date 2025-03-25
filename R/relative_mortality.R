@@ -133,7 +133,7 @@
 #'     outcome_col = survival,
 #'     Divisor1 = 4,
 #'     Divisor2 = 4,
-#'     n_samples = 100
+#'     n_samples = 10
 #'     )
 #'
 #' # pivot!
@@ -141,7 +141,7 @@
 #'     outcome_col = survival,
 #'     Divisor1 = 4,
 #'     Divisor2 = 4,
-#'     n_samples = 100,
+#'     n_samples = 10,
 #'     pivot = TRUE
 #'     )
 #'
@@ -164,7 +164,7 @@
 #'   group_vars = "hospital",
 #'   Divisor1 = 4,
 #'   Divisor2 = 4,
-#'   n_samples = 100
+#'   n_samples = 10
 #' )
 #'
 #' # Pivoted output for easier visualization
@@ -175,7 +175,7 @@
 #'   group_vars = "hospital",
 #'   Divisor1 = 4,
 #'   Divisor2 = 4,
-#'   n_samples = 100,
+#'   n_samples = 10,
 #'   pivot = TRUE
 #' )
 #'
@@ -186,7 +186,7 @@ rmm <- function(data,
                 Ps_col,
                 outcome_col,
                 group_vars = NULL,
-                n_samples = 1000,
+                n_samples = 100,
                 Divisor1 = 5,
                 Divisor2 = 5,
                 Threshold_1 = 0.9,
@@ -689,7 +689,7 @@ rmm <- function(data,
 #' # Example usage of the `rm_bin_summary` function
 #' rm_bin_summary(data = data, Ps_col = Ps,
 #'                outcome_col = survival,
-#'                n_samples = 100,
+#'                n_samples = 10,
 #'                Divisor1 = 4,
 #'                Divisor2 = 4
 #'                )
@@ -710,7 +710,7 @@ rmm <- function(data,
 #'   Ps_col = Ps,
 #'   outcome_col = survival,
 #'   group_vars = "hospital", # Stratifies by hospital
-#'   n_samples = 100,
+#'   n_samples = 10,
 #'   Divisor1 = 4,
 #'   Divisor2 = 4
 #' )
@@ -722,7 +722,7 @@ rm_bin_summary <- function(data,
                            Ps_col,
                            outcome_col,
                            group_vars = NULL,
-                           n_samples = 1000,
+                           n_samples = 100,
                            Divisor1 = 5,
                            Divisor2 = 5,
                            Threshold_1 = 0.9,

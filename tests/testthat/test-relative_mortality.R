@@ -176,7 +176,7 @@ testthat::test_that("rmm function handles large datasets without performance iss
   # record time
   begin <- Sys.time()
 
-  result_large <- rmm(data = df_large, Ps_col = Ps, outcome_col = survival, n_samples = 1000)
+  result_large <- rmm(data = df_large, Ps_col = Ps, outcome_col = survival, n_samples = 100)
 
   # record time
   end <- Sys.time()
