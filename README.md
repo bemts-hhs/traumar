@@ -133,7 +133,7 @@ al. (2017), it is possible to calculate a score that is similar to the
 W-Score in its interpretability, but deals with the negatively skewed
 probability of survival problem by creating non-linear bins of score
 ranges, and then weighting a score based on the nature of those bins.
-The Relative Mortality Metric (RMM) has a scale from -1 to 1, where
+The Relative Mortality Metric (RMM) has a scale from -1 to 1.
 
 - An RMM of 0 indicates that the observed mortality aligns with the
   expected national benchmark across all acuity levels.
