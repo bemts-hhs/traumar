@@ -1,38 +1,71 @@
-#' @title Assess Normality of a Continuous Variable
+#' @title Exploratory Data Analysis, Univariate Normality Testing, and
+#'   Visualizaion
 #'
 #' @description
 #'
-#' Evaluates whether a numeric variable in a data frame follows a normal
-#' distribution. Provides descriptive statistics, optional visualizations, and
-#' formal normality tests.
+#' `r lifecycle::badge("experimental")`
 #'
-#' @param df A `data.frame` or `tibble`. The dataset containing the variable.
-#' @param x A bare (unquoted) column name in `df` specifying the continuous
-#'   variable to assess.
-#' @param seed A numeric value to set the random seed. Defaults to `10232015`.
-#' @param normality_test A string indicating which test to use. Must be one of:
-#' `"shapiro-wilk"`, `"kolmogorov-smirnov"`, `"anderson-darling"`, `"lilliefors"`,
-#' or `"cramer-von mises"`. Set to `NULL` to skip the test.
-#' @param include_plots Logical. If `TRUE`, includes a set of diagnostic plots.
-#' @param plot_theme A function for setting the `ggplot2` theme. Defaults to
-#'   `traumar::theme_cleaner`.
-#' @param ... Additional arguments passed to the `plot_theme`.
+#' `is_it_normal()` calculates descriptive statistics and conducts univariate
+#' normality testing on one or more numeric variables in a dataset using a
+#' selected statistical test. Optional plots are included for one variable at a
+#' time, only. Results are returned as a named list containing summaries and,
+#' optionally, diagnostic plots.
+#'
+#' @param df A `data.frame` or `tibble` containing the variables to assess.
+#' @param ... One or more unquoted column names from `df` to be analyzed.
+#' @param seed A numeric value passed to `set.seed()` to ensure reproducibility.
+#'   Default is `10232015`.
+#' @param normality_test A character string specifying the statistical test to
+#'   use. Must be one of: `"shapiro-wilk" or "shapiro" or "sw"`,
+#'   `"kolmogorov-smirnov" or "ks"`, `"anderson-darling" or "ad"`, `"lilliefors"
+#'   or "lilli"`, `"cramer-von-mises" or "cvm"`, `"pearson" or "p"`, or
+#'   `"shapiro-francia" or "sf"`. If `NULL`, no normality test is performed.
+#' @param include_plots Logical. If `TRUE`, plots are generated for a single
+#'   variable. Plotting is disabled if multiple variables are passed.
+#' @param plot_theme A `ggplot2::theme` function to apply to all plots. Default
+#'   is `traumar::theme_cleaner`.
 #'
 #' @return A named list with the following elements:
 #' \describe{
-#'   \item{descriptive_statistics}{A tibble summarizing the variable's
-#'   distribution.}
-#'   \item{normality_test}{(Optional) A tidy result of the specified normality
-#'   test.}
-#'   \item{plots}{(Optional) A `patchwork` object containing four
-#'   visualizations: Q-Q plot, histogram, density plot, and boxplot with
-#'   scatter.}
+#'   \item{descriptive_statistics}{A `tibble` of summary statistics for each
+#'   variable.}
+#'   \item{normality_test}{A `tibble` of test statistics and p-values
+#'   (if `normality_test == TRUE`).}
+#'   \item{plots}{A patchwork object containing four plots (if `include_plots =
+#'   TRUE` and one variable supplied).}
 #' }
 #'
-#' @author Nicolas Foss Ed.D., MS
+#' @details
+#' \itemize{
+#' \item The Shapiro-Wilk test is only applied if the number of non-missing
+#' observations is between 3 and 5000, see the documentation for
+#' `stats::shapiro.test()` for more details.
+#' \item The Shapiro-Francia test is only applied if the number of non-missing
+#' observations is between 5 and 5000, see the documentation for
+#' `nortest::sf.test()` for more details.
+#' \item If the data do not meet the Shapiro-Wilk assumptions, the test defaults
+#' to Lilliefors.
+#' \item Normality tests may yield differing results. Each test has distinct
+#' assumptions and sensitivity. Users should verify assumptions and consult
+#' test-specific guidance to ensure appropriate use.
+#' \item The function will abort with helpful CLI messages if input types or
+#' structures are incorrect.
+#'}
+#'
+#' @note Supported normality tests are:
+#' \itemize{
+#' \item Shapiro-Wilk (`stats::shapiro.test()`)
+#' \item Kolmogorov-Smirnov (`stats::ks.test()`)
+#' \item Anderson-Darling (`nortest::ad.test()`)
+#' \item Lilliefors (`nortest::lillie.test()`)
+#' \item Cramer-von Mises (`nortest::cvm.test()`)
+#' \item Pearson (`norest::pearson.test()`)
+#' \item Shapiro-Francia (`nortest::sf.test()`)
+#'}
+#'
+#' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
-#'
 is_it_normal <- function(
   df,
   ...,
@@ -42,7 +75,9 @@ is_it_normal <- function(
     "kolmogorov-smirnov",
     "anderson-darling",
     "lilliefors",
-    "cramer-von mises"
+    "cramer-von mises",
+    "pearson",
+    "shapiro-francia"
   ),
   include_plots = FALSE,
   plot_theme = traumar::theme_cleaner
@@ -58,6 +93,21 @@ is_it_normal <- function(
 
   # validate the `normality_test`
   if (!is.null(normality_test)) {
+    # Normalize aliases
+    normality_test <- tolower(normality_test)
+    normality_test <- switch(
+      normality_test,
+      "shapiro" = "shapiro-wilk",
+      "sw" = "shapiro-wilk",
+      "sf" = "shapiro-francia",
+      "ks" = "kolmogorov-smirnov",
+      "ad" = "anderson-darling",
+      "lilli" = "lilliefors",
+      "cvm" = "cramer-von mises",
+      "p" = "pearson",
+      normality_test # if not an alias, keep original
+    )
+
     attempt <- try(
       match.arg(
         normality_test,
@@ -66,7 +116,9 @@ is_it_normal <- function(
           "kolmogorov-smirnov",
           "anderson-darling",
           "lilliefors",
-          "cramer-von mises"
+          "cramer-von mises",
+          "pearson",
+          "shapiro-francia"
         )
       ),
       silent = TRUE
@@ -75,7 +127,7 @@ is_it_normal <- function(
     if (inherits(attempt, "try-error")) {
       cli::cli_abort(
         c(
-          "If {.var normality_test} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
+          "If {.var normality_test} is not {cli::col_blue('NULL')}, it must be one of {.val shapiro-wilk}, {.val kolmogorov-smirnov}, {.val anderson-darling}, {.val lilliefors}, {.val cramer-von mises}, {.val pearson}, or {.val shapiro-francia}.",
           "i" = "{.var normality_test} was {.val {normality_test}}."
         )
       )
@@ -115,7 +167,7 @@ is_it_normal <- function(
   cli::cli_h1("Output Summary")
   cli::cli_inform(c(
     "*" = paste0(
-      "Exploratory data analysis on the variables: ",
+      "Exploratory data analysis on the variable(s): ",
       cli::col_green(cli::style_bold(paste(var_names, collapse = ", "))),
       " from the '",
       cli::col_magenta(cli::style_bold(data_name)),
@@ -123,24 +175,46 @@ is_it_normal <- function(
     )
   ))
 
-  # Issue a warning for the user if it is not advised to use the shapiro.test
-  if (normality_test == "shapiro-wilk") {
-    # Check if the data meet the requirements for shapiro.test()
-    # If no, then default to Lilliefors
-    if (nrow(df) < 3 || nrow(df) > 5000) {
-      length_check <- dplyr::if_else(
-        nrow(df) < 3,
-        "less than 3",
-        dplyr::if_else(
-          nrow(df) > 5000,
-          "greater than 5000",
-          NA_character_
-        )
-      )
+  # Issue a warning and default to Lilliefors if any variable violates
+  # Shapiro-Wilk or Shapiro-Francia assumptions
+  if (normality_test %in% c("shapiro-wilk", "shapiro-francia")) {
+    test_info <- list(
+      "shapiro-wilk" = list(
+        min_n = 3,
+        max_n = 5000,
+        fn = "stats::shapiro.test"
+      ),
+      "shapiro-francia" = list(min_n = 5, max_n = 5000, fn = "nortest::sf.test")
+    )[[normality_test]]
 
+    var_status <- purrr::map_chr(vars, function(var) {
+      var_name <- rlang::as_label(var)
+      vec <- df |> dplyr::pull(!!var)
+      n_complete <- sum(!is.na(vec))
+
+      if (n_complete < test_info$min_n) {
+        glue::glue(
+          "{var_name}: (n_complete = {n_complete}, problem: n_complete < {test_info$min_n})"
+        )
+      } else if (n_complete > test_info$max_n) {
+        glue::glue(
+          "{var_name}: (n_complete = {n_complete}, problem: n_complete > {test_info$max_n})"
+        )
+      } else {
+        NA_character_
+      }
+    }) |>
+      stats::na.omit()
+
+    # If any of the variables violate assumptions, default to Lilliefors
+    if (length(var_status) > 0) {
       cli::cli_alert_warning(
-        "Total observations were {length_check}, and so {.fn stats::shapiro.test} cannot be used. Defaulting to the Lilliefors test via {.fn nortest::lillie.test}."
+        "One or more variables do not meet {.fn {test_info$fn}} sample size requirements. Defaulting to the Lilliefors test via {.fn nortest::lillie.test}."
       )
+      cli::cli_alert_info("Problematic variables:")
+      purrr::walk(var_status, cli::cli_li)
+
+      normality_test <- "lilliefors"
     }
   }
 
@@ -152,7 +226,7 @@ is_it_normal <- function(
     include_plots <- FALSE
 
     cli::cli_alert_info(
-      "More than one column was passed to {.fn is_it_normal}, and plotting is only available for one column at a time."
+      "More than one column was passed to {.fn is_it_normal}, and plotting is only available for one column at a time. {.var include_plots} is now set to {.val FALSE}."
     )
   }
 
@@ -222,21 +296,14 @@ is_it_normal <- function(
       var_name <- rlang::as_label(var)
       vec <- dplyr::pull(df, !!var)
 
+      # get complete observations
+      n_complete <- sum(!is.na(vec))
+
       # Shapiro-Wilk
       if (normality_test == "shapiro-wilk") {
         # Check if the data meet the requirements for shapiro.test()
         # If no, then default to Lilliefors
-        if (length(vec) < 3 | length(vec) > 5000) {
-          length_check <- dplyr::if_else(
-            length(vec) < 3,
-            "less than 3",
-            dplyr::if_else(
-              length(vec) > 5000,
-              "greater than 5000",
-              NA_character_
-            )
-          )
-
+        if (length(n_complete) < 3 || length(n_complete) > 5000) {
           # Default to the Lilliefors test
           test_result <- nortest::lillie.test(vec) |>
             broom::tidy() |>
@@ -296,7 +363,7 @@ is_it_normal <- function(
           )
 
         # Cramer-von Mises
-      } else if (normality_test == "cramer-von-mises") {
+      } else if (normality_test == "cramer-von mises") {
         test_result <- nortest::cvm.test(vec) |>
           broom::tidy() |>
           dplyr::mutate(
@@ -306,6 +373,43 @@ is_it_normal <- function(
               "Normal distribution"
             )
           )
+        # Pearson
+      } else if (normality_test == "pearson") {
+        test_result <- nortest::pearson.test(vec) |>
+          broom::tidy() |>
+          dplyr::mutate(
+            result = dplyr::if_else(
+              p.value < 0.05,
+              "Non-normal distribution",
+              "Normal distribution"
+            )
+          )
+        # Shapiro-Francia
+      } else if (normality_test == "shapiro-francia") {
+        # Check if the data meet the requirements for nortest::sf.test()
+        # If no, then default to Lilliefors
+        if (length(n_complete) < 5 | length(n_complete) > 5000) {
+          # Default to the Lilliefors test
+          test_result <- nortest::lillie.test(vec) |>
+            broom::tidy() |>
+            dplyr::mutate(
+              result = dplyr::if_else(
+                p.value < 0.05,
+                "Non-normal distribution",
+                "Normal distribution"
+              )
+            )
+        } else {
+          test_result <- nortest::sf.test(vec) |>
+            broom::tidy() |>
+            dplyr::mutate(
+              result = dplyr::if_else(
+                p.value < 0.05,
+                "Non-normal distribution",
+                "Normal distribution"
+              )
+            )
+        }
       }
 
       # Dynamically assign the data to a tibble
@@ -343,7 +447,7 @@ is_it_normal <- function(
         alpha = 0.7,
         na.rm = TRUE
       ) +
-      ggplot2::stat_qq(color = "#19405B", alpha = 0.2, size = 2, na.rm = TRUE) +
+      ggplot2::stat_qq(color = "#19405B", alpha = 0.5, size = 2, na.rm = TRUE) +
       ggplot2::ggtitle(paste0("Normal Q-Q Plot of ", var_name)) +
       chosen_theme()
 

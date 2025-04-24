@@ -2,54 +2,86 @@
 % Please edit documentation in R/is_it_normal.R
 \name{is_it_normal}
 \alias{is_it_normal}
-\title{Assess Normality of a Continuous Variable}
+\title{Exploratory Data Analysis, Univariate Normality Testing, and
+Visualizaion}
 \usage{
 is_it_normal(
   df,
   ...,
   seed = 10232015,
   normality_test = c("shapiro-wilk", "kolmogorov-smirnov", "anderson-darling",
-    "lilliefors", "cramer-von mises"),
+    "lilliefors", "cramer-von mises", "pearson", "shapiro-francia"),
   include_plots = FALSE,
   plot_theme = traumar::theme_cleaner
 )
 }
 \arguments{
-\item{df}{A \code{data.frame} or \code{tibble}. The dataset containing the variable.}
+\item{df}{A \code{data.frame} or \code{tibble} containing the variables to assess.}
 
-\item{...}{Additional arguments passed to the \code{plot_theme}.}
+\item{...}{One or more unquoted column names from \code{df} to be analyzed.}
 
-\item{seed}{A numeric value to set the random seed. Defaults to \code{10232015}.}
+\item{seed}{A numeric value passed to \code{set.seed()} to ensure reproducibility.
+Default is \code{10232015}.}
 
-\item{normality_test}{A string indicating which test to use. Must be one of:
-\code{"shapiro-wilk"}, \code{"kolmogorov-smirnov"}, \code{"anderson-darling"}, \code{"lilliefors"},
-or \code{"cramer-von mises"}. Set to \code{NULL} to skip the test.}
+\item{normality_test}{A character string specifying the statistical test to
+use. Must be one of: \verb{"shapiro-wilk" or "shapiro" or "sw"},
+\verb{"kolmogorov-smirnov" or "ks"}, \verb{"anderson-darling" or "ad"}, \verb{"lilliefors" or "lilli"}, \verb{"cramer-von-mises" or "cvm"}, \verb{"pearson" or "p"}, or
+\verb{"shapiro-francia" or "sf"}. If \code{NULL}, no normality test is performed.}
 
-\item{include_plots}{Logical. If \code{TRUE}, includes a set of diagnostic plots.}
+\item{include_plots}{Logical. If \code{TRUE}, plots are generated for a single
+variable. Plotting is disabled if multiple variables are passed.}
 
-\item{plot_theme}{A function for setting the \code{ggplot2} theme. Defaults to
-\code{traumar::theme_cleaner}.}
-
-\item{x}{A bare (unquoted) column name in \code{df} specifying the continuous
-variable to assess.}
+\item{plot_theme}{A \code{ggplot2::theme} function to apply to all plots. Default
+is \code{traumar::theme_cleaner}.}
 }
 \value{
 A named list with the following elements:
 \describe{
-\item{descriptive_statistics}{A tibble summarizing the variable's
-distribution.}
-\item{normality_test}{(Optional) A tidy result of the specified normality
-test.}
-\item{plots}{(Optional) A \code{patchwork} object containing four
-visualizations: Q-Q plot, histogram, density plot, and boxplot with
-scatter.}
+\item{descriptive_statistics}{A \code{tibble} of summary statistics for each
+variable.}
+\item{normality_test}{A \code{tibble} of test statistics and p-values
+(if \code{normality_test == TRUE}).}
+\item{plots}{A patchwork object containing four plots (if \code{include_plots = TRUE} and one variable supplied).}
 }
 }
 \description{
-Evaluates whether a numeric variable in a data frame follows a normal
-distribution. Provides descriptive statistics, optional visualizations, and
-formal normality tests.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+\code{is_it_normal()} calculates descriptive statistics and conducts univariate
+normality testing on one or more numeric variables in a dataset using a
+selected statistical test. Optional plots are included for one variable at a
+time, only. Results are returned as a named list containing summaries and,
+optionally, diagnostic plots.
+}
+\details{
+\itemize{
+\item The Shapiro-Wilk test is only applied if the number of non-missing
+observations is between 3 and 5000, see the documentation for
+\code{stats::shapiro.test()} for more details.
+\item The Shapiro-Francia test is only applied if the number of non-missing
+observations is between 5 and 5000, see the documentation for
+\code{nortest::sf.test()} for more details.
+\item If the data do not meet the Shapiro-Wilk assumptions, the test defaults
+to Lilliefors.
+\item Normality tests may yield differing results. Each test has distinct
+assumptions and sensitivity. Users should verify assumptions and consult
+test-specific guidance to ensure appropriate use.
+\item The function will abort with helpful CLI messages if input types or
+structures are incorrect.
+}
+}
+\note{
+Supported normality tests are:
+\itemize{
+\item Shapiro-Wilk (\code{stats::shapiro.test()})
+\item Kolmogorov-Smirnov (\code{stats::ks.test()})
+\item Anderson-Darling (\code{nortest::ad.test()})
+\item Lilliefors (\code{nortest::lillie.test()})
+\item Cramer-von Mises (\code{nortest::cvm.test()})
+\item Pearson (\code{norest::pearson.test()})
+\item Shapiro-Francia (\code{nortest::sf.test()})
+}
 }
 \author{
-Nicolas Foss Ed.D., MS
+Nicolas Foss, Ed.D., MS
 }
