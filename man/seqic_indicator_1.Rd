@@ -14,8 +14,7 @@ seqic_indicator_1(
   trauma_team_activation_provider,
   groups = NULL,
   calculate_ci = NULL,
-  conf.level = 0.95,
-  correct = TRUE
+  ...
 )
 }
 \arguments{
@@ -25,12 +24,26 @@ seqic_indicator_1(
 level (e.g., Level 1, Level 2).}
 
 \item{trauma_team_physician_service_type}{Column indicating the type of
-medical provider (e.g., Surgery/Trauma, Emergency Medicine).}
+medical provider (e.g., Surgery/Trauma, Emergency Medicine). For indicators
+1a, 1b, and 1c, \code{seqic_indicator_1()} will only look for records with the
+trauma team member service type documented as marked as 'Surgery/Trauma'.
+For Indicators 1d, 1e, and 1f, \code{seqic_indicator_1()} will look for the
+following service types:
+\itemize{
+\item "Surgery/Trauma",
+\item "Emergency Medicine",
+\item "Family Practice",
+\item "Nurse Practitioner",
+\item "Physician Assistant",
+\item "Surgery Senior Resident",
+\item "Hospitalist",
+\item "Internal Medicine"
+}}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
-\item{unique_incident_id}{Unique identifier for each trauma incident.}
+\item{unique_incident_id}{Unique identifier for each record.}
 
 \item{response_time}{Numeric variable representing the time (in minutes)
 to provider response.}
@@ -39,15 +52,16 @@ to provider response.}
 provider for trauma activation.}
 
 \item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries.}
+via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"
 or "clopper-pearson" can be supplied to utilize the corresponding methods
-to calculate the confidence intervals for the proportions.}
+to calculate the confidence intervals for the proportions. Defaults to
+\code{NULL}.}
 
 \item{...}{
-  Arguments passed on to \code{\link[nemsqar:nemsqa_binomial_confint]{nemsqar::nemsqa_binomial_confint}}, \code{\link[nemsqar:nemsqa_binomial_confint]{nemsqar::nemsqa_binomial_confint}}
+  Arguments passed on to \code{\link[nemsqar:nemsqa_binomial_confint]{nemsqar::nemsqa_binomial_confint}}
   \describe{
     \item{\code{conf.level}}{Numeric value between 0 and 1 indicating the confidence
 level. Defaults to 0.95 (95\% confidence interval).}
@@ -57,17 +71,19 @@ Wilson intervals. Defaults to \code{TRUE}.}
 }
 \value{
 A tibble summarizing SEQIC Indicator 1 results across sub-measures
-(1a–1f). Includes total cases, denominators, and proportions for each
+(1a–1f). Includes numerators, denominators, and performance rate for each
 indicator.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function calculates System Evaluation and Quality Improvement
-Committee (SEQIC) Indicator 1 (subparts a through f).
-These indicators assess the timeliness and type of provider response (e.g.,
-surgeon, midlevel, physician) to trauma alerts based on trauma team
-activation level, hospital trauma level, and time to provider presence.
+This function calculates System Evaluation and Quality Improvement Committee
+(SEQIC) Indicator 1 (subparts a through f). These indicators assess the
+timeliness and type of provider response (e.g., surgeon, midlevel, physician)
+to trauma alerts based on trauma team activation level, hospital trauma
+level, and time to provider presence. Confidence intervals can optionally be
+calculated for the proportion, using either the Wilson or Clopper-Pearson
+method.
 }
 \details{
 This function filters and summarizes trauma records to calculate
@@ -78,26 +94,28 @@ surgical response ≤ 15 minutes.
 \item 1b: Same as 1a, but includes Level III centers and uses ≤ 30 minutes.
 \item 1c: Proportion of Level 1 activations with missing surgical response
 time.
-\item 1d/e: Response within 5 and 20 minutes, respectively, for broader
+\item 1d/e: Response within 5 and 20 minutes, respectively, for specific
 provider types and activation levels.
 \item 1f: Proportion of missing response times among the group in 1d/e.
 }
 
+This function:
+\itemize{
+\item Filters trauma records to those with a trauma team activation level
+of "Level 1" and/or "Level 2" based on the indicator.
+\item Restricts provider type to surgical, physician, and mid-level
+provider roles.
+\item Filters trauma center levels to I–IV based on the measure.
+\item Calculates the proportion of cases where the response time is within
+5, 15, or 30 minutes, depending on the indicator.
+\item Computes proportions for trauma activation times, including missing
+times and within thresholds.
+}
+
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
-identifiers or timestamps. The function will work with a tibble that has one
-row per \code{unique_incident_id}.
+identifiers or timestamps.
 }
-\section{Filters applied include}{
-
-\itemize{
-\item Trauma team activation level restricted to "Level 1" or "Level
-1" and "Level 2" depending on the indicator.
-\item Provider type filtered to surgical and related roles.
-\item Trauma verification level filtered to I–IV depending on the measure.
-}
-}
-
 \author{
 Nicolas Foss, Ed.D., MS
 }
