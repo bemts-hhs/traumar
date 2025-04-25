@@ -8,6 +8,7 @@ Visualizaion}
 is_it_normal(
   df,
   ...,
+  group_vars = NULL,
   seed = 10232015,
   normality_test = c("shapiro-wilk", "kolmogorov-smirnov", "anderson-darling",
     "lilliefors", "cramer-von mises", "pearson", "shapiro-francia"),
@@ -19,6 +20,11 @@ is_it_normal(
 \item{df}{A \code{data.frame} or \code{tibble} containing the variables to assess.}
 
 \item{...}{One or more unquoted column names from \code{df} to be analyzed.}
+
+\item{group_vars}{Optional. A character vector of column names in \code{df} to
+group results by (e.g., \code{c("year", "hospital_level")}). If \code{NULL}, no
+grouping is applied. Grouped summaries and normality tests are computed
+within each unique combination of values across these variables.}
 
 \item{seed}{A numeric value passed to \code{set.seed()} to ensure reproducibility.
 Default is \code{10232015}.}
@@ -55,23 +61,20 @@ optionally, diagnostic plots.
 }
 \details{
 \itemize{
-\item The Shapiro-Wilk test is only applied if the number of non-missing
-observations is between 3 and 5000, see the documentation for
-\code{stats::shapiro.test()} for more details.
-\item The Shapiro-Francia test is only applied if the number of non-missing
-observations is between 5 and 5000, see the documentation for
-\code{nortest::sf.test()} for more details.
-\item If the data do not meet the Shapiro-Wilk assumptions, the test defaults
-to Lilliefors.
+\item If the data do not meet the test requirements for a chosen test of
+normality, \code{is_it_normal()} will not run the tests.
 \item Normality tests may yield differing results. Each test has distinct
 assumptions and sensitivity. Users should verify assumptions and consult
 test-specific guidance to ensure appropriate use.
 \item The function will abort with helpful CLI messages if input types or
 structures are incorrect.
+\item If plotting is enabled, and \code{nrow(df) > 10000}, a warning is issued
+as plotting may become computationally expensive.
 }
 }
 \note{
-Supported normality tests are:
+Supported normality tests are below. Please check the specifications of
+these tests in the corresponding documentation.
 \itemize{
 \item Shapiro-Wilk (\code{stats::shapiro.test()})
 \item Kolmogorov-Smirnov (\code{stats::ks.test()})

@@ -1,4 +1,4 @@
-#' @title SEQIC Indicator 4a and 4b - Autopsy and Long LOS Without Autopsy
+#' @title SEQIC Indicator 4 - Autopsy and Long LOS Without Autopsy
 #'
 #' @description
 #'
@@ -210,7 +210,7 @@ seqic_indicator_4 <- function(
     dplyr::summarize(
       numerator_4a = sum({{ autopsy }} == "Yes", na.rm = TRUE),
       denominator_4a = dplyr::n(),
-      seqic_4a = round(numerator_4a / denominator_4a, digits = 3),
+      seqic_4a = numerator_4a / denominator_4a,
       .by = {{ groups }}
     )
 
@@ -247,7 +247,7 @@ seqic_indicator_4 <- function(
     dplyr::summarize(
       numerator_4b = sum(is.na({{ autopsy }}) | {{ autopsy }} != "Yes"),
       denominator_4b = dplyr::n(),
-      seqic_4b = round(numerator_4b / denominator_4b, digits = 3),
+      seqic_4b = numerator_4b / denominator_4b,
       .by = {{ groups }}
     )
 

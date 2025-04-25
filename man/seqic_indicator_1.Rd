@@ -2,7 +2,7 @@
 % Please edit documentation in R/seqic_1.R
 \name{seqic_indicator_1}
 \alias{seqic_indicator_1}
-\title{SEQIC Indicator 1 (a–f) – Trauma Team Response Evaluation}
+\title{SEQIC Indicator 1 – Trauma Team Response Evaluation}
 \usage{
 seqic_indicator_1(
   df,

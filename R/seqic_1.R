@@ -1,4 +1,4 @@
-#' @title SEQIC Indicator 1 (a–f) – Trauma Team Response Evaluation
+#' @title SEQIC Indicator 1 – Trauma Team Response Evaluation
 #'
 #' @description
 #'

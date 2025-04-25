@@ -1,10 +1,57 @@
-###_____________________________________________________________________________
-# Indicator 5a-d
-###_____________________________________________________________________________
+#' @title SEQIC Indicator 5 - Alcohol and Drug Screening
+#'
+#' @description
+#'
+#' `r lifecycle::badge("experimental")`
+#'
+#' Computes SEQIC Indicator 5a–5d for trauma system quality monitoring. These
+#' indicators measure alcohol and drug screening rates among trauma patients at
+#' trauma level I–IV facilities. Confidence intervals can optionally be
+#' calculated for proportions using the Wilson or Clopper-Pearson method.
+#'
+#' @inheritParams seqic_indicator_1
+#' @param blood_alcohol_content Unquoted column name for blood alcohol
+#'   concentration. Numeric. A non-missing value indicates a test was performed.
+#'   Values greater than zero are considered positive results.
+#' @param drug_screen Unquoted column name for the drug screen result. Character
+#'   or factor. May contain keywords (e.g., "opioid", "cocaine", "none").
+#' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
+#'
+#' @details This function:
+#' \itemize{
+#'   \item Filters to trauma records at trauma levels I–IV.
+#'   \item Deduplicates by `unique_incident_id` to ensure one record per
+#'     incident.
+#'   \item Calculates four sub-measures:
+#'     \itemize{
+#'       \item {Indicator 5a:} Proportion of patients with a blood
+#'         alcohol test performed.
+#'       \item {Indicator 5b:} Among those tested, the proportion with
+#'         BAC > 0.
+#'       \item {Indicator 5c:} Proportion of patients with any recorded
+#'         drug screen result.
+#'       \item {Indicator 5d:} Among those with a drug result, the
+#'         proportion that included a known positive drug (e.g., opioids,
+#'         cocaine, THC).
+#'     }
+#'   \item Matches drug-related terms using regular expressions for a broad set
+#'     of known substances. Matching is case-insensitive.
+#' }
+#'
+#' Users must ensure input columns are correctly named and contain standardized
+#' values where applicable. Drug screen values should ideally use consistent
+#' naming or be mapped to recognizable substance terms prior to function use.
+#'
+#' @return A tibble summarizing SEQIC Indicator 5a–5d results. Includes
+#'   numerator, denominator, and calculated proportion for each measure.
+#'   Optionally includes 95% confidence intervals using the method specified in
+#'   `...`.
+#'
+#' @author Nicolas Foss, Ed.D., MS
+#'
+#' @export
 
-# create indicator 5a-d for the state
-
-seqic_indicator_5_state <- function(
+seqic_indicator_5 <- function(
   df,
   level,
   unique_incident_id,
@@ -109,7 +156,7 @@ seqic_indicator_5_state <- function(
   }
 
   ###___________________________________________________________________________
-  ### Set up regular expressions
+  ### Set up drug-related keyword matching via regular expressions
   ###___________________________________________________________________________
 
   # Options are consistent with the National Trauma Data Bank Data Dictionary
@@ -160,18 +207,23 @@ seqic_indicator_5_state <- function(
   positive_drug_pattern <- sprintf("(?:%s)", positive_drug_pattern_terms)
 
   ###___________________________________________________________________________
-  ### Initiate calculations
+  ### Compute numerator and denominator for each SEQIC Indicator 5 sub-measure
   ###___________________________________________________________________________
-  seqic_state_5 <- df |>
+  seqic_5 <- df |>
     dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
+      # 5a: Proportion with BAC test performed
       numerator_5a = sum(!is.na({{ blood_alcohol_content }})),
       denominator_5a = dplyr::n(),
-      seqic_5a = round(numerator_5a / denominator_5a, digits = 3),
+      seqic_5a = numerator_5a / denominator_5a,
+
+      # 5b: Among those tested, proportion with BAC > 0
       numerator_5b = sum({{ blood_alcohol_content }} > 0, na.rm = TRUE),
       denominator_5b = sum(!is.na({{ blood_alcohol_content }})),
-      seqic_5b = round(numerator_5b / denominator_5b, digits = 3),
+      seqic_5b = numerator_5b / denominator_5b,
+
+      # 5c: Proportion with any drug result (positive, none, or other)
       numerator_5c = sum(
         grepl(
           pattern = drug_pattern,
@@ -181,7 +233,9 @@ seqic_indicator_5_state <- function(
         na.rm = TRUE
       ),
       denominator_5c = dplyr::n(),
-      seqic_5c = round(numerator_5c / denominator_5c, digits = 3),
+      seqic_5c = numerator_5c / denominator_5c,
+
+      # 5d: Among those with a result, proportion with a positive drug result
       numerator_5d = sum(
         grepl(
           pattern = positive_drug_pattern,
@@ -198,9 +252,62 @@ seqic_indicator_5_state <- function(
         ),
         na.rm = TRUE
       ),
-      seqic_5d = round(numerator_5d / denominator_5d, digits = 3),
+      seqic_5d = numerator_5d / denominator_5d,
       .by = {{ groups }}
     )
 
-  return(seqic_state_5)
+  if (!is.null(calculate_ci)) {
+    if (!is.null(calculate_ci)) {
+      seqic_5 <- seqic_5 |>
+        dplyr::bind_cols(
+          # Compute and bind all CI columns
+          nemsqar::nemsqa_binomial_confint(
+            data = seqic_5,
+            x = numerator_5a,
+            n = denominator_5a,
+            method = calculate_ci,
+            ...
+          ) |>
+            dplyr::select(lower_ci, upper_ci) |>
+            dplyr::rename(lower_ci_5a = lower_ci, upper_ci_5a = upper_ci),
+
+          nemsqar::nemsqa_binomial_confint(
+            data = seqic_5,
+            x = numerator_5b,
+            n = denominator_5b,
+            method = calculate_ci,
+            ...
+          ) |>
+            dplyr::select(lower_ci, upper_ci) |>
+            dplyr::rename(lower_ci_5b = lower_ci, upper_ci_5b = upper_ci),
+
+          nemsqar::nemsqa_binomial_confint(
+            data = seqic_5,
+            x = numerator_5c,
+            n = denominator_5c,
+            method = calculate_ci,
+            ...
+          ) |>
+            dplyr::select(lower_ci, upper_ci) |>
+            dplyr::rename(lower_ci_5c = lower_ci, upper_ci_5c = upper_ci),
+
+          nemsqar::nemsqa_binomial_confint(
+            data = seqic_5,
+            x = numerator_5d,
+            n = denominator_5d,
+            method = calculate_ci,
+            ...
+          ) |>
+            dplyr::select(lower_ci, upper_ci) |>
+            dplyr::rename(lower_ci_5d = lower_ci, upper_ci_5d = upper_ci)
+        ) |>
+        # Relocate CI columns immediately after their respective proportion columns
+        dplyr::relocate(lower_ci_5a, upper_ci_5a, .after = seqic_5a) |>
+        dplyr::relocate(lower_ci_5b, upper_ci_5b, .after = seqic_5b) |>
+        dplyr::relocate(lower_ci_5c, upper_ci_5c, .after = seqic_5c) |>
+        dplyr::relocate(lower_ci_5d, upper_ci_5d, .after = seqic_5d)
+    }
+  }
+
+  return(seqic_5)
 }

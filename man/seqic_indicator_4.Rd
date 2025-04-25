@@ -2,7 +2,7 @@
 % Please edit documentation in R/seqic_4.R
 \name{seqic_indicator_4}
 \alias{seqic_indicator_4}
-\title{SEQIC Indicator 4a and 4b - Autopsy and Long LOS Without Autopsy}
+\title{SEQIC Indicator 4 - Autopsy and Long LOS Without Autopsy}
 \usage{
 seqic_indicator_4(
   df,
