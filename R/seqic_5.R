@@ -97,7 +97,7 @@ seqic_indicator_5 <- function(
     )
   }
 
-  # Validate `ed_disposition`
+  # Validate `blood_alcohol_content`
   blood_alcohol_content_check <- df |> dplyr::pull({{ blood_alcohol_content }})
   if (!is.numeric(blood_alcohol_content_check)) {
     cli::cli_abort(
@@ -108,7 +108,7 @@ seqic_indicator_5 <- function(
     )
   }
 
-  # Validate `hospital_disposition`
+  # Validate `drug_screen`
   drug_screen_check <- df |> dplyr::pull({{ drug_screen }})
   if (!is.character(drug_screen_check) && !is.factor(drug_screen_check)) {
     cli::cli_abort(
@@ -216,12 +216,20 @@ seqic_indicator_5 <- function(
       # 5a: Proportion with BAC test performed
       numerator_5a = sum(!is.na({{ blood_alcohol_content }})),
       denominator_5a = dplyr::n(),
-      seqic_5a = numerator_5a / denominator_5a,
+      seqic_5a = dplyr::if_else(
+        denominator_5a > 0,
+        numerator_5a / denominator_5a,
+        NA_real_
+      ),
 
       # 5b: Among those tested, proportion with BAC > 0
       numerator_5b = sum({{ blood_alcohol_content }} > 0, na.rm = TRUE),
       denominator_5b = sum(!is.na({{ blood_alcohol_content }})),
-      seqic_5b = numerator_5b / denominator_5b,
+      seqic_5b = dplyr::if_else(
+        denominator_5b > 0,
+        numerator_5b / denominator_5b,
+        NA_real_
+      ),
 
       # 5c: Proportion with any drug result (positive, none, or other)
       numerator_5c = sum(
@@ -233,7 +241,11 @@ seqic_indicator_5 <- function(
         na.rm = TRUE
       ),
       denominator_5c = dplyr::n(),
-      seqic_5c = numerator_5c / denominator_5c,
+      seqic_5c = dplyr::if_else(
+        denominator_5c > 0,
+        numerator_5c / denominator_5c,
+        NA_real_
+      ),
 
       # 5d: Among those with a result, proportion with a positive drug result
       numerator_5d = sum(
@@ -252,61 +264,63 @@ seqic_indicator_5 <- function(
         ),
         na.rm = TRUE
       ),
-      seqic_5d = numerator_5d / denominator_5d,
+      seqic_5d = dplyr::if_else(
+        denominator_5d > 0,
+        numerator_5d / denominator_5d,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
   if (!is.null(calculate_ci)) {
-    if (!is.null(calculate_ci)) {
-      seqic_5 <- seqic_5 |>
-        dplyr::bind_cols(
-          # Compute and bind all CI columns
-          nemsqar::nemsqa_binomial_confint(
-            data = seqic_5,
-            x = numerator_5a,
-            n = denominator_5a,
-            method = calculate_ci,
-            ...
-          ) |>
-            dplyr::select(lower_ci, upper_ci) |>
-            dplyr::rename(lower_ci_5a = lower_ci, upper_ci_5a = upper_ci),
-
-          nemsqar::nemsqa_binomial_confint(
-            data = seqic_5,
-            x = numerator_5b,
-            n = denominator_5b,
-            method = calculate_ci,
-            ...
-          ) |>
-            dplyr::select(lower_ci, upper_ci) |>
-            dplyr::rename(lower_ci_5b = lower_ci, upper_ci_5b = upper_ci),
-
-          nemsqar::nemsqa_binomial_confint(
-            data = seqic_5,
-            x = numerator_5c,
-            n = denominator_5c,
-            method = calculate_ci,
-            ...
-          ) |>
-            dplyr::select(lower_ci, upper_ci) |>
-            dplyr::rename(lower_ci_5c = lower_ci, upper_ci_5c = upper_ci),
-
-          nemsqar::nemsqa_binomial_confint(
-            data = seqic_5,
-            x = numerator_5d,
-            n = denominator_5d,
-            method = calculate_ci,
-            ...
-          ) |>
-            dplyr::select(lower_ci, upper_ci) |>
-            dplyr::rename(lower_ci_5d = lower_ci, upper_ci_5d = upper_ci)
+    seqic_5 <- seqic_5 |>
+      dplyr::bind_cols(
+        # Compute and bind all CI columns
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_5,
+          x = numerator_5a,
+          n = denominator_5a,
+          method = calculate_ci,
+          ...
         ) |>
-        # Relocate CI columns immediately after their respective proportion columns
-        dplyr::relocate(lower_ci_5a, upper_ci_5a, .after = seqic_5a) |>
-        dplyr::relocate(lower_ci_5b, upper_ci_5b, .after = seqic_5b) |>
-        dplyr::relocate(lower_ci_5c, upper_ci_5c, .after = seqic_5c) |>
-        dplyr::relocate(lower_ci_5d, upper_ci_5d, .after = seqic_5d)
-    }
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_5a = lower_ci, upper_ci_5a = upper_ci),
+
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_5,
+          x = numerator_5b,
+          n = denominator_5b,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_5b = lower_ci, upper_ci_5b = upper_ci),
+
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_5,
+          x = numerator_5c,
+          n = denominator_5c,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_5c = lower_ci, upper_ci_5c = upper_ci),
+
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_5,
+          x = numerator_5d,
+          n = denominator_5d,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_5d = lower_ci, upper_ci_5d = upper_ci)
+      ) |>
+      # Relocate CI columns immediately after their respective proportion columns
+      dplyr::relocate(lower_ci_5a, upper_ci_5a, .after = seqic_5a) |>
+      dplyr::relocate(lower_ci_5b, upper_ci_5b, .after = seqic_5b) |>
+      dplyr::relocate(lower_ci_5c, upper_ci_5c, .after = seqic_5c) |>
+      dplyr::relocate(lower_ci_5d, upper_ci_5d, .after = seqic_5d)
   }
 
   return(seqic_5)

@@ -184,6 +184,9 @@ is_it_normal <- function(
   # Dynamically generate the variable names
   var_names <- purrr::map_chr(vars, ~ rlang::as_label(.))
 
+  # Check if multiple columns were provided
+  multiple_columns <- if (length(vars) > 1) TRUE else FALSE
+
   # Callout for the variables passed
   cli::cli_h1("Output Summary")
   cli::cli_h3("Descriptive Statistics")
@@ -202,14 +205,15 @@ is_it_normal <- function(
 
   # Issue a warning if data violates any normality test choice assumptions
   if (
-    normality_test %in%
-      c(
-        "shapiro-wilk",
-        "shapiro-francia",
-        "anderson-darling",
-        "cramer-von mises",
-        "lilliefors"
-      )
+    !is.null(normality_test) &&
+      normality_test %in%
+        c(
+          "shapiro-wilk",
+          "shapiro-francia",
+          "anderson-darling",
+          "cramer-von mises",
+          "lilliefors"
+        )
   ) {
     # Default values for tests
     test_info <- list(
@@ -297,22 +301,13 @@ is_it_normal <- function(
         "No issues reported with the univariate tests of normality. Proceeding."
       )
     }
+  } else if (is.null(normality_test)) {
+    # When no normality test procedure is requested, return a message
+    cli::cli_alert_info("No normality test requested.")
   } else {
     # Data limits do not apply to other tests in these ways.
     cli::cli_alert_info(
       "No issues reported with the univariate tests of normality. Proceeding."
-    )
-  }
-
-  # Check if multiple columns were provided
-  multiple_columns <- if (length(vars) > 1) TRUE else FALSE
-
-  # If multiple_columns, then do not include plots
-  if (multiple_columns && include_plots == TRUE) {
-    include_plots <- FALSE
-
-    cli::cli_alert_info(
-      "More than one column was passed to {.fn is_it_normal}, and plotting is only available for one column at a time. {.var include_plots} is now set to {.val FALSE}."
     )
   }
 
@@ -530,6 +525,8 @@ is_it_normal <- function(
 
     # Store the final results in the output list
     output_list$normality_test <- test_results
+  } else {
+    output_list$normality_test <- NULL
   }
 
   ###___________________________________________________________________________
@@ -827,6 +824,16 @@ is_it_normal <- function(
 
       output_list$plots <- combined_plots
     }
+  } else if (include_plots && multiple_columns) {
+    # Header for the plotting section
+    cli::cli_h3("Plotting Behavior")
+
+    # If multiple_columns, then do not include plots
+    include_plots <- FALSE
+
+    cli::cli_alert_info(
+      "More than one column was passed to {.fn is_it_normal}, and plotting is only available for one column at a time. {.var include_plots} is now set to {.val FALSE}."
+    )
   }
 
   # Line to separate output for cleaner presentation

@@ -210,7 +210,11 @@ seqic_indicator_4 <- function(
     dplyr::summarize(
       numerator_4a = sum({{ autopsy }} == "Yes", na.rm = TRUE),
       denominator_4a = dplyr::n(),
-      seqic_4a = numerator_4a / denominator_4a,
+      seqic_4a = dplyr::if_else(
+        denominator_4a > 0,
+        numerator_4a / denominator_4a,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
@@ -247,7 +251,11 @@ seqic_indicator_4 <- function(
     dplyr::summarize(
       numerator_4b = sum(is.na({{ autopsy }}) | {{ autopsy }} != "Yes"),
       denominator_4b = dplyr::n(),
-      seqic_4b = numerator_4b / denominator_4b,
+      seqic_4b = dplyr::if_else(
+        denominator_4b > 0,
+        numerator_4b / denominator_4b,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 

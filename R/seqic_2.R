@@ -159,7 +159,11 @@ seqic_indicator_2 <- function(
     dplyr::summarize(
       numerator_2 = sum(is.na({{ incident_time }})), # Calculate the number of missing incident_time values.
       denominator_2 = dplyr::n(), # Count the total number of unique incidents.
-      seqic_2 = numerator_2 / denominator_2, # Calculate the proportion for Indicator 2.
+      seqic_2 = dplyr::if_else(
+        denominator_2 > 0,
+        numerator_2 / denominator_2,
+        NA_real_
+      ), # Calculate the proportion for Indicator 2.
       .by = {{ groups }} # Group by the specified columns (if any).
     )
 

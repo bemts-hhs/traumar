@@ -258,7 +258,11 @@ seqic_indicator_1 <- function(
     dplyr::summarize(
       numerator_1a = sum({{ response_time }} <= 15, na.rm = TRUE),
       denominator_1a = sum(!is.na({{ response_time }})),
-      seqic_1a = numerator_1a / denominator_1a,
+      seqic_1a = dplyr::if_else(
+        denominator_1a > 0,
+        numerator_1a / denominator_1a,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
@@ -290,7 +294,11 @@ seqic_indicator_1 <- function(
     dplyr::summarize(
       numerator_1b = sum({{ response_time }} <= 30, na.rm = TRUE),
       denominator_1b = sum(!is.na({{ response_time }})),
-      seqic_1b = numerator_1b / denominator_1b,
+      seqic_1b = dplyr::if_else(
+        denominator_1b > 0,
+        numerator_1b / denominator_1b,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
@@ -323,7 +331,11 @@ seqic_indicator_1 <- function(
     dplyr::summarize(
       numerator_1c = sum(is.na({{ response_time }})),
       denominator_1c = dplyr::n(),
-      seqic_1c = numerator_1c / denominator_1c,
+      seqic_1c = dplyr::if_else(
+        denominator_1c > 0,
+        numerator_1c / denominator_1c,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
@@ -378,10 +390,18 @@ seqic_indicator_1 <- function(
     dplyr::summarize(
       numerator_1d = sum({{ response_time }} <= 5, na.rm = TRUE),
       denominator_1d = sum(!is.na({{ response_time }})),
-      seqic_1d = numerator_1d / denominator_1d,
+      seqic_1d = dplyr::if_else(
+        denominator_1d > 0,
+        numerator_1d / denominator_1d,
+        NA_real_
+      ),
       numerator_1e = sum({{ response_time }} <= 20, na.rm = TRUE),
       denominator_1e = sum(!is.na({{ response_time }})),
-      seqic_1e = numerator_1e / denominator_1e,
+      seqic_1e = dplyr::if_else(
+        denominator_1e > 0,
+        numerator_1e / denominator_1e,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 
@@ -434,7 +454,11 @@ seqic_indicator_1 <- function(
     dplyr::summarize(
       numerator_1f = sum(is.na({{ response_time }})),
       denominator_1f = dplyr::n(),
-      seqic_1f = numerator_1f / denominator_1f,
+      seqic_1f = dplyr::if_else(
+        denominator_1f > 0,
+        numerator_1f / denominator_1f,
+        NA_real_
+      ),
       .by = {{ groups }}
     )
 

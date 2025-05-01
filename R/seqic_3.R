@@ -176,7 +176,11 @@ seqic_indicator_3 <- function(
     dplyr::summarize(
       numerator_3 = sum(!is.na({{ probability_of_survival }})), # Count non-missing values in `probability_of_survival`.
       denominator_3 = dplyr::n(), # Count the total number of unique incidents.
-      seqic_3 = numerator_3 / denominator_3, # Calculate the proportion of incidents with survival probability recorded.
+      seqic_3 = dplyr::if_else(
+        denominator_3 > 0,
+        numerator_3 / denominator_3,
+        NA_real_
+      ), # Calculate the proportion of incidents with survival probability recorded.
       .by = {{ groups }} # Optionally group by specified columns.
     )
 
