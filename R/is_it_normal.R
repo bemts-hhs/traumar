@@ -317,7 +317,7 @@ is_it_normal <- function(
   if (is.null(group_vars) || length(group_vars) == 0) {
     cli::cli_inform(
       c(
-        "*" = "No grouping applied. Descriptive statistics and normality tests are computed on the entire dataset."
+        "*" = "No grouping applied. Descriptive statistics and normality tests (as applicable) are computed on the entire dataset."
       )
     )
   } else {
