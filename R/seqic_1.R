@@ -33,6 +33,8 @@
 #'    }
 #' @param level Column indicating the trauma center designation level (e.g., I,
 #'   II, III, IV).
+#' @param included_levels Character vector indicating what facility levels to
+#' include in the anlaysis.  Defaults to `included_levels`.
 #' @param unique_incident_id Unique identifier for each record.
 #' @param response_time Numeric variable representing the time (in minutes)
 #'   to provider response.
@@ -60,7 +62,7 @@
 #'   \item 1f: Proportion of missing response times among the group in 1d/e.
 #' }
 #'
-#' @details This function:
+#' @note This function:
 #' \itemize{
 #'   \item Filters trauma records to those with a trauma team activation level
 #'   of "Level 1" and/or "Level 2" based on the indicator.
@@ -90,6 +92,7 @@ seqic_indicator_1 <- function(
   trauma_team_activation_level,
   trauma_team_physician_service_type,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   response_time,
   trauma_team_activation_provider,
@@ -269,14 +272,17 @@ seqic_indicator_1 <- function(
   # optionally calculate the confidence intervals for 1a
   if (!is.null(calculate_ci)) {
     seqic_1a <- seqic_1a |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1a,
-        n = denominator_1a,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1a = lower_ci, upper_ci_1a = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1a,
+          x = numerator_1a,
+          n = denominator_1a,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1a = lower_ci, upper_ci_1a = upper_ci)
+      )
   }
 
   # Indicator 1b – Same as 1a but for Level I/II/III centers and 30-minute
@@ -305,14 +311,17 @@ seqic_indicator_1 <- function(
   # optionally calculate the confidence intervals for 1b
   if (!is.null(calculate_ci)) {
     seqic_1b <- seqic_1b |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1b,
-        n = denominator_1b,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1b = lower_ci, upper_ci_1b = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1b,
+          x = numerator_1b,
+          n = denominator_1b,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1b = lower_ci, upper_ci_1b = upper_ci)
+      )
   }
 
   # Indicator 1c – Proportion of Level 1 activations where arrival time is
@@ -342,14 +351,17 @@ seqic_indicator_1 <- function(
   # optionally calculate the confidence intervals for 1c
   if (!is.null(calculate_ci)) {
     seqic_1c <- seqic_1c |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1c,
-        n = denominator_1c,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1c = lower_ci, upper_ci_1c = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1c,
+          x = numerator_1c,
+          n = denominator_1c,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1c = lower_ci, upper_ci_1c = upper_ci)
+      )
   }
 
   # Combine 1a, 1b, and 1c results; assign label for state-level reporting.
@@ -382,7 +394,7 @@ seqic_indicator_1 <- function(
           "Hospitalist",
           "Internal Medicine"
         ),
-      {{ level }} %in% c("I", "II", "III", "IV")
+      {{ level }} %in% included_levels
     ) |>
     dplyr::group_by({{ unique_incident_id }}) |>
     dplyr::slice_min({{ response_time }}, n = 1, with_ties = FALSE) |>
@@ -408,24 +420,28 @@ seqic_indicator_1 <- function(
   # optionally calculate the confidence intervals for 1de
   if (!is.null(calculate_ci)) {
     seqic_1de <- seqic_1de |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1d,
-        n = denominator_1d,
-        method = calculate_ci,
-        ...
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1de,
+          x = numerator_1d,
+          n = denominator_1d,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1d = lower_ci, upper_ci_1d = upper_ci),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1de,
+          x = numerator_1e,
+          n = denominator_1e,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1e = lower_ci, upper_ci_1e = upper_ci)
       ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1d = lower_ci, upper_ci_1d = upper_ci) |>
       dplyr::relocate(lower_ci_1d, .after = seqic_1d) |>
-      dplyr::relocate(upper_ci_1d, .after = lower_ci_1d) |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1e,
-        n = denominator_1e,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1e = lower_ci, upper_ci_1e = upper_ci)
+      dplyr::relocate(upper_ci_1d, .after = lower_ci_1d)
   }
 
   # Indicator 1f – Proportion of activations in 1d/e where arrival time is
@@ -444,7 +460,7 @@ seqic_indicator_1 <- function(
           "Hospitalist",
           "Internal Medicine"
         ),
-      {{ level }} %in% c("I", "II", "III", "IV")
+      {{ level }} %in% included_levels
     ) |>
     dplyr::distinct(
       {{ unique_incident_id }},
@@ -465,21 +481,24 @@ seqic_indicator_1 <- function(
   # optionally calculate the confidence intervals for 1f
   if (!is.null(calculate_ci)) {
     seqic_1f <- seqic_1f |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_1f,
-        n = denominator_1f,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_1f = lower_ci, upper_ci_1f = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_1f,
+          x = numerator_1f,
+          n = denominator_1f,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_1f = lower_ci, upper_ci_1f = upper_ci)
+      )
   }
 
   # Combine 1d, 1e, and 1f results; assign label for state-level reporting.
   if (is.null(groups)) {
     seqic_1def <- dplyr::bind_cols(seqic_1de, seqic_1f) |>
       tibble::add_column(
-        Data = "Full Population/Sample",
+        Data = "Population/Sample",
         .before = "numerator_1d"
       )
   } else {

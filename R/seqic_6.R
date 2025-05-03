@@ -11,17 +11,17 @@
 #' and focuses on those transferred into a facility.
 #'
 #' @inheritParams seqic_indicator_1
-#' @param transfer_out_indicator Unquoted column name indicating whether the
+#' @param transfer_out_indicator Column name indicating whether the
 #'   patient was transferred out of the initial trauma center. Logical,
 #'   character, or factor type. Values representing "No" (e.g., FALSE, "No")
 #'   indicate no transfer out.
-#' @param receiving_indicator Unquoted column name indicating whether the
+#' @param receiving_indicator Column name indicating whether the
 #'   patient was transferred into the trauma center. Logical, character, or
 #'   factor type. Values representing "Yes" (e.g., TRUE, "Yes") indicate
 #'   transfer in.
-#' @param low_GCS_indicator Unquoted column name for identifying patients with a
+#' @param low_GCS_indicator Column name for identifying patients with a
 #'   Glasgow Coma Scale score less than 9. Logical, character, or factor type.
-#' @param time_from_injury_to_arrival Unquoted column name representing the time
+#' @param time_from_injury_to_arrival Column name representing the time
 #'   in minutes from injury occurrence to arrival at the trauma center. Numeric
 #'   type.
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
@@ -43,6 +43,8 @@
 #'     for the resulting proportion if `calculate_ci` is specified.
 #' }
 #'
+#' @note
+#'
 #' Users must ensure input columns are appropriately coded and standardized.
 #' Transfer and GCS indicators should use consistent logical or textual
 #' representations.
@@ -58,6 +60,7 @@
 seqic_indicator_6 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   transfer_out_indicator,
   receiving_indicator,
@@ -200,7 +203,7 @@ seqic_indicator_6 <- function(
 
   # Filter for trauma levels I-IV, deduplicate by `unique_incident_id`, then summarize.
   seqic_6 <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_6 = sum(
@@ -226,15 +229,18 @@ seqic_indicator_6 <- function(
 
   # Optional: Add binomial confidence intervals if requested.
   if (!is.null(calculate_ci)) {
-    seqic_6 <- nemsqar::nemsqa_binomial_confint(
-      data = seqic_6,
-      x = numerator_6, # Number of positive outcomes.
-      n = denominator_6, # Number of eligible patients.
-      method = calculate_ci,
-      ...
-    ) |>
-      dplyr::select(-prop, -prop_label) |> # Drop intermediate columns.
-      dplyr::rename(lower_ci_6 = lower_ci, upper_ci_6 = upper_ci) # Rename CIs for clarity.
+    seqic_6 <- seqic_6 |>
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_6,
+          x = numerator_6, # Number of positive outcomes.
+          n = denominator_6, # Number of eligible patients.
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |> # Drop intermediate columns.
+          dplyr::rename(lower_ci_6 = lower_ci, upper_ci_6 = upper_ci) # Rename CIs for clarity.
+      )
   }
 
   # Add a `Data` label if not grouped, or arrange output by grouping variables.

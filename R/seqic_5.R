@@ -38,6 +38,8 @@
 #'     of known substances. Matching is case-insensitive.
 #' }
 #'
+#' @note
+#'
 #' Users must ensure input columns are correctly named and contain standardized
 #' values where applicable. Drug screen values should ideally use consistent
 #' naming or be mapped to recognizable substance terms prior to function use.
@@ -54,6 +56,7 @@
 seqic_indicator_5 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   blood_alcohol_content,
   drug_screen,
@@ -210,7 +213,7 @@ seqic_indicator_5 <- function(
   ### Compute numerator and denominator for each SEQIC Indicator 5 sub-measure
   ###___________________________________________________________________________
   seqic_5 <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       # 5a: Proportion with BAC test performed
@@ -321,6 +324,15 @@ seqic_indicator_5 <- function(
       dplyr::relocate(lower_ci_5b, upper_ci_5b, .after = seqic_5b) |>
       dplyr::relocate(lower_ci_5c, upper_ci_5c, .after = seqic_5c) |>
       dplyr::relocate(lower_ci_5d, upper_ci_5d, .after = seqic_5d)
+  }
+
+  # Assign label for ungrouped reporting, or sort grouped reporting
+  if (is.null(groups)) {
+    seqic_5 <- seqic_5 |>
+      tibble::add_column(Data = "Population/Sample", .before = "numerator_5a")
+  } else {
+    seqic_5 <- seqic_5 |>
+      dplyr::arrange(!!!rlang::syms(groups))
   }
 
   return(seqic_5)

@@ -7,6 +7,7 @@
 seqic_indicator_8(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   mortality_indicator,
   risk_group,
@@ -20,6 +21,9 @@ seqic_indicator_8(
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -51,7 +55,7 @@ Wilson intervals. Defaults to \code{TRUE}.}
 \value{
 A named list with two tibbles:
 
-\describe{
+\itemize{
 \item{\code{overall}}{
 A tibble summarizing overall mortality among trauma patients, grouped by
 the variables specified in \code{groups}. Columns include:
@@ -87,7 +91,23 @@ existing in the data among trauma patients transported to Level I–IV trauma
 centers.
 }
 \details{
-\code{seqic_indicator_8()} calculates survival outcomes for patients transported
+\itemize{
+\item Filters the dataset to include only trauma center levels I through
+IV.
+\item Deduplicates the dataset using \code{unique_incident_id} to ensure one
+record per incident.
+\item Accepts a mortality indicator that may be logical, character, or
+factor, and identifies survivors as those with values of \code{FALSE} or \code{"No"}.
+\item Requires a predefined \code{risk_group} variable representing categories
+such as "Low", "Moderate", or "High" risk.
+\item Calculates overall survival proportions and survival proportions
+stratified by risk group.
+\item Optionally includes 95\% confidence intervals using binomial methods
+if \code{calculate_ci} is specified.
+}
+}
+\note{
+This function calculates survival outcomes for patients transported
 to trauma centers, stratified by risk of mortality. Risk groups—low,
 moderate, and high— are defined by the Iowa System Evaluation and Quality
 Improvement Committee (SEQIC) as described below. Users may also apply
@@ -121,6 +141,10 @@ alternative risk stratification methods if preferred.
 }
 }
 }
+
+Users must ensure appropriate column names are passed and data is
+pre-processed to include the necessary fields without missing critical
+identifiers or timestamps.
 }
 \author{
 Nicolas Foss, Ed.D., MS

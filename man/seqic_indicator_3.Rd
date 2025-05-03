@@ -7,13 +7,13 @@
 seqic_indicator_3(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   trauma_type,
   unique_incident_id,
   probability_of_survival,
   groups = NULL,
   calculate_ci = NULL,
-  conf.level = 0.95,
-  correct = TRUE
+  ...
 )
 }
 \arguments{
@@ -21,6 +21,9 @@ seqic_indicator_3(
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{trauma_type}{A column name indicating the type of trauma. The function
 filters out "Burn" cases.}
@@ -73,7 +76,8 @@ incident.
 \item Calculates the proportion of records with a non-missing
 \code{probability_of_survival}.
 }
-
+}
+\note{
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.

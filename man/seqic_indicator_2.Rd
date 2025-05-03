@@ -8,6 +8,7 @@ seqic_indicator_2(
   df,
   unique_incident_id,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   incident_time,
   groups = NULL,
   calculate_ci = NULL,
@@ -21,6 +22,9 @@ seqic_indicator_2(
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{incident_time}{The time the patient's injury occurred.}
 
@@ -64,7 +68,8 @@ This function:
 incident.
 \item Calculates the proportion of cases missing \code{incident_time}.
 }
-
+}
+\note{
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.

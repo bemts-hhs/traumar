@@ -9,6 +9,7 @@ seqic_indicator_1(
   trauma_team_activation_level,
   trauma_team_physician_service_type,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   response_time,
   trauma_team_activation_provider,
@@ -42,6 +43,9 @@ following service types:
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -98,7 +102,8 @@ time.
 provider types and activation levels.
 \item 1f: Proportion of missing response times among the group in 1d/e.
 }
-
+}
+\note{
 This function:
 \itemize{
 \item Filters trauma records to those with a trauma team activation level

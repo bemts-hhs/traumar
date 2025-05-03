@@ -7,6 +7,7 @@
 seqic_indicator_5(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   blood_alcohol_content,
   drug_screen,
@@ -20,6 +21,9 @@ seqic_indicator_5(
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -83,7 +87,8 @@ cocaine, THC).
 \item Matches drug-related terms using regular expressions for a broad set
 of known substances. Matching is case-insensitive.
 }
-
+}
+\note{
 Users must ensure input columns are correctly named and contain standardized
 values where applicable. Drug screen values should ideally use consistent
 naming or be mapped to recognizable substance terms prior to function use.

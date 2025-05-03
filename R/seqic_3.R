@@ -28,6 +28,8 @@
 #'   `probability_of_survival`.
 #' }
 #'
+#' @note
+#'
 #' Users must ensure appropriate column names are passed and data is
 #' pre-processed to include the necessary fields without missing critical
 #' identifiers or timestamps.
@@ -43,13 +45,13 @@
 seqic_indicator_3 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   trauma_type,
   unique_incident_id,
   probability_of_survival,
   groups = NULL,
   calculate_ci = NULL,
-  conf.level = 0.95,
-  correct = TRUE
+  ...
 ) {
   ###___________________________________________________________________________
   ### Data validation
@@ -166,7 +168,7 @@ seqic_indicator_3 <- function(
 
   # Filter the data for valid levels and exclude "Burn" trauma types.
   seqic_3 <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::filter({{ trauma_type }} != "Burn") |>
     dplyr::distinct(
       {{ unique_incident_id }},
@@ -187,15 +189,17 @@ seqic_indicator_3 <- function(
   # Optionally calculate confidence intervals for the proportions:
   if (!is.null(calculate_ci)) {
     seqic_3 <- seqic_3 |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_3, # Number of successes (non-missing probability of survival).
-        n = denominator_3, # Total number of incidents.
-        method = calculate_ci, # Confidence interval calculation method (e.g., "wilson").
-        conf.level = conf.level, # Confidence level for the intervals.
-        correct = correct # Whether to apply continuity correction.
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_3 = lower_ci, upper_ci_3 = upper_ci) # Rename the CI columns.
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_3,
+          x = numerator_3, # Number of successes (non-missing probability of survival).
+          n = denominator_3, # Total number of incidents.
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_3 = lower_ci, upper_ci_3 = upper_ci) # Rename the CI columns.
+      )
   }
 
   # Add a label column to indicate whether the data represents population or sample-level results.

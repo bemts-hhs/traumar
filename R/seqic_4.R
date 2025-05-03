@@ -40,6 +40,8 @@
 #'   autopsy performed.
 #' }
 #'
+#' @note
+#'
 #' Users must ensure appropriate column names are passed and data is
 #' pre-processed to include the necessary fields without missing critical
 #' identifiers or timestamps.
@@ -54,6 +56,7 @@
 seqic_indicator_4 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   ed_disposition,
   ed_LOS,
   hospital_disposition,
@@ -197,7 +200,7 @@ seqic_indicator_4 <- function(
   seqic_4a <- df |>
     dplyr::filter(
       # Limit to valid trauma levels
-      {{ level }} %in% c("I", "II", "III", "IV"),
+      {{ level }} %in% included_levels,
       # Include cases where ED or hospital disposition is "Deceased/Expired"
       dplyr::if_any(
         c({{ ed_disposition }}, {{ hospital_disposition }}),
@@ -221,14 +224,17 @@ seqic_indicator_4 <- function(
   # Optional confidence intervals for 4a
   if (!is.null(calculate_ci)) {
     seqic_4a <- seqic_4a |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_4a,
-        n = denominator_4a,
-        method = calculate_ci,
-        ...
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_4a,
+          x = numerator_4a,
+          n = denominator_4a,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_4a = lower_ci, upper_ci_4a = upper_ci)
       ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_4a = lower_ci, upper_ci_4a = upper_ci) |>
       dplyr::relocate(lower_ci_4a, .after = seqic_4a) |>
       dplyr::relocate(upper_ci_4a, .after = lower_ci_4a)
   }
@@ -238,7 +244,7 @@ seqic_indicator_4 <- function(
   ###___________________________________________________________________________
   seqic_4b <- df |>
     dplyr::filter(
-      {{ level }} %in% c("I", "II", "III", "IV"),
+      {{ level }} %in% included_levels,
       dplyr::if_any(
         c({{ ed_disposition }}, {{ hospital_disposition }}),
         ~ . == "Deceased/Expired"
@@ -262,14 +268,17 @@ seqic_indicator_4 <- function(
   # Optional confidence intervals for 4b
   if (!is.null(calculate_ci)) {
     seqic_4b <- seqic_4b |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_4b,
-        n = denominator_4b,
-        method = calculate_ci,
-        ...
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_4b,
+          x = numerator_4b,
+          n = denominator_4b,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_4b = lower_ci, upper_ci_4b = upper_ci)
       ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_4b = lower_ci, upper_ci_4b = upper_ci) |>
       dplyr::relocate(lower_ci_4b, .after = seqic_4b) |>
       dplyr::relocate(upper_ci_4b, .after = lower_ci_4b)
   }
@@ -283,6 +292,9 @@ seqic_indicator_4 <- function(
       tibble::add_column(Data = "Population/Sample", .before = "numerator_4a")
   } else {
     seqic_4 <- seqic_4a |>
-      dplyr::full_join(seqic_4b, by = dplyr::join_by(!!!rlang::syms(groups)))
+      dplyr::full_join(seqic_4b, by = dplyr::join_by(!!!rlang::syms(groups))) |>
+      dplyr::arrange(!!!rlang::syms(groups))
   }
+
+  return(seqic_4)
 }

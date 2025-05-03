@@ -7,6 +7,7 @@
 seqic_indicator_7(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   time_from_injury_to_arrival,
   transfer_out_indicator,
@@ -21,14 +22,16 @@ seqic_indicator_7(
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
-\item{unique_incident_id}{Unquoted column name representing the unique
-identifier for a patient incident. Used to deduplicate records.}
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
-\item{time_from_injury_to_arrival}{Unquoted column name representing the time
+\item{unique_incident_id}{Unique identifier for each record.}
+
+\item{time_from_injury_to_arrival}{Column name representing the time
 in minutes from injury occurrence to arrival at the trauma center. Numeric
 type.}
 
-\item{transfer_out_indicator}{Unquoted column name indicating whether the
+\item{transfer_out_indicator}{Column name indicating whether the
 patient was transferred out of the initial trauma center. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
@@ -79,7 +82,8 @@ than 180 minutes after the time of injury.
 \item Optionally includes 95\% confidence intervals if \code{calculate_ci} is
 specified.
 }
-
+}
+\note{
 The user must ensure all columns are correctly passed and that time values
 are numeric and measured in minutes.
 }

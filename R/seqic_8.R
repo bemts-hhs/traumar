@@ -14,42 +14,26 @@
 #'   group (e.g., "High", "Moderate", "Low"). See risk definitions below.
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
 #'
-#' @returns
-#' A named list with two tibbles:
-#'
-#' \describe{
-#'   \item{`overall`}{
-#'     A tibble summarizing overall mortality among trauma patients, grouped by
-#'     the variables specified in `groups`. Columns include:
-#'     \itemize{
-#'       \item `numerator_8_all`: Number of patients who survived (mortality
-#'       indicator was FALSE or "No")
-#'       \item `denominator_8_all`: Total number of unique trauma incidents
-#'       \item `seqic_8_all`: Proportion of patients who survived
-#'       \item `lower_ci_8`, `upper_ci_8` (optional): Confidence interval bounds
-#'       if `calculate_ci` is specified
-#'     }
-#'   }
-#'
-#'   \item{`risk_group`}{
-#'     A tibble summarizing mortality stratified by risk group and any
-#'     additional `groups` variables. Columns include:
-#'     \itemize{
-#'       \item `{{ risk_group }}`: Risk group variable used for stratification
-#'       \item `numerator_8_risk`: Number of patients who survived in each risk
-#'       group
-#'       \item `denominator_8_risk`: Total number of unique incidents in each
-#'       risk group
-#'       \item `seqic_8_risk`: Proportion of survivors in each risk group
-#'       \item `lower_ci_8_risk`, `upper_ci_8_risk` (optional): Confidence
-#'       interval bounds if `calculate_ci` is specified
-#'     }
-#'   }
-#' }
-#'
 #' @details
 #'
-#' `seqic_indicator_8()` calculates survival outcomes for patients transported
+#' \itemize{
+#'   \item Filters the dataset to include only trauma center levels I through
+#'   IV.
+#'   \item Deduplicates the dataset using `unique_incident_id` to ensure one
+#'   record per incident.
+#'   \item Accepts a mortality indicator that may be logical, character, or
+#'   factor, and identifies survivors as those with values of `FALSE` or `"No"`.
+#'   \item Requires a predefined `risk_group` variable representing categories
+#'   such as "Low", "Moderate", or "High" risk.
+#'   \item Calculates overall survival proportions and survival proportions
+#'   stratified by risk group.
+#'   \item Optionally includes 95% confidence intervals using binomial methods
+#'   if `calculate_ci` is specified.
+#' }
+#'
+#' @note
+#'
+#' This function calculates survival outcomes for patients transported
 #' to trauma centers, stratified by risk of mortality. Risk groups—low,
 #' moderate, and high— are defined by the Iowa System Evaluation and Quality
 #' Improvement Committee (SEQIC) as described below. Users may also apply
@@ -84,6 +68,43 @@
 #'     }
 #' }
 #'
+#' Users must ensure appropriate column names are passed and data is
+#' pre-processed to include the necessary fields without missing critical
+#' identifiers or timestamps.
+#'
+#' @returns
+#' A named list with two tibbles:
+#'
+#' \itemize{
+#'   \item{`overall`}{
+#'     A tibble summarizing overall mortality among trauma patients, grouped by
+#'     the variables specified in `groups`. Columns include:
+#'     \itemize{
+#'       \item `numerator_8_all`: Number of patients who survived (mortality
+#'       indicator was FALSE or "No")
+#'       \item `denominator_8_all`: Total number of unique trauma incidents
+#'       \item `seqic_8_all`: Proportion of patients who survived
+#'       \item `lower_ci_8`, `upper_ci_8` (optional): Confidence interval bounds
+#'       if `calculate_ci` is specified
+#'     }
+#'   }
+#'
+#'   \item{`risk_group`}{
+#'     A tibble summarizing mortality stratified by risk group and any
+#'     additional `groups` variables. Columns include:
+#'     \itemize{
+#'       \item `{{ risk_group }}`: Risk group variable used for stratification
+#'       \item `numerator_8_risk`: Number of patients who survived in each risk
+#'       group
+#'       \item `denominator_8_risk`: Total number of unique incidents in each
+#'       risk group
+#'       \item `seqic_8_risk`: Proportion of survivors in each risk group
+#'       \item `lower_ci_8_risk`, `upper_ci_8_risk` (optional): Confidence
+#'       interval bounds if `calculate_ci` is specified
+#'     }
+#'   }
+#' }
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -91,6 +112,7 @@
 seqic_indicator_8 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   mortality_indicator,
   risk_group,
@@ -190,7 +212,7 @@ seqic_indicator_8 <- function(
 
   # Overall mortality, one row per unique incident
   seqic_8_all <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_8_all = sum(
@@ -208,7 +230,7 @@ seqic_indicator_8 <- function(
 
   # Mortality stratified by risk group
   seqic_8_risk <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_8_risk = sum(
@@ -227,24 +249,30 @@ seqic_indicator_8 <- function(
   # Compute confidence intervals if requested
   if (!is.null(calculate_ci)) {
     seqic_8_all <- seqic_8_all |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_8_all,
-        n = denominator_8_all,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_8 = lower_ci, upper_ci_8 = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_8_all,
+          x = numerator_8_all,
+          n = denominator_8_all,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_8 = lower_ci, upper_ci_8 = upper_ci)
+      )
 
     seqic_8_risk <- seqic_8_risk |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_8_risk,
-        n = denominator_8_risk,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_8_risk = lower_ci, upper_ci_8_risk = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_8_risk,
+          x = numerator_8_risk,
+          n = denominator_8_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_8_risk = lower_ci, upper_ci_8_risk = upper_ci)
+      )
   }
 
   # Label output or arrange by grouping vars

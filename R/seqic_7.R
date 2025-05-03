@@ -12,8 +12,6 @@
 #'
 #' @inheritParams seqic_indicator_1
 #' @inheritParams seqic_indicator_6
-#' @param unique_incident_id Unquoted column name representing the unique
-#'   identifier for a patient incident. Used to deduplicate records.
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
 #'
 #' @details This function:
@@ -30,6 +28,8 @@
 #'   specified.
 #' }
 #'
+#' @note
+#'
 #' The user must ensure all columns are correctly passed and that time values
 #' are numeric and measured in minutes.
 #'
@@ -43,6 +43,7 @@
 seqic_indicator_7 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   time_from_injury_to_arrival,
   transfer_out_indicator,
@@ -154,7 +155,7 @@ seqic_indicator_7 <- function(
 
   # Filter only trauma center levels I–IV
   seqic_7 <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
 
     # Deduplicate records by unique incident ID
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
@@ -184,31 +185,19 @@ seqic_indicator_7 <- function(
 
   # Optionally compute confidence intervals
   if (!is.null(calculate_ci)) {
-    # Validate CI method and compute
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-    calculate_ci <- attempt
-
     # Apply binomial confidence interval function
     seqic_7 <- seqic_7 |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_7,
-        n = denominator_7,
-        method = calculate_ci,
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_7 = lower_ci, upper_ci_7 = upper_ci)
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_7,
+          x = numerator_7,
+          n = denominator_7,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_7 = lower_ci, upper_ci_7 = upper_ci)
+      )
   }
 
   # Add label if ungrouped

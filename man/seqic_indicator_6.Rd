@@ -7,6 +7,7 @@
 seqic_indicator_6(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
   transfer_out_indicator,
   receiving_indicator,
@@ -23,22 +24,25 @@ seqic_indicator_6(
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
+
 \item{unique_incident_id}{Unique identifier for each record.}
 
-\item{transfer_out_indicator}{Unquoted column name indicating whether the
+\item{transfer_out_indicator}{Column name indicating whether the
 patient was transferred out of the initial trauma center. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
 
-\item{receiving_indicator}{Unquoted column name indicating whether the
+\item{receiving_indicator}{Column name indicating whether the
 patient was transferred into the trauma center. Logical, character, or
 factor type. Values representing "Yes" (e.g., TRUE, "Yes") indicate
 transfer in.}
 
-\item{low_GCS_indicator}{Unquoted column name for identifying patients with a
+\item{low_GCS_indicator}{Column name for identifying patients with a
 Glasgow Coma Scale score less than 9. Logical, character, or factor type.}
 
-\item{time_from_injury_to_arrival}{Unquoted column name representing the time
+\item{time_from_injury_to_arrival}{Column name representing the time
 in minutes from injury occurrence to arrival at the trauma center. Numeric
 type.}
 
@@ -91,7 +95,8 @@ transferred in and not transferred out.
 \item Optionally calculates Wilson or Clopper-Pearson confidence intervals
 for the resulting proportion if \code{calculate_ci} is specified.
 }
-
+}
+\note{
 Users must ensure input columns are appropriately coded and standardized.
 Transfer and GCS indicators should use consistent logical or textual
 representations.

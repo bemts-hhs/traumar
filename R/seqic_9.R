@@ -10,6 +10,7 @@
 #' @inheritParams seqic_indicator_1
 #' @inheritParams seqic_indicator_5
 #' @inheritParams seqic_indicator_6
+#' @inheritParams seqic_indicator_8
 #'
 #' @param transport_method Column identifying the EMS transport method (e.g.,
 #'   ambulance, private vehicle). Used to exclude non-qualified modes of
@@ -23,6 +24,69 @@
 #'
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
 #'
+#' @details
+#'
+#'  This function:
+#' \itemize{
+#'   \item Filters the dataset to include only transfers out from trauma centers
+#'   designated Level I through IV.
+#'   \item Deduplicates records using `unique_incident_id`.
+#'   \item Flags records where emergency department decision to discharge
+#'   occurred more than 60 or 120 minutes after ED arrival.
+#'   \item Flags records where physical departure from the ED occurred more than
+#'   120 or 180 minutes after ED arrival.
+#'   \item Flags records where physical discharge occurred more than 60 or 120
+#'   minutes after ED decision to discharge.
+#'   \item Stratifies results by trauma team activation status and
+#'   one or more grouping variables.
+#'   \item Stratifies results by risk groups and one or more grouping variables.
+#'   \item Returns a summarized tibble with the number of delayed cases
+#'   (numerator), eligible records (denominator), and the proportion for each
+#'   delay threshold.
+#'   \item Optionally includes 95% confidence intervals if `calculate_ci = TRUE`.
+#' }
+#'
+#' @note
+#'
+#' This function calculates discharge timeliness outcomes for patients
+#' transported to trauma centers, stratified by risk of mortality. Risk
+#' groups—low, moderate, and high— are defined by the Iowa System Evaluation and
+#' Quality Improvement Committee (SEQIC) as described below. Users may also
+#' apply alternative risk stratification methods if preferred.
+#'
+#' \itemize{
+#'   \item Abnormal Physiology Criteria:
+#'     \itemize{
+#'       \item GCS 3–5
+#'       \item Respirations <5 or >30 per minute
+#'       \item Systolic BP <60 mm Hg
+#'     }
+#'   \item Risk Group Definitions:
+#'     \itemize{
+#'       \item High Risk:
+#'         \itemize{
+#'           \item Probability of Survival < 0.2, OR
+#'           \item ISS > 41, OR
+#'           \item ISS > 24 with abnormal physiology
+#'         }
+#'       \item Moderate Risk:
+#'         \itemize{
+#'           \item Probability of Survival 0.2–0.5, OR
+#'           \item ISS 16–41
+#'         }
+#'       \item Low Risk:
+#'         \itemize{
+#'           \item Probability of Survival > 0.5, OR
+#'           \item ISS < 16, OR
+#'           \item Normal physiology
+#'         }
+#'     }
+#' }
+#'
+#' Users must ensure appropriate column names are passed and data is
+#' pre-processed to include the necessary fields without missing critical
+#' identifiers or timestamps.
+#'
 #' @returns
 #' A list of two tibbles:
 #' \itemize{
@@ -31,6 +95,8 @@
 #'   variables.
 #'   \item{`seqic_9_activations`}: Same proportions as above, further stratified
 #'   by trauma team activation status.
+#'   \item{`seqic_9_risk`}: Same proportions as above, further stratified by
+#'   risk groups.
 #' }
 #'
 #' Each tibble includes numerators, denominators, proportions, and (optionally)
@@ -44,36 +110,19 @@
 #'   \item{9f}: Delayed decision to discharge >2 hours
 #' }
 #'
-#' @details This function:
-#' \itemize{
-#'   \item Filters the dataset to include only transfers out from trauma centers
-#'   designated Level I through IV.
-#'   \item Deduplicates records using `unique_incident_id`.
-#'   \item Flags records where emergency department decision to discharge
-#'   occurred more than 60 or 120 minutes after ED arrival.
-#'   \item Flags records where physical departure from the ED occurred more than
-#'   120 or 180 minutes after ED arrival.
-#'   \item Flags records where physical discharge occurred more than 60 or 120
-#'   minutes after ED decision to discharge.
-#'   \item Stratifies results by trauma team activation status and
-#'   one or more grouping variables.
-#'   \item Returns a summarized tibble with the number of delayed cases
-#'   (numerator), eligible records (denominator), and the proportion for each
-#'   delay threshold.
-#'   \item Optionally includes 95% confidence intervals if `calculate_ci = TRUE`.
-#' }
-#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
-
+#'
 seqic_indicator_9 <- function(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   transfer_out_indicator,
   transport_method,
   unique_incident_id,
   trauma_team_activated,
+  risk_group,
   ed_LOS,
   ed_decision_LOS,
   ed_decision_discharge_LOS,
@@ -177,6 +226,15 @@ seqic_indicator_9 <- function(
     )
   }
 
+  # Validate the `risk_group` column
+  risk_group_check <- df |> dplyr::pull({{ risk_group }})
+  if (!is.character(risk_group_check) && !is.factor(risk_group_check)) {
+    cli::cli_abort(c(
+      "{.var risk_group} must be character or factor.",
+      "i" = "Provided class: {.cls {class(risk_group_check)}}."
+    ))
+  }
+
   # Validate `groups` argument
   if (!is.null(groups)) {
     if (!all(sapply(groups, is.character))) {
@@ -228,10 +286,14 @@ seqic_indicator_9 <- function(
   # Initiate the output list
   seqic_9 <- list()
 
+  ###___________________________________________________________________________
+  ### Initiate Calculations
+  ###___________________________________________________________________________
+
   # Get `df` with manipulations
   df_prep <- df |>
     dplyr::filter(
-      {{ level }} %in% c("I", "II", "III", "IV"),
+      {{ level }} %in% included_levels,
       {{ transfer_out_indicator }} %in% c("Yes", TRUE),
       !grepl(
         pattern = excluded_transport_methods_regex,
@@ -249,7 +311,11 @@ seqic_indicator_9 <- function(
       Delayed_Decision_Discharge_2hr = {{ ed_decision_discharge_LOS }} > 120
     )
 
-  # 9a-b overall
+  ###___________________________________________________________________________
+  ### Overall
+  ###___________________________________________________________________________
+
+  # 9a-f overall
   seqic_9_all <- df_prep |>
     dplyr::summarize(
       numerator_9a_all = sum(Delayed_DC_2hr == TRUE, na.rm = TRUE),
@@ -303,7 +369,11 @@ seqic_indicator_9 <- function(
       .by = {{ groups }}
     )
 
-  # 9a-b for activations
+  ###___________________________________________________________________________
+  ### Activations
+  ###___________________________________________________________________________
+
+  # 9a-f for activations
   seqic_9_activations <- df_prep |>
     dplyr::summarize(
       numerator_9a_activations = sum(Delayed_DC_2hr == TRUE, na.rm = TRUE),
@@ -363,8 +433,141 @@ seqic_indicator_9 <- function(
       .by = c({{ groups }}, {{ trauma_team_activated }})
     )
 
+  ###___________________________________________________________________________
+  ### Risk Groupss
+  ###___________________________________________________________________________
+
+  # 9a-f for risk groups
+  seqic_9_risk <- df_prep |>
+    dplyr::summarize(
+      numerator_9a_risk = sum(Delayed_DC_2hr == TRUE, na.rm = TRUE),
+      denominator_9a_risk = dplyr::n(),
+      seqic_9a_risk = dplyr::if_else(
+        denominator_9a_risk > 0,
+        numerator_9a_risk / denominator_9a_risk,
+        NA_real_
+      ),
+      numerator_9b_risk = sum(Delayed_DC_3hr == TRUE, na.rm = TRUE),
+      denominator_9b_risk = dplyr::n(),
+      seqic_9b_risk = dplyr::if_else(
+        denominator_9b_risk > 0,
+        numerator_9b_risk / denominator_9b_risk,
+        NA_real_
+      ),
+      numerator_9c_risk = sum(
+        Delayed_Decision_1hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9c_risk = dplyr::n(),
+      seqic_9c_risk = dplyr::if_else(
+        denominator_9c_risk > 0,
+        numerator_9c_risk / denominator_9c_risk,
+        NA_real_
+      ),
+      numerator_9d_risk = sum(
+        Delayed_Decision_2hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9d_risk = dplyr::n(),
+      seqic_9d_risk = dplyr::if_else(
+        denominator_9d_risk > 0,
+        numerator_9d_risk / denominator_9d_risk,
+        NA_real_
+      ),
+      numerator_9e_risk = sum(
+        Delayed_Decision_Discharge_1hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9e_risk = dplyr::n(),
+      seqic_9e_risk = dplyr::if_else(
+        denominator_9e_risk > 0,
+        numerator_9e_risk / denominator_9e_risk,
+        NA_real_
+      ),
+      numerator_9f_risk = sum(
+        Delayed_Decision_Discharge_2hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9f_risk = dplyr::n(),
+      seqic_9f_risk = dplyr::if_else(
+        denominator_9f_risk > 0,
+        numerator_9f_risk / denominator_9f_risk,
+        NA_real_
+      ),
+      .by = c({{ groups }}, {{ risk_group }})
+    )
+
+  ###___________________________________________________________________________
+  ### Activations and Risk Groups
+  ###___________________________________________________________________________
+
+  # 9a-f for risk groups and trauma team activations
+  seqic_9_activations_risk <- df_prep |>
+    dplyr::summarize(
+      numerator_9a_activations_risk = sum(Delayed_DC_2hr == TRUE, na.rm = TRUE),
+      denominator_9a_activations_risk = dplyr::n(),
+      seqic_9a_activations_risk = dplyr::if_else(
+        denominator_9a_activations_risk > 0,
+        numerator_9a_activations_risk / denominator_9a_activations_risk,
+        NA_real_
+      ),
+      numerator_9b_activations_risk = sum(Delayed_DC_3hr == TRUE, na.rm = TRUE),
+      denominator_9b_activations_risk = dplyr::n(),
+      seqic_9b_activations_risk = dplyr::if_else(
+        denominator_9b_activations_risk > 0,
+        numerator_9b_activations_risk / denominator_9b_activations_risk,
+        NA_real_
+      ),
+      numerator_9c_activations_risk = sum(
+        Delayed_Decision_1hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9c_activations_risk = dplyr::n(),
+      seqic_9c_activations_risk = dplyr::if_else(
+        denominator_9c_activations_risk > 0,
+        numerator_9c_activations_risk / denominator_9c_activations_risk,
+        NA_real_
+      ),
+      numerator_9d_activations_risk = sum(
+        Delayed_Decision_2hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9d_activations_risk = dplyr::n(),
+      seqic_9d_activations_risk = dplyr::if_else(
+        denominator_9d_activations_risk > 0,
+        numerator_9d_activations_risk / denominator_9d_activations_risk,
+        NA_real_
+      ),
+      numerator_9e_activations_risk = sum(
+        Delayed_Decision_Discharge_1hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9e_activations_risk = dplyr::n(),
+      seqic_9e_activations_risk = dplyr::if_else(
+        denominator_9e_activations_risk > 0,
+        numerator_9e_activations_risk / denominator_9e_activations_risk,
+        NA_real_
+      ),
+      numerator_9f_activations_risk = sum(
+        Delayed_Decision_Discharge_2hr == TRUE,
+        na.rm = TRUE
+      ),
+      denominator_9f_activations_risk = dplyr::n(),
+      seqic_9f_activations_risk = dplyr::if_else(
+        denominator_9f_activations_risk > 0,
+        numerator_9f_activations_risk / denominator_9f_activations_risk,
+        NA_real_
+      ),
+      .by = c({{ groups }}, {{ trauma_team_activated }}, {{ risk_group }})
+    )
+
+  ###___________________________________________________________________________
+  ### Optional 95% CIs
+  ###___________________________________________________________________________
+
   # Compute confidence intervals if requested
   if (!is.null(calculate_ci)) {
+    # Overall CIs
     seqic_9_all <- seqic_9_all |>
       dplyr::bind_cols(
         nemsqar::nemsqa_binomial_confint(
@@ -450,6 +653,7 @@ seqic_indicator_9 <- function(
       dplyr::relocate(lower_ci_9f_all, .after = seqic_9f_all) |>
       dplyr::relocate(upper_ci_9f_all, .after = lower_ci_9f_all)
 
+    # Activations CIs
     seqic_9_activations <- seqic_9_activations |>
       dplyr::bind_cols(
         nemsqar::nemsqa_binomial_confint(
@@ -573,6 +777,256 @@ seqic_indicator_9 <- function(
         upper_ci_9f_activations,
         .after = lower_ci_9f_activations
       )
+
+    # Risk Groups CIs
+    seqic_9_risk <- seqic_9_risk |>
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9a_risk,
+          n = denominator_9a_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9a_risk = lower_ci,
+            upper_ci_9a_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9b_risk,
+          n = denominator_9b_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9b_risk = lower_ci,
+            upper_ci_9b_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9c_risk,
+          n = denominator_9c_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9c_risk = lower_ci,
+            upper_ci_9c_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9d_risk,
+          n = denominator_9d_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9d_risk = lower_ci,
+            upper_ci_9d_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9e_risk,
+          n = denominator_9e_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9e_risk = lower_ci,
+            upper_ci_9e_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_risk,
+          x = numerator_9f_risk,
+          n = denominator_9f_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9f_risk = lower_ci,
+            upper_ci_9f_risk = upper_ci
+          )
+      ) |>
+      dplyr::relocate(
+        lower_ci_9a_risk,
+        .after = seqic_9a_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9a_risk,
+        .after = lower_ci_9a_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9b_risk,
+        .after = seqic_9b_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9b_risk,
+        .after = lower_ci_9b_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9c_risk,
+        .after = seqic_9c_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9c_risk,
+        .after = lower_ci_9c_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9d_risk,
+        .after = seqic_9d_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9d_risk,
+        .after = lower_ci_9d_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9e_risk,
+        .after = seqic_9e_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9e_risk,
+        .after = lower_ci_9e_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9f_risk,
+        .after = seqic_9f_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9f_risk,
+        .after = lower_ci_9f_risk
+      )
+
+    # Activations and Risk Groups CIs
+    seqic_9_activations_risk <- seqic_9_activations_risk |>
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9a_activations_risk,
+          n = denominator_9a_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9a_activations_risk = lower_ci,
+            upper_ci_9a_activations_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9b_activations_risk,
+          n = denominator_9b_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9b_activations_risk = lower_ci,
+            upper_ci_9b_activations_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9c_activations_risk,
+          n = denominator_9c_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9c_activations_risk = lower_ci,
+            upper_ci_9c_activations_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9d_activations_risk,
+          n = denominator_9d_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9d_activations_risk = lower_ci,
+            upper_ci_9d_activations_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9e_activations_risk,
+          n = denominator_9e_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9e_activations_risk = lower_ci,
+            upper_ci_9e_activations_risk = upper_ci
+          ),
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_9_activations_risk,
+          x = numerator_9f_activations_risk,
+          n = denominator_9f_activations_risk,
+          method = calculate_ci,
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(
+            lower_ci_9f_activations_risk = lower_ci,
+            upper_ci_9f_activations_risk = upper_ci
+          )
+      ) |>
+      dplyr::relocate(
+        lower_ci_9a_activations_risk,
+        .after = seqic_9a_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9a_activations_risk,
+        .after = lower_ci_9a_activations_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9b_activations_risk,
+        .after = seqic_9b_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9b_activations_risk,
+        .after = lower_ci_9b_activations_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9c_activations_risk,
+        .after = seqic_9c_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9c_activations_risk,
+        .after = lower_ci_9c_activations_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9d_activations_risk,
+        .after = seqic_9d_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9d_activations_risk,
+        .after = lower_ci_9d_activations_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9e_activations_risk,
+        .after = seqic_9e_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9e_activations_risk,
+        .after = lower_ci_9e_activations_risk
+      ) |>
+      dplyr::relocate(
+        lower_ci_9f_activations_risk,
+        .after = seqic_9f_activations_risk
+      ) |>
+      dplyr::relocate(
+        upper_ci_9f_activations_risk,
+        .after = lower_ci_9f_activations_risk
+      )
   }
 
   # Label output or arrange by grouping vars
@@ -581,12 +1035,28 @@ seqic_indicator_9 <- function(
       tibble::add_column(Data = "Population/Sample", .before = 1)
     seqic_9$activations <- seqic_9_activations |>
       tibble::add_column(Data = "Population/Sample TTA Groups", .before = 1)
+    seqic_9$risk_groups <- seqic_9_risk |>
+      tibble::add_column(Data = "Population/Sample Risk Groups", .before = 1)
+    seqic_9$activations_risk_groups <- seqic_9_activations_risk |>
+      tibble::add_column(
+        Data = "Population/Sample TTA and Risk Groups",
+        .before = 1
+      )
   } else {
     seqic_9$overall <- seqic_9_all |>
       dplyr::arrange(!!!rlang::syms(groups))
     seqic_9$activations <- seqic_9_activations |>
-      dplyr::arrange(!!!rlang::syms(groups))
+      dplyr::arrange(!!!rlang::syms(groups), {{ trauma_team_activated }})
+    seqic_9$risk_groups <- seqic_9_risk |>
+      dplyr::arrange(!!!rlang::syms(groups), {{ risk_group }})
+    seqic_9$activations_risk_groups <- seqic_9_activations_risk |>
+      dplyr::arrange(
+        !!!rlang::syms(groups),
+        {{ trauma_team_activated }},
+        {{ risk_group }}
+      )
   }
 
+  # Return the output as a list
   return(seqic_9)
 }

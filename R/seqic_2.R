@@ -22,6 +22,8 @@
 #'   \item Calculates the proportion of cases missing `incident_time`.
 #' }
 #'
+#' @note
+#'
 #' Users must ensure appropriate column names are passed and data is
 #' pre-processed to include the necessary fields without missing critical
 #' identifiers or timestamps.
@@ -38,6 +40,7 @@ seqic_indicator_2 <- function(
   df,
   unique_incident_id,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   incident_time,
   groups = NULL,
   calculate_ci = NULL,
@@ -154,7 +157,7 @@ seqic_indicator_2 <- function(
   #   - `seqic_2`: The proportion of incidents with missing `incident_time` (rounded to 3 decimal places).
   #   - Optionally, group results by columns specified in the `groups` argument.
   seqic_2 <- df |>
-    dplyr::filter({{ level }} %in% c("I", "II", "III", "IV")) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_2 = sum(is.na({{ incident_time }})), # Calculate the number of missing incident_time values.
@@ -173,14 +176,17 @@ seqic_indicator_2 <- function(
   # - Select only the relevant columns and rename the CI columns for clarity.
   if (!is.null(calculate_ci)) {
     seqic_2 <- seqic_2 |>
-      nemsqar::nemsqa_binomial_confint(
-        x = numerator_2, # Number of successes (numerator).
-        n = denominator_2, # Number of trials (denominator).
-        method = calculate_ci, # Confidence interval calculation method (e.g., "wilson").
-        ...
-      ) |>
-      dplyr::select(-prop, -prop_label) |>
-      dplyr::rename(lower_ci_2 = lower_ci, upper_ci_2 = upper_ci) # Rename CI columns.
+      dplyr::bind_cols(
+        nemsqar::nemsqa_binomial_confint(
+          data = seqic_2,
+          x = numerator_2, # Number of successes (numerator).
+          n = denominator_2, # Number of trials (denominator).
+          method = calculate_ci, # Confidence interval calculation method (e.g., "wilson").
+          ...
+        ) |>
+          dplyr::select(lower_ci, upper_ci) |>
+          dplyr::rename(lower_ci_2 = lower_ci, upper_ci_2 = upper_ci) # Rename CI columns.
+      )
   }
 
   # Assign a label to indicate whether the data represents population or sample-level results:

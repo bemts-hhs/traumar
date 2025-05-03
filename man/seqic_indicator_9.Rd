@@ -7,10 +7,12 @@
 seqic_indicator_9(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   transfer_out_indicator,
   transport_method,
   unique_incident_id,
   trauma_team_activated,
+  risk_group,
   ed_LOS,
   ed_decision_LOS,
   ed_decision_discharge_LOS,
@@ -25,7 +27,10 @@ seqic_indicator_9(
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
-\item{transfer_out_indicator}{Unquoted column name indicating whether the
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
+
+\item{transfer_out_indicator}{Column name indicating whether the
 patient was transferred out of the initial trauma center. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
@@ -38,6 +43,9 @@ arrival.}
 
 \item{trauma_team_activated}{Column indicating whether the trauma team was
 activated (character, factor, or logical).}
+
+\item{risk_group}{A character or factor column indicating the patient's risk
+group (e.g., "High", "Moderate", "Low"). See risk definitions below.}
 
 \item{ed_decision_LOS}{Numeric column representing minutes from ED arrival to
 decision to transfer.}
@@ -71,6 +79,8 @@ discharge or decision delays >2 or >3 hours, grouped by optional
 variables.
 \item{\code{seqic_9_activations}}: Same proportions as above, further stratified
 by trauma team activation status.
+\item{\code{seqic_9_risk}}: Same proportions as above, further stratified by
+risk groups.
 }
 
 Each tibble includes numerators, denominators, proportions, and (optionally)
@@ -105,11 +115,52 @@ occurred more than 60 or 120 minutes after ED arrival.
 minutes after ED decision to discharge.
 \item Stratifies results by trauma team activation status and
 one or more grouping variables.
+\item Stratifies results by risk groups and one or more grouping variables.
 \item Returns a summarized tibble with the number of delayed cases
 (numerator), eligible records (denominator), and the proportion for each
 delay threshold.
 \item Optionally includes 95\% confidence intervals if \code{calculate_ci = TRUE}.
 }
+}
+\note{
+This function calculates discharge timeliness outcomes for patients
+transported to trauma centers, stratified by risk of mortality. Risk
+groups—low, moderate, and high— are defined by the Iowa System Evaluation and
+Quality Improvement Committee (SEQIC) as described below. Users may also
+apply alternative risk stratification methods if preferred.
+
+\itemize{
+\item Abnormal Physiology Criteria:
+\itemize{
+\item GCS 3–5
+\item Respirations <5 or >30 per minute
+\item Systolic BP <60 mm Hg
+}
+\item Risk Group Definitions:
+\itemize{
+\item High Risk:
+\itemize{
+\item Probability of Survival < 0.2, OR
+\item ISS > 41, OR
+\item ISS > 24 with abnormal physiology
+}
+\item Moderate Risk:
+\itemize{
+\item Probability of Survival 0.2–0.5, OR
+\item ISS 16–41
+}
+\item Low Risk:
+\itemize{
+\item Probability of Survival > 0.5, OR
+\item ISS < 16, OR
+\item Normal physiology
+}
+}
+}
+
+Users must ensure appropriate column names are passed and data is
+pre-processed to include the necessary fields without missing critical
+identifiers or timestamps.
 }
 \author{
 Nicolas Foss, Ed.D., MS

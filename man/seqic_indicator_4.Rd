@@ -7,6 +7,7 @@
 seqic_indicator_4(
   df,
   level,
+  included_levels = c("I", "II", "III", "IV"),
   ed_disposition,
   ed_LOS,
   hospital_disposition,
@@ -23,6 +24,9 @@ seqic_indicator_4(
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
+
+\item{included_levels}{Character vector indicating what facility levels to
+include in the anlaysis.  Defaults to \code{included_levels}.}
 
 \item{ed_disposition}{Column representing the emergency department
 disposition. For a record to be picked up in this function, the ED
@@ -90,7 +94,8 @@ received an autopsy.
 a hospital or ED length of stay greater than 72 hours (4320 minutes) and no
 autopsy performed.
 }
-
+}
+\note{
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
