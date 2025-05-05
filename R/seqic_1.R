@@ -34,7 +34,7 @@
 #' @param level Column indicating the trauma center designation level (e.g., I,
 #'   II, III, IV).
 #' @param included_levels Character vector indicating what facility levels to
-#' include in the anlaysis.  Defaults to `included_levels`.
+#' include in the anlaysis.  Defaults to `c("I", "II", "III", "IV")`.
 #' @param unique_incident_id Unique identifier for each record.
 #' @param response_time Numeric variable representing the time (in minutes)
 #'   to provider response.
@@ -53,8 +53,8 @@
 #' SEQIC Indicators 1a through 1f:
 #' \itemize{
 #'   \item 1a: Proportion of Level 1 activations at Level I/II centers with
-#'   surgical response ≤ 15 minutes.
-#'   \item 1b: Same as 1a, but includes Level III centers and uses ≤ 30 minutes.
+#'   surgical response <= 15 minutes.
+#'   \item 1b: Same as 1a, but includes Level III centers and uses <= 30 minutes.
 #'   \item 1c: Proportion of Level 1 activations with missing surgical response
 #'   time.
 #'   \item 1d/e: Response within 5 and 20 minutes, respectively, for specific
@@ -82,6 +82,40 @@
 #' @return A tibble summarizing SEQIC Indicator 1 results across sub-measures
 #'   (1a–1f). Includes numerators, denominators, and performance rate for each
 #'   indicator.
+#'
+#' @examples
+#'
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Data
+#' data <- tibble::tibble(
+#'   incident_id = 1:6,
+#'   activation_level = c("Level 1", "Level 1", "Level 2", "Level 1", "Level 2",
+#'   "Level 1"),
+#'   provider_type = c("Surgery/Trauma", "Emergency Medicine", "Physician
+#'   Assistant", "Surgery/Trauma", "Surgery/Trauma", "Family Practice"),
+#'   trauma_level = c("I", "II", "III", "I", "III", "IV"),
+#'   response_minutes = c(12, 25, 6, NA, 18, 22),
+#'   provider = c("Dr. A", "Dr. B", "PA C", "Dr. D", "Dr. E", "NP F")
+#' )
+#'
+#' # Run the function
+#' traumar::seqic_indicator_1(
+#'   df = data,
+#'   trauma_team_activation_level = activation_level,
+#'   trauma_team_physician_service_type = provider_type,
+#'   level = trauma_level,
+#'   unique_incident_id = incident_id,
+#'   response_time = response_minutes,
+#'   trauma_team_activation_provider = provider,
+#'   calculate_ci = "wilson"
+#' ) |>
+#' tidyr::pivot_longer(cols = -1,
+#'                     names_to = "Indicator",
+#'                     values_to = "Values"
+#'                     )
 #'
 #' @author Nicolas Foss, Ed.D., MS
 #'
@@ -155,11 +189,12 @@ seqic_indicator_1 <- function(
   # validate `unique_incident_id`
   if (
     !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check)
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
   ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
         "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
@@ -171,8 +206,10 @@ seqic_indicator_1 <- function(
   # validate `level`
   if (!is.character(level_check) && !is.factor(level_check)) {
     cli::cli_abort(
-      c("{.var level} must be of class {.cls character} or {.cls factor}."),
-      "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
+      c(
+        "{.var level} must be of class {.cls character} or {.cls factor}.",
+        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
+      )
     )
   }
 
@@ -246,6 +283,24 @@ seqic_indicator_1 <- function(
     # If valid, overwrite calculate_ci with standardized value
     calculate_ci <- attempt
   }
+
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
+  ###___________________________________________________________________________
+  ### Calculations
+  ###___________________________________________________________________________
 
   # Indicator 1a – Proportion of Level 1 activations at Level I/II centers
   # where the first arriving Surgery/Trauma provider arrived within 15 minutes.
@@ -394,7 +449,7 @@ seqic_indicator_1 <- function(
           "Hospitalist",
           "Internal Medicine"
         ),
-      {{ level }} %in% included_levels
+      {{ level }} %in% {{ included_levels }}
     ) |>
     dplyr::group_by({{ unique_incident_id }}) |>
     dplyr::slice_min({{ response_time }}, n = 1, with_ties = FALSE) |>
@@ -460,7 +515,7 @@ seqic_indicator_1 <- function(
           "Hospitalist",
           "Internal Medicine"
         ),
-      {{ level }} %in% included_levels
+      {{ level }} %in% {{ included_levels }}
     ) |>
     dplyr::distinct(
       {{ unique_incident_id }},

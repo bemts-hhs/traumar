@@ -28,7 +28,7 @@ seqic_indicator_9(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{transfer_out_indicator}{Column name indicating whether the
 patient was transferred out of the initial trauma center. Logical,
@@ -161,6 +161,53 @@ apply alternative risk stratification methods if preferred.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Simulated dataset for SEQIC Indicator 9
+test_data <- tibble::tibble(
+  id = as.character(1:10),
+  trauma_level = c("I", "II", "III", "IV", "V", "II", "III", "IV", "I",
+  "II"),
+  transport = c("Ambulance", "Ambulance", "Private Vehicle", "Ambulance",
+  "Helicopter", "Ambulance", "Ambulance", "Ambulance", "Ambulance",
+  "Ambulance"),
+  activated = c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE,
+  FALSE),
+  ed_LOS = c(120, 180, 90, 60, 200, 130, 110, 160, 95, 220),
+  ed_decision = c(55, 125, 65, 30, 190, 80, 70, 45, 61, 130),
+  ed_discharge = c(130, 185, 110, 65, 150, 160, 95, 180, 70, 210),
+  transfer_out = c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+  TRUE),
+  risk = c("High", "High", "Moderate", "Low", "Moderate", "Low",
+           "High", "Low", "Moderate", "High")
+)
+
+# Run the function, and store as a list object
+seqic_9_result <- traumar::seqic_indicator_9(
+  df = test_data,
+  level = trauma_level,
+  included_levels = c("I", "II", "III", "IV"),
+  unique_incident_id = id,
+  transport_method = transport,
+  transfer_out_indicator = transfer_out,
+  ed_LOS = ed_LOS,
+  ed_decision_LOS = ed_decision,
+  ed_decision_discharge_LOS = ed_discharge,
+  trauma_team_activated = activated,
+  risk_group = risk
+)
+
+# Take a look at the overall output of the function
+seqic_9_result$overall |>
+tidyr::pivot_longer(cols = -1,
+                    names_to = "Indicator",
+                    values_to = "Values"
+                    )
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

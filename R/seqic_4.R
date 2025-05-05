@@ -50,6 +50,52 @@
 #'   numerator, denominator, and performance rate for the indicator. 95% confidence
 #'   intervals are provided optionally.
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Create a synthetic test dataset
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:8),
+#'   trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV"),
+#'   ed_disp = c(
+#'     "Operating Room",
+#'     "Admitted",
+#'     "Deceased/Expired",
+#'     "Transferred",
+#'     "Deceased/Expired",
+#'     "Deceased/Expired",
+#'     "Admitted",
+#'     "Deceased/Expired"
+#'   ),
+#'   ed_los = c(120, 200, 5000, 180, 3000, 4321, 60, 4000),
+#'   hosp_disp = c(
+#'     "Deceased/Expired",
+#'     "Deceased/Expired",
+#'     "Deceased/Expired",
+#'     "Discharged",
+#'     "Deceased/Expired",
+#'     "Deceased/Expired",
+#'     "Discharged",
+#'     "Deceased/Expired"
+#'   ),
+#'   hosp_los = c(3000, 4500, 1000, 200, 5000, 4400, 150, 3000),
+#'   autopsy_done = c("Yes", "No", "No", NA, "Yes", "No", NA, "Yes")
+#' )
+#'
+#' # Run the indicator function
+#' traumar::seqic_indicator_4(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   ed_disposition = ed_disp,
+#'   ed_LOS = ed_los,
+#'   hospital_disposition = hosp_disp,
+#'   hospital_LOS = hosp_los,
+#'   unique_incident_id = id,
+#'   autopsy = autopsy_done
+#' )
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -147,13 +193,20 @@ seqic_indicator_4 <- function(
     )
   }
 
-  # Validate `unique_incident_id`
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(incident_id_check)}}."
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
   }
@@ -193,6 +246,24 @@ seqic_indicator_4 <- function(
 
     calculate_ci <- attempt
   }
+
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
+  ###___________________________________________________________________________
+  ### Calculations
+  ###___________________________________________________________________________
 
   ###___________________________________________________________________________
   # Indicator 4A - Presence of Autopsy in Deceased Patients at Trauma Centers
@@ -244,7 +315,7 @@ seqic_indicator_4 <- function(
   ###___________________________________________________________________________
   seqic_4b <- df |>
     dplyr::filter(
-      {{ level }} %in% included_levels,
+      {{ level }} %in% {{ included_levels }},
       dplyr::if_any(
         c({{ ed_disposition }}, {{ hospital_disposition }}),
         ~ . == "Deceased/Expired"

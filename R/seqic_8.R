@@ -105,6 +105,31 @@
 #'   }
 #' }
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Simulated dataset for SEQIC Indicator 8
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:12),
+#'   trauma_level = c("I", "II", "III", "IV", "V", "II", "I", "III", "IV", "II",
+#'   "I", "III"),
+#'   mortality = c(FALSE, "No", TRUE, "Yes", FALSE, TRUE, "No", FALSE, "Yes",
+#'   FALSE, TRUE, "No"),
+#'   risk = c("High", "High", "Moderate", "Moderate", "Low", "Low", "High",
+#'   "Moderate", "Low", "Moderate", "High", "Low")
+#' )
+#'
+#' # Run indicator 8 function
+#' traumar::seqic_indicator_8(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   unique_incident_id = id,
+#'   mortality_indicator = mortality,
+#'   risk_group = risk
+#' )
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -141,13 +166,22 @@ seqic_indicator_8 <- function(
     ))
   }
 
-  # Validate the `unique_incident_id` column
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
-    cli::cli_abort(c(
-      "{.var unique_incident_id} must be character or factor.",
-      "i" = "Provided class: {.cls {class(incident_id_check)}}."
-    ))
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
+      )
+    )
   }
 
   # Validate the `mortality_indicator` column
@@ -203,8 +237,22 @@ seqic_indicator_8 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
   ###___________________________________________________________________________
-  ### Measure Calculation
+  ### Calculations
   ###___________________________________________________________________________
 
   # Initiate the output as a list
@@ -212,7 +260,7 @@ seqic_indicator_8 <- function(
 
   # Overall mortality, one row per unique incident
   seqic_8_all <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_8_all = sum(
@@ -230,7 +278,7 @@ seqic_indicator_8 <- function(
 
   # Mortality stratified by risk group
   seqic_8_risk <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_8_risk = sum(

@@ -24,7 +24,7 @@ seqic_indicator_2(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{incident_time}{The time the patient's injury occurred.}
 
@@ -73,6 +73,30 @@ incident.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+
+# Packages
+library(dplyr)
+library(traumar)
+
+# Data
+data <- tibble::tibble(
+  incident_id = as.character(101:106),
+  trauma_level = c("I", "II", "III", "IV", "II", "I"),
+  incident_time = as.POSIXct(c("2023-01-01 12:00", NA, "2023-01-02 14:15",
+                               NA, "2023-01-03 09:30", "2023-01-04 16:45"))
+)
+
+# Run the function
+traumar::seqic_indicator_2(
+  df = data,
+  unique_incident_id = incident_id,
+  level = trauma_level,
+  incident_time = incident_time,
+  calculate_ci = "clopper-pearson"
+)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

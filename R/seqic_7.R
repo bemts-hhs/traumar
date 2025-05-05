@@ -37,6 +37,28 @@
 #'   denominator, and proportion. Confidence intervals are included if
 #'   requested.
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Create test data for Indicator 7
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:10),
+#'   trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
+#'   time_to_arrival = c(200, 100, 220, 150, 400, 181, 90, 179, 240, 178),
+#'   transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No", "No")
+#' )
+#'
+#' # Run the indicator function
+#' traumar::seqic_indicator_7(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   unique_incident_id = id,
+#'   time_from_injury_to_arrival = time_to_arrival,
+#'   transfer_out_indicator = transfer_out
+#' )
+#'
 #' @author Nicolas Foss Ed.D., MS
 #'
 #' @export
@@ -76,13 +98,20 @@ seqic_indicator_7 <- function(
     )
   }
 
-  # Validate that `unique_incident_id` is character or factor.
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(incident_id_check)}}."
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
   }
@@ -149,13 +178,27 @@ seqic_indicator_7 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
   ###___________________________________________________________________________
   ### Measure Calculation
   ###___________________________________________________________________________
 
   # Filter only trauma center levels I–IV
   seqic_7 <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
 
     # Deduplicate records by unique incident ID
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>

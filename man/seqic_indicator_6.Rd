@@ -25,7 +25,7 @@ seqic_indicator_6(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -100,6 +100,35 @@ for the resulting proportion if \code{calculate_ci} is specified.
 Users must ensure input columns are appropriately coded and standardized.
 Transfer and GCS indicators should use consistent logical or textual
 representations.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Create test data for Indicator 6
+test_data <- tibble::tibble(
+  id = as.character(1:10),
+  trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
+  transfer_out = c("No", "No", "Yes", "No", "No", "No", "No", "No", "No",
+  "No"),
+  transfer_in = c("Yes", "Yes", "No", "Yes", "No", "Yes", "Yes", "Yes",
+  "Yes", "Yes"),
+  gcs_low = c(TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+  time_to_arrival = c(200, 100, 300, 190, 400, 181, 100, 179, 240, 178)
+)
+
+# Run the indicator function
+traumar::seqic_indicator_6(
+  df = test_data,
+  level = trauma_level,
+  unique_incident_id = id,
+  transfer_out_indicator = transfer_out,
+  receiving_indicator = transfer_in,
+  low_GCS_indicator = gcs_low,
+  time_from_injury_to_arrival = time_to_arrival
+)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

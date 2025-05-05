@@ -49,6 +49,33 @@
 #'   Optionally includes 95% confidence intervals using the method specified in
 #'   `...`.
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Create synthetic test data for Indicators 5a–5d
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:10),
+#'   trauma_level = rep(c("I", "II", "III", "IV", "V"), each = 2),
+#'   bac = c(0.08, NA, 0, 0.02, NA, 0.15, NA, NA, 0, 0),
+#'   drug = c(
+#'     "opioid", "none", "cocaine", "none", NA,
+#'     "benzodiazepine", "alcohol", "thc", "none", NA
+#'   )
+#' )
+#'
+#' # Run the indicator function
+#' traumar::seqic_indicator_5(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   unique_incident_id = id,
+#'   blood_alcohol_content = bac,
+#'   drug_screen = drug
+#' ) |>
+#'   tidyr::pivot_longer(cols = -1, names_to = "Indicator", values_to =
+#'   "Values")
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -89,13 +116,20 @@ seqic_indicator_5 <- function(
     )
   }
 
-  # Validate `unique_incident_id`
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(incident_id_check)}}."
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
   }
@@ -158,6 +192,20 @@ seqic_indicator_5 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
   ###___________________________________________________________________________
   ### Set up drug-related keyword matching via regular expressions
   ###___________________________________________________________________________
@@ -210,10 +258,14 @@ seqic_indicator_5 <- function(
   positive_drug_pattern <- sprintf("(?:%s)", positive_drug_pattern_terms)
 
   ###___________________________________________________________________________
+  ### Calculations
+  ###___________________________________________________________________________
+
+  ###___________________________________________________________________________
   ### Compute numerator and denominator for each SEQIC Indicator 5 sub-measure
   ###___________________________________________________________________________
   seqic_5 <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       # 5a: Proportion with BAC test performed

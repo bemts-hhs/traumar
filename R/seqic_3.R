@@ -38,6 +38,30 @@
 #'   denominator, and performance rate for the indicator. 95% confidence intervals
 #'   are provided optionally.
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Create a synthetic test dataset
+#' test_data <- tibble::tibble(
+#'   unique_id = as.character(1:10),
+#'   trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I", "II"),
+#'   trauma_category = c("Blunt", "Penetrating", "Burn", "Blunt", "Penetrating",
+#'                       "Burn", "Blunt", "Penetrating", "Blunt", "Blunt"),
+#'   survival_prob = c(0.95, 0.89, NA, 0.76, NA, 0.92, 0.88, NA, 0.97, 0.91)
+#' )
+#'
+#' # Run the indicator function
+#' traumar::seqic_indicator_3(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   trauma_type = trauma_category,
+#'   unique_incident_id = unique_id,
+#'   probability_of_survival = survival_prob,
+#'   groups = "trauma_level"
+#' )
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -91,11 +115,12 @@ seqic_indicator_3 <- function(
   # Validate `unique_incident_id` to ensure it's either character or factor.
   if (
     !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check)
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
   ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
         "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
@@ -166,9 +191,27 @@ seqic_indicator_3 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
+  ###___________________________________________________________________________
+  ### Calculations
+  ###___________________________________________________________________________
+
   # Filter the data for valid levels and exclude "Burn" trauma types.
   seqic_3 <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
     dplyr::filter({{ trauma_type }} != "Burn") |>
     dplyr::distinct(
       {{ unique_incident_id }},

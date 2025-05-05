@@ -23,7 +23,7 @@ seqic_indicator_3(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{trauma_type}{A column name indicating the type of trauma. The function
 filters out "Burn" cases.}
@@ -81,6 +81,31 @@ incident.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Create a synthetic test dataset
+test_data <- tibble::tibble(
+  unique_id = as.character(1:10),
+  trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I", "II"),
+  trauma_category = c("Blunt", "Penetrating", "Burn", "Blunt", "Penetrating",
+                      "Burn", "Blunt", "Penetrating", "Blunt", "Blunt"),
+  survival_prob = c(0.95, 0.89, NA, 0.76, NA, 0.92, 0.88, NA, 0.97, 0.91)
+)
+
+# Run the indicator function
+traumar::seqic_indicator_3(
+  df = test_data,
+  level = trauma_level,
+  trauma_type = trauma_category,
+  unique_incident_id = unique_id,
+  probability_of_survival = survival_prob,
+  groups = "trauma_level"
+)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

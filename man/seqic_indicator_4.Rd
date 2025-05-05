@@ -26,7 +26,7 @@ seqic_indicator_4(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{ed_disposition}{Column representing the emergency department
 disposition. For a record to be picked up in this function, the ED
@@ -99,6 +99,53 @@ autopsy performed.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Create a synthetic test dataset
+test_data <- tibble::tibble(
+  id = as.character(1:8),
+  trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV"),
+  ed_disp = c(
+    "Operating Room",
+    "Admitted",
+    "Deceased/Expired",
+    "Transferred",
+    "Deceased/Expired",
+    "Deceased/Expired",
+    "Admitted",
+    "Deceased/Expired"
+  ),
+  ed_los = c(120, 200, 5000, 180, 3000, 4321, 60, 4000),
+  hosp_disp = c(
+    "Deceased/Expired",
+    "Deceased/Expired",
+    "Deceased/Expired",
+    "Discharged",
+    "Deceased/Expired",
+    "Deceased/Expired",
+    "Discharged",
+    "Deceased/Expired"
+  ),
+  hosp_los = c(3000, 4500, 1000, 200, 5000, 4400, 150, 3000),
+  autopsy_done = c("Yes", "No", "No", NA, "Yes", "No", NA, "Yes")
+)
+
+# Run the indicator function
+traumar::seqic_indicator_4(
+  df = test_data,
+  level = trauma_level,
+  ed_disposition = ed_disp,
+  ed_LOS = ed_los,
+  hospital_disposition = hosp_disp,
+  hospital_LOS = hosp_los,
+  unique_incident_id = id,
+  autopsy = autopsy_done
+)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

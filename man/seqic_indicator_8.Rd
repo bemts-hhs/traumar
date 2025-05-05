@@ -23,7 +23,7 @@ seqic_indicator_8(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -145,6 +145,32 @@ alternative risk stratification methods if preferred.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Simulated dataset for SEQIC Indicator 8
+test_data <- tibble::tibble(
+  id = as.character(1:12),
+  trauma_level = c("I", "II", "III", "IV", "V", "II", "I", "III", "IV", "II",
+  "I", "III"),
+  mortality = c(FALSE, "No", TRUE, "Yes", FALSE, TRUE, "No", FALSE, "Yes",
+  FALSE, TRUE, "No"),
+  risk = c("High", "High", "Moderate", "Moderate", "Low", "Low", "High",
+  "Moderate", "Low", "Moderate", "High", "Low")
+)
+
+# Run indicator 8 function
+traumar::seqic_indicator_8(
+  df = test_data,
+  level = trauma_level,
+  unique_incident_id = id,
+  mortality_indicator = mortality,
+  risk_group = risk
+)
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

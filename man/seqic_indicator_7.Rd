@@ -23,7 +23,7 @@ seqic_indicator_7(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -86,6 +86,29 @@ specified.
 \note{
 The user must ensure all columns are correctly passed and that time values
 are numeric and measured in minutes.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Create test data for Indicator 7
+test_data <- tibble::tibble(
+  id = as.character(1:10),
+  trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
+  time_to_arrival = c(200, 100, 220, 150, 400, 181, 90, 179, 240, 178),
+  transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No", "No")
+)
+
+# Run the indicator function
+traumar::seqic_indicator_7(
+  df = test_data,
+  level = trauma_level,
+  unique_incident_id = id,
+  time_from_injury_to_arrival = time_to_arrival,
+  transfer_out_indicator = transfer_out
+)
+
 }
 \author{
 Nicolas Foss Ed.D., MS

@@ -24,7 +24,7 @@ seqic_indicator_10(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -97,6 +97,53 @@ Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
 }
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Simulated data for SEQIC Indicator 10
+test_data <- tibble::tibble(
+  id = as.character(1:12),
+  trauma_level = c("I", "II", "III", "IV", "II", "I", "IV", "III", "II", "I",
+  "III", "IV"),
+  activation = c("Level 1", "Level 2", "None", "Consultation", "Level 1",
+  "Level 1", "None", "Level 3", "Level 1", "Consultation", "None", "Level
+  2"),
+  iss = c(25, 10, 16, 8, 30, 45, 12, 9, 28, 6, 17, 14),
+  nfti = c(TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE,
+  TRUE, TRUE),
+  region = rep(c("East", "West"), each = 6)
+)
+
+# Run the function, this will succeed
+traumar::seqic_indicator_10(
+  df = test_data,
+  level = trauma_level,
+  included_levels = c("I", "II", "III", "IV"),
+  unique_incident_id = id,
+  trauma_team_activation_level = activation,
+  iss = iss,
+  nfti = NULL,
+  groups = "region",
+  calculate_ci = "wilson"
+)
+
+# Run the function, this will fail
+try(
+  traumar::seqic_indicator_10(
+  df = test_data,
+  level = trauma_level,
+  included_levels = c("I", "II", "III", "IV"),
+  unique_incident_id = id,
+  trauma_team_activation_level = activation,
+  iss = iss,
+  nfti = nfti,
+  groups = "region",
+  calculate_ci = "wilson"
+))
+
+}
 \references{
 Beam G, Gorman K, Nannapaneni S, Zipf J, Simunich T, et al. (2022) Need for
 Trauma Intervention and Improving Under-Triaging in Geriatric Trauma
@@ -112,4 +159,7 @@ Roden-Foreman JW, Rapier NR, Yelverton L, Foreman ML. Asking a Better
 Question: Development and Evaluation of the Need For Trauma Intervention
 (NFTI) Metric as a Novel Indicator of Major Trauma. J Trauma Nurs. 2017
 May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.
+}
+\author{
+Nicolas Foss, Ed.D., MS
 }

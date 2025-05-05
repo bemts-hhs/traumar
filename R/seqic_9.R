@@ -110,6 +110,52 @@
 #'   \item{9f}: Delayed decision to discharge >2 hours
 #' }
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Simulated dataset for SEQIC Indicator 9
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:10),
+#'   trauma_level = c("I", "II", "III", "IV", "V", "II", "III", "IV", "I",
+#'   "II"),
+#'   transport = c("Ambulance", "Ambulance", "Private Vehicle", "Ambulance",
+#'   "Helicopter", "Ambulance", "Ambulance", "Ambulance", "Ambulance",
+#'   "Ambulance"),
+#'   activated = c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE,
+#'   FALSE),
+#'   ed_LOS = c(120, 180, 90, 60, 200, 130, 110, 160, 95, 220),
+#'   ed_decision = c(55, 125, 65, 30, 190, 80, 70, 45, 61, 130),
+#'   ed_discharge = c(130, 185, 110, 65, 150, 160, 95, 180, 70, 210),
+#'   transfer_out = c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE,
+#'   TRUE),
+#'   risk = c("High", "High", "Moderate", "Low", "Moderate", "Low",
+#'            "High", "Low", "Moderate", "High")
+#' )
+#'
+#' # Run the function, and store as a list object
+#' seqic_9_result <- traumar::seqic_indicator_9(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   included_levels = c("I", "II", "III", "IV"),
+#'   unique_incident_id = id,
+#'   transport_method = transport,
+#'   transfer_out_indicator = transfer_out,
+#'   ed_LOS = ed_LOS,
+#'   ed_decision_LOS = ed_decision,
+#'   ed_decision_discharge_LOS = ed_discharge,
+#'   trauma_team_activated = activated,
+#'   risk_group = risk
+#' )
+#'
+#' # Take a look at the overall output of the function
+#' seqic_9_result$overall |>
+#' tidyr::pivot_longer(cols = -1,
+#'                     names_to = "Indicator",
+#'                     values_to = "Values"
+#'                     )
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -151,13 +197,22 @@ seqic_indicator_9 <- function(
     ))
   }
 
-  # Validate the `unique_incident_id` column
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
-    cli::cli_abort(c(
-      "{.var unique_incident_id} must be character or factor.",
-      "i" = "Provided class: {.cls {class(incident_id_check)}}."
-    ))
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
+      )
+    )
   }
 
   # Validate that `transfer_out_indicator` is character, factor, or logical.
@@ -266,6 +321,20 @@ seqic_indicator_9 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
   # Get vector of transport methods as strings that will not be included
   excluded_transport_methods <- paste(
     "private vehicle",
@@ -287,13 +356,13 @@ seqic_indicator_9 <- function(
   seqic_9 <- list()
 
   ###___________________________________________________________________________
-  ### Initiate Calculations
+  ### Calculations
   ###___________________________________________________________________________
 
   # Get `df` with manipulations
   df_prep <- df |>
     dplyr::filter(
-      {{ level }} %in% included_levels,
+      {{ level }} %in% {{ included_levels }},
       {{ transfer_out_indicator }} %in% c("Yes", TRUE),
       !grepl(
         pattern = excluded_transport_methods_regex,

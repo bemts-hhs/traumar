@@ -23,7 +23,7 @@ seqic_indicator_5(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -92,6 +92,34 @@ of known substances. Matching is case-insensitive.
 Users must ensure input columns are correctly named and contain standardized
 values where applicable. Drug screen values should ideally use consistent
 naming or be mapped to recognizable substance terms prior to function use.
+}
+\examples{
+# Packages
+library(dplyr)
+library(traumar)
+
+# Create synthetic test data for Indicators 5a–5d
+test_data <- tibble::tibble(
+  id = as.character(1:10),
+  trauma_level = rep(c("I", "II", "III", "IV", "V"), each = 2),
+  bac = c(0.08, NA, 0, 0.02, NA, 0.15, NA, NA, 0, 0),
+  drug = c(
+    "opioid", "none", "cocaine", "none", NA,
+    "benzodiazepine", "alcohol", "thc", "none", NA
+  )
+)
+
+# Run the indicator function
+traumar::seqic_indicator_5(
+  df = test_data,
+  level = trauma_level,
+  unique_incident_id = id,
+  blood_alcohol_content = bac,
+  drug_screen = drug
+) |>
+  tidyr::pivot_longer(cols = -1, names_to = "Indicator", values_to =
+  "Values")
+
 }
 \author{
 Nicolas Foss, Ed.D., MS

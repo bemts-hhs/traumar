@@ -32,6 +32,29 @@
 #'   denominator, and performance rate for the indicator. 95% confidence intervals
 #'   are provided optionally.
 #'
+#' @examples
+#'
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Data
+#' data <- tibble::tibble(
+#'   incident_id = as.character(101:106),
+#'   trauma_level = c("I", "II", "III", "IV", "II", "I"),
+#'   incident_time = as.POSIXct(c("2023-01-01 12:00", NA, "2023-01-02 14:15",
+#'                                NA, "2023-01-03 09:30", "2023-01-04 16:45"))
+#' )
+#'
+#' # Run the function
+#' traumar::seqic_indicator_2(
+#'   df = data,
+#'   unique_incident_id = incident_id,
+#'   level = trauma_level,
+#'   incident_time = incident_time,
+#'   calculate_ci = "clopper-pearson"
+#' )
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -67,11 +90,12 @@ seqic_indicator_2 <- function(
   # validate `unique_incident_id`
   if (
     !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check)
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
   ) {
     cli::cli_abort(
       c(
-        "{.var unique_incident_id} must be of class {.cls character} or {.cls factor}.",
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
         "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
       )
     )
@@ -83,12 +107,15 @@ seqic_indicator_2 <- function(
 
   # validate `incident_time`
   if (
-    !is.character(incident_time_check) &&
-      !is.factor(incident_time_check)
+    !lubridate::is.POSIXct(incident_time_check) &&
+      !lubridate::is.POSIXlt(incident_time_check) &&
+      !hms::is_hms(incident_time_check) &&
+      !is.character(incident_time_check) &&
+      !inherits(incident_time_check, "hms")
   ) {
     cli::cli_abort(
       c(
-        "{.var incident_time} must be of class {.cls character} or {.cls factor}.",
+        "{.var incident_time} must be of class {.cls POSIXct}, {.cls POSIXlt}, {.cls hms}, or {.cls character}.",
         "i" = "{.var incident_time} was an object of class {.cls {class(incident_time_check)}}."
       )
     )
@@ -148,6 +175,24 @@ seqic_indicator_2 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
+
+  ###___________________________________________________________________________
+  ### Calculations
+  ###___________________________________________________________________________
+
   # Summarize the data for Indicator 2:
   # - Filter records to include only Level I–IV trauma centers.
   # - Remove duplicate incidents, keeping the first occurrence of each unique `unique_incident_id`.
@@ -157,7 +202,7 @@ seqic_indicator_2 <- function(
   #   - `seqic_2`: The proportion of incidents with missing `incident_time` (rounded to 3 decimal places).
   #   - Optionally, group results by columns specified in the `groups` argument.
   seqic_2 <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
+    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_2 = sum(is.na({{ incident_time }})), # Calculate the number of missing incident_time values.

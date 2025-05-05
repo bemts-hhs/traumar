@@ -61,6 +61,52 @@
 #'   ouputs.  The proportions in 10a, 10b, and 10c will optionally include
 #'   confidence intervals grouped by user-specified variables.
 #'
+#' @examples
+#' # Packages
+#' library(dplyr)
+#' library(traumar)
+#'
+#' # Simulated data for SEQIC Indicator 10
+#' test_data <- tibble::tibble(
+#'   id = as.character(1:12),
+#'   trauma_level = c("I", "II", "III", "IV", "II", "I", "IV", "III", "II", "I",
+#'   "III", "IV"),
+#'   activation = c("Level 1", "Level 2", "None", "Consultation", "Level 1",
+#'   "Level 1", "None", "Level 3", "Level 1", "Consultation", "None", "Level
+#'   2"),
+#'   iss = c(25, 10, 16, 8, 30, 45, 12, 9, 28, 6, 17, 14),
+#'   nfti = c(TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE,
+#'   TRUE, TRUE),
+#'   region = rep(c("East", "West"), each = 6)
+#' )
+#'
+#' # Run the function, this will succeed
+#' traumar::seqic_indicator_10(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   included_levels = c("I", "II", "III", "IV"),
+#'   unique_incident_id = id,
+#'   trauma_team_activation_level = activation,
+#'   iss = iss,
+#'   nfti = NULL,
+#'   groups = "region",
+#'   calculate_ci = "wilson"
+#' )
+#'
+#' # Run the function, this will fail
+#' try(
+#'   traumar::seqic_indicator_10(
+#'   df = test_data,
+#'   level = trauma_level,
+#'   included_levels = c("I", "II", "III", "IV"),
+#'   unique_incident_id = id,
+#'   trauma_team_activation_level = activation,
+#'   iss = iss,
+#'   nfti = nfti,
+#'   groups = "region",
+#'   calculate_ci = "wilson"
+#' ))
+#'
 #' @references
 #'
 #' Beam G, Gorman K, Nannapaneni S, Zipf J, Simunich T, et al. (2022) Need for
@@ -77,6 +123,8 @@
 #' Question: Development and Evaluation of the Need For Trauma Intervention
 #' (NFTI) Metric as a Novel Indicator of Major Trauma. J Trauma Nurs. 2017
 #' May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.
+#'
+#' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
 #'
@@ -113,13 +161,22 @@ seqic_indicator_10 <- function(
     ))
   }
 
-  # Validate the `unique_incident_id` column
-  incident_id_check <- df |> dplyr::pull({{ unique_incident_id }})
-  if (!is.character(incident_id_check) && !is.factor(incident_id_check)) {
-    cli::cli_abort(c(
-      "{.var unique_incident_id} must be character or factor.",
-      "i" = "Provided class: {.cls {class(incident_id_check)}}."
-    ))
+  # Make the `unique_incident_id` column accessible for validation.
+  unique_incident_id_check <- df |>
+    dplyr::pull({{ unique_incident_id }})
+
+  # Validate `unique_incident_id` to ensure it's either character or factor.
+  if (
+    !is.character(unique_incident_id_check) &&
+      !is.factor(unique_incident_id_check) &&
+      !is.numeric(unique_incident_id_check)
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
+        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
+      )
+    )
   }
 
   # Validate that `trauma_team_activation_level` is character, factor, or logical.
@@ -136,7 +193,7 @@ seqic_indicator_10 <- function(
   }
 
   # Validate that `iss` is numeric.
-  if (!rlang::is_empty(iss)) {
+  if (!rlang::quo_is_null(rlang::enquo(iss))) {
     iss_check <- df |> dplyr::pull({{ iss }})
     if (!is.numeric(iss_check)) {
       cli::cli_abort(c(
@@ -147,7 +204,7 @@ seqic_indicator_10 <- function(
   }
 
   # Validate that `nfti` is character, factor, or logical.
-  if (!is.null(nfti)) {
+  if (!rlang::quo_is_null(rlang::enquo(nfti))) {
     nfti_check <- df |> dplyr::pull({{ nfti }})
     if (
       !is.character(nfti_check) &&
@@ -192,6 +249,19 @@ seqic_indicator_10 <- function(
     calculate_ci <- attempt
   }
 
+  # Validate the `included_levels` argument
+  if (
+    !is.character({{ included_levels }}) &&
+      !is.numeric({{ included_levels }}) &&
+      !is.factor({{ included_levels }})
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
+        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+      )
+    )
+  }
   ###___________________________________________________________________________
   ### Data preparation
   ###___________________________________________________________________________
@@ -206,7 +276,7 @@ seqic_indicator_10 <- function(
   df_prep <- df |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::filter(
-      {{ level }} %in% included_levels
+      {{ level }} %in% {{ included_levels }}
     ) |>
     dplyr::mutate(
       # Define cases with highest-level activation (Level 1)
@@ -228,36 +298,59 @@ seqic_indicator_10 <- function(
     )
 
   # Dynamically classify patients using either ISS or NFTI logic
-  if (!rlang::is_empty(iss) && rlang::is_empty(nfti)) {
+  if (
+    !rlang::quo_is_null(rlang::enquo(iss)) &&
+      rlang::quo_is_null(rlang::enquo(nfti))
+  ) {
     df_prep <- df_prep |>
       dplyr::mutate(
         # Patients who should have had activation based on Cribari ISS > 15
         major_trauma = {{ iss }} > 15,
-        # Patients who clearly did not require activation (ISS < 9)
+        # Patients who clearly did not require activation (ISS <= 15)
         minor_trauma = {{ iss }} <= 15,
-        # Over triage = full activation and minor truama
+        # Over triage = full activation and minor trauma
         overtriage = full_activation & minor_trauma,
         # Under triage = limited-to-no activation and major trauma
         undertriage = limited_no_activation & major_trauma
       )
-  } else if (rlang::is_empty(iss) && !rlang::is_empty(nfti)) {
+  } else if (
+    rlang::quo_is_null(rlang::enquo(iss)) &&
+      !rlang::quo_is_null(rlang::enquo(nfti))
+  ) {
     df_prep <- df_prep |>
       dplyr::mutate(
         # Patients flagged by NFTI as needing activation
         major_trauma = {{ nfti }} %in% c("Positive", TRUE, "Yes"),
-        # Patients flagged by NFTI as not needing activation
+        # Patients flagged by NFTI as NOT needing activation
         minor_trauma = {{ nfti }} %in% c("Negative", FALSE, "No"),
+        # Over triage = full activation and minor trauma
         overtriage = full_activation & minor_trauma,
+        # Under triage = limited-to-no activation and major trauma
         undertriage = limited_no_activation & major_trauma
       )
+  } else {
+    # Fail clearly if both or neither triage criteria are supplied
+    cli::cli_abort(
+      "Please supply exactly one of {.var iss} or {.var nfti}, not both."
+    )
   }
 
   # Get an identifier of how the triage classification was performed
   # Determine triage logic source as a scalar
-  triage_logic_source <- if (!rlang::is_empty(nfti) && rlang::is_empty(iss)) {
+  triage_logic_source <- if (
+    !rlang::quo_is_null(rlang::enquo(nfti)) &&
+      rlang::quo_is_null(rlang::enquo(iss))
+  ) {
     "NFTI"
-  } else if (rlang::is_empty(nfti) && !rlang::is_empty(iss)) {
+  } else if (
+    rlang::quo_is_null(rlang::enquo(nfti)) &&
+      !rlang::quo_is_null(rlang::enquo(iss))
+  ) {
     "Cribari"
+  } else {
+    cli::cli_abort(
+      "Please supply exactly one of {.var iss} or {.var nfti}, not both."
+    )
   }
 
   ###___________________________________________________________________________
@@ -312,7 +405,7 @@ seqic_indicator_10 <- function(
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all major trauma cases
   # Numerator: major_trauma AND limited_no_activation
-  # This is Peng & Xiang's update to the Cribari method of calculating
+  # This is Peng & Xiang's (2016) update to the Cribari method of calculating
   # under triage
   seqic_10c <- df_prep |>
     dplyr::summarize(
@@ -334,8 +427,34 @@ seqic_indicator_10 <- function(
   # --- Model Diagnostic Testing ---
   # Cribari 2x2 matrix to produce model diagnostic tests
   # Based on methods in Peng & Xiang (2016)
+
+  # The following is from Table 1 in Peng & Xiang (2016)
+  # The Cribari matrix: Injury severity and trauma team activation.
+  #
+  #                            | Minor Trauma | Major Trauma |   Total
+  # ---------------------------|--------------|--------------|---------
+  # Full Trauma Team Activation|       a      |      b       |   a + b
+  # Limited/No Activation      |       c      |      d       |   c + d
+  # ---------------------------|--------------|--------------|---------
+  # Total                      |     a + c    |    b + d     |     N
+  #
+  # Common statistical terms used in diagnostic testing:
+  #
+  # Sensitivity              = b / (b + d)
+  # Specificity              = c / (a + c)
+  #
+  # False Negative Rate (FNR) = d / (b + d)      # 1 - Sensitivity
+  # False Positive Rate (FPR) = a / (a + c)      # 1 - Specificity
+  #
+  # Positive Predictive Value (PPV) = b / (a + b)
+  # Negative Predictive Value (NPV) = c / (c + d)
+  #
+  # False Discovery Rate (FDR) = a / (a + b)     # 1 - PPV
+  # False Omission Rate (FOR)  = d / (c + d)     # 1 - NPV
+
   diagnostics <- df_prep |>
     dplyr::summarize(
+      # Calculate the key confusion matrix values
       a = sum(full_activation & minor_trauma, na.rm = TRUE), # False Positive
       b = sum(full_activation & major_trauma, na.rm = TRUE), # True Positive
       c = sum(limited_no_activation & minor_trauma, na.rm = TRUE), # True Negative
@@ -343,24 +462,41 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     ) |>
     dplyr::mutate(
-      triage_logic = triage_logic_source,
+      # Total number of classified records
+      # N here is total records not missing classification information
       N = a + b + c + d,
+
+      # Sensitivity = b / (b + d)
       sensitivity = dplyr::if_else((b + d) > 0, b / (b + d), NA_real_),
+
+      # Specificity = c / (a + c)
       specificity = dplyr::if_else((a + c) > 0, c / (a + c), NA_real_),
+
+      # Positive Predictive Value (PPV) = b / (a + b)
       positive_predictive_value = dplyr::if_else(
         (a + b) > 0,
         b / (a + b),
         NA_real_
       ),
+
+      # Negative Predictive Value (NPV) = c / (c + d)
       negative_predictive_value = dplyr::if_else(
         (c + d) > 0,
         c / (c + d),
         NA_real_
       ),
-      false_negative_rate = dplyr::if_else((b + d) > 0, d / (b + d), NA_real_), # 1 - sensitivity
-      false_positive_rate = dplyr::if_else((a + c) > 0, a / (a + c), NA_real_), # 1 - specificity
-      false_discovery_rate = dplyr::if_else((a + b) > 0, a / (a + b), NA_real_), # 1 - positive predictive value
-      false_omission_rate = dplyr::if_else((c + d) > 0, d / (c + d), NA_real_) # 1 - negative predictive value
+
+      # False Negative Rate (FNR) = d / (b + d); 1 - Sensitivity
+      false_negative_rate = dplyr::if_else((b + d) > 0, d / (b + d), NA_real_),
+
+      # False Positive Rate (FPR) = a / (a + c); 1 - Specificity
+      false_positive_rate = dplyr::if_else((a + c) > 0, a / (a + c), NA_real_),
+
+      # False Discovery Rate (FDR) = a / (a + b); 1 - Positive Predictive Value
+      false_discovery_rate = dplyr::if_else((a + b) > 0, a / (a + b), NA_real_),
+
+      # False Omission Rate (FOR) = d / (c + d); 1 - Negative Predictive Value
+      false_omission_rate = dplyr::if_else((c + d) > 0, d / (c + d), NA_real_)
     )
 
   # Optionally compute confidence intervals

@@ -45,7 +45,7 @@ following service types:
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{included_levels}.}
+include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -94,8 +94,8 @@ This function filters and summarizes trauma records to calculate
 SEQIC Indicators 1a through 1f:
 \itemize{
 \item 1a: Proportion of Level 1 activations at Level I/II centers with
-surgical response ≤ 15 minutes.
-\item 1b: Same as 1a, but includes Level III centers and uses ≤ 30 minutes.
+surgical response <= 15 minutes.
+\item 1b: Same as 1a, but includes Level III centers and uses <= 30 minutes.
 \item 1c: Proportion of Level 1 activations with missing surgical response
 time.
 \item 1d/e: Response within 5 and 20 minutes, respectively, for specific
@@ -120,6 +120,41 @@ times and within thresholds.
 Users must ensure appropriate column names are passed and data is
 pre-processed to include the necessary fields without missing critical
 identifiers or timestamps.
+}
+\examples{
+
+# Packages
+library(dplyr)
+library(traumar)
+
+# Data
+data <- tibble::tibble(
+  incident_id = 1:6,
+  activation_level = c("Level 1", "Level 1", "Level 2", "Level 1", "Level 2",
+  "Level 1"),
+  provider_type = c("Surgery/Trauma", "Emergency Medicine", "Physician
+  Assistant", "Surgery/Trauma", "Surgery/Trauma", "Family Practice"),
+  trauma_level = c("I", "II", "III", "I", "III", "IV"),
+  response_minutes = c(12, 25, 6, NA, 18, 22),
+  provider = c("Dr. A", "Dr. B", "PA C", "Dr. D", "Dr. E", "NP F")
+)
+
+# Run the function
+traumar::seqic_indicator_1(
+  df = data,
+  trauma_team_activation_level = activation_level,
+  trauma_team_physician_service_type = provider_type,
+  level = trauma_level,
+  unique_incident_id = incident_id,
+  response_time = response_minutes,
+  trauma_team_activation_provider = provider,
+  calculate_ci = "wilson"
+) |>
+tidyr::pivot_longer(cols = -1,
+                    names_to = "Indicator",
+                    values_to = "Values"
+                    )
+
 }
 \author{
 Nicolas Foss, Ed.D., MS
