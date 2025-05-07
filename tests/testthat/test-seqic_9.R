@@ -413,19 +413,19 @@ testthat::test_that("CI computation for seqic_indicator_9() returns expected col
     "upper_ci_9f_all"
   )
 
-  testthat::expect_true(all(expected_ci_cols %in% colnames(result$seqic_9_all)))
+  testthat::expect_true(all(expected_ci_cols %in% colnames(result$overall)))
 
   # Confirm all CI columns are numeric
   for (col in expected_ci_cols) {
-    testthat::expect_type(result$seqic_9_all[[col]], "double")
+    testthat::expect_type(result$overall[[col]], "double")
   }
 
   # Confirm no NA CIs when denominators are non-zero
-  numerators <- result$seqic_9_all |>
+  numerators <- result$overall |>
     dplyr::select(dplyr::starts_with("numerator_")) |>
     purrr::map_lgl(~ all(.x >= 0))
 
-  denominators <- result$seqic_9_all |>
+  denominators <- result$overall |>
     dplyr::select(dplyr::starts_with("denominator_")) |>
     purrr::map_lgl(~ all(.x > 0))
 
