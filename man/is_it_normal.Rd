@@ -10,8 +10,7 @@ is_it_normal(
   ...,
   group_vars = NULL,
   seed = 10232015,
-  normality_test = c("shapiro-wilk", "kolmogorov-smirnov", "anderson-darling",
-    "lilliefors", "cramer-von mises", "pearson", "shapiro-francia"),
+  normality_test = NULL,
   include_plots = FALSE,
   plot_theme = traumar::theme_cleaner
 )
@@ -32,7 +31,8 @@ Default is \code{10232015}.}
 \item{normality_test}{A character string specifying the statistical test to
 use. Must be one of: \verb{"shapiro-wilk" or "shapiro" or "sw"},
 \verb{"kolmogorov-smirnov" or "ks"}, \verb{"anderson-darling" or "ad"}, \verb{"lilliefors" or "lilli"}, \verb{"cramer-von-mises" or "cvm"}, \verb{"pearson" or "p"}, or
-\verb{"shapiro-francia" or "sf"}. If \code{NULL}, no normality test is performed.}
+\verb{"shapiro-francia" or "sf"}. If \code{NULL}, no normality test is performed,
+which is the default.}
 
 \item{include_plots}{Logical. If \code{TRUE}, plots are generated for a single
 variable. Plotting is disabled if multiple variables are passed.}
@@ -55,9 +55,9 @@ variable.}
 
 \code{is_it_normal()} calculates descriptive statistics and conducts univariate
 normality testing on one or more numeric variables in a dataset using a
-selected statistical test. Optional plots are included for one variable at a
-time, only. Results are returned as a named list containing summaries and,
-optionally, diagnostic plots.
+selected statistical test. Optional plots are included for one or more
+variables. Results are returned as a named list containing summaries,
+normality tests, and diagnostic plots depending on user inputs.
 }
 \details{
 \itemize{
@@ -84,6 +84,10 @@ these tests in the corresponding documentation.
 \item Pearson (\code{norest::pearson.test()})
 \item Shapiro-Francia (\code{nortest::sf.test()})
 }
+
+Please note that if grouped plotting is enabled, each group will generate its
+own set of plots. This may flood your IDE or console. Plan your use of this
+functionality with care to avoid lags or unwanted outputs.
 }
 \author{
 Nicolas Foss, Ed.D., MS

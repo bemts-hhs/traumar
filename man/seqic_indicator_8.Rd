@@ -34,8 +34,9 @@ like \code{TRUE}/\code{FALSE} or \code{"Yes"}/\code{"No"}.}
 \item{risk_group}{A character or factor column indicating the patient's risk
 group (e.g., "High", "Moderate", "Low"). See risk definitions below.}
 
-\item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
+\item{groups}{Additional columns passed as a vector of strings to
+\code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
+to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"

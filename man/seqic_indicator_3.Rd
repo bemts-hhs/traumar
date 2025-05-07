@@ -33,8 +33,9 @@ filters out "Burn" cases.}
 \item{probability_of_survival}{A column name for the probability of survival
 for each incident.}
 
-\item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
+\item{groups}{Additional columns passed as a vector of strings to
+\code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
+to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"

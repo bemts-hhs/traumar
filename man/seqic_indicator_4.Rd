@@ -47,8 +47,9 @@ measured in minutes.}
 \item{autopsy}{Unquoted column name indicating whether an autopsy was
 performed. Expected values: \code{"Yes"} or \code{NA}.}
 
-\item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
+\item{groups}{Additional columns passed as a vector of strings to
+\code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
+to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"

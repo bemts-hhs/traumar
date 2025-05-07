@@ -74,11 +74,11 @@ seqic_indicator_2 <- function(
   ###___________________________________________________________________________
 
   # validate `df`
-  if (!is.data.frame(df) && tibble::is_tibble(df)) {
+  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
     cli::cli_abort(
       c(
         "{.var df} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var df} was an object of class {.cls {class(df}}."
+        "i" = "{.var df} was an object of class {.cls {class(df)}}."
       )
     )
   }
@@ -135,11 +135,13 @@ seqic_indicator_2 <- function(
   }
 
   # Check if all elements in groups are strings (i.e., character vectors)
-  if (!all(sapply(groups, is.character))) {
-    cli::cli_abort(c(
-      "All elements in {.var groups} must be strings.",
-      "i" = "You passed a {.cls {class(groups)}} variable to {.var groups}."
-    ))
+  if (!is.null(groups)) {
+    if (!is.character(groups)) {
+      cli::cli_abort(c(
+        "All elements in {.var groups} must be strings.",
+        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
+      ))
+    }
   }
 
   # Check if all groups exist in the `df`
@@ -177,14 +179,14 @@ seqic_indicator_2 <- function(
 
   # Validate the `included_levels` argument
   if (
-    !is.character({{ included_levels }}) &&
-      !is.numeric({{ included_levels }}) &&
-      !is.factor({{ included_levels }})
+    !is.character(included_levels) &&
+      !is.numeric(included_levels) &&
+      !is.factor(included_levels)
   ) {
     cli::cli_abort(
       c(
         "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
       )
     )
   }
@@ -202,7 +204,7 @@ seqic_indicator_2 <- function(
   #   - `seqic_2`: The proportion of incidents with missing `incident_time` (rounded to 3 decimal places).
   #   - Optionally, group results by columns specified in the `groups` argument.
   seqic_2 <- df |>
-    dplyr::filter({{ level }} %in% {{ included_levels }}) |>
+    dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(
       numerator_2 = sum(is.na({{ incident_time }})), # Calculate the number of missing incident_time values.

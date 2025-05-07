@@ -46,8 +46,9 @@ Glasgow Coma Scale score less than 9. Logical, character, or factor type.}
 in minutes from injury occurrence to arrival at the trauma center. Numeric
 type.}
 
-\item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
+\item{groups}{Additional columns passed as a vector of strings to
+\code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
+to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"

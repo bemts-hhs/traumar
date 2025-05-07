@@ -28,8 +28,9 @@ include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{incident_time}{The time the patient's injury occurred.}
 
-\item{groups}{Additional columns passed as strings to \code{dplyr::summarize()}
-via the \code{.by} argument for grouped summaries. Defaults to \code{NULL}.}
+\item{groups}{Additional columns passed as a vector of strings to
+\code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
+to \code{NULL}.}
 
 \item{calculate_ci}{If \code{NULL}, 95\% confidence intervals will not be
 calculated for the performance estimates.  Otherwise, options of "wilson"

@@ -40,8 +40,9 @@
 #'   to provider response.
 #' @param trauma_team_activation_provider Column identifying the responding
 #'   provider for trauma activation.
-#' @param groups Additional columns passed as strings to `dplyr::summarize()`
-#'   via the `.by` argument for grouped summaries. Defaults to `NULL`.
+#' @param groups Additional columns passed as a vector of strings to
+#'   `dplyr::summarize()` via the `.by` argument for grouped summaries. Defaults
+#'   to `NULL`.
 #' @param calculate_ci If `NULL`, 95% confidence intervals will not be
 #'   calculated for the performance estimates.  Otherwise, options of "wilson"
 #'   or "clopper-pearson" can be supplied to utilize the corresponding methods
@@ -139,11 +140,11 @@ seqic_indicator_1 <- function(
   ###___________________________________________________________________________
 
   # validate `df`
-  if (!is.data.frame(df) && tibble::is_tibble(df)) {
+  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
     cli::cli_abort(
       c(
         "{.var df} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var df} was an object of class {.cls {class(df}}."
+        "i" = "{.var df} was an object of class {.cls {class(df)}}."
       )
     )
   }
@@ -244,11 +245,13 @@ seqic_indicator_1 <- function(
   }
 
   # Check if all elements in groups are strings (i.e., character vectors)
-  if (!all(sapply(groups, is.character))) {
-    cli::cli_abort(c(
-      "All elements in {.var groups} must be strings.",
-      "i" = "You passed a {.cls {class(groups)}} variable to {.var groups}."
-    ))
+  if (!is.null(groups)) {
+    if (!is.character(groups)) {
+      cli::cli_abort(c(
+        "All elements in {.var groups} must be strings.",
+        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
+      ))
+    }
   }
 
   # Check if all groups exist in the `df`
@@ -286,14 +289,14 @@ seqic_indicator_1 <- function(
 
   # Validate the `included_levels` argument
   if (
-    !is.character({{ included_levels }}) &&
-      !is.numeric({{ included_levels }}) &&
-      !is.factor({{ included_levels }})
+    !is.character(included_levels) &&
+      !is.numeric(included_levels) &&
+      !is.factor(included_levels)
   ) {
     cli::cli_abort(
       c(
         "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
       )
     )
   }
@@ -433,22 +436,24 @@ seqic_indicator_1 <- function(
       dplyr::full_join(seqic_1c, by = dplyr::join_by(!!!rlang::syms(groups)))
   }
 
+  # Create a provider group string vector to clean up code
+  provider_group_1de <- c(
+    "Surgery/Trauma",
+    "Emergency Medicine",
+    "Family Practice",
+    "Nurse Practitioner",
+    "Physician Assistant",
+    "Surgery Senior Resident",
+    "Hospitalist",
+    "Internal Medicine"
+  )
+
   # Indicators 1d and 1e – Broader provider group, Level I-IV centers.
   # 1d: Arrival within 5 minutes; 1e: Arrival within 20 minutes.
   seqic_1de <- df |>
     dplyr::filter(
       {{ trauma_team_activation_level }} %in% c("Level 1", "Level 2"),
-      {{ trauma_team_physician_service_type }} %in%
-        c(
-          "Surgery/Trauma",
-          "Emergency Medicine",
-          "Family Practice",
-          "Nurse Practitioner",
-          "Physician Assistant",
-          "Surgery Senior Resident",
-          "Hospitalist",
-          "Internal Medicine"
-        ),
+      {{ trauma_team_physician_service_type }} %in% provider_group_1de,
       {{ level }} %in% {{ included_levels }}
     ) |>
     dplyr::group_by({{ unique_incident_id }}) |>
@@ -504,17 +509,7 @@ seqic_indicator_1 <- function(
   seqic_1f <- df |>
     dplyr::filter(
       {{ trauma_team_activation_level }} %in% c("Level 1", "Level 2"),
-      {{ trauma_team_physician_service_type }} %in%
-        c(
-          "Surgery/Trauma",
-          "Emergency Medicine",
-          "Family Practice",
-          "Nurse Practitioner",
-          "Physician Assistant",
-          "Surgery Senior Resident",
-          "Hospitalist",
-          "Internal Medicine"
-        ),
+      {{ trauma_team_physician_service_type }} %in% provider_group_1de,
       {{ level }} %in% {{ included_levels }}
     ) |>
     dplyr::distinct(

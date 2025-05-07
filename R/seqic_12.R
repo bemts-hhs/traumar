@@ -173,18 +173,51 @@ seqic_indicator_12 <-
       )
     }
 
+    # Check if all elements in groups are strings (i.e., character vectors)
+    if (!is.null(groups)) {
+      if (!is.character(groups)) {
+        cli::cli_abort(c(
+          "All elements in {.var groups} must be strings.",
+          "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
+        ))
+      }
+    }
+
+    # Check if all groups exist in the `df`
+    if (!all(groups %in% names(df))) {
+      invalid_vars <- groups[!groups %in% names(df)]
+      cli::cli_abort(
+        "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
+      )
+    }
+
     # Validate the `included_levels` argument
     if (
-      !is.character({{ included_levels }}) &&
-        !is.numeric({{ included_levels }}) &&
-        !is.factor({{ included_levels }})
+      !is.character(included_levels) &&
+        !is.numeric(included_levels) &&
+        !is.factor(included_levels)
     ) {
       cli::cli_abort(
         c(
           "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-          "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+          "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
         )
       )
+    }
+
+    # Validate confidence interval method
+    if (!is.null(calculate_ci)) {
+      attempt <- try(
+        match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
+        silent = TRUE
+      )
+      if (inherits(attempt, "try-error")) {
+        cli::cli_abort(c(
+          "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
+          "i" = "Provided value: {.val {calculate_ci}}"
+        ))
+      }
+      calculate_ci <- attempt
     }
 
     # define excluded facilities
@@ -211,7 +244,7 @@ seqic_indicator_12 <-
 
     seqic_12 <- df |>
       # Filter for designated trauma centers only (Levels defined by user)
-      dplyr::filter({{ level }} %in% {{ included_levels }}) |>
+      dplyr::filter({{ level }} %in% included_levels) |>
 
       # Exclude any user-specified facilities from the analysis
       dplyr::filter(!{{ facility_id }} %in% exclude_facility_list) |>

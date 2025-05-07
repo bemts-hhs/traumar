@@ -160,18 +160,51 @@ seqic_indicator_13 <-
       )
     }
 
+    # Check if all elements in groups are strings (i.e., character vectors)
+    if (!is.null(groups)) {
+      if (!is.character(groups)) {
+        cli::cli_abort(c(
+          "All elements in {.var groups} must be strings.",
+          "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
+        ))
+      }
+    }
+
+    # Check if all groups exist in the `df`
+    if (!all(groups %in% names(df))) {
+      invalid_vars <- groups[!groups %in% names(df)]
+      cli::cli_abort(
+        "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
+      )
+    }
+
     # Validate the `included_levels` argument
     if (
-      !is.character({{ included_levels }}) &&
-        !is.numeric({{ included_levels }}) &&
-        !is.factor({{ included_levels }})
+      !is.character(included_levels) &&
+        !is.numeric(included_levels) &&
+        !is.factor(included_levels)
     ) {
       cli::cli_abort(
         c(
           "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-          "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+          "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
         )
       )
+    }
+
+    # Validate confidence interval method
+    if (!is.null(calculate_ci)) {
+      attempt <- try(
+        match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
+        silent = TRUE
+      )
+      if (inherits(attempt, "try-error")) {
+        cli::cli_abort(c(
+          "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
+          "i" = "Provided value: {.val {calculate_ci}}"
+        ))
+      }
+      calculate_ci <- attempt
     }
 
     ###_________________________________________________________________________
@@ -181,7 +214,7 @@ seqic_indicator_13 <-
     seqic_13 <- df |>
       # Filter the dataset to include only records from facilities matching
       # the trauma levels specified in `included_levels` (default: I–IV).
-      dplyr::filter({{ level }} %in% {{ included_levels }}) |>
+      dplyr::filter({{ level }} %in% included_levels) |>
 
       # Deduplicate the dataset to ensure each trauma incident is represented
       # only once. This is essential to avoid overcounting when calculating proportions.

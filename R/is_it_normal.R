@@ -9,7 +9,7 @@
 #' normality testing on one or more numeric variables in a dataset using a
 #' selected statistical test. Optional plots are included for one variable at a
 #' time, only. Results are returned as a named list containing summaries and,
-#' optionally, diagnostic plots.
+#' optionally, normality tests and/or diagnostic plots.
 #'
 #' @param df A `data.frame` or `tibble` containing the variables to assess.
 #' @param ... One or more unquoted column names from `df` to be analyzed.
@@ -23,7 +23,8 @@
 #'   use. Must be one of: `"shapiro-wilk" or "shapiro" or "sw"`,
 #'   `"kolmogorov-smirnov" or "ks"`, `"anderson-darling" or "ad"`, `"lilliefors"
 #'   or "lilli"`, `"cramer-von-mises" or "cvm"`, `"pearson" or "p"`, or
-#'   `"shapiro-francia" or "sf"`. If `NULL`, no normality test is performed.
+#'   `"shapiro-francia" or "sf"`. If `NULL`, no normality test is performed,
+#'   which is the default.
 #' @param include_plots Logical. If `TRUE`, plots are generated for a single
 #'   variable. Plotting is disabled if multiple variables are passed.
 #' @param plot_theme A `ggplot2::theme` function to apply to all plots. Default
@@ -64,6 +65,10 @@
 #' \item Shapiro-Francia (`nortest::sf.test()`)
 #'}
 #'
+#' Please note that if grouped plotting is enabled, each group will generate its
+#' own set of plots. This may flood your IDE or console. Plan your use of this
+#' functionality with care to avoid lags or unwanted outputs.
+#'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 #' @export
@@ -72,18 +77,14 @@ is_it_normal <- function(
   ...,
   group_vars = NULL,
   seed = 10232015,
-  normality_test = c(
-    "shapiro-wilk",
-    "kolmogorov-smirnov",
-    "anderson-darling",
-    "lilliefors",
-    "cramer-von mises",
-    "pearson",
-    "shapiro-francia"
-  ),
+  normality_test = NULL,
   include_plots = FALSE,
   plot_theme = traumar::theme_cleaner
 ) {
+  ###___________________________________________________________________________
+  ### Data validation
+  ###___________________________________________________________________________
+
   # Validate the `df` argument
   if (!is.data.frame(df) && !tibble::is_tibble(df)) {
     cli::cli_abort(c(
@@ -569,17 +570,6 @@ is_it_normal <- function(
 
       # Line separator to make output clean
       cli::cli_rule()
-
-      # Interaction with the user to ensure they want to proceed
-      proceed <- readline(
-        prompt = glue::glue(
-          "Do you want to continue plotting all groups? (yes/no): "
-        )
-      )
-      if (tolower(proceed) != "yes") {
-        output_list$plots <- NULL
-        return(output_list)
-      }
 
       ###_______________________________________________________________________
       ### Plotting functionality

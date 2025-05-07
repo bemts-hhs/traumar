@@ -218,20 +218,22 @@ seqic_indicator_10 <- function(
     }
   }
 
-  # Validate `groups` argument
+  # Check if all elements in groups are strings (i.e., character vectors)
   if (!is.null(groups)) {
-    if (!all(sapply(groups, is.character))) {
+    if (!is.character(groups)) {
       cli::cli_abort(c(
-        "All elements in {.var groups} must be character strings.",
-        "i" = "Provided object: {.cls {class(groups)}}."
+        "All elements in {.var groups} must be strings.",
+        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
       ))
     }
-    if (!all(groups %in% names(df))) {
-      invalid_vars <- groups[!groups %in% names(df)]
-      cli::cli_abort(
-        "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
-      )
-    }
+  }
+
+  # Check if all groups exist in the `df`
+  if (!all(groups %in% names(df))) {
+    invalid_vars <- groups[!groups %in% names(df)]
+    cli::cli_abort(
+      "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
+    )
   }
 
   # Validate confidence interval method
@@ -251,14 +253,14 @@ seqic_indicator_10 <- function(
 
   # Validate the `included_levels` argument
   if (
-    !is.character({{ included_levels }}) &&
-      !is.numeric({{ included_levels }}) &&
-      !is.factor({{ included_levels }})
+    !is.character(included_levels) &&
+      !is.numeric(included_levels) &&
+      !is.factor(included_levels)
   ) {
     cli::cli_abort(
       c(
         "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class({{ included_levels }})}}."
+        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
       )
     )
   }
@@ -276,7 +278,7 @@ seqic_indicator_10 <- function(
   df_prep <- df |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::filter(
-      {{ level }} %in% {{ included_levels }}
+      {{ level }} %in% included_levels
     ) |>
     dplyr::mutate(
       # Define cases with highest-level activation (Level 1)
