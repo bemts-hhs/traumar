@@ -1,3 +1,5 @@
+# traumar 1.2.0
+
 # traumar 1.1.0
 
 ## New Features
