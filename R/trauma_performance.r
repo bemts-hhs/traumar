@@ -1,4 +1,7 @@
-#' Calculate Trauma Hospital Performance Based on Robust and Validated Measures
+#' @title Calculate Trauma Hospital Performance Based on Robust and Validated
+#'   Measures
+#'
+#' @description
 #'
 #' This function calculates trauma hospital performance based on the M, W, and Z
 #' scores, which are derived from survival probability and mortality data, using
@@ -30,49 +33,90 @@
 #'   information about the W, M, and Z scores will be printed to the console.
 #'
 #' @return A tibble containing the following calculations:
-#'
-#' - `N_Patients`: The total number of patients included in the analysis.
-#' - `N_Survivors`: The total number of patients who survived, based on the provided outcome data.
-#' - `N_Deaths`: The total number of patients who died, based on the provided outcome data.
-#' - `Predicted_Survivors`: The total predicted number of survivors based on the
-#' survival probability (`Ps`) for all patients.
-#' - `Predicted_Deaths`: The total predicted number of deaths, calculated as `1 - Ps` for all patients.
-#' - `Patient_Estimate`: The estimated number of patients who survived, calculated based
-#' on the W-score. This value reflects the difference between the actual and
-#' predicted number of survivors.
-#' - `W_Score`: The W-score, representing the difference between the observed and expected
-#' number of survivors per 100 patients. A positive W-score indicates that more
-#' patients survived than expected, while a negative score indicates that fewer
-#' patients survived than expected.
-#' - `M_Score`: The M-score, which compares the observed patient case mix to the Major Trauma
-#' Outcomes Study (MTOS) case mix. A higher score indicates that the patient mix
-#' is more similar to MTOS, while a lower score indicates a dissimilar mix. Based on the MTOS
-#' literature, an M_Score >= 0.88 indicates that the Z_Score comes from distribution similar
-#' enough to the MTOS Ps distribution.
-#' - `Z_Score`: The Z-score, which quantifies the difference between the actual and predicted
-#' mortality (if `z_method = "mortality"`) or survival (if `z_method =
-#' "survival"`). A Z-score > 1.96 is considered to point to the statistical
-#' significance of the W-Score at alpha = 0.05 level for survival. The positive
-#' Z_Score indicates that more patients survived than predicted, while a
-#' negative Z-score indicates fewer survivors than predicted.
+#' \itemize{
+#' \item `N_Patients`: The total number of patients included in the analysis.
+#' \item `N_Survivors`: The total number of patients who survived, based on the
+#' provided outcome data.
+#' \item `N_Deaths`: The total number of patients who died, based on the
+#' provided outcome data.
+#' \item `Predicted_Survivors`: The total predicted number of survivors based on
+#' the survival probability (`Ps`) for all patients.
+#' \item `Predicted_Deaths`: The total predicted number of deaths, calculated as
+#' `1 - Ps` for all patients.
+#' \item `Patient_Estimate`: The estimated number of patients who survived,
+#' calculated based on the W-score. This value reflects the difference between
+#' the actual and predicted number of survivors.
+#' \item `W_Score`: The W-score, representing the difference between the
+#' observed and expected number of survivors per 100 patients. A positive
+#' W-score indicates that more patients survived than expected, while a negative
+#' score indicates that fewer patients survived than expected.
+#' \item `M_Score`: The M-score, which compares the observed patient case mix to
+#' the Major Trauma Outcomes Study (MTOS) case mix. A higher score indicates
+#' that the patient mix is more similar to MTOS, while a lower score indicates a
+#' dissimilar mix. Based on the MTOS literature, an M_Score >= 0.88 indicates
+#' that the Z_Score comes from distribution similar enough to the MTOS Ps
+#' distribution.
+#' \item `Z_Score`: The Z-score, which quantifies the difference between the
+#' actual and predicted mortality (if `z_method = "mortality"`) or survival (if
+#' `z_method = "survival"`). A Z-score > 1.96 is considered to point to the
+#' statistical significance of the W-Score at alpha = 0.05 level for survival.
+#' The positive Z_Score indicates that more patients survived than predicted,
+#' while a negative Z-score indicates fewer survivors than predicted.
+#'}
 #'
 #' @examples
-#' # Generate example data with high negative skewness
+#' # Generate example data
 #' set.seed(123)
 #'
 #' # Parameters
-#' n_patients <- 10000  # Total number of patients
+#' # Total number of patients
+#' n_patients <- 5000
 #'
-#' # Generate survival probabilities (Ps) using a logistic distribution
-#' set.seed(123)  # For reproducibility
-#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+#' # Arbitrary group labels
+#' groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+#'
+#' # Trauma types
+#' trauma_type_values <- sample(
+#'   x = c("Blunt", "Penetrating"),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # RTS values
+#' rts_values <- sample(
+#'   x = seq(from = 0, to = 7.8408, by = 0.005),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # patient ages
+#' ages <- sample(
+#'   x = seq(from = 0, to = 100, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # ISS scores
+#' iss_scores <- sample(
+#'   x = seq(from = 0, to = 75, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # Generate survival probabilities (Ps)
+#' Ps <- traumar::probability_of_survival(
+#'   trauma_type = trauma_type_values,
+#'   age = ages,
+#'   rts = rts_values,
+#'   iss = iss_scores
+#' )
 #'
 #' # Simulate survival outcomes based on Ps
 #' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 #'
 #' # Create data frame
-#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+#'   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
 #' # Calculate trauma performance (W, M, Z scores)
 #' trauma_performance(data, Ps_col = Ps, outcome_col = death)
@@ -81,8 +125,14 @@
 #'
 #' @author Nicolas Foss, Ed.D., MS
 #'
-trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = c("survival", "mortality"), diagnostics = FALSE) {
-
+trauma_performance <- function(
+  df,
+  Ps_col,
+  outcome_col,
+  outcome = 1,
+  z_method = c("survival", "mortality"),
+  diagnostics = FALSE
+) {
   if (length(z_method) > 1) {
     z_method <- "survival"
   }
@@ -104,8 +154,13 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
   # Validate binary data
   unique_values <- unique(stats::na.omit(binary_data))
 
-  if (!all(unique_values %in% c(0, 1, TRUE, FALSE), na.rm = T) || length(unique_values) > 2) {
-    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
+  if (
+    !all(unique_values %in% c(0, 1, TRUE, FALSE), na.rm = T) ||
+      length(unique_values) > 2
+  ) {
+    cli::cli_abort(
+      "The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure."
+    )
   }
 
   # Check if Ps column is numeric
@@ -120,12 +175,16 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
   if (any(Ps_data < 0 | Ps_data > 100, na.rm = T)) {
-    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 100.")
+    cli::cli_abort(
+      "The probability of survival (Ps) values must be between 0 and 100."
+    )
   }
 
   # Notify the user if any conversions were made and manipulate the data if necessary
   if (any(Ps_data > 1, na.rm = T)) {
-    cli::cli_alert_info("Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format.")
+    cli::cli_alert_info(
+      "Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format."
+    )
 
     # Convert ##.## format to decimal if needed (rowwise operation but vectorized)
     Ps_data <- dplyr::if_else(Ps_data > 1, Ps_data / 100, Ps_data)
@@ -150,7 +209,9 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
 
   # Number of patients who died
   total_deaths <- df |>
-    dplyr::filter(!is.na(!!Ps_col) & !is.na(!!outcome_col) & (!!outcome_col == outcome)) |>
+    dplyr::filter(
+      !is.na(!!Ps_col) & !is.na(!!outcome_col) & (!!outcome_col == outcome)
+    ) |>
     nrow()
 
   # Sum of Ps values for the patients
@@ -164,18 +225,28 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
 
   ### Initiate process to calculate M-score
 
-  Ps_range_order <- c("0.96 - 1.00", "0.91 - 0.95", "0.76 - 0.90", "0.51 - 0.75", "0.26 - 0.50", "0.00 - 0.25")
+  Ps_range_order <- c(
+    "0.96 - 1.00",
+    "0.91 - 0.95",
+    "0.76 - 0.90",
+    "0.51 - 0.75",
+    "0.26 - 0.50",
+    "0.00 - 0.25"
+  )
 
   # Define the MTOS Ps distribution
   MTOS_distribution <- tibble::tibble(
-    Ps_range = factor(c(
-      "0.96 - 1.00",
-      "0.91 - 0.95",
-      "0.76 - 0.90",
-      "0.51 - 0.75",
-      "0.26 - 0.50",
-      "0.00 - 0.25"
-    ), levels = Ps_range_order),
+    Ps_range = factor(
+      c(
+        "0.96 - 1.00",
+        "0.91 - 0.95",
+        "0.76 - 0.90",
+        "0.51 - 0.75",
+        "0.26 - 0.50",
+        "0.00 - 0.25"
+      ),
+      levels = Ps_range_order
+    ),
     MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
   )
 
@@ -226,15 +297,16 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
     # get Z-Score, studying mortality (negative Z-Score is desired)
     Z_score <- z_data |>
       dplyr::summarize(
-        z_score = (total_deaths - sum(prob_death)) / sqrt(sum(predicted_prob_death)) # standard error of
+        z_score = (total_deaths - sum(prob_death)) /
+          sqrt(sum(predicted_prob_death)) # standard error of
       ) |>
       dplyr::pull(z_score)
   } else if (z_method == "survival") {
     # get Z-Score, studying mortality (positive Z-Score is desired)
     Z_score <- z_data |>
       dplyr::summarize(
-        z_score =
-          (total_survivors - sum(!!Ps_col)) / sqrt(sum(predicted_prob_death))
+        z_score = (total_survivors - sum(!!Ps_col)) /
+          sqrt(sum(predicted_prob_death))
       ) |>
       dplyr::pull(z_score)
   }
@@ -246,59 +318,131 @@ trauma_performance <- function(df, Ps_col, outcome_col, outcome = 1, z_method = 
     cli::cli_h1("Trauma Program Performance Summary")
 
     # print critical information about the calculations
-    cli::cli_alert_info("The numbers involved in the overall calculations below are:")
+    cli::cli_alert_info(
+      "The numbers involved in the overall calculations below are:"
+    )
     cli::cli_text("{symbol$arrow_right} Total patients = {total_patients}")
     cli::cli_text("{symbol$arrow_right} Total survivors = {total_survivors}")
     cli::cli_text("{symbol$arrow_right} Total deaths = {total_deaths}")
-    cli::cli_text("{symbol$arrow_right} Predicted survivors = {round(sum_Ps, digits = 2)}")
-    cli::cli_text("{symbol$arrow_right} Predicted deaths = {round(sum(probability_death), digits = 2)}")
+    cli::cli_text(
+      "{symbol$arrow_right} Predicted survivors = {round(sum_Ps, digits = 2)}"
+    )
+    cli::cli_text(
+      "{symbol$arrow_right} Predicted deaths = {round(sum(probability_death), digits = 2)}"
+    )
 
     cli::cli_h2("W-Score Information: Trauma Program Performance:")
 
     # get dynamic diagnostic text W-Score
     if (W_score > 0) {
-      cli::cli_alert_success("W-Score was estimated as {.val {round(W_score, digits = 2)}}.")
-      cli::cli_alert_info(c("i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ", cli::col_blue("more"), " patients survived than were expected."))
-      cli::cli_alert_info(c("v" = "The estimated number of patients saved that were ", cli::col_blue("statistically expected to die"), " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."))
+      cli::cli_alert_success(
+        "W-Score was estimated as {.val {round(W_score, digits = 2)}}."
+      )
+      cli::cli_alert_info(c(
+        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
+        cli::col_blue("more"),
+        " patients survived than were expected."
+      ))
+      cli::cli_alert_info(c(
+        "v" = "The estimated number of patients saved that were ",
+        cli::col_blue("statistically expected to die"),
+        " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."
+      ))
     } else if (W_score < 0) {
-      cli::cli_alert_warning("W-Score was estimated as {.val {round(W_score, digits = 2)}}.")
-      cli::cli_alert_info(c("i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ", cli::col_blue("fewer"), " patients survived than were expected."))
-      cli::cli_alert_info(c("v" = "The estimated number of patients lost that were ", cli::col_blue("statistically expected to live"), " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."))
+      cli::cli_alert_warning(
+        "W-Score was estimated as {.val {round(W_score, digits = 2)}}."
+      )
+      cli::cli_alert_info(c(
+        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
+        cli::col_blue("fewer"),
+        " patients survived than were expected."
+      ))
+      cli::cli_alert_info(c(
+        "v" = "The estimated number of patients lost that were ",
+        cli::col_blue("statistically expected to live"),
+        " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."
+      ))
     } else {
-      cli::cli_alert_danger("W-Score was estimated as {.val {round(W_score, digits = 2)}}.  This result could indicate a problem with the data passed to {.fn trauma_performance}. Please check the data and ensure proper filters are applied and appropriate data types used.")
+      cli::cli_alert_danger(
+        "W-Score was estimated as {.val {round(W_score, digits = 2)}}.  This result could indicate a problem with the data passed to {.fn trauma_performance}. Please check the data and ensure proper filters are applied and appropriate data types used."
+      )
 
-      cli::cli_alert_info(c("i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ", cli::col_blue("more"), " patients survived than were expected."))
+      cli::cli_alert_info(c(
+        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
+        cli::col_blue("more"),
+        " patients survived than were expected."
+      ))
     }
 
-    cli::cli_h2("M-Score Information: Current Trauma Population Similarity to the Major Trauma Study Population:")
+    cli::cli_h2(
+      "M-Score Information: Current Trauma Population Similarity to the Major Trauma Study Population:"
+    )
 
     # get dynamic diagnostic text M-Score
     if (M_score >= 0.88) {
-      cli::cli_alert_success("M-Score was estimated as {.val {round(M_score, digits = 2)}}.")
-      cli::cli_alert_info(c("i" = "The patient case mix is considered ", cli::col_green("SIMILAR"), " to the Major Trauma Outcomes Study (MTOS) case mix."))
+      cli::cli_alert_success(
+        "M-Score was estimated as {.val {round(M_score, digits = 2)}}."
+      )
+      cli::cli_alert_info(c(
+        "i" = "The patient case mix is considered ",
+        cli::col_green("SIMILAR"),
+        " to the Major Trauma Outcomes Study (MTOS) case mix."
+      ))
     } else {
-      cli::cli_alert_warning("M-Score was estimated as {.val {round(M_score, digits = 2)}}.")
-      cli::cli_alert_info(c("i" = "The patient case mix is considered ", cli::col_red("DISSIMILAR"), " to the MTOS case mix."))
+      cli::cli_alert_warning(
+        "M-Score was estimated as {.val {round(M_score, digits = 2)}}."
+      )
+      cli::cli_alert_info(c(
+        "i" = "The patient case mix is considered ",
+        cli::col_red("DISSIMILAR"),
+        " to the MTOS case mix."
+      ))
     }
 
-    cli::cli_h2("Z-Score Information: Difference Between Actual and Predicted {str_to_title(z_method)}:")
+    cli::cli_h2(
+      "Z-Score Information: Difference Between Actual and Predicted {str_to_title(z_method)}:"
+    )
 
     # Inference here based on Peitzman et al. (1990)
     if (z_method == "mortality") {
       if (Z_score < 0) {
-        cli::cli_alert_success("Z-Score was estimated as {.val {round(Z_score, digits = 2)}}.")
-        cli::cli_alert_info(c("i" = "Significantly ", cli::col_green("fewer"), " deaths occurred compared to predicted deaths."))
+        cli::cli_alert_success(
+          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
+        )
+        cli::cli_alert_info(c(
+          "i" = "Significantly ",
+          cli::col_green("fewer"),
+          " deaths occurred compared to predicted deaths."
+        ))
       } else if (Z_score > 0) {
-        cli::cli_alert_warning("Z-Score was estimated as {.val {round(Z_score, digits = 2)}}.")
-        cli::cli_alert_info(c("i" = "Significantly ", cli::col_red("more"), " deaths occurred compared to predicted deaths."))
+        cli::cli_alert_warning(
+          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
+        )
+        cli::cli_alert_info(c(
+          "i" = "Significantly ",
+          cli::col_red("more"),
+          " deaths occurred compared to predicted deaths."
+        ))
       }
     } else if (z_method == "survival") {
       if (Z_score > 0) {
-        cli::cli_alert_success("Z-Score was estimated as {.val {round(Z_score, digits = 2)}}.")
-        cli::cli_alert_info(c("i" = "Significantly ", cli::col_green("more"), " patients survived compared to predicted survivors."))
+        cli::cli_alert_success(
+          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
+        )
+        cli::cli_alert_info(c(
+          "i" = "Significantly ",
+          cli::col_green("more"),
+          " patients survived compared to predicted survivors."
+        ))
       } else if (Z_score < 0) {
-        cli::cli_alert_warning("Z-Score was estimated as {.val {round(Z_score, digits = 2)}}.")
-        cli::cli_alert_info(c("i" = "Significantly ", cli::col_red("fewer"), " patients survived compared to predicted survivors."))
+        cli::cli_alert_warning(
+          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
+        )
+        cli::cli_alert_info(c(
+          "i" = "Significantly ",
+          cli::col_red("fewer"),
+          " patients survived compared to predicted survivors."
+        ))
       }
     }
   } else {

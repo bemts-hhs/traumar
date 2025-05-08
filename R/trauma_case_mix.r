@@ -1,5 +1,7 @@
-#' View the Current Patient Population Case Mix Compared to the Major Trauma
-#' Study Case Mix
+#' @title View the Current Patient Population Case Mix Compared to the Major
+#'   Trauma Study Case Mix
+#'
+#' @description
 #'
 #' This function compares the current patient population's case mix (based on
 #' probability of survival, Ps) to the MTOS case mix by binning patients into
@@ -25,22 +27,58 @@
 #'   range.
 #'
 #' @examples
-#' # Generate example data with high negative skewness
+#' # Generate example data
 #' set.seed(123)
 #'
 #' # Parameters
-#' n_patients <- 10000  # Total number of patients
+#' # Total number of patients
+#' n_patients <- 5000
 #'
-#' # Generate survival probabilities (Ps) using a logistic distribution
-#' set.seed(123)  # For reproducibility
-#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+#' # Arbitrary group labels
+#' groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+#'
+#' # Trauma types
+#' trauma_type_values <- sample(
+#'   x = c("Blunt", "Penetrating"),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # RTS values
+#' rts_values <- sample(
+#'   x = seq(from = 0, to = 7.8408, by = 0.005),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # patient ages
+#' ages <- sample(
+#'   x = seq(from = 0, to = 100, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # ISS scores
+#' iss_scores <- sample(
+#'   x = seq(from = 0, to = 75, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # Generate survival probabilities (Ps)
+#' Ps <- traumar::probability_of_survival(
+#'   trauma_type = trauma_type_values,
+#'   age = ages,
+#'   rts = rts_values,
+#'   iss = iss_scores
+#' )
 #'
 #' # Simulate survival outcomes based on Ps
 #' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 #'
 #' # Create data frame
-#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+#'   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
 #' # Compare the current case mix with the MTOS case mix
 #' trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
@@ -50,7 +88,6 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 trauma_case_mix <- function(df, Ps_col, outcome_col) {
-
   # Evaluate column names passed in
   Ps_col <- rlang::enquo(Ps_col)
   outcome_col <- rlang::enquo(outcome_col)
@@ -67,10 +104,10 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
 
   binary_col <- length(unique(stats::na.omit(binary_data)))
 
-  if(binary_col > 2 | binary_col < 2) {
-
-    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, 'Yes'/'No', etc.  Check the column and ensure a binary structure.")
-
+  if (binary_col > 2 | binary_col < 2) {
+    cli::cli_abort(
+      "The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, 'Yes'/'No', etc.  Check the column and ensure a binary structure."
+    )
   }
 
   # Check if Ps column is numeric
@@ -81,12 +118,16 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
   if (any(Ps_data < 0 | Ps_data > 100, na.rm = T)) {
-    cli::cli_abort("The input probability of survival (Ps) values must be between 0 and 100.")
+    cli::cli_abort(
+      "The input probability of survival (Ps) values must be between 0 and 100."
+    )
   }
 
   # Notify the user if any conversions were made
   if (any(Ps_data > 1, na.rm = T)) {
-    cli::cli_alert_info("Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format.")
+    cli::cli_alert_info(
+      "Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format."
+    )
   }
 
   # Convert ##.## format to decimal if needed (rowwise operation but vectorized)
@@ -94,21 +135,34 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
   if (any(Ps_data < 0 | Ps_data > 1, na.rm = T)) {
-    cli::cli_abort("The rescaled probability of survival (Ps) values must be between 0 and 1.")
+    cli::cli_abort(
+      "The rescaled probability of survival (Ps) values must be between 0 and 1."
+    )
   }
 
-  Ps_range_order <- c("0.96 - 1.00", "0.91 - 0.95", "0.76 - 0.90", "0.51 - 0.75", "0.26 - 0.50", "0.00 - 0.25")
+  Ps_range_order <- c(
+    "0.96 - 1.00",
+    "0.91 - 0.95",
+    "0.76 - 0.90",
+    "0.51 - 0.75",
+    "0.26 - 0.50",
+    "0.00 - 0.25"
+  )
 
   # Define the MTOS Ps distribution
-  MTOS_distribution <- tibble::tibble(Ps_range = factor(c("0.96 - 1.00",
-                                                          "0.91 - 0.95",
-                                                          "0.76 - 0.90",
-                                                          "0.51 - 0.75",
-                                                          "0.26 - 0.50",
-                                                          "0.00 - 0.25"
-  ), levels = Ps_range_order
-  ),
-  MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
+  MTOS_distribution <- tibble::tibble(
+    Ps_range = factor(
+      c(
+        "0.96 - 1.00",
+        "0.91 - 0.95",
+        "0.76 - 0.90",
+        "0.51 - 0.75",
+        "0.26 - 0.50",
+        "0.00 - 0.25"
+      ),
+      levels = Ps_range_order
+    ),
+    MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
   )
 
   # Bin patients into Ps ranges and calculate current fractions
@@ -125,12 +179,12 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
         TRUE ~ "0.00 - 0.25"
       )
     ) |>
-    dplyr::summarize(current_fraction = dplyr::n() / nrow(df),
-                     .by = Ps_range
+    dplyr::summarize(
+      current_fraction = dplyr::n() / nrow(df),
+      .by = Ps_range
     ) |>
     dplyr::left_join(MTOS_distribution, by = "Ps_range") |>
     dplyr::arrange(Ps_range)
 
   return(fractions_set)
-
 }

@@ -429,7 +429,7 @@ seqic_indicator_1 <- function(
       seqic_1b,
       seqic_1c
     ) |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_1a")
+      tibble::add_column(data = "population/sample", .before = "numerator_1a")
   } else {
     seqic_1abc <- seqic_1a |>
       dplyr::full_join(seqic_1b, by = dplyr::join_by(!!!rlang::syms(groups))) |>
@@ -548,7 +548,7 @@ seqic_indicator_1 <- function(
   if (is.null(groups)) {
     seqic_1def <- dplyr::bind_cols(seqic_1de, seqic_1f) |>
       tibble::add_column(
-        Data = "Population/Sample",
+        data = "population/sample",
         .before = "numerator_1d"
       )
   } else {

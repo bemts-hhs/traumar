@@ -300,7 +300,7 @@ seqic_indicator_11 <- function(
   # - If no grouping is applied, label the data as "Population/Sample".
   if (is.null(groups)) {
     seqic_11 <- seqic_11 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_11") # Add the label column.
+      tibble::add_column(data = "population/sample", .before = "numerator_11") # Add the label column.
   } else if (!is.null(groups)) {
     seqic_11 <- seqic_11 |>
       dplyr::arrange(!!!rlang::syms(groups))

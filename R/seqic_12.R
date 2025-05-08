@@ -286,7 +286,7 @@ seqic_indicator_12 <-
     # Add population label or group if applicable
     if (is.null(groups)) {
       seqic_12 <- seqic_12 |>
-        tibble::add_column(Data = "Population/Sample", .before = "numerator_12")
+        tibble::add_column(data = "population/sample", .before = "numerator_12")
     } else {
       seqic_12 <- seqic_12 |>
         dplyr::arrange(!!!rlang::syms(groups))

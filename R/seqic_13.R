@@ -8,8 +8,8 @@
 #' @param validity_score Numeric. The proportion of each trauma registry record
 #'   that is valid, expressed as a percentage (0–100). Typically calculated by
 #'   the registry system.
-#' @param validity Numeric. The minimum acceptable validity percentage threshold
-#'   for records to be counted in the numerator. Defaults to `85`.
+#' @param validity_threshold Numeric. The minimum acceptable validity percentage
+#'   threshold for records to be counted in the numerator. Defaults to `85`.
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
 #'
 #' @details
@@ -150,7 +150,7 @@ seqic_indicator_13 <-
       )
     }
 
-    # Validate that validity_score is numeric
+    # Validate that validity_threshold is numeric
     if (!is.numeric({{ validity_threshold }})) {
       cli::cli_abort(
         c(
@@ -269,7 +269,7 @@ seqic_indicator_13 <-
     # - If no grouping is applied, label the data as "Population/Sample".
     if (is.null(groups)) {
       seqic_13 <- seqic_13 |>
-        tibble::add_column(Data = "Population/Sample", .before = "numerator_13") # Add the label column.
+        tibble::add_column(data = "population/sample", .before = "numerator_13") # Add the label column.
     } else if (!is.null(groups)) {
       seqic_13 <- seqic_13 |>
         dplyr::arrange(!!!rlang::syms(groups))

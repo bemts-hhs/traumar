@@ -3,11 +3,12 @@
 #' @description
 #' Calculates the proportion of EMS-transferred trauma patients who experienced
 #' delayed transfer from the emergency department (ED) based on disposition and
-#' decision-to-transfer timeframes. This includes both overall rates and
+#' decision-to-transfer time frames. This includes both overall rates and
 #' stratified results by trauma team activation status, with optional confidence
 #' intervals.
 #'
 #' @inheritParams seqic_indicator_1
+#' @inheritParams seqic_indicator_4
 #' @inheritParams seqic_indicator_5
 #' @inheritParams seqic_indicator_6
 #' @inheritParams seqic_indicator_8
@@ -43,7 +44,8 @@
 #'   \item Returns a summarized tibble with the number of delayed cases
 #'   (numerator), eligible records (denominator), and the proportion for each
 #'   delay threshold.
-#'   \item Optionally includes 95% confidence intervals if `calculate_ci = TRUE`.
+#'   \item Optionally includes 95% confidence intervals if `calculate_ci =
+#'   TRUE`.
 #' }
 #'
 #' @note
@@ -55,32 +57,12 @@
 #' apply alternative risk stratification methods if preferred.
 #'
 #' \itemize{
-#'   \item Abnormal Physiology Criteria:
-#'     \itemize{
-#'       \item GCS 3–5
-#'       \item Respirations <5 or >30 per minute
-#'       \item Systolic BP <60 mm Hg
-#'     }
-#'   \item Risk Group Definitions:
-#'     \itemize{
-#'       \item High Risk:
-#'         \itemize{
-#'           \item Probability of Survival < 0.2, OR
-#'           \item ISS > 41, OR
-#'           \item ISS > 24 with abnormal physiology
-#'         }
-#'       \item Moderate Risk:
-#'         \itemize{
-#'           \item Probability of Survival 0.2–0.5, OR
-#'           \item ISS 16–41
-#'         }
-#'       \item Low Risk:
-#'         \itemize{
-#'           \item Probability of Survival > 0.5, OR
-#'           \item ISS < 16, OR
-#'           \item Normal physiology
-#'         }
-#'     }
+#'   \item Abnormal Physiology Criteria: GCS 3–5; Respirations <5 or >30 per
+#'   minute; Systolic BP <60 mm Hg
+#'   \item High Risk: Probability of Survival < 0.2; ISS > 41; ISS > 24 with
+#'   abnormal physiology
+#'   \item Moderate Risk: Probability of Survival 0.2–0.5; ISS 16–41
+#'   \item Low Risk: Probability of Survival > 0.5; ISS < 16; Normal physiology
 #' }
 #'
 #' Users must ensure appropriate column names are passed and data is
@@ -1103,14 +1085,14 @@ seqic_indicator_9 <- function(
   # Label output or arrange by grouping vars
   if (is.null(groups)) {
     seqic_9$overall <- seqic_9_all |>
-      tibble::add_column(Data = "Population/Sample", .before = 1)
+      tibble::add_column(data = "population/sample", .before = 1)
     seqic_9$activations <- seqic_9_activations |>
-      tibble::add_column(Data = "Population/Sample TTA Groups", .before = 1)
+      tibble::add_column(data = "population/sample TTA groups", .before = 1)
     seqic_9$risk_groups <- seqic_9_risk |>
-      tibble::add_column(Data = "Population/Sample Risk Groups", .before = 1)
+      tibble::add_column(data = "population/sample risk groups", .before = 1)
     seqic_9$activations_risk_groups <- seqic_9_activations_risk |>
       tibble::add_column(
-        Data = "Population/Sample TTA and Risk Groups",
+        data = "population/sample TTA and risk groups",
         .before = 1
       )
   } else {

@@ -12,9 +12,9 @@ testthat::test_that("seqic_indicator_2() validates `df` input type", {
 
 testthat::test_that("seqic_indicator_2() validates `unique_incident_id` column type", {
   df <- tibble::tibble(
-    incident_id = 1,
+    incident_id = logical(length = 1),
     trauma_level = "I",
-    incident_time = 12345 # invalid type
+    incident_time = Sys.time() # invalid type
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
@@ -249,6 +249,6 @@ testthat::test_that("seqic_indicator_2 returns label if not grouped", {
     incident_time = incident_time
   )
 
-  testthat::expect_true("Data" %in% names(result))
-  testthat::expect_equal(result$Data, "Population/Sample")
+  testthat::expect_true("data" %in% names(result))
+  testthat::expect_equal(result$data, "population/sample")
 })

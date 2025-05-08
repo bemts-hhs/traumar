@@ -2,7 +2,8 @@
 % Please edit documentation in R/trauma_performance.r
 \name{trauma_performance}
 \alias{trauma_performance}
-\title{Calculate Trauma Hospital Performance Based on Robust and Validated Measures}
+\title{Calculate Trauma Hospital Performance Based on Robust and Validated
+Measures}
 \usage{
 trauma_performance(
   df,
@@ -43,28 +44,33 @@ information about the W, M, and Z scores will be printed to the console.}
 A tibble containing the following calculations:
 \itemize{
 \item \code{N_Patients}: The total number of patients included in the analysis.
-\item \code{N_Survivors}: The total number of patients who survived, based on the provided outcome data.
-\item \code{N_Deaths}: The total number of patients who died, based on the provided outcome data.
-\item \code{Predicted_Survivors}: The total predicted number of survivors based on the
-survival probability (\code{Ps}) for all patients.
-\item \code{Predicted_Deaths}: The total predicted number of deaths, calculated as \code{1 - Ps} for all patients.
-\item \code{Patient_Estimate}: The estimated number of patients who survived, calculated based
-on the W-score. This value reflects the difference between the actual and
-predicted number of survivors.
-\item \code{W_Score}: The W-score, representing the difference between the observed and expected
-number of survivors per 100 patients. A positive W-score indicates that more
-patients survived than expected, while a negative score indicates that fewer
-patients survived than expected.
-\item \code{M_Score}: The M-score, which compares the observed patient case mix to the Major Trauma
-Outcomes Study (MTOS) case mix. A higher score indicates that the patient mix
-is more similar to MTOS, while a lower score indicates a dissimilar mix. Based on the MTOS
-literature, an M_Score >= 0.88 indicates that the Z_Score comes from distribution similar
-enough to the MTOS Ps distribution.
-\item \code{Z_Score}: The Z-score, which quantifies the difference between the actual and predicted
-mortality (if \code{z_method = "mortality"}) or survival (if \code{z_method = "survival"}). A Z-score > 1.96 is considered to point to the statistical
-significance of the W-Score at alpha = 0.05 level for survival. The positive
-Z_Score indicates that more patients survived than predicted, while a
-negative Z-score indicates fewer survivors than predicted.
+\item \code{N_Survivors}: The total number of patients who survived, based on the
+provided outcome data.
+\item \code{N_Deaths}: The total number of patients who died, based on the
+provided outcome data.
+\item \code{Predicted_Survivors}: The total predicted number of survivors based on
+the survival probability (\code{Ps}) for all patients.
+\item \code{Predicted_Deaths}: The total predicted number of deaths, calculated as
+\code{1 - Ps} for all patients.
+\item \code{Patient_Estimate}: The estimated number of patients who survived,
+calculated based on the W-score. This value reflects the difference between
+the actual and predicted number of survivors.
+\item \code{W_Score}: The W-score, representing the difference between the
+observed and expected number of survivors per 100 patients. A positive
+W-score indicates that more patients survived than expected, while a negative
+score indicates that fewer patients survived than expected.
+\item \code{M_Score}: The M-score, which compares the observed patient case mix to
+the Major Trauma Outcomes Study (MTOS) case mix. A higher score indicates
+that the patient mix is more similar to MTOS, while a lower score indicates a
+dissimilar mix. Based on the MTOS literature, an M_Score >= 0.88 indicates
+that the Z_Score comes from distribution similar enough to the MTOS Ps
+distribution.
+\item \code{Z_Score}: The Z-score, which quantifies the difference between the
+actual and predicted mortality (if \code{z_method = "mortality"}) or survival (if
+\code{z_method = "survival"}). A Z-score > 1.96 is considered to point to the
+statistical significance of the W-Score at alpha = 0.05 level for survival.
+The positive Z_Score indicates that more patients survived than predicted,
+while a negative Z-score indicates fewer survivors than predicted.
 }
 }
 \description{
@@ -77,22 +83,58 @@ Champion et al. (1990) on the W score, and Flora (1978) and Boyd et al.
 (1987) on the M and Z scores.
 }
 \examples{
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-# Generate survival probabilities (Ps) using a logistic distribution
-set.seed(123)  # For reproducibility
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Calculate trauma performance (W, M, Z scores)
 trauma_performance(data, Ps_col = Ps, outcome_col = death)

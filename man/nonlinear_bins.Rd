@@ -60,7 +60,7 @@ decedents, respectively.
 respectively.
 \item \code{alive}, \code{dead}: Count of observed survivors and non-survivors.
 \item \code{count}: Total records in the bin.
-\item \code{percent}: Percentage of records within each bin.
+\item \code{percent}: Percentage of total records within each bin.
 }
 }
 }
@@ -80,33 +80,69 @@ handle \code{NA} values and throw a warning about missing probability of surviva
 values, if any exist in \code{Ps_col}.
 }
 \examples{
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-# Skewed towards higher values
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
-survival_outcomes <- rbinom(n_patients,
-                            size = 1,
-                            prob = Ps
-                            )
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Apply the nonlinear_bins function
-results <- nonlinear_bins(data = data,
-                          Ps_col = Ps,
-                          outcome_col = survival,
-                          divisor1 = 5,
-                          divisor2 = 5,
-                          threshold_1 = 0.9,
-                          threshold_2 = 0.99)
+results <- nonlinear_bins(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  divisor1 = 4,
+  divisor2 = 4,
+  threshold_1 = 0.9,
+  threshold_2 = 0.99
+)
 
 # View results
 results$intervals
@@ -118,11 +154,12 @@ results$bin_stats
 data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
 
 # Run the function using a single grouping variable
-results_grouped <- nonlinear_bins(data,
-                                  Ps_col = Ps,
-                                  outcome_col = survival,
-                                  group_vars = "group"
-                                  )
+results_grouped <- nonlinear_bins(
+  data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  group_vars = "group"
+)
 
 # View grouped results
 results_grouped$bin_stats
@@ -146,7 +183,7 @@ Prehospital Emergency Care, 23(2), 254–262.
 \url{doi:10.1080/10903127.2018.1489021}
 }
 \seealso{
-\code{\link[=rmm]{rmm()}}, and \code{\link[=rm_bin_summary]{rm_bin_summary()}}
+\code{\link[=probability_of_survival]{probability_of_survival()}}, \code{\link[=rmm]{rmm()}}, and \code{\link[=rm_bin_summary]{rm_bin_summary()}}
 }
 \author{
 Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas

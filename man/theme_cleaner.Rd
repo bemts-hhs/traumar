@@ -99,13 +99,20 @@ and legend position for maximum control over the appearance.
 library(ggplot2)
 ggplot(mtcars, aes(x = mpg, y = wt)) +
   geom_point() +
-  theme_cleaner(base_size = 14, title_text_size = 16, legend_position = "bottom")
+  theme_cleaner(
+    base_size = 14,
+    title_text_size = 16,
+    legend_position = "bottom"
+  )
 
 # Customize facet plots with theme_cleaner
 ggplot(mtcars, aes(x = mpg, y = wt)) +
   geom_point() +
   facet_wrap(~cyl) +
-  theme_cleaner(facets = TRUE, facet_text_size = 12, draw_panel_border = TRUE)
+  theme_cleaner(facets = TRUE,
+  facet_text_size = 12,
+  draw_panel_border = TRUE
+  )
 
 }
 \author{

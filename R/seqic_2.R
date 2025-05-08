@@ -29,8 +29,8 @@
 #' identifiers or timestamps.
 #'
 #' @return A tibble summarizing SEQIC Indicator 2 results. Includes numerator,
-#'   denominator, and performance rate for the indicator. 95% confidence intervals
-#'   are provided optionally.
+#'   denominator, and performance rate for the indicator. 95% confidence
+#'   intervals are provided optionally.
 #'
 #' @examples
 #'
@@ -240,7 +240,7 @@ seqic_indicator_2 <- function(
   # - If no grouping is applied, label the data as "Population/Sample".
   if (is.null(groups)) {
     seqic_2 <- seqic_2 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_2") # Add the label column.
+      tibble::add_column(data = "population/sample", .before = "numerator_2") # Add the label column.
   } else if (!is.null(groups)) {
     seqic_2 <- seqic_2 |>
       dplyr::arrange(!!!rlang::syms(groups))

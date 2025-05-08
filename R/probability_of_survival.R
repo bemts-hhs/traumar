@@ -1,4 +1,6 @@
-#' Calculate Probability of Survival Using TRISS Method
+#' @title Calculate Probability of Survival Using TRISS Method
+#'
+#' @description
 #'
 #' This function calculates the probability of survival (Ps) for trauma patients
 #' based on the Trauma and Injury Severity Score (TRISS) methodology. TRISS
@@ -32,6 +34,7 @@
 #'   ISS = c(10, 25)
 #' )
 #'
+#' # Run the function on example data
 #' result <- trauma_data |>
 #'   dplyr::mutate(Ps = probability_of_survival(
 #'     trauma_type = Trauma_Type,
@@ -40,43 +43,56 @@
 #'     iss = ISS
 #'   ))
 #'
+#' # Print the result
+#' result
+#'
 probability_of_survival <- function(trauma_type, age, rts, iss) {
-
   # Check trauma_type
   if (!is.character(trauma_type) && !is.factor(trauma_type)) {
-    cli::cli_abort("The {.var trauma_type} column must be of type {.cls character} or {.cls factor}.")
+    cli::cli_abort(
+      "The {.var trauma_type} column must be of type {.cls character} or {.cls factor}."
+    )
   }
 
   # Check for valid values in trauma_type, ignoring NA
   valid_trauma_types <- c("Blunt", "Penetrating", "Burn")
-  if (!all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))) {
-    cli::cli_warn("The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'.")
+  if (
+    !all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))
+  ) {
+    cli::cli_warn(
+      "The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'."
+    )
   }
 
   # Warn about 'Burn' and missing values
   if (any(trauma_type %in% "Burn", na.rm = TRUE) | any(is.na(trauma_type))) {
-    cli::cli_warn("The {.var trauma_type} column contains missing and/or 'Burn' values. These records will not receive a probability of survival calculation.")
+    cli::cli_warn(
+      "The {.var trauma_type} column contains missing and/or 'Burn' values. These records will not receive a probability of survival calculation."
+    )
   }
 
   # Check age
   if (any(age < 0, na.rm = TRUE)) {
-    cli::cli_warn(c("Negative values detected in the {.var age} column.",
-                    "i" = "{.var age} must be a non-negative {.cls numeric} value."
-                    ))
+    cli::cli_warn(c(
+      "Negative values detected in the {.var age} column.",
+      "i" = "{.var age} must be a non-negative {.cls numeric} value."
+    ))
   }
 
   # Check rts
   if (any(rts < 0 | rts > 7.84, na.rm = TRUE)) {
-    cli::cli_warn(c("Negative values detected in the {.var rts} column.",
-                    "i" = "{.var rts} must be a {.cls numeric} value between 0 and 7.84."
-                    ))
+    cli::cli_warn(c(
+      "Negative values detected in the {.var rts} column.",
+      "i" = "{.var rts} must be a {.cls numeric} value between 0 and 7.84."
+    ))
   }
 
   # Check iss
   if (any(iss < 0 | iss > 75, na.rm = TRUE)) {
-    cli::cli_warn(c("{.var iss} values less than 0 or greater than 75 were detected.",
-                     "i" = "{.var iss} must be a {.cls numeric} value between 0 and 75."
-                     ))
+    cli::cli_warn(c(
+      "{.var iss} values less than 0 or greater than 75 were detected.",
+      "i" = "{.var iss} must be a {.cls numeric} value between 0 and 75."
+    ))
   }
 
   # perform calculation
@@ -102,8 +118,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     )
   )
 
-  survival_calc <- round(1 / (1 + exp(-b)), digits = 3)
+  survival_calc <- 1 / (1 + exp(-b))
 
   return(survival_calc)
-
 }

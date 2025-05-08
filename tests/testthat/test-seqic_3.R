@@ -157,7 +157,7 @@ testthat::test_that("seqic_indicator_3: basic logic", {
   testthat::expect_s3_class(res, "tbl_df")
   testthat::expect_named(
     res,
-    c("Data", "numerator_3", "denominator_3", "seqic_3")
+    c("data", "numerator_3", "denominator_3", "seqic_3")
   )
   testthat::expect_equal(res$numerator_3, 4)
   testthat::expect_equal(res$denominator_3, 4) # burn cases excluded

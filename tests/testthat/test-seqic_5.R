@@ -158,7 +158,7 @@ testthat::test_that("seqic_indicator_5() computes indicators correctly", {
   testthat::expect_named(
     object = result,
     expected = c(
-      'Data',
+      'data',
       'numerator_5a',
       'denominator_5a',
       'seqic_5a',

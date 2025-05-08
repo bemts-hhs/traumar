@@ -55,9 +55,9 @@ variable.}
 
 \code{is_it_normal()} calculates descriptive statistics and conducts univariate
 normality testing on one or more numeric variables in a dataset using a
-selected statistical test. Optional plots are included for one or more
-variables. Results are returned as a named list containing summaries,
-normality tests, and diagnostic plots depending on user inputs.
+selected statistical test. Optional plots are included for one variable at a
+time, only. Results are returned as a named list containing summaries and,
+optionally, normality tests and/or diagnostic plots.
 }
 \details{
 \itemize{

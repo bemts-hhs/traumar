@@ -47,8 +47,8 @@
 #' identifiers or timestamps.
 #'
 #' @return A tibble summarizing SEQIC Indicator 4a and 4b results. Includes
-#'   numerator, denominator, and performance rate for the indicator. 95% confidence
-#'   intervals are provided optionally.
+#'   numerator, denominator, and performance rate for the indicator. 95%
+#'   confidence intervals are provided optionally.
 #'
 #' @examples
 #' # Packages
@@ -360,7 +360,7 @@ seqic_indicator_4 <- function(
       seqic_4a,
       seqic_4b
     ) |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_4a")
+      tibble::add_column(data = "population/sample", .before = "numerator_4a")
   } else {
     seqic_4 <- seqic_4a |>
       dplyr::full_join(seqic_4b, by = dplyr::join_by(!!!rlang::syms(groups))) |>

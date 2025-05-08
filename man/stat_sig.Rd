@@ -7,11 +7,12 @@
 stat_sig(p_val_data)
 }
 \arguments{
-\item{p_val_data}{A numeric vector representing the p-values to be categorized.
-The vector should contain p-values between 0 and 1.}
+\item{p_val_data}{A numeric vector representing the p-values to be
+categorized. The vector should contain p-values between 0 and 1.}
 }
 \value{
-A character vector with the assigned significance codes for each p-value.
+A character vector with the assigned significance codes for each
+p-value.
 }
 \description{
 This function assigns significance codes to a p-value vector based on commonly

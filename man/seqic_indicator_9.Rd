@@ -30,8 +30,8 @@ II, III, IV).}
 \item{included_levels}{Character vector indicating what facility levels to
 include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
-\item{transfer_out_indicator}{Column name indicating whether the
-patient was transferred out of the initial trauma center. Logical,
+\item{transfer_out_indicator}{Column name indicating whether the patient was
+transferred out of the initial trauma center to definitive care. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
 
@@ -46,6 +46,9 @@ activated (character, factor, or logical).}
 
 \item{risk_group}{A character or factor column indicating the patient's risk
 group (e.g., "High", "Moderate", "Low"). See risk definitions below.}
+
+\item{ed_LOS}{Column for the calculated ED length of stay, measured in
+minutes.}
 
 \item{ed_decision_LOS}{Numeric column representing minutes from ED arrival to
 decision to transfer.}
@@ -98,7 +101,7 @@ confidence intervals for:
 \description{
 Calculates the proportion of EMS-transferred trauma patients who experienced
 delayed transfer from the emergency department (ED) based on disposition and
-decision-to-transfer timeframes. This includes both overall rates and
+decision-to-transfer time frames. This includes both overall rates and
 stratified results by trauma team activation status, with optional confidence
 intervals.
 }
@@ -131,32 +134,12 @@ Quality Improvement Committee (SEQIC) as described below. Users may also
 apply alternative risk stratification methods if preferred.
 
 \itemize{
-\item Abnormal Physiology Criteria:
-\itemize{
-\item GCS 3–5
-\item Respirations <5 or >30 per minute
-\item Systolic BP <60 mm Hg
-}
-\item Risk Group Definitions:
-\itemize{
-\item High Risk:
-\itemize{
-\item Probability of Survival < 0.2, OR
-\item ISS > 41, OR
-\item ISS > 24 with abnormal physiology
-}
-\item Moderate Risk:
-\itemize{
-\item Probability of Survival 0.2–0.5, OR
-\item ISS 16–41
-}
-\item Low Risk:
-\itemize{
-\item Probability of Survival > 0.5, OR
-\item ISS < 16, OR
-\item Normal physiology
-}
-}
+\item Abnormal Physiology Criteria: GCS 3–5; Respirations <5 or >30 per
+minute; Systolic BP <60 mm Hg
+\item High Risk: Probability of Survival < 0.2; ISS > 41; ISS > 24 with
+abnormal physiology
+\item Moderate Risk: Probability of Survival 0.2–0.5; ISS 16–41
+\item Low Risk: Probability of Survival > 0.5; ISS < 16; Normal physiology
 }
 
 Users must ensure appropriate column names are passed and data is

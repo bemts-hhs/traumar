@@ -1,4 +1,6 @@
-#' Customizable Minimalistic ggplot2 Theme
+#' @title Customizable Minimalistic ggplot2 Theme
+#'
+#' @description
 #'
 #' A flexible and customizable theme function for creating polished and
 #' minimalistic plots using `ggplot2`. The `theme_cleaner` function provides
@@ -59,34 +61,43 @@
 #' library(ggplot2)
 #' ggplot(mtcars, aes(x = mpg, y = wt)) +
 #'   geom_point() +
-#'   theme_cleaner(base_size = 14, title_text_size = 16, legend_position = "bottom")
+#'   theme_cleaner(
+#'     base_size = 14,
+#'     title_text_size = 16,
+#'     legend_position = "bottom"
+#'   )
 #'
 #' # Customize facet plots with theme_cleaner
 #' ggplot(mtcars, aes(x = mpg, y = wt)) +
 #'   geom_point() +
 #'   facet_wrap(~cyl) +
-#'   theme_cleaner(facets = TRUE, facet_text_size = 12, draw_panel_border = TRUE)
+#'   theme_cleaner(facets = TRUE,
+#'   facet_text_size = 12,
+#'   draw_panel_border = TRUE
+#'   )
 #'
 #' @author Nicolas Foss, Ed.D., MS
 #'
 theme_cleaner <-
-  function(base_size = 12,
-           base_family = "sans",
-           base_color = "#70C8B8",
-           base_color_title = "#03617A",
-           title_text_size = ceiling(base_size * 1.1),
-           subtitle_text_size = ceiling(base_size * 1.05),
-           caption_color = "#19405B",
-           legend_position = "top",
-           vjust_title = 0,
-           vjust_subtitle = 0,
-           hjust_title = 0,
-           hjust_subtitle = 0,
-           axis_lines = FALSE,
-           facets = FALSE,
-           facet_text_size = base_size,
-           draw_panel_border = FALSE,
-           ...) {
+  function(
+    base_size = 12,
+    base_family = "sans",
+    base_color = "#70C8B8",
+    base_color_title = "#03617A",
+    title_text_size = ceiling(base_size * 1.1),
+    subtitle_text_size = ceiling(base_size * 1.05),
+    caption_color = "#19405B",
+    legend_position = "top",
+    vjust_title = 0,
+    vjust_subtitle = 0,
+    hjust_title = 0,
+    hjust_subtitle = 0,
+    axis_lines = FALSE,
+    facets = FALSE,
+    facet_text_size = base_size,
+    draw_panel_border = FALSE,
+    ...
+  ) {
     if (!facets) {
       ggplot2::theme(
         axis.ticks = ggplot2::element_blank(),
@@ -105,9 +116,18 @@ theme_cleaner <-
         # Adjust font color
 
         axis.text = ggplot2::element_text(color = base_color, size = base_size),
-        axis.title = ggplot2::element_text(color = base_color_title, size = base_size),
-        legend.title = ggplot2::element_text(color = base_color_title, size = base_size),
-        legend.text = ggplot2::element_text(color = base_color, size = base_size),
+        axis.title = ggplot2::element_text(
+          color = base_color_title,
+          size = base_size
+        ),
+        legend.title = ggplot2::element_text(
+          color = base_color_title,
+          size = base_size
+        ),
+        legend.text = ggplot2::element_text(
+          color = base_color,
+          size = base_size
+        ),
         plot.title = ggplot2::element_text(
           color = base_color_title,
           size = title_text_size,
@@ -131,9 +151,13 @@ theme_cleaner <-
         panel.grid = ggplot2::element_blank(),
         panel.grid.major = ggplot2::element_blank(),
         panel.grid.minor = ggplot2::element_blank(),
-        axis.line = ggplot2::element_line(color = dplyr::if_else(
-          axis_lines == TRUE, base_color, "transparent"
-        )),
+        axis.line = ggplot2::element_line(
+          color = dplyr::if_else(
+            axis_lines == TRUE,
+            base_color,
+            "transparent"
+          )
+        ),
         ...
       )
     } else if (facets) {
@@ -143,7 +167,11 @@ theme_cleaner <-
         legend.key = ggplot2::element_blank(),
         panel.background = ggplot2::element_blank(),
         panel.border = ggplot2::element_rect(
-          color = dplyr::if_else(draw_panel_border == F, "transparent", base_color),
+          color = dplyr::if_else(
+            draw_panel_border == F,
+            "transparent",
+            base_color
+          ),
           fill = NA
         ),
         plot.background = ggplot2::element_blank(),
@@ -156,9 +184,18 @@ theme_cleaner <-
         # Adjust font color
 
         axis.text = ggplot2::element_text(color = base_color, size = base_size),
-        axis.title = ggplot2::element_text(color = base_color_title, size = base_size),
-        legend.title = ggplot2::element_text(color = base_color_title, size = base_size),
-        legend.text = ggplot2::element_text(color = base_color, size = base_size),
+        axis.title = ggplot2::element_text(
+          color = base_color_title,
+          size = base_size
+        ),
+        legend.title = ggplot2::element_text(
+          color = base_color_title,
+          size = base_size
+        ),
+        legend.text = ggplot2::element_text(
+          color = base_color,
+          size = base_size
+        ),
         plot.title = ggplot2::element_text(
           color = base_color_title,
           size = title_text_size,
@@ -182,14 +219,22 @@ theme_cleaner <-
         panel.grid = ggplot2::element_blank(),
         panel.grid.major = ggplot2::element_blank(),
         panel.grid.minor = ggplot2::element_blank(),
-        axis.line = ggplot2::element_line(color = dplyr::if_else(
-          axis_lines == TRUE, base_color, "transparent"
-        )),
-        strip.background = ggplot2::element_rect(fill = "#2A6357", color = "#B9E1DA"),
-        strip.text = ggplot2::element_text(color = "ghostwhite", size = facet_text_size),
+        axis.line = ggplot2::element_line(
+          color = dplyr::if_else(
+            axis_lines == TRUE,
+            base_color,
+            "transparent"
+          )
+        ),
+        strip.background = ggplot2::element_rect(
+          fill = "#2A6357",
+          color = "#B9E1DA"
+        ),
+        strip.text = ggplot2::element_text(
+          color = "ghostwhite",
+          size = facet_text_size
+        ),
         ...
       )
-
     }
   }
-

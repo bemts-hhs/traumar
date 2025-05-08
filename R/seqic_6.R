@@ -11,8 +11,8 @@
 #' and focuses on those transferred into a facility.
 #'
 #' @inheritParams seqic_indicator_1
-#' @param transfer_out_indicator Column name indicating whether the
-#'   patient was transferred out of the initial trauma center. Logical,
+#' @param transfer_out_indicator Column name indicating whether the patient was
+#'   transferred out of the initial trauma center to definitive care. Logical,
 #'   character, or factor type. Values representing "No" (e.g., FALSE, "No")
 #'   indicate no transfer out.
 #' @param receiving_indicator Column name indicating whether the
@@ -297,7 +297,7 @@ seqic_indicator_6 <- function(
   # Add a `Data` label if not grouped, or arrange output by grouping variables.
   if (is.null(groups)) {
     seqic_6 <- seqic_6 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_6")
+      tibble::add_column(data = "population/sample", .before = "numerator_6")
   } else if (!is.null(groups)) {
     seqic_6 <- seqic_6 |>
       dplyr::arrange(!!!rlang::syms(groups)) # Order rows based on group vars.

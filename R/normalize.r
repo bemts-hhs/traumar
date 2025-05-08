@@ -1,4 +1,6 @@
-#' Normalize a Numeric Vector
+#' @title Normalize a Numeric Vector
+#'
+#' @description
 #'
 #' This function normalizes a numeric or integer vector using one of two
 #' methods: min-max normalization (scales data to the range (0, 1)) or z-score
@@ -30,12 +32,10 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 normalize <- function(x, method = c("min_max", "z_score")) {
-
-
   if (!is.numeric(x) && !is.integer(x)) {
-
-    cli::cli_abort("Input must be {.cls numeric} or {.cls integer}. You supplied an object of class {.cls {class(x)}} to {.fn normalize}.")
-
+    cli::cli_abort(
+      "Input must be {.cls numeric} or {.cls integer}. You supplied an object of class {.cls {class(x)}} to {.fn normalize}."
+    )
   }
 
   # Check for empty input
@@ -44,20 +44,19 @@ normalize <- function(x, method = c("min_max", "z_score")) {
     return(numeric(0))
   }
 
-  if(length(method) > 1) {
-
+  if (length(method) > 1) {
     method <- "min_max"
 
-    cli::cli_alert_info("As no method was supplied, {.fn normalize} will default to min-max normalization methods.")
+    cli::cli_alert_info(
+      "As no method was supplied, {.fn normalize} will default to min-max normalization methods."
+    )
   }
 
-  if(method == "min_max") {
-
-  normalized_data <-
-    (x - base::min(x, na.rm = TRUE)) / (base::max(x, na.rm = TRUE) - base::min(x, na.rm = TRUE))
-
-  } else if(method == "z_score") {
-
+  if (method == "min_max") {
+    normalized_data <-
+      (x - base::min(x, na.rm = TRUE)) /
+      (base::max(x, na.rm = TRUE) - base::min(x, na.rm = TRUE))
+  } else if (method == "z_score") {
     mean_x <- base::mean(x, na.rm = T)
 
     std_dev_x <- stats::sd(x, na.rm = T)
@@ -65,9 +64,7 @@ normalize <- function(x, method = c("min_max", "z_score")) {
     x_minus_mean <- x - mean_x
 
     normalized_data <- x_minus_mean / std_dev_x
-
   }
 
   return(normalized_data)
-
 }

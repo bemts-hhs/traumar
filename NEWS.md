@@ -1,5 +1,28 @@
 # traumar 1.2.0
 
+- This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.
+_ Additionally, a convenience function `is_it_normal()` provides the ability for users of `traumar` to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in `is_it_normal()` to conduct exploratory data analysis of one or more variables within zero or more groups.
+- Added the following functions:
+  - `seqic_indicator_1()`
+  - `seqic_indicator_2()`
+  - `seqic_indicator_3()`
+  - `seqic_indicator_4()`
+  - `seqic_indicator_5()`
+  - `seqic_indicator_6()`
+  - `seqic_indicator_7()`
+  - `seqic_indicator_8()`
+  - `seqic_indicator_9()`
+  - `seqic_indicator_10()`
+  - `seqic_indicator_11()`
+  - `seqic_indicator_12()`
+  - `seqic_indicator_13()`
+  - `is_it_normal()`
+- A bug fix was applied to `nonlinear_bins()` to make the `percent` column calculate correctly when groups were not introduced.
+- Removed hard-coded rounding from most calculations within the package where possible.
+- Improved examples for the the package's README, `probability_of_survival()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` using more helpful data.
+- Improved error messages coming from `nonlinear_bins()` when sample sizes too small to calculate bins are passed to the function, including when passed to `rmm()` and `rm_bin_summary()`.
+- Code formatting changed to the `air` package through the RStudio IDE.
+
 # traumar 1.1.0
 
 ## New Features

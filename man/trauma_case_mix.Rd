@@ -2,8 +2,8 @@
 % Please edit documentation in R/trauma_case_mix.r
 \name{trauma_case_mix}
 \alias{trauma_case_mix}
-\title{View the Current Patient Population Case Mix Compared to the Major Trauma
-Study Case Mix}
+\title{View the Current Patient Population Case Mix Compared to the Major
+Trauma Study Case Mix}
 \usage{
 trauma_case_mix(df, Ps_col, outcome_col)
 }
@@ -37,22 +37,58 @@ predefined Ps ranges, and the function compares the fraction of patients in
 each range with the MTOS case mix distribution.
 }
 \examples{
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-# Generate survival probabilities (Ps) using a logistic distribution
-set.seed(123)  # For reproducibility
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)

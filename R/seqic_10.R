@@ -1,17 +1,19 @@
 #' @title SEQIC Indicator 10 – Trauma Team Activation Appropriateness
 #'
 #' @description
-#' Calculates two trauma system quality indicators related to trauma team
-#' activation:
+#' Calculates three trauma system quality indicators related to trauma team
+#' activations where the patient was kept at the facility:
 #' \itemize{
 #'   \item 10a: Proportion of patients meeting triage criteria (based on Injury
 #'   Severity Score or Need For Trauma Intervention) who received low-level
 #'   or no activation (under-triage).
 #'   \item 10b: Proportion of patients not meeting triage criteria who received
 #'   highest-level trauma activation (over-triage).
-#'   \item 10c: Proportion of patients meeting triage criteria (based on Injury
-#'   Severity Score or Need For Trauma Intervention) who had a major trauma
+#'   \item 10c: Proportion of major trauma patients receiving a full activation
 #'   (under-triage via Peng & Xiang, 2019).
+#'
+#'   (10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
+#'   Intervention based on user choice)
 #' }
 #'
 #' Users may stratify results by one or more grouping variables and optionally
@@ -42,13 +44,6 @@
 #'   \item Removes duplicate incidents using `unique_incident_id`.
 #'   \item Classifies each record as meeting or not meeting triage criteria
 #'   based on ISS or NFTI logic.
-#'   \item Calculates two quality indicators:
-#'     \itemize{
-#'       \item 10a: Under-triage — patients who met criteria but received low
-#'       activation.
-#'       \item 10b: Over-triage — patients who did not meet criteria but
-#'       received highest activation.
-#'     }
 #'   \item Optionally computes binomial confidence intervals for each indicator.
 #' }
 #'
@@ -74,6 +69,7 @@
 #'   activation = c("Level 1", "Level 2", "None", "Consultation", "Level 1",
 #'   "Level 1", "None", "Level 3", "Level 1", "Consultation", "None", "Level
 #'   2"),
+#'   acute_transfer = rep("No", 12),
 #'   iss = c(25, 10, 16, 8, 30, 45, 12, 9, 28, 6, 17, 14),
 #'   nfti = c(TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE,
 #'   TRUE, TRUE),
@@ -86,6 +82,7 @@
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   unique_incident_id = id,
+#'   transfer_out_indicator = acute_transfer,
 #'   trauma_team_activation_level = activation,
 #'   iss = iss,
 #'   nfti = NULL,
@@ -100,6 +97,7 @@
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   unique_incident_id = id,
+#'   transfer_out_indicator = acute_transfer,
 #'   trauma_team_activation_level = activation,
 #'   iss = iss,
 #'   nfti = nfti,
@@ -133,6 +131,7 @@ seqic_indicator_10 <- function(
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
+  transfer_out_indicator,
   trauma_team_activation_level,
   iss,
   nfti,
@@ -175,6 +174,22 @@ seqic_indicator_10 <- function(
       c(
         "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
         "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
+      )
+    )
+  }
+
+  # Validate that `transfer_out_indicator` is character, factor, or logical.
+  transfer_out_indicator_check <- df |>
+    dplyr::pull({{ transfer_out_indicator }})
+  if (
+    !is.character(transfer_out_indicator_check) &&
+      !is.factor(transfer_out_indicator_check) &&
+      !is.logical(transfer_out_indicator_check)
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var transfer_out_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
+        "i" = "{.var transfer_out_indicator} was an object of class {.cls {class(transfer_out_indicator_check)}}."
       )
     )
   }
@@ -278,7 +293,8 @@ seqic_indicator_10 <- function(
   df_prep <- df |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::filter(
-      {{ level }} %in% included_levels
+      {{ level }} %in% included_levels,
+      {{ transfer_out_indicator }} %in% c("No", FALSE)
     ) |>
     dplyr::mutate(
       # Define cases with highest-level activation (Level 1)
@@ -343,13 +359,16 @@ seqic_indicator_10 <- function(
     !rlang::quo_is_null(rlang::enquo(nfti)) &&
       rlang::quo_is_null(rlang::enquo(iss))
   ) {
-    "NFTI"
+    "nfti"
   } else if (
     rlang::quo_is_null(rlang::enquo(nfti)) &&
       !rlang::quo_is_null(rlang::enquo(iss))
   ) {
-    "Cribari"
-  } else {
+    "cribari"
+  } else if (
+    !rlang::quo_is_null(rlang::enquo(nfti)) &&
+      !rlang::quo_is_null(rlang::enquo(iss))
+  ) {
     cli::cli_abort(
       "Please supply exactly one of {.var iss} or {.var nfti}, not both."
     )
@@ -550,18 +569,24 @@ seqic_indicator_10 <- function(
 
   # Add label if ungrouped
   if (is.null(groups)) {
-    seqic_10$seqic_10 <- seqic_10a |>
-      tibble::add_column(
-        Data = "Population/Sample",
-        Triage_Logic = triage_logic_source,
-        .before = "numerator_10a"
+    seqic_10$seqic_10 <-
+      tibble::tibble(
+        data = "population/sample",
+        triage_logic = triage_logic_source
       ) |>
-      dplyr::bind_cols(seqic_10b, seqic_10c)
+      dplyr::bind_cols(seqic_10a, seqic_10b, seqic_10c)
 
-    seqic_10$diagnostics <- diagnostics
+    seqic_10$diagnostics <- tibble::tibble(
+      data = "population/sample",
+      triage_logic = triage_logic_source
+    ) |>
+      dplyr::bind_cols(diagnostics)
   } else {
     # Arrange by grouping variables
-    seqic_10$seqic_10 <- seqic_10a |>
+    seqic_10$seqic_10 <- tibble::tibble(
+      triage_logic = triage_logic_source
+    ) |>
+      dplyr::bind_cols(seqic_10a) |>
       dplyr::full_join(
         seqic_10b,
         by = dplyr::join_by(!!!rlang::syms(groups))
@@ -572,7 +597,10 @@ seqic_indicator_10 <- function(
       ) |>
       dplyr::arrange(!!!rlang::syms(groups))
 
-    seqic_10$diagnostics <- diagnostics |>
+    seqic_10$diagnostics <- tibble::tibble(
+      triage_logic = triage_logic_source
+    ) |>
+      dplyr::bind_cols(diagnostics) |>
       dplyr::arrange(!!!rlang::syms(groups))
   }
 

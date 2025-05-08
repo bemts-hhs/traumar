@@ -31,6 +31,9 @@ include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 that is valid, expressed as a percentage (0–100). Typically calculated by
 the registry system.}
 
+\item{validity_threshold}{Numeric. The minimum acceptable validity percentage
+threshold for records to be counted in the numerator. Defaults to \code{85}.}
+
 \item{groups}{Additional columns passed as a vector of strings to
 \code{dplyr::summarize()} via the \code{.by} argument for grouped summaries. Defaults
 to \code{NULL}.}
@@ -49,9 +52,6 @@ level. Defaults to 0.95 (95\% confidence interval).}
     \item{\code{correct}}{Logical, indicating whether to apply continuity correction for
 Wilson intervals. Defaults to \code{TRUE}.}
   }}
-
-\item{validity}{Numeric. The minimum acceptable validity percentage threshold
-for records to be counted in the numerator. Defaults to \code{85}.}
 }
 \value{
 A tibble containing:

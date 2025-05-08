@@ -31,8 +31,8 @@ include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 in minutes from injury occurrence to arrival at the trauma center. Numeric
 type.}
 
-\item{transfer_out_indicator}{Column name indicating whether the
-patient was transferred out of the initial trauma center. Logical,
+\item{transfer_out_indicator}{Column name indicating whether the patient was
+transferred out of the initial trauma center to definitive care. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
 
@@ -98,7 +98,8 @@ test_data <- tibble::tibble(
   id = as.character(1:10),
   trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
   time_to_arrival = c(200, 100, 220, 150, 400, 181, 90, 179, 240, 178),
-  transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No", "No")
+  transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No",
+  "No")
 )
 
 # Run the indicator function

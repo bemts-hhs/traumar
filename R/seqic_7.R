@@ -47,7 +47,8 @@
 #'   id = as.character(1:10),
 #'   trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
 #'   time_to_arrival = c(200, 100, 220, 150, 400, 181, 90, 179, 240, 178),
-#'   transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No", "No")
+#'   transfer_out = c("No", "No", "No", "No", "Yes", "No", "No", "No", "No",
+#'   "No")
 #' )
 #'
 #' # Run the indicator function
@@ -248,7 +249,7 @@ seqic_indicator_7 <- function(
   # Add label if ungrouped
   if (is.null(groups)) {
     seqic_7 <- seqic_7 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_7")
+      tibble::add_column(data = "population/sample", .before = "numerator_7")
   } else {
     # Arrange by grouping variables
     seqic_7 <- seqic_7 |>

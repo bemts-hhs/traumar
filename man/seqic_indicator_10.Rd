@@ -9,6 +9,7 @@ seqic_indicator_10(
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
+  transfer_out_indicator,
   trauma_team_activation_level,
   iss,
   nfti,
@@ -27,6 +28,11 @@ II, III, IV).}
 include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
+
+\item{transfer_out_indicator}{Column name indicating whether the patient was
+transferred out of the initial trauma center to definitive care. Logical,
+character, or factor type. Values representing "No" (e.g., FALSE, "No")
+indicate no transfer out.}
 
 \item{trauma_team_activation_level}{Column indicating the trauma team
 activation level (e.g., \code{"Level 1"}, \code{"Level 2"}, \code{"Level 3"},
@@ -60,17 +66,19 @@ ouputs.  The proportions in 10a, 10b, and 10c will optionally include
 confidence intervals grouped by user-specified variables.
 }
 \description{
-Calculates two trauma system quality indicators related to trauma team
-activation:
+Calculates three trauma system quality indicators related to trauma team
+activations where the patient was kept at the facility:
 \itemize{
 \item 10a: Proportion of patients meeting triage criteria (based on Injury
 Severity Score or Need For Trauma Intervention) who received low-level
 or no activation (under-triage).
 \item 10b: Proportion of patients not meeting triage criteria who received
 highest-level trauma activation (over-triage).
-\item 10c: Proportion of patients meeting triage criteria (based on Injury
-Severity Score or Need For Trauma Intervention) who had a major trauma
+\item 10c: Proportion of major trauma patients receiving a full activation
 (under-triage via Peng & Xiang, 2019).
+
+(10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
+Intervention based on user choice)
 }
 
 Users may stratify results by one or more grouping variables and optionally
@@ -83,13 +91,6 @@ This function:
 \item Removes duplicate incidents using \code{unique_incident_id}.
 \item Classifies each record as meeting or not meeting triage criteria
 based on ISS or NFTI logic.
-\item Calculates two quality indicators:
-\itemize{
-\item 10a: Under-triage — patients who met criteria but received low
-activation.
-\item 10b: Over-triage — patients who did not meet criteria but
-received highest activation.
-}
 \item Optionally computes binomial confidence intervals for each indicator.
 }
 
@@ -110,6 +111,7 @@ test_data <- tibble::tibble(
   activation = c("Level 1", "Level 2", "None", "Consultation", "Level 1",
   "Level 1", "None", "Level 3", "Level 1", "Consultation", "None", "Level
   2"),
+  acute_transfer = rep("No", 12),
   iss = c(25, 10, 16, 8, 30, 45, 12, 9, 28, 6, 17, 14),
   nfti = c(TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE,
   TRUE, TRUE),
@@ -122,6 +124,7 @@ traumar::seqic_indicator_10(
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,
+  transfer_out_indicator = acute_transfer,
   trauma_team_activation_level = activation,
   iss = iss,
   nfti = NULL,
@@ -136,6 +139,7 @@ try(
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,
+  transfer_out_indicator = acute_transfer,
   trauma_team_activation_level = activation,
   iss = iss,
   nfti = nfti,

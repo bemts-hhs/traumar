@@ -1,4 +1,6 @@
-#' Convert Numbers into Readable Abbreviated Formats
+#' @title Convert Numbers into Readable Abbreviated Formats
+#'
+#' @description
 #'
 #' This function converts large numeric values into readable abbreviated formats
 #' (e.g., 1,000 becomes "1k") with options for rounding, decimal precision, and
@@ -35,7 +37,6 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
-
   # Error check: Ensure `x` is numeric or integer
   if (!is.numeric(x) && !is.integer(x)) {
     cli::cli_abort(c(
@@ -45,7 +46,10 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
   }
 
   # Error check: Ensure `n_decimal` is an integer
-  if (!is.integer(n_decimal) && !(is.numeric(n_decimal) && n_decimal == floor(n_decimal))) {
+  if (
+    !is.integer(n_decimal) &&
+      !(is.numeric(n_decimal) && n_decimal == floor(n_decimal))
+  ) {
     cli::cli_abort(c(
       "n_decimal must be an {.cls integer}.",
       "You supplied a value of class {.cls {class(n_decimal)}} with value {.val {n_decimal}}."
@@ -53,21 +57,18 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
   }
 
   # Error check: Ensure that `truncate` is logical
-  if(!is.logical(truncate)) {
-
+  if (!is.logical(truncate)) {
     cli::cli_abort(c(
       "{.var truncate} must be of class {.cls logical}.",
       "You supplid a value of class {.cls {class(truncate)}} with value {.val {truncate}}."
     ))
-
   }
 
-  if(!is.null(prefix) && !is.character(prefix)) {
-
-    cli::cli_abort(c("The object you passed to prefix was of class {.cls {class(prefix)}}",
-                     "i" = "You must supply a {.cls character} vector of length 1 for the prefix argument of {.fn pretty_number} to work."
+  if (!is.null(prefix) && !is.character(prefix)) {
+    cli::cli_abort(c(
+      "The object you passed to prefix was of class {.cls {class(prefix)}}",
+      "i" = "You must supply a {.cls character} vector of length 1 for the prefix argument of {.fn pretty_number} to work."
     ))
-
   }
 
   old <- options()
@@ -98,7 +99,6 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
 
     # Get the number of characters in the truncated value
     x_length <- nchar(trunc(x))
-
   } else {
     # When truncation is disabled, do not use round function
     x <- round(x, digits = n_decimal)
@@ -107,64 +107,67 @@ pretty_number <- function(x, n_decimal = 2, prefix = NULL, truncate = FALSE) {
     x_length <- nchar(trunc(x))
   }
 
-
   # classify x
 
   suffix <- c("k", "m", "b", "t", "qd", "qt", "sxt", "spt", "oct", "non", "dec")
 
-
-  x_val <- ifelse(x_length %in% 4:6,
-                  paste0(round(x / thousand, digits = n_decimal), suffix[1]),
+  x_val <- ifelse(
+    x_length %in% 4:6,
+    paste0(round(x / thousand, digits = n_decimal), suffix[1]),
+    ifelse(
+      x_length %in% 7:9,
+      paste0(round(x / million, digits = n_decimal), suffix[2]),
+      ifelse(
+        x_length %in% 10:12,
+        paste0(round(x / billion, digits = n_decimal), suffix[3]),
+        ifelse(
+          x_length %in% 13:15,
+          paste0(round(x / trillion, digits = n_decimal), suffix[4]),
+          ifelse(
+            x_length %in% 16:18,
+            paste0(round(x / quadrillion, digits = n_decimal), suffix[5]),
+            ifelse(
+              x_length %in% 19:21,
+              paste0(round(x / quintillion, digits = n_decimal), suffix[6]),
+              ifelse(
+                x_length %in% 22:24,
+                paste0(round(x / sextillion, digits = n_decimal), suffix[7]),
+                ifelse(
+                  x_length %in% 25:27,
+                  paste0(round(x / septillion, digits = n_decimal), suffix[8]),
                   ifelse(
-                    x_length %in% 7:9,
-                    paste0(round(x / million, digits = n_decimal), suffix[2]),
+                    x_length %in% 28:30,
+                    paste0(round(x / octillion, digits = n_decimal), suffix[9]),
                     ifelse(
-                      x_length %in% 10:12,
-                      paste0(round(x / billion, digits = n_decimal), suffix[3]),
+                      x_length %in% 31:33,
+                      paste0(
+                        round(x / nonillion, digits = n_decimal),
+                        suffix[10]
+                      ),
                       ifelse(
-                        x_length %in% 13:15,
-                        paste0(round(x / trillion, digits = n_decimal), suffix[4]),
-                        ifelse(
-                          x_length %in% 16:18,
-                          paste0(round(x / quadrillion, digits = n_decimal), suffix[5]),
-                          ifelse(
-                            x_length %in% 19:21,
-                            paste0(round(x / quintillion, digits = n_decimal), suffix[6]),
-                            ifelse(
-                              x_length %in% 22:24,
-                              paste0(round(x / sextillion, digits = n_decimal), suffix[7]),
-                              ifelse(
-                                x_length %in% 25:27,
-                                paste0(round(x / septillion, digits = n_decimal), suffix[8]),
-                                ifelse(
-                                  x_length %in% 28:30,
-                                  paste0(round(x / octillion, digits = n_decimal), suffix[9]),
-                                  ifelse(
-                                    x_length %in% 31:33,
-                                    paste0(round(x / nonillion, digits = n_decimal), suffix[10]),
-                                    ifelse(x_length %in% 34:36, paste0(
-                                      round(x / decillion, digits = n_decimal), suffix[11]
-                                    ), paste0(round(x, digits = n_decimal)))
-                                  )
-                                )
-                              )
-                            )
-                          )
-                        )
+                        x_length %in% 34:36,
+                        paste0(
+                          round(x / decillion, digits = n_decimal),
+                          suffix[11]
+                        ),
+                        paste0(round(x, digits = n_decimal))
                       )
                     )
-                  ))
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
 
-
-
-  if(is.null(prefix)) {
-
-  return(x_val)
-
+  if (is.null(prefix)) {
+    return(x_val)
   }
 
-  x_val <-  paste0(prefix, x_val)
+  x_val <- paste0(prefix, x_val)
 
   return(x_val)
-
 }

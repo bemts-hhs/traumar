@@ -56,34 +56,30 @@ Wilson intervals. Defaults to \code{TRUE}.}
 \value{
 A named list with two tibbles:
 
+\code{overall}: A tibble summarizing overall mortality among trauma patients,
+grouped by the variables specified in \code{groups}. Columns include:
+
 \itemize{
-\item{\code{overall}}{
-A tibble summarizing overall mortality among trauma patients, grouped by
-the variables specified in \code{groups}. Columns include:
-\itemize{
-\item \code{numerator_8_all}: Number of patients who survived (mortality
-indicator was FALSE or "No")
-\item \code{denominator_8_all}: Total number of unique trauma incidents
-\item \code{seqic_8_all}: Proportion of patients who survived
-\item \code{lower_ci_8}, \code{upper_ci_8} (optional): Confidence interval bounds
-if \code{calculate_ci} is specified
-}
+\item \code{numerator_8_all} (number of survivors),
+\item \code{denominator_8_all} (total number
+of unique trauma incidents),
+\item \code{seqic_8_all} (survival proportion), and optionally
+\item \code{lower_ci_8},
+\item \code{upper_ci_8} (confidence interval bounds if \code{calculate_ci} is
+specified).
 }
 
-\item{\code{risk_group}}{
-A tibble summarizing mortality stratified by risk group and any
-additional \code{groups} variables. Columns include:
+\code{risk_group}: A tibble summarizing mortality stratified by risk group and any
+additional grouping variables. Columns include:
+
 \itemize{
-\item \code{{{ risk_group }}}: Risk group variable used for stratification
-\item \code{numerator_8_risk}: Number of patients who survived in each risk
-group
-\item \code{denominator_8_risk}: Total number of unique incidents in each
-risk group
-\item \code{seqic_8_risk}: Proportion of survivors in each risk group
-\item \code{lower_ci_8_risk}, \code{upper_ci_8_risk} (optional): Confidence
-interval bounds if \code{calculate_ci} is specified
-}
-}
+\item \code{risk_group} (used for stratification),
+\item \code{numerator_8_risk} (survivors per group),
+\item \code{denominator_8_risk} (total incidents per group),
+\item \code{seqic_8_risk} (survival proportion per group), and optionally
+\item \code{lower_ci_8_risk},
+\item \code{upper_ci_8_risk} (confidence interval bounds if \code{calculate_ci} is
+specified).
 }
 }
 \description{
@@ -115,32 +111,12 @@ Improvement Committee (SEQIC) as described below. Users may also apply
 alternative risk stratification methods if preferred.
 
 \itemize{
-\item Abnormal Physiology Criteria:
-\itemize{
-\item GCS 3–5
-\item Respirations <5 or >30 per minute
-\item Systolic BP <60 mm Hg
-}
-\item Risk Group Definitions:
-\itemize{
-\item High Risk:
-\itemize{
-\item Probability of Survival < 0.2, OR
-\item ISS > 41, OR
-\item ISS > 24 with abnormal physiology
-}
-\item Moderate Risk:
-\itemize{
-\item Probability of Survival 0.2–0.5, OR
-\item ISS 16–41
-}
-\item Low Risk:
-\itemize{
-\item Probability of Survival > 0.5, OR
-\item ISS < 16, OR
-\item Normal physiology
-}
-}
+\item Abnormal Physiology Criteria: GCS 3–5; Respirations <5 or >30 per
+minute; Systolic BP <60 mm Hg
+\item High Risk: Probability of Survival < 0.2; ISS > 41; ISS > 24 with
+abnormal physiology
+\item Moderate Risk: Probability of Survival 0.2–0.5; ISS 16–41
+\item Low Risk: Probability of Survival > 0.5; ISS < 16; Normal physiology
 }
 
 Users must ensure appropriate column names are passed and data is

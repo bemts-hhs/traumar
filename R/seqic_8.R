@@ -40,32 +40,12 @@
 #' alternative risk stratification methods if preferred.
 #'
 #' \itemize{
-#'   \item Abnormal Physiology Criteria:
-#'     \itemize{
-#'       \item GCS 3–5
-#'       \item Respirations <5 or >30 per minute
-#'       \item Systolic BP <60 mm Hg
-#'     }
-#'   \item Risk Group Definitions:
-#'     \itemize{
-#'       \item High Risk:
-#'         \itemize{
-#'           \item Probability of Survival < 0.2, OR
-#'           \item ISS > 41, OR
-#'           \item ISS > 24 with abnormal physiology
-#'         }
-#'       \item Moderate Risk:
-#'         \itemize{
-#'           \item Probability of Survival 0.2–0.5, OR
-#'           \item ISS 16–41
-#'         }
-#'       \item Low Risk:
-#'         \itemize{
-#'           \item Probability of Survival > 0.5, OR
-#'           \item ISS < 16, OR
-#'           \item Normal physiology
-#'         }
-#'     }
+#'   \item Abnormal Physiology Criteria: GCS 3–5; Respirations <5 or >30 per
+#'   minute; Systolic BP <60 mm Hg
+#'   \item High Risk: Probability of Survival < 0.2; ISS > 41; ISS > 24 with
+#'   abnormal physiology
+#'   \item Moderate Risk: Probability of Survival 0.2–0.5; ISS 16–41
+#'   \item Low Risk: Probability of Survival > 0.5; ISS < 16; Normal physiology
 #' }
 #'
 #' Users must ensure appropriate column names are passed and data is
@@ -75,34 +55,30 @@
 #' @returns
 #' A named list with two tibbles:
 #'
+#' `overall`: A tibble summarizing overall mortality among trauma patients,
+#' grouped by the variables specified in `groups`. Columns include:
+#'
 #' \itemize{
-#'   \item{`overall`}{
-#'     A tibble summarizing overall mortality among trauma patients, grouped by
-#'     the variables specified in `groups`. Columns include:
-#'     \itemize{
-#'       \item `numerator_8_all`: Number of patients who survived (mortality
-#'       indicator was FALSE or "No")
-#'       \item `denominator_8_all`: Total number of unique trauma incidents
-#'       \item `seqic_8_all`: Proportion of patients who survived
-#'       \item `lower_ci_8`, `upper_ci_8` (optional): Confidence interval bounds
-#'       if `calculate_ci` is specified
-#'     }
+#'   \item `numerator_8_all` (number of survivors),
+#'   \item `denominator_8_all` (total number
+#'   of unique trauma incidents),
+#'   \item `seqic_8_all` (survival proportion), and optionally
+#'   \item `lower_ci_8`,
+#'   \item `upper_ci_8` (confidence interval bounds if `calculate_ci` is
+#'   specified).
 #'   }
 #'
-#'   \item{`risk_group`}{
-#'     A tibble summarizing mortality stratified by risk group and any
-#'     additional `groups` variables. Columns include:
-#'     \itemize{
-#'       \item `{{ risk_group }}`: Risk group variable used for stratification
-#'       \item `numerator_8_risk`: Number of patients who survived in each risk
-#'       group
-#'       \item `denominator_8_risk`: Total number of unique incidents in each
-#'       risk group
-#'       \item `seqic_8_risk`: Proportion of survivors in each risk group
-#'       \item `lower_ci_8_risk`, `upper_ci_8_risk` (optional): Confidence
-#'       interval bounds if `calculate_ci` is specified
-#'     }
-#'   }
+#' `risk_group`: A tibble summarizing mortality stratified by risk group and any
+#' additional grouping variables. Columns include:
+#'
+#' \itemize{
+#'   \item `risk_group` (used for stratification),
+#'   \item `numerator_8_risk` (survivors per group),
+#'   \item `denominator_8_risk` (total incidents per group),
+#'   \item `seqic_8_risk` (survival proportion per group), and optionally
+#'   \item `lower_ci_8_risk`,
+#'   \item `upper_ci_8_risk` (confidence interval bounds if `calculate_ci` is
+#'   specified).
 #' }
 #'
 #' @examples
@@ -328,9 +304,9 @@ seqic_indicator_8 <- function(
   # Label output or arrange by grouping vars
   if (is.null(groups)) {
     seqic_8$overall <- seqic_8_all |>
-      tibble::add_column(Data = "Population/Sample", .before = 1)
+      tibble::add_column(data = "population/sample", .before = 1)
     seqic_8$risk_group <- seqic_8_risk |>
-      tibble::add_column(Data = "Population/Sample Risk Groups", .before = 1)
+      tibble::add_column(data = "population/sample risk groups", .before = 1)
   } else {
     seqic_8$overall <- seqic_8_all |>
       dplyr::arrange(!!!rlang::syms(groups))

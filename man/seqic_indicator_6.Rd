@@ -29,8 +29,8 @@ include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
-\item{transfer_out_indicator}{Column name indicating whether the
-patient was transferred out of the initial trauma center. Logical,
+\item{transfer_out_indicator}{Column name indicating whether the patient was
+transferred out of the initial trauma center to definitive care. Logical,
 character, or factor type. Values representing "No" (e.g., FALSE, "No")
 indicate no transfer out.}
 

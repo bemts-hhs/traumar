@@ -382,7 +382,7 @@ seqic_indicator_5 <- function(
   # Assign label for ungrouped reporting, or sort grouped reporting
   if (is.null(groups)) {
     seqic_5 <- seqic_5 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_5a")
+      tibble::add_column(data = "population/sample", .before = "numerator_5a")
   } else {
     seqic_5 <- seqic_5 |>
       dplyr::arrange(!!!rlang::syms(groups))

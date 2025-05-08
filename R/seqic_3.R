@@ -35,8 +35,8 @@
 #' identifiers or timestamps.
 #'
 #' @return A tibble summarizing SEQIC Indicator 3 results. Includes numerator,
-#'   denominator, and performance rate for the indicator. 95% confidence intervals
-#'   are provided optionally.
+#'   denominator, and performance rate for the indicator. 95% confidence
+#'   intervals are provided optionally.
 #'
 #' @examples
 #' # Packages
@@ -213,8 +213,10 @@ seqic_indicator_3 <- function(
 
   # Filter the data for valid levels and exclude "Burn" trauma types.
   seqic_3 <- df |>
-    dplyr::filter({{ level }} %in% included_levels) |>
-    dplyr::filter({{ trauma_type }} != "Burn") |>
+    dplyr::filter(
+      {{ level }} %in% included_levels,
+      {{ trauma_type }} != "Burn"
+    ) |>
     dplyr::distinct(
       {{ unique_incident_id }},
       .keep_all = TRUE
@@ -250,7 +252,7 @@ seqic_indicator_3 <- function(
   # Add a label column to indicate whether the data represents population or sample-level results.
   if (is.null(groups)) {
     seqic_3 <- seqic_3 |>
-      tibble::add_column(Data = "Population/Sample", .before = "numerator_3") # Add the label column.
+      tibble::add_column(data = "population/sample", .before = "numerator_3") # Add the label column.
   } else if (!is.null(groups)) {
     seqic_3 <- seqic_3 |>
       dplyr::arrange(!!!rlang::syms(groups)) # Arrange the results by the specified grouping variables.

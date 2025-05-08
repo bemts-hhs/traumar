@@ -669,6 +669,41 @@
       "Maintainer": "Thomas Lin Pedersen <thomas.pedersen@posit.co>",
       "Repository": "CRAN"
     },
+    "hms": {
+      "Package": "hms",
+      "Version": "1.1.3",
+      "Source": "Repository",
+      "Title": "Pretty Time of Day",
+      "Date": "2023-03-21",
+      "Authors@R": "c( person(\"Kirill\", \"Müller\", role = c(\"aut\", \"cre\"), email = \"kirill@cynkra.com\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(\"R Consortium\", role = \"fnd\"), person(\"RStudio\", role = \"fnd\") )",
+      "Description": "Implements an S3 class for storing and formatting time-of-day values, based on the 'difftime' class.",
+      "Imports": [
+        "lifecycle",
+        "methods",
+        "pkgconfig",
+        "rlang (>= 1.0.2)",
+        "vctrs (>= 0.3.8)"
+      ],
+      "Suggests": [
+        "crayon",
+        "lubridate",
+        "pillar (>= 1.1.0)",
+        "testthat (>= 3.0.0)"
+      ],
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "URL": "https://hms.tidyverse.org/, https://github.com/tidyverse/hms",
+      "BugReports": "https://github.com/tidyverse/hms/issues",
+      "RoxygenNote": "7.2.3",
+      "Config/testthat/edition": "3",
+      "Config/autostyle/scope": "line_breaks",
+      "Config/autostyle/strict": "false",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "NeedsCompilation": "no",
+      "Author": "Kirill Müller [aut, cre] (<https://orcid.org/0000-0002-1416-3412>), R Consortium [fnd], RStudio [fnd]",
+      "Maintainer": "Kirill Müller <kirill@cynkra.com>",
+      "Repository": "CRAN"
+    },
     "infer": {
       "Package": "infer",
       "Version": "1.0.8",
@@ -968,6 +1003,43 @@
       "NeedsCompilation": "yes",
       "Repository": "CRAN"
     },
+    "nemsqar": {
+      "Package": "nemsqar",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Title": "National Emergency Medical Service Quality Alliance Measure Calculations",
+      "Authors@R": "c( person(\"Nicolas\", \"Foss\", email = \"nicolas.foss@hhs.iowa.gov\", role = c(\"aut\", \"cre\")), person(\"Samuel\", \"Kordik\", email = \"samuel.kordik@utsouthwestern.edu\", role=\"aut\", comment = c(ORCID = \"0000-0003-4230-1154\")), person(\"Alyssa\", \"Green\", email = \"awhim@nemsqa.org\", role=\"ctb\"), person(\"Iowa Department of Health and Human Services\", role = \"cph\") )",
+      "Description": "Designed to automate the calculation of Emergency Medical Service (EMS) quality metrics,  'nemsqar' implements measures defined by the National EMS Quality Alliance (NEMSQA). By providing  reliable, evidence-based quality assessments, the package supports EMS agencies,  healthcare providers, and researchers in evaluating and improving patient outcomes.  Users can find details on all approved NEMSQA measures at <https://www.nemsqa.org/measures>.  Full technical specifications, including documentation and pseudocode used to develop  'nemsqar', are available on the NEMSQA website after creating a user profile at  <https://www.nemsqa.org>.",
+      "License": "MIT + file LICENSE",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "Suggests": [
+        "testthat (>= 3.0.0)",
+        "tidyr"
+      ],
+      "Config/testthat/edition": "3",
+      "URL": "https://github.com/bemts-hhs/nemsqar, https://bemts-hhs.github.io/nemsqar/",
+      "BugReports": "https://github.com/bemts-hhs/nemsqar/issues",
+      "Depends": [
+        "R (>= 4.1)"
+      ],
+      "Imports": [
+        "cli (>= 3.6.4)",
+        "dplyr (>= 1.1.4)",
+        "lifecycle (>= 1.0.4)",
+        "lubridate (>= 1.9.4)",
+        "rlang (>= 1.1.5)",
+        "stats",
+        "tibble (>= 3.2.1)",
+        "tidyselect (>= 1.2.1)"
+      ],
+      "LazyData": "true",
+      "LazyDataCompression": "bzip2",
+      "NeedsCompilation": "no",
+      "Author": "Nicolas Foss [aut, cre], Samuel Kordik [aut] (<https://orcid.org/0000-0003-4230-1154>), Alyssa Green [ctb], Iowa Department of Health and Human Services [cph]",
+      "Maintainer": "Nicolas Foss <nicolas.foss@hhs.iowa.gov>",
+      "Repository": "CRAN"
+    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-168",
@@ -1000,6 +1072,23 @@
       "NeedsCompilation": "yes",
       "Author": "José Pinheiro [aut] (S version), Douglas Bates [aut] (up to 2007), Saikat DebRoy [ctb] (up to 2002), Deepayan Sarkar [ctb] (up to 2005), EISPACK authors [ctb] (src/rs.f), Siem Heisterkamp [ctb] (Author fixed sigma), Bert Van Willigen [ctb] (Programmer fixed sigma), Johannes Ranke [ctb] (varConstProp()), R Core Team [aut, cre] (02zz1nj61)",
       "Maintainer": "R Core Team <R-core@R-project.org>",
+      "Repository": "CRAN"
+    },
+    "nortest": {
+      "Package": "nortest",
+      "Version": "1.0-4",
+      "Source": "Repository",
+      "Title": "Tests for Normality",
+      "Date": "2015-07-29",
+      "Description": "Five omnibus tests for testing the composite hypothesis of normality.",
+      "License": "GPL (>= 2)",
+      "Authors@R": "c(person(\"Juergen\", \"Gross\", role = \"aut\", email = \"gross@statistik.tu-dortmund.de\"), person(\"Uwe\", \"Ligges\", role = c(\"aut\", \"cre\"), email = \"ligges@statistik.tu-dortmund.de\"))",
+      "Imports": [
+        "stats"
+      ],
+      "Author": "Juergen Gross [aut], Uwe Ligges [aut, cre]",
+      "Maintainer": "Uwe Ligges <ligges@statistik.tu-dortmund.de>",
+      "NeedsCompilation": "no",
       "Repository": "CRAN"
     },
     "patchwork": {
