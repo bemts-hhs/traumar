@@ -15,7 +15,8 @@
 #' @param outcome_col The name of the column containing the outcome data. It
 #'   should be binary, with values indicating patient survival. A value of `1`
 #'   should represent "alive" (survived), while `0` should represent "dead" (did
-#'   not survive). Ensure the column contains only these two possible values.
+#'   not survive).  `TRUE/FALSE` are accepted as well. Ensure the column
+#'   contains only these possible values.
 #' @param group_vars Optional grouping variables for bin statistics
 #'   calculations. These should be specified as quoted column names.
 #' @param divisor1 A parameter to control the width of the probability of
@@ -33,9 +34,9 @@
 #' Like other statistical computing functions, `nonlinear_bins()` is happiest
 #' without missing data.  It is best to pass complete probability of survival
 #' and outcome data to the function for optimal performance. With smaller
-#' datasets, this is especially helpful.  However, `nonlinear_bins()` will
-#' handle `NA` values and throw a warning about missing probability of survival
-#' values, if any exist in `Ps_col`.
+#' datasets, this is especially helpful.  However, `nonlinear_bins()` will throw
+#' a warning about missing values, if any exist in `Ps_col` and/or
+#' `outcome_col`.
 #'
 #' @returns A list with two elements:
 #'   - `intervals`: A vector defining bin boundaries for probability of
@@ -212,24 +213,44 @@ nonlinear_bins <- function(
     )
   }
 
-  # Check if the outcome_col is binary
-  binary_data <- data |>
-    dplyr::pull({{ outcome_col }})
+  # Pull and check the outcome column
+  binary_data <- df |> dplyr::pull(!!outcome_col)
 
-  # Validate binary data
-  unique_values <- unique(stats::na.omit(binary_data))
-
-  if (
-    !all(unique_values %in% c(0, 1, TRUE, FALSE)) ||
-      length(unique_values) > 2 ||
-      length(unique_values) < 2
-  ) {
+  # Ensure the column is either logical or numeric
+  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
     cli::cli_abort(
-      "The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure."
+      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
     )
   }
 
-  # Check if outcome_col is missing and issue a warning
+  # Get unique non-missing values
+  non_missing <- stats::na.omit(binary_data)
+
+  # Validate type and values
+  if (is.logical(binary_data)) {
+    # Logical vector: ensure only TRUE/FALSE (no coercion needed)
+    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
+      )
+    }
+  } else if (is.numeric(binary_data)) {
+    # Numeric vector: ensure strictly 0 or 1
+    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
+      )
+    }
+  } else {
+    # Not logical or numeric
+    cli::cli_abort(
+      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
+
+  # Warn if missing
   if (any(is.na(binary_data))) {
     cli::cli_warn(
       "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn nonlinear_bins}."

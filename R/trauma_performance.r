@@ -19,18 +19,12 @@
 #'
 #'   The column should contain binary values indicating the patient outcome.
 #'   Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
-#'   (alive), or other similar binary representations (e.g., "Yes" for dead and
-#'   "No" for alive). The function will check for two unique values in this
-#'   column and expects them to represent the outcome in a binary form.
+#'   (alive). The function will check values in this column and expects them to
+#'   represent the outcome in a binary form.
 #'
-#' @param outcome The value representing mortality (default is 1). Can also be set
-#'   to 0 or TRUE/FALSE, depending on how the outcome is encoded in
-#'   `outcome_col`.
 #' @param z_method A character vector indicating which method to use for
 #'   calculating the Z-score. Must be one of "survival" or "mortality". The
 #'   default is "survival".
-#' @param diagnostics A logical flag (default is FALSE). If TRUE, diagnostic
-#'   information about the W, M, and Z scores will be printed to the console.
 #'
 #' @return A tibble containing the following calculations:
 #' \itemize{
@@ -43,9 +37,9 @@
 #' the survival probability (`Ps`) for all patients.
 #' \item `Predicted_Deaths`: The total predicted number of deaths, calculated as
 #' `1 - Ps` for all patients.
-#' \item `Patient_Estimate`: The estimated number of patients who survived,
-#' calculated based on the W-score. This value reflects the difference between
-#' the actual and predicted number of survivors.
+#' \item `Patient_Estimate`: The estimated number of patients who survived that
+#' were predicted to die, calculated based on the W-score. This value reflects
+#' the difference between the actual and predicted number of deceased patients.
 #' \item `W_Score`: The W-score, representing the difference between the
 #' observed and expected number of survivors per 100 patients. A positive
 #' W-score indicates that more patients survived than expected, while a negative
@@ -63,6 +57,21 @@
 #' The positive Z_Score indicates that more patients survived than predicted,
 #' while a negative Z-score indicates fewer survivors than predicted.
 #'}
+#'
+#' @details
+#'
+#' The function checks whether the `outcome_col` contains values representing a
+#' binary outcome. It also ensures that `Ps_col` contains numeric values within
+#' the range 0 to 1. If any values exceed 1, a warning is issued. The patients
+#' are then grouped into predefined Ps ranges, and the function compares the
+#' fraction of patients in each range with the MTOS case mix distribution.
+#'
+#' Like other statistical computing functions, `trauma_performance()` is
+#' happiest without missing data.  It is best to pass complete probability of
+#' survival and outcome data to the function for optimal performance. With
+#' smaller datasets, this is especially helpful.  However,
+#' `trauma_performance()` will throw a warning about missing values, if any
+#' exist in `Ps_col` and/or `outcome_col`.
 #'
 #' @examples
 #' # Generate example data
@@ -129,9 +138,7 @@ trauma_performance <- function(
   df,
   Ps_col,
   outcome_col,
-  outcome = 1,
-  z_method = c("survival", "mortality"),
-  diagnostics = FALSE
+  z_method = c("survival", "mortality")
 ) {
   if (length(z_method) > 1) {
     z_method <- "survival"
@@ -146,23 +153,49 @@ trauma_performance <- function(
     cli::cli_abort("The first argument must be a dataframe.")
   }
 
-  # Check if the outcome_col is binary
-  binary_data <- df |>
-    dplyr::select({{ outcome_col }}) |>
-    dplyr::pull()
+  # Pull and check the outcome column
+  binary_data <- df |> dplyr::pull(!!outcome_col)
 
-  # Validate binary data
-  unique_values <- unique(stats::na.omit(binary_data))
-
-  if (
-    !all(unique_values %in% c(0, 1, TRUE, FALSE), na.rm = T) ||
-      length(unique_values) > 2
-  ) {
+  # Ensure the column is either logical or numeric
+  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
     cli::cli_abort(
-      "The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure."
+      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
     )
   }
 
+  # Get unique non-missing values
+  non_missing <- stats::na.omit(binary_data)
+
+  # Validate type and values
+  if (is.logical(binary_data)) {
+    # Logical vector: ensure only TRUE/FALSE (no coercion needed)
+    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
+      )
+    }
+  } else if (is.numeric(binary_data)) {
+    # Numeric vector: ensure strictly 0 or 1
+    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
+      )
+    }
+  } else {
+    # Not logical or numeric
+    cli::cli_abort(
+      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
+
+  # Warn if missing
+  if (any(is.na(binary_data))) {
+    cli::cli_warn(
+      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_performance}."
+    )
+  }
   # Check if Ps column is numeric
 
   # dplyr::pull the Ps data
@@ -174,49 +207,39 @@ trauma_performance <- function(
   }
 
   # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
-  if (any(Ps_data < 0 | Ps_data > 100, na.rm = T)) {
+  if (any(Ps_data < 0 | Ps_data > 1, na.rm = T)) {
     cli::cli_abort(
-      "The probability of survival (Ps) values must be between 0 and 100."
+      "The probability of survival (Ps) values must be between 0 and 1."
     )
   }
 
-  # Notify the user if any conversions were made and manipulate the data if necessary
-  if (any(Ps_data > 1, na.rm = T)) {
-    cli::cli_alert_info(
-      "Some Probability of survival (Ps) values will be divided by 100 to convert to decimal format."
+  # Check if Ps column is missing
+  if (any(is.na(Ps_data))) {
+    cli::cli_warn(
+      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_performance}."
     )
-
-    # Convert ##.## format to decimal if needed (rowwise operation but vectorized)
-    Ps_data <- dplyr::if_else(Ps_data > 1, Ps_data / 100, Ps_data)
-
-    # convert ##.## percentages to 0.### percentages
-    df <- df |>
-      dplyr::mutate(!!Ps_col := Ps_data)
   }
 
   ### Initiate calculation of the W-Score
 
   # Total number of patients
   total_patients <- df |>
-    dplyr::filter(!is.na(!!Ps_col) & !is.na(!!outcome_col)) |>
     nrow()
 
   # get n survivors
   total_survivors <- df |>
-    dplyr::filter(!is.na(!!Ps_col) & !is.na(!!outcome_col)) |>
-    dplyr::summarize(survivors = sum(!!outcome_col != outcome)) |>
+    dplyr::summarize(survivors = sum(!!outcome_col == 0)) |>
     dplyr::pull(survivors)
 
   # Number of patients who died
   total_deaths <- df |>
-    dplyr::filter(
-      !is.na(!!Ps_col) & !is.na(!!outcome_col) & (!!outcome_col == outcome)
+    dplyr::summarize(
+      deaths = sum(!!outcome_col == 1, na.rm = TRUE)
     ) |>
-    nrow()
+    dplyr::pull(deaths)
 
   # Sum of Ps values for the patients
   sum_Ps <- df |>
-    dplyr::filter(!is.na(!!Ps_col)) |>
     dplyr::summarize(sum_Ps = sum(!!Ps_col, na.rm = TRUE)) |>
     dplyr::pull(sum_Ps)
 
@@ -252,7 +275,6 @@ trauma_performance <- function(
 
   # Bin patients into Ps ranges and calculate current fractions
   fractions_set <- df |>
-    dplyr::filter(!is.na(!!Ps_col) & !is.na(!!outcome_col)) |>
     dplyr::mutate(
       Ps_range = dplyr::case_when(
         !!Ps_col >= 0.96 ~ "0.96 - 1.00",
@@ -281,7 +303,6 @@ trauma_performance <- function(
 
   # get key statistics
   z_data <- df |>
-    dplyr::filter(!is.na(!!Ps_col) & !is.na(!!outcome_col)) |>
     dplyr::mutate(
       prob_death = 1 - !!Ps_col,
       predicted_prob_death = !!Ps_col * prob_death
@@ -311,157 +332,24 @@ trauma_performance <- function(
       dplyr::pull(z_score)
   }
 
-  # Optionally print diagnostic information related to the W-Score test
-
-  if (diagnostics) {
-    # print diagnostic information to the console
-    cli::cli_h1("Trauma Program Performance Summary")
-
-    # print critical information about the calculations
-    cli::cli_alert_info(
-      "The numbers involved in the overall calculations below are:"
-    )
-    cli::cli_text("{symbol$arrow_right} Total patients = {total_patients}")
-    cli::cli_text("{symbol$arrow_right} Total survivors = {total_survivors}")
-    cli::cli_text("{symbol$arrow_right} Total deaths = {total_deaths}")
-    cli::cli_text(
-      "{symbol$arrow_right} Predicted survivors = {round(sum_Ps, digits = 2)}"
-    )
-    cli::cli_text(
-      "{symbol$arrow_right} Predicted deaths = {round(sum(probability_death), digits = 2)}"
+  # Return the scores as a dplyr::tibble
+  result <- dplyr::tibble(
+    N_Patients = total_patients,
+    N_Survivors = total_survivors,
+    N_Deaths = total_deaths,
+    Predicted_Survivors = sum_Ps,
+    Predicted_Deaths = sum(probability_death),
+    Patient_Estimate = W_score * (total_patients / 100),
+    W_Score = W_score,
+    M_Score = M_score,
+    Z_Score = Z_score
+  ) |>
+    tidyr::pivot_longer(
+      cols = tidyselect::everything(),
+      names_to = "Calculation_Name",
+      values_to = "Value"
     )
 
-    cli::cli_h2("W-Score Information: Trauma Program Performance:")
-
-    # get dynamic diagnostic text W-Score
-    if (W_score > 0) {
-      cli::cli_alert_success(
-        "W-Score was estimated as {.val {round(W_score, digits = 2)}}."
-      )
-      cli::cli_alert_info(c(
-        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
-        cli::col_blue("more"),
-        " patients survived than were expected."
-      ))
-      cli::cli_alert_info(c(
-        "v" = "The estimated number of patients saved that were ",
-        cli::col_blue("statistically expected to die"),
-        " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."
-      ))
-    } else if (W_score < 0) {
-      cli::cli_alert_warning(
-        "W-Score was estimated as {.val {round(W_score, digits = 2)}}."
-      )
-      cli::cli_alert_info(c(
-        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
-        cli::col_blue("fewer"),
-        " patients survived than were expected."
-      ))
-      cli::cli_alert_info(c(
-        "v" = "The estimated number of patients lost that were ",
-        cli::col_blue("statistically expected to live"),
-        " was {.val {abs(round(W_score * (total_patients / 100), digits = 1))}}."
-      ))
-    } else {
-      cli::cli_alert_danger(
-        "W-Score was estimated as {.val {round(W_score, digits = 2)}}.  This result could indicate a problem with the data passed to {.fn trauma_performance}. Please check the data and ensure proper filters are applied and appropriate data types used."
-      )
-
-      cli::cli_alert_info(c(
-        "i" = "Relative mortality analysis indicates that for every 100 patients, {.val {abs(round(W_score, digits = 2))}} ",
-        cli::col_blue("more"),
-        " patients survived than were expected."
-      ))
-    }
-
-    cli::cli_h2(
-      "M-Score Information: Current Trauma Population Similarity to the Major Trauma Study Population:"
-    )
-
-    # get dynamic diagnostic text M-Score
-    if (M_score >= 0.88) {
-      cli::cli_alert_success(
-        "M-Score was estimated as {.val {round(M_score, digits = 2)}}."
-      )
-      cli::cli_alert_info(c(
-        "i" = "The patient case mix is considered ",
-        cli::col_green("SIMILAR"),
-        " to the Major Trauma Outcomes Study (MTOS) case mix."
-      ))
-    } else {
-      cli::cli_alert_warning(
-        "M-Score was estimated as {.val {round(M_score, digits = 2)}}."
-      )
-      cli::cli_alert_info(c(
-        "i" = "The patient case mix is considered ",
-        cli::col_red("DISSIMILAR"),
-        " to the MTOS case mix."
-      ))
-    }
-
-    cli::cli_h2(
-      "Z-Score Information: Difference Between Actual and Predicted {str_to_title(z_method)}:"
-    )
-
-    # Inference here based on Peitzman et al. (1990)
-    if (z_method == "mortality") {
-      if (Z_score < 0) {
-        cli::cli_alert_success(
-          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
-        )
-        cli::cli_alert_info(c(
-          "i" = "Significantly ",
-          cli::col_green("fewer"),
-          " deaths occurred compared to predicted deaths."
-        ))
-      } else if (Z_score > 0) {
-        cli::cli_alert_warning(
-          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
-        )
-        cli::cli_alert_info(c(
-          "i" = "Significantly ",
-          cli::col_red("more"),
-          " deaths occurred compared to predicted deaths."
-        ))
-      }
-    } else if (z_method == "survival") {
-      if (Z_score > 0) {
-        cli::cli_alert_success(
-          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
-        )
-        cli::cli_alert_info(c(
-          "i" = "Significantly ",
-          cli::col_green("more"),
-          " patients survived compared to predicted survivors."
-        ))
-      } else if (Z_score < 0) {
-        cli::cli_alert_warning(
-          "Z-Score was estimated as {.val {round(Z_score, digits = 2)}}."
-        )
-        cli::cli_alert_info(c(
-          "i" = "Significantly ",
-          cli::col_red("fewer"),
-          " patients survived compared to predicted survivors."
-        ))
-      }
-    }
-  } else {
-    # Return the scores as a dplyr::tibble
-    dplyr::tibble(
-      N_Patients = total_patients,
-      N_Survivors = total_survivors,
-      N_Deaths = total_deaths,
-      Predicted_Survivors = sum_Ps,
-      Predicted_Deaths = sum(probability_death),
-      Patient_Estimate = W_score * (total_patients / 100),
-      W_Score = W_score,
-      M_Score = M_score,
-      Z_Score = Z_score
-    ) |>
-      tidyr::pivot_longer(
-        cols = tidyselect::everything(),
-        names_to = "Calculation_Name",
-        values_to = "Value"
-      )
-  }
+  # Return the result
+  return(result)
 }

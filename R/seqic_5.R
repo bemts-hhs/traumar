@@ -14,7 +14,9 @@
 #'   concentration. Numeric. A non-missing value indicates a test was performed.
 #'   Values greater than zero are considered positive results.
 #' @param drug_screen Unquoted column name for the drug screen result. Character
-#'   or factor. May contain keywords (e.g., "opioid", "cocaine", "none").
+#'   or factor. May contain keywords (e.g., "opioid", "cocaine", "none"). The
+#'   keywords used in this function correspond to the National Trauma Data Bank
+#'   (NTDB) field values for the corresponding data element.
 #' @inheritDotParams nemsqar::nemsqa_binomial_confint conf.level correct
 #'
 #' @details This function:

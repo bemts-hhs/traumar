@@ -9,9 +9,7 @@ trauma_performance(
   df,
   Ps_col,
   outcome_col,
-  outcome = 1,
-  z_method = c("survival", "mortality"),
-  diagnostics = FALSE
+  z_method = c("survival", "mortality")
 )
 }
 \arguments{
@@ -25,20 +23,12 @@ trauma_performance(
 
 The column should contain binary values indicating the patient outcome.
 Valid values include 1 (dead) and 0 (alive), or TRUE (dead) and FALSE
-(alive), or other similar binary representations (e.g., "Yes" for dead and
-"No" for alive). The function will check for two unique values in this
-column and expects them to represent the outcome in a binary form.}
-
-\item{outcome}{The value representing mortality (default is 1). Can also be set
-to 0 or TRUE/FALSE, depending on how the outcome is encoded in
-\code{outcome_col}.}
+(alive). The function will check values in this column and expects them to
+represent the outcome in a binary form.}
 
 \item{z_method}{A character vector indicating which method to use for
 calculating the Z-score. Must be one of "survival" or "mortality". The
 default is "survival".}
-
-\item{diagnostics}{A logical flag (default is FALSE). If TRUE, diagnostic
-information about the W, M, and Z scores will be printed to the console.}
 }
 \value{
 A tibble containing the following calculations:
@@ -52,9 +42,9 @@ provided outcome data.
 the survival probability (\code{Ps}) for all patients.
 \item \code{Predicted_Deaths}: The total predicted number of deaths, calculated as
 \code{1 - Ps} for all patients.
-\item \code{Patient_Estimate}: The estimated number of patients who survived,
-calculated based on the W-score. This value reflects the difference between
-the actual and predicted number of survivors.
+\item \code{Patient_Estimate}: The estimated number of patients who survived that
+were predicted to die, calculated based on the W-score. This value reflects
+the difference between the actual and predicted number of deceased patients.
 \item \code{W_Score}: The W-score, representing the difference between the
 observed and expected number of survivors per 100 patients. A positive
 W-score indicates that more patients survived than expected, while a negative
@@ -81,6 +71,20 @@ the provided dataset and calculates performance metrics for trauma programs.
 For more information on the methods used in this function, please see
 Champion et al. (1990) on the W score, and Flora (1978) and Boyd et al.
 (1987) on the M and Z scores.
+}
+\details{
+The function checks whether the \code{outcome_col} contains values representing a
+binary outcome. It also ensures that \code{Ps_col} contains numeric values within
+the range 0 to 1. If any values exceed 1, a warning is issued. The patients
+are then grouped into predefined Ps ranges, and the function compares the
+fraction of patients in each range with the MTOS case mix distribution.
+
+Like other statistical computing functions, \code{trauma_performance()} is
+happiest without missing data.  It is best to pass complete probability of
+survival and outcome data to the function for optimal performance. With
+smaller datasets, this is especially helpful.  However,
+\code{trauma_performance()} will throw a warning about missing values, if any
+exist in \code{Ps_col} and/or \code{outcome_col}.
 }
 \examples{
 # Generate example data

@@ -27,7 +27,8 @@ rmm(
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
 should represent "alive" (survived), while \code{0} should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.}
+not survive).  \code{TRUE/FALSE} are accepted as well. Ensure the column
+contains only these possible values.}
 
 \item{group_vars}{Optional character vector specifying grouping variables for
 stratified analysis. If \code{NULL}, the calculation is performed on the entire
@@ -112,9 +113,8 @@ sampling to calculate the confidence intervals via the standard error method.
 Like other statistical computing functions, \code{rmm()} is happiest without
 missing data.  It is best to pass complete probability of survival and
 mortality outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, \code{rmm()} will handle \code{NA}
-values and throw a warning about missing probability of survival values, if
-any exist in \code{Ps_col}.
+datasets, this is especially helpful.  However, \code{rmm()} will handle throw a
+warning about missing values, if any exist in \code{Ps_col} and/or \code{outcome_col}.
 
 Due to the use of bootstrap sampling within the function, users should
 consider setting the random number \code{seed} within \code{rmm()} for reproducibility.

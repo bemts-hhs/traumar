@@ -17,24 +17,44 @@ trauma_case_mix(df, Ps_col, outcome_col)
 (valid values are 1 or TRUE for alive, 0 or FALSE for dead).}
 }
 \value{
-A data frame containing the Ps ranges, the fraction of patients in
-each range in the current population, and the MTOS distribution for each
-range.
+A data frame containing:
+\itemize{
+\item \code{Ps_range}: The probability of survival range category.
+\item \code{current_fraction}: The fraction of patients in the current
+dataset within each Ps range.
+\item \code{MTOS_distribution}: The reference distribution of patients in
+each Ps range based on the MTOS study.
+\item \code{survivals}: The number of observed survivors (outcome = 1) in
+each Ps range.
+\item \code{predicted_survivals}: The sum of predicted survivals (sum of
+Ps values) in each Ps range.
+\item \code{deaths}: The number of observed deaths (outcome = 0) in each
+Ps range.
+\item \code{predicted_deaths}: The sum of predicted deaths (sum of 1 - Ps
+values) in each Ps range.
+\item \code{count}: The total number of patients in each Ps range.
+}
 }
 \description{
 This function compares the current patient population's case mix (based on
 probability of survival, Ps) to the MTOS case mix by binning patients into
 specific Ps ranges. It returns the fraction of patients in each range and
-compares it to the MTOS distribution. For more information on the methods used
-in these calculations, please see Flora (1978) and Boyd et al. (1987).
+compares it to the MTOS distribution. For more information on the methods
+used in these calculations, please see Flora (1978) and Boyd et al. (1987).
 }
 \details{
-The function checks whether the \code{outcome_col} contains exactly two
-unique values representing a binary outcome. It also ensures that \code{Ps_col}
-contains numeric values within the range 0 to 100. If any values exceed 1,
-they are converted to decimal format. The patients are then grouped into
-predefined Ps ranges, and the function compares the fraction of patients in
-each range with the MTOS case mix distribution.
+The function checks whether the \code{outcome_col} contains values representing a
+binary outcome. It also ensures that \code{Ps_col} contains numeric values within
+the range 0 to 1. If any values exceed 1, a warning is issued. The patients
+are then grouped into predefined Ps ranges, and the function compares the
+fraction of patients in each range with the MTOS case mix distribution.
+
+Like other statistical computing functions, \code{trauma_case_mix()} is happiest
+without missing data.  It is best to pass complete probability of survival
+and outcome data to the function for optimal performance. With smaller
+datasets, this is especially helpful.  However, \code{trauma_case_mix()} will
+throw a warning about missing values, if any exist in \code{Ps_col} and/or
+\code{outcome_col}.
 }
 \examples{
 # Generate example data

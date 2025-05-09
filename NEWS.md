@@ -22,6 +22,10 @@ _ Additionally, a convenience function `is_it_normal()` provides the ability for
 - Improved examples for the the package's README, `probability_of_survival()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` using more helpful data.
 - Improved error messages coming from `nonlinear_bins()` when sample sizes too small to calculate bins are passed to the function, including when passed to `rmm()` and `rm_bin_summary()`.
 - Code formatting changed to the `air` package through the RStudio IDE.
+- Updated data validation for `trauma_case_mix()`, `trauma_performance()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` to provide improved messaging related to missings in `Ps_col` and `outcome_col` .
+- Across functions using the probability of survival calculation, it is expected that Ps values are between 0 and 1.  Functions will no longer handle values in percentage format (e.g. 10, 50, 98).
+- `trauma_performance()` will no longer print out a summary using the `diagnostics` argument, which is no longer used in this function.
+- The `outcome` argument was removed from `trauma_performance()` to remove ambiguity in the nature of the `outcome_col` values. Values of `TRUE/FALSE` and `1/0` are accepted, only.
 
 # traumar 1.1.0
 

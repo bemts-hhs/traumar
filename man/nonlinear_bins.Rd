@@ -25,7 +25,8 @@ data for a set of patients.}
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
 should represent "alive" (survived), while \code{0} should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.}
+not survive).  \code{TRUE/FALSE} are accepted as well. Ensure the column
+contains only these possible values.}
 
 \item{group_vars}{Optional grouping variables for bin statistics
 calculations. These should be specified as quoted column names.}
@@ -75,9 +76,9 @@ count, and percentage for each bin.
 Like other statistical computing functions, \code{nonlinear_bins()} is happiest
 without missing data.  It is best to pass complete probability of survival
 and outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, \code{nonlinear_bins()} will
-handle \code{NA} values and throw a warning about missing probability of survival
-values, if any exist in \code{Ps_col}.
+datasets, this is especially helpful.  However, \code{nonlinear_bins()} will throw
+a warning about missing values, if any exist in \code{Ps_col} and/or
+\code{outcome_col}.
 }
 \examples{
 # Generate example data
