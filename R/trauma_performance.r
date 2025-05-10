@@ -228,15 +228,15 @@ trauma_performance <- function(
 
   # get n survivors
   total_survivors <- df |>
-    dplyr::summarize(survivors = sum(!!outcome_col == 0)) |>
+    dplyr::summarize(survivors = sum(!!outcome_col == 0, na.rm = TRUE)) |>
     dplyr::pull(survivors)
 
   # Number of patients who died
   total_deaths <- df |>
     dplyr::summarize(
-      deaths = sum(!!outcome_col == 1, na.rm = TRUE)
+      total_deaths = sum(!!outcome_col == 1, na.rm = TRUE)
     ) |>
-    dplyr::pull(deaths)
+    dplyr::pull(total_deaths)
 
   # Sum of Ps values for the patients
   sum_Ps <- df |>
@@ -289,13 +289,13 @@ trauma_performance <- function(
       current_fraction = dplyr::n() / nrow(df),
       .by = Ps_range
     ) |>
-    dplyr::left_join(MTOS_distribution, by = "Ps_range") |>
+    dplyr::left_join(MTOS_distribution, by = dplyr::join_by(Ps_range)) |>
     dplyr::arrange(Ps_range)
 
   # Take the M-Score
   M_score <- fractions_set |>
     dplyr::mutate(smallest_val = pmin(current_fraction, MTOS_distribution)) |>
-    dplyr::summarize(M_score = sum(smallest_val)) |>
+    dplyr::summarize(M_score = sum(smallest_val, na.rm = TRUE)) |>
     dplyr::pull(M_score)
 
   ### Initiate process to calculate the Z-Score
@@ -318,7 +318,7 @@ trauma_performance <- function(
     # get Z-Score, studying mortality (negative Z-Score is desired)
     Z_score <- z_data |>
       dplyr::summarize(
-        z_score = (total_deaths - sum(prob_death)) /
+        z_score = (total_deaths - sum(prob_death, na.rm = TRUE)) /
           sqrt(sum(predicted_prob_death)) # standard error of
       ) |>
       dplyr::pull(z_score)
@@ -326,8 +326,8 @@ trauma_performance <- function(
     # get Z-Score, studying mortality (positive Z-Score is desired)
     Z_score <- z_data |>
       dplyr::summarize(
-        z_score = (total_survivors - sum(!!Ps_col)) /
-          sqrt(sum(predicted_prob_death))
+        z_score = (total_survivors - sum(!!Ps_col, na.rm = TRUE)) /
+          sqrt(sum(predicted_prob_death, na.rm = TRUE))
       ) |>
       dplyr::pull(z_score)
   }
@@ -338,17 +338,12 @@ trauma_performance <- function(
     N_Survivors = total_survivors,
     N_Deaths = total_deaths,
     Predicted_Survivors = sum_Ps,
-    Predicted_Deaths = sum(probability_death),
+    Predicted_Deaths = sum(probability_death, na.rm = TRUE),
     Patient_Estimate = W_score * (total_patients / 100),
     W_Score = W_score,
     M_Score = M_score,
     Z_Score = Z_score
-  ) |>
-    tidyr::pivot_longer(
-      cols = tidyselect::everything(),
-      names_to = "Calculation_Name",
-      values_to = "Value"
-    )
+  )
 
   # Return the result
   return(result)

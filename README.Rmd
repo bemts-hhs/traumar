@@ -201,10 +201,10 @@ W-Score may mask declines in performance due to the influence of lower acuity
 patients via the MTOS Distribution. The {traumar} package automates RMM
 calculation as a single score using the nonlinear binning method from Napoli et
 al. (2017). The `rmm()` and `rm_bin_summary()` functions internally call
-`nonlinear_bins()` to generate the non-linear binning process. The function uses 
-a bootstrap process with `n_samples` repetitions to simulate an RMM distribution and
-estimate 95% confidence intervals. The RMM, along with corresponding
-confidence intervals, are provided for the population in `data`, as well.
+`nonlinear_bins()` to generate the non-linear binning process. The function uses
+bootstrap sampling with `n_samples` to simulate an RMM distribution and estimate
+95% confidence intervals. The RMM, along with corresponding confidence
+intervals, are provided for the population in `data`, as well.
 
 ```{r rmm}
 

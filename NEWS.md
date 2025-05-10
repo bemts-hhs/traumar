@@ -17,15 +17,18 @@ _ Additionally, a convenience function `is_it_normal()` provides the ability for
   - `seqic_indicator_12()`
   - `seqic_indicator_13()`
   - `is_it_normal()`
-- A bug fix was applied to `nonlinear_bins()` to make the `percent` column calculate correctly when groups were not introduced.
+- A fix was applied to `nonlinear_bins()` to make the `percent` column calculate correctly when groups were not introduced.
 - Removed hard-coded rounding from most calculations within the package where possible.
 - Improved examples for the the package's README, `probability_of_survival()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` using more helpful data.
 - Improved error messages coming from `nonlinear_bins()` when sample sizes too small to calculate bins are passed to the function, including when passed to `rmm()` and `rm_bin_summary()`.
 - Code formatting changed to the `air` package through the RStudio IDE.
 - Updated data validation for `trauma_case_mix()`, `trauma_performance()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` to provide improved messaging related to missings in `Ps_col` and `outcome_col` .
-- Across functions using the probability of survival calculation, it is expected that Ps values are between 0 and 1.  Functions will no longer handle values in percentage format (e.g. 10, 50, 98).
+- Across functions using the probability of survival calculation, it is expected that Ps values have a range of [0, 1].  Functions will no longer handle values in percentage format (e.g. 10, 50, 98).
 - `trauma_performance()` will no longer print out a summary using the `diagnostics` argument, which is no longer used in this function.
-- The `outcome` argument was removed from `trauma_performance()` to remove ambiguity in the nature of the `outcome_col` values. Values of `TRUE/FALSE` and `1/0` are accepted, only.
+- The `outcome` argument was removed from `trauma_performance()` to remove ambiguity in the nature of the `outcome_col` values. Only values of `TRUE/FALSE` and `1/0` are accepted.
+- The `diagnostics` argument was removed from `trauma_performance()` to make the user interface smoother.  Instead of providing guidance via outputs the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.
+- `trauma_performance()` will no longer provide a pivoted output as a default.  Users can elect to pivot the outputs as needed.
+- `rmm()` and `rm_bin_summary()` now have a new argument `bootstrap_ci` that allows a user to elect to use the additional functionality, or not.  `bootstrap_ci` defaults to `TRUE`.
 
 # traumar 1.1.0
 

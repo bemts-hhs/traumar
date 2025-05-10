@@ -14,6 +14,7 @@ rmm(
   Divisor2 = 5,
   Threshold_1 = 0.9,
   Threshold_2 = 0.99,
+  bootstrap_ci = TRUE,
   pivot = FALSE,
   seed = NULL
 )
@@ -49,6 +50,10 @@ probabilities (default is 0.9).}
 \item{Threshold_2}{The second threshold for dividing the survival
 probabilities (default is 0.99).}
 
+\item{bootstrap_ci}{A logical indicating whether to return the relative
+mortality metric estimate and 95\% confidence intervals using bootstrap
+sampling. Default is \code{TRUE}.}
+
 \item{pivot}{A logical indicating whether to return the results in a long
 format (\code{pivot = TRUE}) or wide format (\code{pivot = FALSE}, default). Use with
 caution in tandem with \code{group_vars} if the grouping variable is of a
@@ -70,13 +75,13 @@ population existing in \code{data}.
 the population RMM.
 \item \code{population_CI}: The confidence interval width for the population RMM.
 \item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for
-the bootstrap RMM.
+the bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap
-sample.
+sample. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for
-the bootstrap RMM.
+the bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_CI}: The width of the 95\% confidence interval for the
-bootstrap RMM.
+bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 \item If \code{pivot = TRUE}, the results will be in long format with two columns:
 \code{stat} and \code{value}, where each row corresponds to one of the calculated
 statistics.
@@ -113,8 +118,15 @@ sampling to calculate the confidence intervals via the standard error method.
 Like other statistical computing functions, \code{rmm()} is happiest without
 missing data.  It is best to pass complete probability of survival and
 mortality outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, \code{rmm()} will handle throw a
-warning about missing values, if any exist in \code{Ps_col} and/or \code{outcome_col}.
+datasets, this is especially helpful.  However, \code{rmm()} will throw a warning
+about missing values, if any exist in \code{Ps_col} and/or \code{outcome_col}.
+
+\code{rmm()} assumes \code{Ps_col} contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.
 
 Due to the use of bootstrap sampling within the function, users should
 consider setting the random number \code{seed} within \code{rmm()} for reproducibility.

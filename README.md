@@ -115,18 +115,12 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Calculate trauma performance (W, M, Z scores)
 trauma_performance(data, Ps_col = Ps, outcome_col = death)
-#> # A tibble: 9 × 2
-#>   Calculation_Name       Value
-#>   <chr>                  <dbl>
-#> 1 N_Patients          5000    
-#> 2 N_Survivors         1701    
-#> 3 N_Deaths            3299    
-#> 4 Predicted_Survivors 1711.   
-#> 5 Predicted_Deaths    3289.   
-#> 6 Patient_Estimate      -9.65 
-#> 7 W_Score               -0.193
-#> 8 M_Score                0.206
-#> 9 Z_Score               -0.412
+#> # A tibble: 1 × 9
+#>   N_Patients N_Survivors N_Deaths Predicted_Survivors Predicted_Deaths
+#>        <int>       <int>    <int>               <dbl>            <dbl>
+#> 1       5000        1701     3299               1711.            3289.
+#> # ℹ 4 more variables: Patient_Estimate <dbl>, W_Score <dbl>, M_Score <dbl>,
+#> #   Z_Score <dbl>
 ```
 
 ## Comparing the Probability of Survival Distribution of your Patient Mix to the [Major Trauma Outcomes Study](https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx)
@@ -144,13 +138,20 @@ how much confidence you can put into the Z score.
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
-#>      Ps_range current_fraction MTOS_distribution
-#> 1 0.00 - 0.25           0.5414             0.010
-#> 2 0.26 - 0.50           0.1432             0.043
-#> 3 0.51 - 0.75           0.1278             0.000
-#> 4 0.76 - 0.90           0.0870             0.052
-#> 5 0.91 - 0.95           0.0508             0.053
-#> 6 0.96 - 1.00           0.0498             0.842
+#>      Ps_range current_fraction MTOS_distribution survivals predicted_survivals
+#> 1 0.00 - 0.25           0.5414             0.010      2534            187.9191
+#> 2 0.26 - 0.50           0.1432             0.043       468            269.5871
+#> 3 0.51 - 0.75           0.1278             0.000       217            405.8877
+#> 4 0.76 - 0.90           0.0870             0.052        58            366.1312
+#> 5 0.91 - 0.95           0.0508             0.053        18            237.6390
+#> 6 0.96 - 1.00           0.0498             0.842         4            243.4833
+#>   deaths predicted_deaths count
+#> 1    173      2519.080869  2707
+#> 2    248       446.412896   716
+#> 3    422       233.112251   639
+#> 4    377        68.868790   435
+#> 5    236        16.361033   254
+#> 6    245         5.516716   249
 ```
 
 ## The Relative Mortality Metric
@@ -223,11 +224,10 @@ influence of lower acuity patients via the MTOS Distribution. The
 {traumar} package automates RMM calculation as a single score using the
 nonlinear binning method from Napoli et al. (2017). The `rmm()` and
 `rm_bin_summary()` functions internally call `nonlinear_bins()` to
-generate the non-linear binning process. The function uses a bootstrap
-process with `n_samples` repetitions to simulate an RMM distribution and
-estimate 95% confidence intervals. The RMM, along with corresponding
-confidence intervals, are provided for the population in `data`, as
-well.
+generate the non-linear binning process. The function uses bootstrap
+sampling with `n_samples` to simulate an RMM distribution and estimate
+95% confidence intervals. The RMM, along with corresponding confidence
+intervals, are provided for the population in `data`, as well.
 
 ``` r
 

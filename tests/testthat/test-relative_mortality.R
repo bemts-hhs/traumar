@@ -152,32 +152,94 @@ testthat::test_that("rmm function handles the pivot argument correctly", {
 })
 
 testthat::test_that("rmm function handles edge cases correctly", {
+  # Generate example data
+  set.seed(123)
+
+  # Parameters
+  # Total number of patients
+  n_patients <- 5000
+
+  # Arbitrary group labels
+  groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+  # Trauma types
+  trauma_type_values <- sample(
+    x = c("Blunt", "Penetrating"),
+    size = n_patients,
+    replace = TRUE
+  )
+
+  # RTS values
+  rts_values <- sample(
+    x = seq(from = 0, to = 7.8408, by = 0.005),
+    size = n_patients,
+    replace = TRUE
+  )
+
+  # patient ages
+  ages <- sample(
+    x = seq(from = 0, to = 100, by = 1),
+    size = n_patients,
+    replace = TRUE
+  )
+
+  # ISS scores
+  iss_scores <- sample(
+    x = seq(from = 0, to = 75, by = 1),
+    size = n_patients,
+    replace = TRUE
+  )
+
+  # Generate survival probabilities (Ps)
+  Ps <- traumar::probability_of_survival(
+    trauma_type = trauma_type_values,
+    age = ages,
+    rts = rts_values,
+    iss = iss_scores
+  )
+
+  # Simulate survival outcomes based on Ps
+  survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
+
+  # Create data frame
+  data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+    dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+
   # Test with edge case: only one row
-  df_one_row <- tibble::tibble(Ps = 0.50, survival = 1)
-  testthat::expect_error(rmm(
-    data = df_one_row,
-    Ps_col = Ps,
-    outcome_col = survival
-  ))
+  df_one_row <- data |> dplyr::slice_sample(n = 1)
+  testthat::expect_error(
+    rmm(
+      data = df_one_row,
+      Ps_col = Ps,
+      outcome_col = survival
+    ),
+    regexp = "One or more of the values calculated.*is non-finite"
+  )
 
   # Test with all NA values in Ps
-  df_na_ps <- tibble::tibble(Ps = c(NA, NA, NA), survival = c(1, 0, 1))
-  testthat::expect_error(rmm(
-    data = df_na_ps,
-    Ps_col = Ps,
-    outcome_col = survival
-  ))
+  df_na_ps <- data |>
+    dplyr::mutate(Ps = dplyr::if_else(Ps < 0.01, NA_real_, Ps))
+  testthat::expect_warning(
+    rmm(
+      data = df_na_ps,
+      Ps_col = Ps,
+      outcome_col = survival
+    ),
+    regexp = "Missing values detected in.*Ps_col"
+  )
 
   # Test with all missing outcome values
-  df_na_outcome <- tibble::tibble(
-    Ps = c(.20, .50, .80),
-    survival = c(NA, NA, NA)
+  df_na_outcome <- data |>
+    dplyr::mutate(survival = dplyr::if_else(Ps < 0.01, NA_real_, survival))
+
+  testthat::expect_warning(
+    rmm(
+      data = df_na_outcome,
+      Ps_col = Ps,
+      outcome_col = survival
+    ),
+    regexp = "Missing values detected in.*outcome_col"
   )
-  testthat::expect_error(rmm(
-    data = df_na_outcome,
-    Ps_col = Ps,
-    outcome_col = survival
-  ))
 })
 
 testthat::test_that("rmm function handles the seed argument correctly", {

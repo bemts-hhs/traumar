@@ -431,7 +431,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
   data_invalid_outcome$survival <- sample(1:3, 1000, replace = TRUE)
   testthat::expect_error(
     nonlinear_bins(data_invalid_outcome, Ps_col = Ps, outcome_col = survival),
-    "must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure."
+    "contains numeric values other than 0 and 1"
   )
 
   # Test for non-character group_vars

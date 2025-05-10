@@ -79,6 +79,13 @@ and outcome data to the function for optimal performance. With smaller
 datasets, this is especially helpful.  However, \code{nonlinear_bins()} will throw
 a warning about missing values, if any exist in \code{Ps_col} and/or
 \code{outcome_col}.
+
+\code{nonlinear_bins()} assumes \code{Ps_col} contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.
 }
 \examples{
 # Generate example data
@@ -151,15 +158,12 @@ results$bin_stats
 
 # Example with grouping by a categorical variable
 
-# Add random group variable
-data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
-
 # Run the function using a single grouping variable
 results_grouped <- nonlinear_bins(
   data,
   Ps_col = Ps,
   outcome_col = survival,
-  group_vars = "group"
+  group_vars = "groups"
 )
 
 # View grouped results

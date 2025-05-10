@@ -38,6 +38,13 @@
 #' a warning about missing values, if any exist in `Ps_col` and/or
 #' `outcome_col`.
 #'
+#' `nonlinear_bins()` assumes `Ps_col` contains probabilities derived from
+#' real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+#' Synthetic or low-variability data—especially with small sample sizes—may not
+#' reflect the logistic distribution of TRISS-derived survival probabilities.
+#' This can result in unstable estimates or function failure due to insufficient
+#' dispersion.
+#'
 #' @returns A list with two elements:
 #'   - `intervals`: A vector defining bin boundaries for probability of
 #'        survival.
@@ -146,15 +153,12 @@
 #'
 #' # Example with grouping by a categorical variable
 #'
-#' # Add random group variable
-#' data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
-#'
 #' # Run the function using a single grouping variable
 #' results_grouped <- nonlinear_bins(
 #'   data,
 #'   Ps_col = Ps,
 #'   outcome_col = survival,
-#'   group_vars = "group"
+#'   group_vars = "groups"
 #' )
 #'
 #' # View grouped results
@@ -214,7 +218,7 @@ nonlinear_bins <- function(
   }
 
   # Pull and check the outcome column
-  binary_data <- df |> dplyr::pull(!!outcome_col)
+  binary_data <- data |> dplyr::pull({{ outcome_col }})
 
   # Ensure the column is either logical or numeric
   if (!is.logical(binary_data) && !is.numeric(binary_data)) {
@@ -295,7 +299,7 @@ nonlinear_bins <- function(
   # Check that loc_9A and loc_9B are finite before using them in seq()
   if (
     suppressWarnings(
-      is.finite(min(loc_9A)) || is.finite(min(loc_9B))
+      is.finite(min(loc_9A)) && is.finite(min(loc_9B))
     )
   ) {
     len <- unique(
@@ -317,7 +321,7 @@ nonlinear_bins <- function(
     cli::cli_abort(
       c(
         "One or more of the values calculated to assign step sizes in the probability of survival intervals is non-finite.",
-        "i" = "This is likely due to a small sample/population size, please consider resampling your data, or consider using smaller {.var divisor1} and/or {.var divisor2} values."
+        "i" = "This is likely due to insufficient dispersion in {.var Ps_col}, and/or small sample/population size. Please check the data and consider resampling methods."
       )
     )
   }
@@ -341,63 +345,76 @@ nonlinear_bins <- function(
 
   # Optionally group data by dynamic group_vars
   # Or run the bin statistics on the whole dataset
-  if (!is.null(group_vars)) {
-    grouped_stats <- data |>
-      dplyr::group_by(!!!group_vars, bin_number, bin_start, bin_end) |>
-      dplyr::summarize(
-        mean = mean({{ Ps_col }}, na.rm = TRUE),
-        sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
-        Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
-        Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
-        AntiS_b = dplyr::if_else(
-          dplyr::n() > 0,
-          Pred_Survivors_b / dplyr::n(),
-          NA_real_
-        ),
-        AntiM_b = dplyr::if_else(
-          dplyr::n() > 0,
-          Pred_Deaths_b / dplyr::n(),
-          NA_real_
-        ),
-        alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
-        dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
-        count = dplyr::n(),
-        .groups = "drop"
-      ) |>
-      dplyr::ungroup() |>
-      dplyr::group_by(!!!group_vars) |>
-      dplyr::mutate(
-        percent = count / sum(count, na.rm = TRUE)
-      ) |>
-      dplyr::ungroup()
+  # Check that loc_9A and loc_9B are finite before using them in seq()
+  if (
+    suppressWarnings(
+      is.finite(min(loc_9A)) && is.finite(min(loc_9B))
+    )
+  ) {
+    if (!is.null(group_vars)) {
+      grouped_stats <- data |>
+        dplyr::group_by(!!!group_vars, bin_number, bin_start, bin_end) |>
+        dplyr::summarize(
+          mean = mean({{ Ps_col }}, na.rm = TRUE),
+          sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+          Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+          Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+          AntiS_b = dplyr::if_else(
+            dplyr::n() > 0,
+            Pred_Survivors_b / dplyr::n(),
+            NA_real_
+          ),
+          AntiM_b = dplyr::if_else(
+            dplyr::n() > 0,
+            Pred_Deaths_b / dplyr::n(),
+            NA_real_
+          ),
+          alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+          dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+          count = dplyr::n(),
+          .groups = "drop"
+        ) |>
+        dplyr::ungroup() |>
+        dplyr::group_by(!!!group_vars) |>
+        dplyr::mutate(
+          percent = count / sum(count, na.rm = TRUE)
+        ) |>
+        dplyr::ungroup()
+    } else {
+      grouped_stats <- data |>
+        dplyr::group_by(bin_number, bin_start, bin_end) |>
+        dplyr::summarize(
+          mean = mean({{ Ps_col }}, na.rm = TRUE),
+          sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+          Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+          Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+          AntiS_b = dplyr::if_else(
+            dplyr::n() > 0,
+            Pred_Survivors_b / dplyr::n(),
+            NA_real_
+          ),
+          AntiM_b = dplyr::if_else(
+            dplyr::n() > 0,
+            Pred_Deaths_b / dplyr::n(),
+            NA_real_
+          ),
+          alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+          dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+          count = dplyr::n(),
+          .groups = "drop"
+        ) |>
+        dplyr::mutate(
+          percent = count / sum(count, na.rm = TRUE)
+        )
+    }
   } else {
-    grouped_stats <- data |>
-      dplyr::group_by(bin_number, bin_start, bin_end) |>
-      dplyr::summarize(
-        mean = mean({{ Ps_col }}, na.rm = TRUE),
-        sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
-        Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
-        Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
-        AntiS_b = dplyr::if_else(
-          dplyr::n() > 0,
-          Pred_Survivors_b / dplyr::n(),
-          NA_real_
-        ),
-        AntiM_b = dplyr::if_else(
-          dplyr::n() > 0,
-          Pred_Deaths_b / dplyr::n(),
-          NA_real_
-        ),
-        alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
-        dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
-        count = dplyr::n(),
-        .groups = "drop"
-      ) |>
-      dplyr::mutate(
-        percent = count / sum(count, na.rm = TRUE)
+    cli::cli_abort(
+      c(
+        "One or more of the values calculated to assign step sizes in the probability of survival intervals is non-finite.",
+        "i" = "This is likely due to insufficient dispersion in {.var Ps_col}, and/or small sample/population size. Please check the data and consider resampling methods."
       )
+    )
   }
-
   # Return a list with intervals and the bin statistics
   return(list(intervals = intervals, bin_stats = grouped_stats))
 }
