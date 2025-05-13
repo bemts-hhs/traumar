@@ -37,10 +37,10 @@ BugReports: https://github.com/bemts-hhs/traumar/issues
 Depends:
     R (>= 4.1)
 Imports: 
-    cli (>= 3.6.5),
+    cli,
     dplyr (>= 1.1.4),
     ggplot2 (>= 3.5.2),
-    glue (>= 1.8.0),
+    glue,
     hms (>= 1.1.3),
     infer (>= 1.0.8),
     lifecycle,
@@ -49,7 +49,7 @@ Imports:
     nortest (>= 1.0-4),
     patchwork (>= 1.3.0),
     purrr (>= 1.0.4),
-    rlang (>= 1.1.6),
+    rlang,
     stats,
     stringr (>= 1.5.1),
     tibble (>= 3.2.1),

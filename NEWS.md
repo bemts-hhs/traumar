@@ -28,7 +28,7 @@ _ Additionally, a convenience function `is_it_normal()` provides the ability for
 - The `outcome` argument was removed from `trauma_performance()` to remove ambiguity in the nature of the `outcome_col` values. Only values of `TRUE/FALSE` and `1/0` are accepted.
 - The `diagnostics` argument was removed from `trauma_performance()` to make the user interface smoother.  Instead of providing guidance via outputs the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.
 - `trauma_performance()` will no longer provide a pivoted output as a default.  Users can elect to pivot the outputs as needed.
-- `rmm()` and `rm_bin_summary()` now have a new argument `bootstrap_ci` that allows a user to elect to use the additional functionality, or not.  `bootstrap_ci` defaults to `TRUE`.
+- `rmm()` and `rm_bin_summary()` now have a new argument `bootstrap_ci` that allows a user to elect to use the additional functionality, or not.  `bootstrap_ci` defaults to `TRUE` in order to better support backward compatibility.
 
 # traumar 1.1.0
 

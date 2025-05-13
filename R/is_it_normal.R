@@ -258,14 +258,19 @@ is_it_normal <- function(
             vec <- dplyr::pull(group_data, !!var)
             n_complete <- sum(!is.na(vec))
 
-            group_label <- paste(
-              purrr::map2_chr(
-                names(group_keys),
-                group_keys,
-                ~ glue::glue("{.x} = {.y}")
-              ),
-              collapse = ", "
-            )
+            # control structure for no group
+            if (!is.null(group_vars)) {
+              group_label <- paste(
+                purrr::map2_chr(
+                  names(group_keys),
+                  group_keys,
+                  ~ glue::glue("{.x} = {.y}")
+                ),
+                collapse = ", "
+              )
+            } else {
+              group_label <- "full dataset"
+            }
 
             if (n_complete < test_info$min_n) {
               glue::glue(
