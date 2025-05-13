@@ -17,7 +17,7 @@ the calculation. Probability of survival is expressed as a percentage."></head><
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,6 +101,7 @@ percentages on a scale from 0 to 1.</p>
 <span class="r-in"><span>  ISS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">25</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Run the function on example data</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">trauma_data</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Ps <span class="op">=</span> <span class="fu">probability_of_survival</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    trauma_type <span class="op">=</span> <span class="va">Trauma_Type</span>,</span></span>
@@ -108,6 +109,12 @@ percentages on a scale from 0 to 1.</p>
 <span class="r-in"><span>    rts <span class="op">=</span> <span class="va">RTS</span>,</span></span>
 <span class="r-in"><span>    iss <span class="op">=</span> <span class="va">ISS</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Print the result</span></span></span>
+<span class="r-in"><span><span class="va">result</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Trauma_Type Patient_Age_Years  RTS ISS        Ps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       Blunt                30 7.84  10 0.9936551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Penetrating                60 6.90  25 0.8257009</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -120,7 +127,7 @@ percentages on a scale from 0 to 1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

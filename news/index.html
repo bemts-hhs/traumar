@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,41 @@
       <small>Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="traumar-120">traumar 1.2.0<a class="anchor" aria-label="anchor" href="#traumar-120"></a></h2>
+<ul><li>This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators. _ Additionally, a convenience function <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> provides the ability for users of <code>traumar</code> to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> to conduct exploratory data analysis of one or more variables within zero or more groups.</li>
+<li>Added the following functions:
+<ul><li><code><a href="../reference/seqic_indicator_1.html">seqic_indicator_1()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_2.html">seqic_indicator_2()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_3.html">seqic_indicator_3()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_4.html">seqic_indicator_4()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_5.html">seqic_indicator_5()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_6.html">seqic_indicator_6()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_7.html">seqic_indicator_7()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_8.html">seqic_indicator_8()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_9.html">seqic_indicator_9()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_10.html">seqic_indicator_10()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_11.html">seqic_indicator_11()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_12.html">seqic_indicator_12()</a></code></li>
+<li><code><a href="../reference/seqic_indicator_13.html">seqic_indicator_13()</a></code></li>
+<li><code><a href="../reference/is_it_normal.html">is_it_normal()</a></code></li>
+</ul></li>
+<li>A fix was applied to <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> to make the <code>percent</code> column calculate correctly when groups were not introduced.</li>
+<li>Removed hard-coded rounding from most calculations within the package where possible.</li>
+<li>Improved examples for the the package’s README, <code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> using more helpful data.</li>
+<li>Improved error messages coming from <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> when sample sizes too small to calculate bins are passed to the function, including when passed to <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>.</li>
+<li>Code formatting changed to the <code>air</code> package through the RStudio IDE.</li>
+<li>Updated data validation for <code><a href="../reference/trauma_case_mix.html">trauma_case_mix()</a></code>, <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> to provide improved messaging related to missings in <code>Ps_col</code> and <code>outcome_col</code> .</li>
+<li>Across functions using the probability of survival calculation, it is expected that Ps values have a range of [0, 1]. Functions will no longer handle values in percentage format (e.g. 10, 50, 98).</li>
+<li>
+<code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> will no longer print out a summary using the <code>diagnostics</code> argument, which is no longer used in this function.</li>
+<li>The <code>outcome</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to remove ambiguity in the nature of the <code>outcome_col</code> values. Only values of <code>TRUE/FALSE</code> and <code>1/0</code> are accepted.</li>
+<li>The <code>diagnostics</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to make the user interface smoother. Instead of providing guidance via outputs the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.</li>
+<li>
+<code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> will no longer provide a pivoted output as a default. Users can elect to pivot the outputs as needed.</li>
+<li>
+<code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> now have a new argument <code>bootstrap_ci</code> that allows a user to elect to use the additional functionality, or not. <code>bootstrap_ci</code> defaults to <code>TRUE</code> in order to better support backward compatibility.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="traumar-110">traumar 1.1.0<a class="anchor" aria-label="anchor" href="#traumar-110"></a></h2><p class="text-muted">CRAN release: 2025-03-25</p>
 <div class="section level3">
@@ -114,7 +149,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

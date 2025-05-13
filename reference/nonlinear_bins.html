@@ -15,7 +15,7 @@ count, and percentage for each bin."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,8 @@ data for a set of patients.</p></dd>
 <dd><p>The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of <code>1</code>
 should represent "alive" (survived), while <code>0</code> should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.</p></dd>
+not survive).  <code>TRUE/FALSE</code> are accepted as well. Ensure the column
+contains only these possible values.</p></dd>
 
 
 <dt id="arg-group-vars">group_vars<a class="anchor" aria-label="anchor" href="#arg-group-vars"></a></dt>
@@ -124,7 +125,7 @@ decedents, respectively.</p></li>
 respectively.</p></li>
 <li><p><code>alive</code>, <code>dead</code>: Count of observed survivors and non-survivors.</p></li>
 <li><p><code>count</code>: Total records in the bin.</p></li>
-<li><p><code>percent</code>: Percentage of records within each bin.</p></li>
+<li><p><code>percent</code>: Percentage of total records within each bin.</p></li>
 </ul></li>
 </ul></div>
     <div class="section level2">
@@ -132,9 +133,15 @@ respectively.</p></li>
     <p>Like other statistical computing functions, <code>nonlinear_bins()</code> is happiest
 without missing data.  It is best to pass complete probability of survival
 and outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, <code>nonlinear_bins()</code> will
-handle <code>NA</code> values and throw a warning about missing probability of survival
-values, if any exist in <code>Ps_col</code>.</p>
+datasets, this is especially helpful.  However, <code>nonlinear_bins()</code> will throw
+a warning about missing values, if any exist in <code>Ps_col</code> and/or
+<code>outcome_col</code>.</p>
+<p><code>nonlinear_bins()</code> assumes <code>Ps_col</code> contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -154,7 +161,7 @@ Prehospital Emergency Care, 23(2), 254–262.
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="rmm.html">rmm()</a></code>, and <code><a href="rm_bin_summary.html">rm_bin_summary()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="probability_of_survival.html">probability_of_survival()</a></code>, <code><a href="rmm.html">rmm()</a></code>, and <code><a href="rm_bin_summary.html">rm_bin_summary()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -164,92 +171,124 @@ J. Napoli, Ph.D., MS</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data with high negative skewness</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parameters</span></span></span>
-<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">10000</span>  <span class="co"># Total number of patients</span></span></span>
+<span class="r-in"><span><span class="co"># Total number of patients</span></span></span>
+<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Skewed towards higher values</span></span></span>
-<span class="r-in"><span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_patients</span>, mean <span class="op">=</span> <span class="fl">2</span>, sd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Arbitrary group labels</span></span></span>
+<span class="r-in"><span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, size <span class="op">=</span> <span class="va">n_patients</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trauma types</span></span></span>
+<span class="r-in"><span><span class="va">trauma_type_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Blunt"</span>, <span class="st">"Penetrating"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># RTS values</span></span></span>
+<span class="r-in"><span><span class="va">rts_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">7.8408</span>, by <span class="op">=</span> <span class="fl">0.005</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># patient ages</span></span></span>
+<span class="r-in"><span><span class="va">ages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ISS scores</span></span></span>
+<span class="r-in"><span><span class="va">iss_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">75</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate survival probabilities (Ps)</span></span></span>
+<span class="r-in"><span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu">traumar</span><span class="fu">::</span><span class="fu"><a href="probability_of_survival.html">probability_of_survival</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  trauma_type <span class="op">=</span> <span class="va">trauma_type_values</span>,</span></span>
+<span class="r-in"><span>  age <span class="op">=</span> <span class="va">ages</span>,</span></span>
+<span class="r-in"><span>  rts <span class="op">=</span> <span class="va">rts_values</span>,</span></span>
+<span class="r-in"><span>  iss <span class="op">=</span> <span class="va">iss_scores</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate survival outcomes based on Ps</span></span></span>
-<span class="r-in"><span><span class="va">survival_outcomes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>,</span></span>
-<span class="r-in"><span>                            size <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                            prob <span class="op">=</span> <span class="va">Ps</span></span></span>
-<span class="r-in"><span>                            <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">survival_outcomes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="va">Ps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create data frame</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Ps <span class="op">=</span> <span class="va">Ps</span>, survival <span class="op">=</span> <span class="va">survival_outcomes</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>death <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">survival</span> <span class="op">==</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Ps <span class="op">=</span> <span class="va">Ps</span>, survival <span class="op">=</span> <span class="va">survival_outcomes</span>, groups <span class="op">=</span> <span class="va">groups</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>death <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">survival</span> <span class="op">==</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Apply the nonlinear_bins function</span></span></span>
-<span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">nonlinear_bins</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>,</span></span>
-<span class="r-in"><span>                          Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
-<span class="r-in"><span>                          outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
-<span class="r-in"><span>                          divisor1 <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>                          divisor2 <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>                          threshold_1 <span class="op">=</span> <span class="fl">0.9</span>,</span></span>
-<span class="r-in"><span>                          threshold_2 <span class="op">=</span> <span class="fl">0.99</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">nonlinear_bins</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">data</span>,</span></span>
+<span class="r-in"><span>  Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
+<span class="r-in"><span>  outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
+<span class="r-in"><span>  divisor1 <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  divisor2 <span class="op">=</span> <span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  threshold_1 <span class="op">=</span> <span class="fl">0.9</span>,</span></span>
+<span class="r-in"><span>  threshold_2 <span class="op">=</span> <span class="fl">0.99</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># View results</span></span></span>
 <span class="r-in"><span><span class="va">results</span><span class="op">$</span><span class="va">intervals</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.02257717 0.54234698 0.70154257 0.79581165 0.85714527 0.90005763</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] 0.92518915 0.94603830 0.96266743 0.97623957 0.99957866</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0002015449 0.0256191282 0.1455317587 0.4842820556 0.9003870455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6] 0.9285354475 0.9518925450 0.9722272703 0.9968989233</span>
 <span class="r-in"><span><span class="va">results</span><span class="op">$</span><span class="va">bin_stats</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 10 × 13</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    bin_number bin_start bin_end  mean      sd Pred_Survivors_b Pred_Deaths_b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>          1    0.022<span style="text-decoration: underline;">6</span>   0.542 0.378 0.122               420.         692. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>          2    0.542    0.702 0.628 0.045<span style="text-decoration: underline;">8</span>              698.         413. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>          3    0.702    0.796 0.753 0.027<span style="text-decoration: underline;">0</span>              836.         275. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>          4    0.796    0.857 0.829 0.017<span style="text-decoration: underline;">3</span>              921.         190. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>          5    0.857    0.900 0.879 0.012<span style="text-decoration: underline;">6</span>              976.         134. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>          6    0.900    0.925 0.913 0.007<span style="text-decoration: underline;">23</span>             735.          70.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>          7    0.925    0.946 0.936 0.005<span style="text-decoration: underline;">96</span>             753.          51.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>          8    0.946    0.963 0.954 0.004<span style="text-decoration: underline;">73</span>             768.          36.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>          9    0.963    0.976 0.970 0.004<span style="text-decoration: underline;">05</span>             781.          24.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>         10    0.976    1.00  0.987 0.006<span style="text-decoration: underline;">21</span>            <span style="text-decoration: underline;">1</span>209.          16.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   bin_number bin_start bin_end    mean      sd Pred_Survivors_b Pred_Deaths_b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>          1  0.000<span style="text-decoration: underline;">202</span>  0.025<span style="text-decoration: underline;">6</span> 0.009<span style="text-decoration: underline;">35</span> 0.007<span style="text-decoration: underline;">22</span>             10.4       <span style="text-decoration: underline;">1</span>106.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>          2  0.025<span style="text-decoration: underline;">6</span>    0.146  0.073<span style="text-decoration: underline;">2</span>  0.034<span style="text-decoration: underline;">5</span>              81.7       <span style="text-decoration: underline;">1</span>033.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>          3  0.146     0.484  0.293   0.095<span style="text-decoration: underline;">9</span>             327.         788.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>          4  0.484     0.900  0.697   0.124              777.         337.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>          5  0.900     0.929  0.916   0.007<span style="text-decoration: underline;">90</span>            114.          10.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>          6  0.929     0.952  0.940   0.006<span style="text-decoration: underline;">80</span>            117.           7.50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span>          7  0.952     0.972  0.963   0.005<span style="text-decoration: underline;">64</span>            120.           4.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span>          8  0.972     0.997  0.984   0.006<span style="text-decoration: underline;">86</span>            162.           2.67</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 6 more variables: AntiS_b &lt;dbl&gt;, AntiM_b &lt;dbl&gt;, alive &lt;int&gt;, dead &lt;int&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   count &lt;int&gt;, percent &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with grouping by a categorical variable</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Add random group variable</span></span></span>
-<span class="r-in"><span><span class="va">data</span><span class="op">$</span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, size <span class="op">=</span> <span class="va">n_patients</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the function using a single grouping variable</span></span></span>
-<span class="r-in"><span><span class="va">results_grouped</span> <span class="op">&lt;-</span> <span class="fu">nonlinear_bins</span><span class="op">(</span><span class="va">data</span>,</span></span>
-<span class="r-in"><span>                                  Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
-<span class="r-in"><span>                                  outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
-<span class="r-in"><span>                                  group_vars <span class="op">=</span> <span class="st">"group"</span></span></span>
-<span class="r-in"><span>                                  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">results_grouped</span> <span class="op">&lt;-</span> <span class="fu">nonlinear_bins</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">data</span>,</span></span>
+<span class="r-in"><span>  Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
+<span class="r-in"><span>  outcome_col <span class="op">=</span> <span class="va">survival</span>,</span></span>
+<span class="r-in"><span>  group_vars <span class="op">=</span> <span class="st">"groups"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># View grouped results</span></span></span>
 <span class="r-in"><span><span class="va">results_grouped</span><span class="op">$</span><span class="va">bin_stats</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 20 × 14</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    group bin_number bin_start bin_end  mean      sd Pred_Survivors_b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> A              1    0.022<span style="text-decoration: underline;">6</span>   0.542 0.385 0.120               213.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> A              2    0.542    0.702 0.629 0.045<span style="text-decoration: underline;">9</span>              361.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> A              3    0.702    0.796 0.753 0.026<span style="text-decoration: underline;">6</span>              419.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> A              4    0.796    0.857 0.829 0.017<span style="text-decoration: underline;">8</span>              460.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> A              5    0.857    0.900 0.880 0.012<span style="text-decoration: underline;">4</span>              499.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> A              6    0.900    0.925 0.913 0.007<span style="text-decoration: underline;">24</span>             367.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> A              7    0.925    0.946 0.936 0.006<span style="text-decoration: underline;">00</span>             366.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> A              8    0.946    0.963 0.954 0.004<span style="text-decoration: underline;">73</span>             392.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> A              9    0.963    0.976 0.970 0.004<span style="text-decoration: underline;">13</span>             390.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> A             10    0.976    1.00  0.987 0.006<span style="text-decoration: underline;">19</span>             569.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> B              1    0.022<span style="text-decoration: underline;">6</span>   0.542 0.370 0.125               207.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> B              2    0.542    0.702 0.628 0.045<span style="text-decoration: underline;">8</span>              337.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> B              3    0.702    0.796 0.752 0.027<span style="text-decoration: underline;">5</span>              417.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> B              4    0.796    0.857 0.828 0.016<span style="text-decoration: underline;">8</span>              461.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> B              5    0.857    0.900 0.879 0.012<span style="text-decoration: underline;">9</span>              477.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> B              6    0.900    0.925 0.913 0.007<span style="text-decoration: underline;">23</span>             368.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">17</span> B              7    0.925    0.946 0.935 0.005<span style="text-decoration: underline;">92</span>             387.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">18</span> B              8    0.946    0.963 0.955 0.004<span style="text-decoration: underline;">72</span>             376.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">19</span> B              9    0.963    0.976 0.970 0.003<span style="text-decoration: underline;">98</span>             391.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">20</span> B             10    0.976    1.00  0.987 0.006<span style="text-decoration: underline;">22</span>             640.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    groups bin_number bin_start bin_end    mean      sd Pred_Survivors_b</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> A               1  0.000<span style="text-decoration: underline;">202</span>  0.016<span style="text-decoration: underline;">5</span> 0.006<span style="text-decoration: underline;">36</span> 0.004<span style="text-decoration: underline;">65</span>             2.94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> A               2  0.016<span style="text-decoration: underline;">5</span>    0.079<span style="text-decoration: underline;">4</span> 0.041<span style="text-decoration: underline;">8</span>  0.018<span style="text-decoration: underline;">3</span>             19.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> A               3  0.079<span style="text-decoration: underline;">4</span>    0.252  0.155   0.051<span style="text-decoration: underline;">6</span>             68.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> A               4  0.252     0.570  0.393   0.095<span style="text-decoration: underline;">3</span>            172.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> A               5  0.570     0.900  0.734   0.097<span style="text-decoration: underline;">6</span>            320.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> A               6  0.900     0.923  0.912   0.006<span style="text-decoration: underline;">60</span>            39.2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> A               7  0.923     0.941  0.933   0.005<span style="text-decoration: underline;">41</span>            47.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> A               8  0.941     0.962  0.952   0.005<span style="text-decoration: underline;">87</span>            44.7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> A               9  0.962     0.976  0.968   0.004<span style="text-decoration: underline;">26</span>            54.2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> A              10  0.976     0.997  0.986   0.006<span style="text-decoration: underline;">10</span>            64.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> B               1  0.000<span style="text-decoration: underline;">202</span>  0.016<span style="text-decoration: underline;">5</span> 0.006<span style="text-decoration: underline;">57</span> 0.004<span style="text-decoration: underline;">66</span>             2.83</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> B               2  0.016<span style="text-decoration: underline;">5</span>    0.079<span style="text-decoration: underline;">4</span> 0.041<span style="text-decoration: underline;">7</span>  0.018<span style="text-decoration: underline;">0</span>             18.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> B               3  0.079<span style="text-decoration: underline;">4</span>    0.252  0.153   0.049<span style="text-decoration: underline;">6</span>             68.7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> B               4  0.252     0.570  0.405   0.092<span style="text-decoration: underline;">0</span>            184.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> B               5  0.570     0.900  0.746   0.100             340.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> B               6  0.900     0.923  0.914   0.006<span style="text-decoration: underline;">59</span>            52.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">17</span> B               7  0.923     0.941  0.933   0.005<span style="text-decoration: underline;">10</span>            45.7 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">18</span> B               8  0.941     0.962  0.952   0.005<span style="text-decoration: underline;">53</span>            50.5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">19</span> B               9  0.962     0.976  0.969   0.003<span style="text-decoration: underline;">71</span>            42.6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">20</span> B              10  0.976     0.997  0.985   0.005<span style="text-decoration: underline;">50</span>            73.9 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: Pred_Deaths_b &lt;dbl&gt;, AntiS_b &lt;dbl&gt;, AntiM_b &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   alive &lt;int&gt;, dead &lt;int&gt;, count &lt;int&gt;, percent &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -264,7 +303,7 @@ J. Napoli, Ph.D., MS</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

@@ -47,7 +47,7 @@ sampling to calculate the confidence intervals via the standard error method."><
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,6 +106,7 @@ sampling to calculate the confidence intervals via the standard error method.</p
 <span>  Divisor2 <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  Threshold_1 <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  Threshold_2 <span class="op">=</span> <span class="fl">0.99</span>,</span>
+<span>  bootstrap_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  pivot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -128,7 +129,8 @@ sampling to calculate the confidence intervals via the standard error method.</p
 <dd><p>The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of <code>1</code>
 should represent "alive" (survived), while <code>0</code> should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.</p></dd>
+not survive).  <code>TRUE/FALSE</code> are accepted as well. Ensure the column
+contains only these possible values.</p></dd>
 
 
 <dt id="arg-group-vars">group_vars<a class="anchor" aria-label="anchor" href="#arg-group-vars"></a></dt>
@@ -162,6 +164,12 @@ probabilities (default is 0.9).</p></dd>
 probabilities (default is 0.99).</p></dd>
 
 
+<dt id="arg-bootstrap-ci">bootstrap_ci<a class="anchor" aria-label="anchor" href="#arg-bootstrap-ci"></a></dt>
+<dd><p>A logical indicating whether to return the relative
+mortality metric estimate and 95% confidence intervals using bootstrap
+sampling. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt id="arg-pivot">pivot<a class="anchor" aria-label="anchor" href="#arg-pivot"></a></dt>
 <dd><p>A logical indicating whether to return the results in a long
 format (<code>pivot = TRUE</code>) or wide format (<code>pivot = FALSE</code>, default). Use with
@@ -186,13 +194,13 @@ population existing in <code>data</code>.</p></li>
 the population RMM.</p></li>
 <li><p><code>population_CI</code>: The confidence interval width for the population RMM.</p></li>
 <li><p><code>bootstrap_RMM_LL</code>: The lower bound of the 95% confidence interval for
-the bootstrap RMM.</p></li>
+the bootstrap RMM. (optional, if <code>bootstrap_ci = TRUE</code>)</p></li>
 <li><p><code>bootstrap_RMM</code>: The average RMM value calculated for the bootstrap
-sample.</p></li>
+sample. (optional, if <code>bootstrap_ci = TRUE</code>)</p></li>
 <li><p><code>bootstrap_RMM_UL</code>: The upper bound of the 95% confidence interval for
-the bootstrap RMM.</p></li>
+the bootstrap RMM. (optional, if <code>bootstrap_ci = TRUE</code>)</p></li>
 <li><p><code>bootstrap_CI</code>: The width of the 95% confidence interval for the
-bootstrap RMM.</p></li>
+bootstrap RMM. (optional, if <code>bootstrap_ci = TRUE</code>)</p></li>
 <li><p>If <code>pivot = TRUE</code>, the results will be in long format with two columns:
 <code>stat</code> and <code>value</code>, where each row corresponds to one of the calculated
 statistics.</p></li>
@@ -201,12 +209,17 @@ format, with each statistic as a separate column.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Like other statistical computing functions, <code>rmm()</code> is happiest
-without missing data.  It is best to pass complete probability of survival
-and outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, <code>rmm()</code> will
-handle <code>NA</code> values and throw a warning about missing probability of survival
-values, if any exist in <code>Ps_col</code>.</p>
+    <p>Like other statistical computing functions, <code>rmm()</code> is happiest without
+missing data.  It is best to pass complete probability of survival and
+mortality outcome data to the function for optimal performance. With smaller
+datasets, this is especially helpful.  However, <code>rmm()</code> will throw a warning
+about missing values, if any exist in <code>Ps_col</code> and/or <code>outcome_col</code>.</p>
+<p><code>rmm()</code> assumes <code>Ps_col</code> contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.</p>
 <p>Due to the use of bootstrap sampling within the function, users should
 consider setting the random number <code>seed</code> within <code>rmm()</code> for reproducibility.</p>
     </div>
@@ -228,7 +241,8 @@ Prehospital Emergency Care, 23(2), 254–262.
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="rm_bin_summary.html">rm_bin_summary()</a></code>, and <code><a href="nonlinear_bins.html">nonlinear_bins()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="probability_of_survival.html">probability_of_survival()</a></code>, <code><a href="rm_bin_summary.html">rm_bin_summary()</a></code>, and
+<code><a href="nonlinear_bins.html">nonlinear_bins()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -238,24 +252,58 @@ J. Napoli, Ph.D., MS</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data with high negative skewness</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10232015</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Generate example data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Parameters</span></span></span>
-<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">10000</span>  <span class="co"># Total number of patients</span></span></span>
+<span class="r-in"><span><span class="co"># Total number of patients</span></span></span>
+<span class="r-in"><span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Skewed towards higher values</span></span></span>
-<span class="r-in"><span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_patients</span>, mean <span class="op">=</span> <span class="fl">2</span>, sd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Arbitrary group labels</span></span></span>
+<span class="r-in"><span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, size <span class="op">=</span> <span class="va">n_patients</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Trauma types</span></span></span>
+<span class="r-in"><span><span class="va">trauma_type_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Blunt"</span>, <span class="st">"Penetrating"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># RTS values</span></span></span>
+<span class="r-in"><span><span class="va">rts_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">7.8408</span>, by <span class="op">=</span> <span class="fl">0.005</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># patient ages</span></span></span>
+<span class="r-in"><span><span class="va">ages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ISS scores</span></span></span>
+<span class="r-in"><span><span class="va">iss_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">75</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  size <span class="op">=</span> <span class="va">n_patients</span>,</span></span>
+<span class="r-in"><span>  replace <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate survival probabilities (Ps)</span></span></span>
+<span class="r-in"><span><span class="va">Ps</span> <span class="op">&lt;-</span> <span class="fu">traumar</span><span class="fu">::</span><span class="fu"><a href="probability_of_survival.html">probability_of_survival</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  trauma_type <span class="op">=</span> <span class="va">trauma_type_values</span>,</span></span>
+<span class="r-in"><span>  age <span class="op">=</span> <span class="va">ages</span>,</span></span>
+<span class="r-in"><span>  rts <span class="op">=</span> <span class="va">rts_values</span>,</span></span>
+<span class="r-in"><span>  iss <span class="op">=</span> <span class="va">iss_scores</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate survival outcomes based on Ps</span></span></span>
-<span class="r-in"><span><span class="va">survival_outcomes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>,</span></span>
-<span class="r-in"><span>                            size <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>                            prob <span class="op">=</span> <span class="va">Ps</span></span></span>
-<span class="r-in"><span>                            <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">survival_outcomes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="va">Ps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create data frame</span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Ps <span class="op">=</span> <span class="va">Ps</span>, survival <span class="op">=</span> <span class="va">survival_outcomes</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>death <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">survival</span> <span class="op">==</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Ps <span class="op">=</span> <span class="va">Ps</span>, survival <span class="op">=</span> <span class="va">survival_outcomes</span>, groups <span class="op">=</span> <span class="va">groups</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>death <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">survival</span> <span class="op">==</span> <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example usage of the `rmm` function</span></span></span>
 <span class="r-in"><span><span class="fu">rmm</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>,</span></span>
@@ -267,7 +315,7 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   population_RMM_LL population_RMM population_RMM_UL population_CI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>           -<span style="color: #BB0000;">0.081</span><span style="color: #BB0000; text-decoration: underline;">8</span>        -<span style="color: #BB0000;">0.017</span><span style="color: #BB0000; text-decoration: underline;">4</span>            0.046<span style="text-decoration: underline;">9</span>        0.064<span style="text-decoration: underline;">3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>            -<span style="color: #BB0000;">0.106</span>        0.002<span style="text-decoration: underline;">47</span>             0.111         0.108</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_UL &lt;dbl&gt;, bootstrap_CI &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -282,14 +330,14 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stat                 value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.081</span><span style="color: #BB0000; text-decoration: underline;">8</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM    -<span style="color: #BB0000;">0.017</span><span style="color: #BB0000; text-decoration: underline;">4</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.046<span style="text-decoration: underline;">9</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.064<span style="text-decoration: underline;">3</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL  -<span style="color: #BB0000;">0.022</span><span style="color: #BB0000; text-decoration: underline;">6</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM     -<span style="color: #BB0000;">0.013</span><span style="color: #BB0000; text-decoration: underline;">3</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL  -<span style="color: #BB0000;">0.003</span><span style="color: #BB0000; text-decoration: underline;">99</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.009<span style="text-decoration: underline;">30</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> population_RMM_LL -<span style="color: #BB0000;">0.106</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> population_RMM     0.002<span style="text-decoration: underline;">47</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> population_RMM_UL  0.111  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> population_CI      0.108  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> bootstrap_RMM_LL  -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">5</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> bootstrap_RMM     -<span style="color: #BB0000;">0.005</span><span style="color: #BB0000; text-decoration: underline;">44</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> bootstrap_RMM_UL   0.003<span style="text-decoration: underline;">66</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> bootstrap_CI       0.009<span style="text-decoration: underline;">10</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create example grouping variable (e.g., hospital)</span></span></span>
 <span class="r-in"><span><span class="va">hospital</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Hospital A"</span>, <span class="st">"Hospital B"</span><span class="op">)</span>, <span class="va">n_patients</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -315,8 +363,8 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   hospital   population_RMM_LL population_RMM population_RMM_UL population_CI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Hospital A           -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">6</span>        0.001<span style="text-decoration: underline;">06</span>            0.091<span style="text-decoration: underline;">7</span>        0.090<span style="text-decoration: underline;">6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Hospital B           -<span style="color: #BB0000;">0.127</span>        -<span style="color: #BB0000;">0.035</span><span style="color: #BB0000; text-decoration: underline;">3</span>             0.056<span style="text-decoration: underline;">1</span>        0.091<span style="text-decoration: underline;">4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Hospital A            -<span style="color: #BB0000;">0.131</span>         0.021<span style="text-decoration: underline;">1</span>             0.173         0.152</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Hospital B            -<span style="color: #BB0000;">0.169</span>        -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">9</span>             0.139         0.154</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: bootstrap_RMM_LL &lt;dbl&gt;, bootstrap_RMM &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   bootstrap_RMM_UL &lt;dbl&gt;, bootstrap_CI &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
@@ -332,24 +380,24 @@ J. Napoli, Ph.D., MS</p>
 <span class="r-in"><span>  pivot <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 16 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    hospital   stat                 value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Hospital A population_RMM_LL -<span style="color: #BB0000;">0.089</span><span style="color: #BB0000; text-decoration: underline;">6</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Hospital A population_RMM     0.001<span style="text-decoration: underline;">06</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Hospital A population_RMM_UL  0.091<span style="text-decoration: underline;">7</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Hospital A population_CI      0.090<span style="text-decoration: underline;">6</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Hospital A bootstrap_RMM_LL  -<span style="color: #BB0000;">0.005</span><span style="color: #BB0000; text-decoration: underline;">05</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Hospital A bootstrap_RMM      0.009<span style="text-decoration: underline;">33</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Hospital A bootstrap_RMM_UL   0.023<span style="text-decoration: underline;">7</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Hospital A bootstrap_CI       0.014<span style="text-decoration: underline;">4</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Hospital B population_RMM_LL -<span style="color: #BB0000;">0.127</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Hospital B population_RMM    -<span style="color: #BB0000;">0.035</span><span style="color: #BB0000; text-decoration: underline;">3</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> Hospital B population_RMM_UL  0.056<span style="text-decoration: underline;">1</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> Hospital B population_CI      0.091<span style="text-decoration: underline;">4</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> Hospital B bootstrap_RMM_LL  -<span style="color: #BB0000;">0.047</span><span style="color: #BB0000; text-decoration: underline;">3</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> Hospital B bootstrap_RMM     -<span style="color: #BB0000;">0.031</span><span style="color: #BB0000; text-decoration: underline;">1</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> Hospital B bootstrap_RMM_UL  -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">9</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> Hospital B bootstrap_CI       0.016<span style="text-decoration: underline;">2</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    hospital   stat                   value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Hospital A population_RMM_LL -<span style="color: #BB0000;">0.131</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Hospital A population_RMM     0.021<span style="text-decoration: underline;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Hospital A population_RMM_UL  0.173    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Hospital A population_CI      0.152    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Hospital A bootstrap_RMM_LL   0.007<span style="text-decoration: underline;">84</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Hospital A bootstrap_RMM      0.020<span style="text-decoration: underline;">2</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Hospital A bootstrap_RMM_UL   0.032<span style="text-decoration: underline;">6</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Hospital A bootstrap_CI       0.012<span style="text-decoration: underline;">4</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Hospital B population_RMM_LL -<span style="color: #BB0000;">0.169</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Hospital B population_RMM    -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">9</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> Hospital B population_RMM_UL  0.139    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> Hospital B population_CI      0.154    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> Hospital B bootstrap_RMM_LL  -<span style="color: #BB0000;">0.023</span><span style="color: #BB0000; text-decoration: underline;">1</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> Hospital B bootstrap_RMM     -<span style="color: #BB0000;">0.011</span><span style="color: #BB0000; text-decoration: underline;">5</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> Hospital B bootstrap_RMM_UL   0.000<span style="text-decoration: underline;">072</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> Hospital B bootstrap_CI       0.011<span style="text-decoration: underline;">6</span>   </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -362,7 +410,7 @@ J. Napoli, Ph.D., MS</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>
