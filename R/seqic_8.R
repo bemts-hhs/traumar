@@ -2,6 +2,8 @@
 #'
 #' @description
 #'
+#' `r lifecycle::badge("experimental")`
+#'
 #' Calculates the proportion of patients who survived based on risk groups
 #' existing in the data among trauma patients transported to Level I–IV trauma
 #' centers.

@@ -2,8 +2,8 @@
 % Please edit documentation in R/is_it_normal.R
 \name{is_it_normal}
 \alias{is_it_normal}
-\title{Exploratory Data Analysis, Univariate Normality Testing, and
-Visualizaion}
+\title{Exploratory Data Analysis, Normality Testing, and
+Visualization}
 \usage{
 is_it_normal(
   df,

@@ -78,8 +78,7 @@ Computes SEQIC Indicator 4a and 4b for trauma center performance. Indicator
 4a captures the proportion of deceased trauma patients at trauma level I–IV
 facilities who had an autopsy performed. Indicator 4b identifies deceased
 trauma patients with a prolonged length of stay (LOS > 3 days) but without an
-autopsy. Confidence intervals can optionally be calculated for the
-proportion, using either the Wilson or Clopper-Pearson method.
+autopsy.
 }
 \details{
 This function:

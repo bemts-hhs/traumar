@@ -84,7 +84,7 @@ indicator.
 
 This function calculates System Evaluation and Quality Improvement Committee
 (SEQIC) Indicator 1 (subparts a through f). These indicators assess the
-timeliness and type of provider response (e.g., surgeon, midlevel, physician)
+timeliness and type of provider response (e.g., surgeon, mid-level, physician)
 to trauma alerts based on trauma team activation level, hospital trauma
 level, and time to provider presence. Confidence intervals can optionally be
 calculated for the proportion, using either the Wilson or Clopper-Pearson

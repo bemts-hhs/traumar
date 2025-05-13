@@ -63,9 +63,11 @@ Wilson intervals. Defaults to \code{TRUE}.}
 A list of tibbles with counts and proportions for SEQIC Indicators
 10a, 10b, and 10c, along with model diagnostics for the Cribari or NFTI
 ouputs.  The proportions in 10a, 10b, and 10c will optionally include
-confidence intervals grouped by user-specified variables.
+95\% confidence intervals grouped by user-specified variables.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Calculates three trauma system quality indicators related to trauma team
 activations where the patient was kept at the facility:
 \itemize{

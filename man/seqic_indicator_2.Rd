@@ -58,8 +58,7 @@ intervals are provided optionally.
 This function calculates System Evaluation and Quality Improvement Committee
 (SEQIC) Indicator 2. This indicator evaluates the proportion of trauma
 incidents with missing documented incident time across Level I–IV trauma
-centers. Confidence intervals can optionally be calculated for the
-proportion, using either the Wilson or Clopper-Pearson method.
+centers.
 }
 \details{
 This function:

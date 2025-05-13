@@ -66,8 +66,7 @@ Optionally includes 95\% confidence intervals using the method specified in
 
 Computes SEQIC Indicator 5a–5d for trauma system quality monitoring. These
 indicators measure alcohol and drug screening rates among trauma patients at
-trauma level I–IV facilities. Confidence intervals can optionally be
-calculated for proportions using the Wilson or Clopper-Pearson method.
+trauma level I–IV facilities.
 }
 \details{
 This function:

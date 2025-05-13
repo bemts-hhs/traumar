@@ -1,6 +1,10 @@
 #' @title SEQIC Indicator 13 – Validation of  Trauma Registry Records
 #'
-#' @description Calculates the proportion of trauma records that meet or exceed
+#' @description
+#'
+#' `r lifecycle::badge("experimental")`
+#'
+#' Calculates the proportion of trauma records that meet or exceed
 #' a threshold for data validity among facilities at the specified trauma center
 #' levels. Optionally computes confidence intervals.
 #'

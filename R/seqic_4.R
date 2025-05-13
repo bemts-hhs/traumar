@@ -8,8 +8,7 @@
 #' 4a captures the proportion of deceased trauma patients at trauma level I–IV
 #' facilities who had an autopsy performed. Indicator 4b identifies deceased
 #' trauma patients with a prolonged length of stay (LOS > 3 days) but without an
-#' autopsy. Confidence intervals can optionally be calculated for the
-#' proportion, using either the Wilson or Clopper-Pearson method.
+#' autopsy.
 #'
 #' @inheritParams seqic_indicator_1
 #' @param ed_disposition Column representing the emergency department

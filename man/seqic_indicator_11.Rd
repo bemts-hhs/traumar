@@ -65,11 +65,13 @@ Wilson intervals. Defaults to \code{TRUE}.}
 }
 \value{
 A tibble summarizing the numerator, denominator, and proportion of
-overtriaged patients (Indicator 11), with optional binomial confidence
+overtriaged patients (Indicator 11), with optional 95\% confidence
 intervals. If no grouping variables are provided, the result represents a
 population or overall estimate.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Calculates SEQIC Indicator 11, which estimates the proportion of minor trauma
 patients who were transferred into a trauma center and remained in the
 Emergency Department for less than 24 hours. This indicator is designed to

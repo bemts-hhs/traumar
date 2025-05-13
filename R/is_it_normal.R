@@ -1,5 +1,5 @@
-#' @title Exploratory Data Analysis, Univariate Normality Testing, and
-#'   Visualizaion
+#' @title Exploratory Data Analysis, Normality Testing, and
+#'   Visualization
 #'
 #' @description
 #'
@@ -202,7 +202,7 @@ is_it_normal <- function(
   ))
 
   # Messaging related to normality testing
-  cli::cli_h3("Univariate Tests of Normality")
+  cli::cli_h3("Normality Tests")
 
   # Issue a warning if data violates any normality test choice assumptions
   if (
@@ -318,7 +318,7 @@ is_it_normal <- function(
   }
 
   # Summary on grouping behavior of the function
-  cli::cli_h3("Grouping Behavior")
+  cli::cli_h3("Strata")
   # Callout for the grouping applied (or no grouping if NULL)
   if (is.null(group_vars) || length(group_vars) == 0) {
     cli::cli_inform(
@@ -335,6 +335,148 @@ is_it_normal <- function(
         )
       )
     )
+  }
+
+  ###___________________________________________________________________________
+  ### Create some convention functions for plotting
+  ###___________________________________________________________________________
+
+  # A utility function to check the length of a vector
+  is_valid_for_plotting <- function(vec, min_n = 2) {
+    vec <- vec[!is.na(vec)]
+    length(vec) >= min_n && all(is.finite(vec))
+  }
+
+  # Utility function for a density plot
+  make_density_plot <- function(data, vec, var, var_name, group_label = NULL) {
+    if (!is_valid_for_plotting(vec)) {
+      cli::cli_alert_danger(
+        "Skipping density plot for {.var {var_name}}{if (!is.null(group_label)) paste0(' (', group_label, ')')}: insufficient valid data."
+      )
+      return(NULL)
+    }
+
+    ggplot2::ggplot(data, ggplot2::aes(x = !!var)) +
+      ggplot2::geom_density(
+        fill = "#F27026",
+        color = "black",
+        alpha = 0.5,
+        na.rm = TRUE
+      ) +
+      ggplot2::geom_segment(
+        x = median(vec, na.rm = TRUE),
+        xend = median(vec, na.rm = TRUE),
+        y = 0,
+        yend = Inf,
+        linetype = "dashed",
+        color = "darkslategray",
+        alpha = 0.25,
+        linewidth = 1.5
+      ) +
+      ggplot2::ggtitle(
+        if (is.null(group_label)) {
+          paste0(
+            "Kernel Density Plot of ",
+            var_name,
+            " with horizontal line at the median"
+          )
+        } else {
+          paste0("Density Plot with Median (", group_label, ")")
+        }
+      ) +
+      ggplot2::labs(
+        x = var_name,
+        caption = paste0("n = ", sum(!is.na(vec)), " non-missings")
+      ) +
+      chosen_theme()
+  }
+
+  # Utility function for a histogram plot
+  make_hist_plot <- function(data, vec, var, var_name, group_label = NULL) {
+    if (!is_valid_for_plotting(vec)) {
+      cli::cli_alert_danger(
+        "Skipping histogram for {.var {var_name}}{if (!is.null(group_label)) paste0(' (', group_label, ')')}: insufficient valid data."
+      )
+      return(NULL)
+    }
+
+    bin_width <- (max(vec, na.rm = TRUE) - min(vec, na.rm = TRUE)) / 15
+
+    ggplot2::ggplot(data, ggplot2::aes(x = !!var)) +
+      ggplot2::geom_histogram(
+        binwidth = bin_width,
+        fill = "#C6D667",
+        color = "black",
+        na.rm = TRUE
+      ) +
+      ggplot2::ggtitle(
+        if (is.null(group_label)) paste0("Histogram of ", var_name) else
+          paste0("Histogram (", group_label, ")")
+      ) +
+      ggplot2::labs(x = var_name) +
+      chosen_theme()
+  }
+
+  # Utility function for a boxplot
+  make_boxplot <- function(data, vec, var, var_name, group_label = NULL) {
+    if (!is_valid_for_plotting(vec)) {
+      cli::cli_alert_danger(
+        "Skipping boxplot for {.var {var_name}}{if (!is.null(group_label)) paste0(' (', group_label, ')')}: insufficient valid data."
+      )
+      return(NULL)
+    }
+
+    ggplot2::ggplot(data, ggplot2::aes(x = !!var, y = "")) +
+      ggplot2::geom_jitter(
+        color = "#03617A",
+        alpha = 0.25,
+        na.rm = TRUE,
+        height = 0.35
+      ) +
+      ggplot2::geom_boxplot(
+        fill = "#B9E1DA",
+        color = "black",
+        alpha = 0.2,
+        na.rm = TRUE,
+        orientation = "y"
+      ) +
+      ggplot2::stat_boxplot(geom = "errorbar", width = 0.5) +
+      ggplot2::ggtitle(
+        if (is.null(group_label))
+          paste0("Boxplot with scatterplot of ", var_name) else
+          paste0("Boxplot (", group_label, ")")
+      ) +
+      ggplot2::labs(x = var_name, y = "") +
+      chosen_theme()
+  }
+
+  # Utility function for a Q-Q plot
+  make_qq_plot <- function(data, vec, var, var_name, group_label = NULL) {
+    if (!is_valid_for_plotting(vec)) {
+      cli::cli_alert_danger(
+        "Skipping Q-Q plot for {.var {var_name}}{if (!is.null(group_label)) paste0(' (', group_label, ')')}: insufficient valid data."
+      )
+      return(NULL)
+    }
+
+    ggplot2::ggplot(data, ggplot2::aes(sample = !!var)) +
+      ggplot2::geom_qq_line(
+        linewidth = 1.25,
+        color = "#70C8B8",
+        alpha = 0.7,
+        na.rm = TRUE
+      ) +
+      ggplot2::stat_qq(
+        color = "#19405B",
+        alpha = 0.4,
+        size = 2,
+        na.rm = TRUE
+      ) +
+      ggplot2::ggtitle(
+        if (is.null(group_label)) paste0("Normal Q-Q Plot of ", var_name) else
+          paste0("Normal Q-Q Plot (", group_label, ")")
+      ) +
+      chosen_theme()
   }
 
   ###___________________________________________________________________________
@@ -545,7 +687,7 @@ is_it_normal <- function(
     var_name <- rlang::as_label(var)
 
     # Header for the plotting section
-    cli::cli_h3("Plotting Behavior")
+    cli::cli_h3("Visualizations")
 
     if (nrow(df) > 10000) {
       # Issue a warning
@@ -572,9 +714,6 @@ is_it_normal <- function(
       cli::cli_alert_info(
         "To avoid this, assign the function result to an object and inspect plots selectively from the list output."
       )
-
-      # Line separator to make output clean
-      cli::cli_rule()
 
       ###_______________________________________________________________________
       ### Plotting functionality
@@ -620,93 +759,47 @@ is_it_normal <- function(
           vec <- dplyr::pull(group_data, !!var)
 
           # QQ Plot
-          qqplot <- ggplot2::ggplot(group_data, ggplot2::aes(sample = !!var)) +
-            ggplot2::geom_qq_line(
-              linewidth = 1.25,
-              color = "#70C8B8",
-              alpha = 0.7,
-              na.rm = TRUE
-            ) +
-            ggplot2::stat_qq(
-              color = "#19405B",
-              alpha = 0.5,
-              size = 2,
-              na.rm = TRUE
-            ) +
-            ggplot2::ggtitle(paste0("Normal Q-Q Plot (", group_label, ")")) +
-            chosen_theme()
+          qqplot <- make_qq_plot(group_data, vec, var, var_name, group_label)
 
           # Histogram
-          hist_plot <- ggplot2::ggplot(group_data, ggplot2::aes(x = !!var)) +
-            ggplot2::geom_histogram(
-              binwidth = (max(vec, na.rm = TRUE) - min(vec, na.rm = TRUE)) / 15,
-              fill = "#C6D667",
-              color = "black",
-              na.rm = TRUE
-            ) +
-            ggplot2::ggtitle(paste0("Histogram (", group_label, ")")) +
-            ggplot2::labs(x = var_name) +
-            chosen_theme()
+          hist_plot <- make_hist_plot(
+            group_data,
+            vec,
+            var,
+            var_name,
+            group_label
+          )
 
           # Kernel Density Plot with line at the median
-          density_plot <- ggplot2::ggplot(group_data, ggplot2::aes(x = !!var)) +
-            ggplot2::geom_density(
-              fill = "#F27026",
-              color = "black",
-              alpha = 0.5,
-              na.rm = TRUE
-            ) +
-            ggplot2::geom_segment(
-              x = median(vec, na.rm = TRUE),
-              xend = median(vec, na.rm = TRUE),
-              y = 0,
-              yend = Inf,
-              linetype = "dashed",
-              color = "darkslategray",
-              alpha = 0.25,
-              linewidth = 1.5
-            ) +
-            ggplot2::ggtitle(paste0(
-              "Density Plot with Median (",
-              group_label,
-              ")"
-            )) +
-            ggplot2::labs(
-              x = var_name,
-              caption = paste0("n = ", sum(!is.na(vec)), " non-missings")
-            ) +
-            chosen_theme()
+          density_plot <- make_density_plot(
+            group_data,
+            vec,
+            var,
+            var_name,
+            group_label
+          )
 
           # Boxplot with scatterplot
-          boxplot_plot <- ggplot2::ggplot(
+          boxplot_plot <- make_boxplot(
             group_data,
-            ggplot2::aes(x = !!var, y = "")
-          ) +
-            ggplot2::geom_jitter(
-              color = "#03617A",
-              alpha = 0.1,
-              na.rm = TRUE,
-              height = 0.35
-            ) +
-            ggplot2::geom_boxplot(
-              fill = "#B9E1DA",
-              color = "black",
-              alpha = 0.5,
-              na.rm = TRUE,
-              orientation = "y"
-            ) +
-            ggplot2::stat_boxplot(geom = "errorbar", width = 0.5) +
-            ggplot2::ggtitle(paste0("Boxplot (", group_label, ")")) +
-            ggplot2::labs(x = var_name, y = "") +
-            chosen_theme()
+            vec,
+            var,
+            var_name,
+            group_label
+          )
+
+          # Set up list of plots, remove NULL objects
+          valid_plots <- purrr::compact(
+            list(
+              qqplot,
+              hist_plot,
+              density_plot,
+              boxplot_plot
+            )
+          )
 
           # Set up the patchwork
-          patchwork::wrap_plots(list(
-            qqplot,
-            hist_plot,
-            density_plot,
-            boxplot_plot
-          )) +
+          patchwork::wrap_plots(valid_plots) +
             patchwork::plot_annotation(
               title = paste0(
                 "Normality Test of the '",
@@ -718,7 +811,8 @@ is_it_normal <- function(
               theme = chosen_theme()
             )
         }) |>
-        purrr::set_names(plot_list_labels)
+        purrr::set_names(plot_list_labels) |>
+        purrr::compact()
 
       # Plot a single variable without grouped output
     } else {
@@ -726,85 +820,26 @@ is_it_normal <- function(
       vec <- df |> dplyr::pull(!!var)
 
       # QQ Plot
-      qqplot <- ggplot2::ggplot(df, ggplot2::aes(sample = !!var)) +
-        ggplot2::geom_qq_line(
-          linewidth = 1.25,
-          color = "#70C8B8",
-          alpha = 0.7,
-          na.rm = TRUE
-        ) +
-        ggplot2::stat_qq(
-          color = "#19405B",
-          alpha = 0.5,
-          size = 2,
-          na.rm = TRUE
-        ) +
-        ggplot2::ggtitle(paste0("Normal Q-Q Plot of ", var_name)) +
-        chosen_theme()
+      qqplot <- make_qq_plot(df, vec, var, var_name)
 
       # Histogram
-      hist_plot <- ggplot2::ggplot(df, ggplot2::aes(x = !!var)) +
-        ggplot2::geom_histogram(
-          binwidth = (max(vec, na.rm = TRUE) - min(vec, na.rm = TRUE)) / 15,
-          fill = "#C6D667",
-          color = "black",
-          na.rm = TRUE
-        ) +
-        ggplot2::ggtitle(paste0("Histogram of ", var_name)) +
-        ggplot2::labs(x = var_name) +
-        chosen_theme()
+      hist_plot <- make_hist_plot(df, vec, var, var_name)
 
       # Kernel Density Plot
-      density_plot <- ggplot2::ggplot(df, ggplot2::aes(x = !!var)) +
-        ggplot2::geom_density(
-          fill = "#F27026",
-          color = "black",
-          alpha = 0.5,
-          na.rm = TRUE
-        ) +
-        ggplot2::geom_segment(
-          x = median(vec, na.rm = TRUE),
-          xend = median(vec, na.rm = TRUE),
-          y = 0,
-          yend = Inf,
-          linetype = "dashed",
-          color = "darkslategray",
-          alpha = 0.25,
-          linewidth = 1.5
-        ) +
-        ggplot2::ggtitle(paste0(
-          "Kernel Density Plot of ",
-          var_name,
-          "\nwith horizontal line at the median"
-        )) +
-        ggplot2::labs(
-          x = var_name,
-          caption = paste0("n = ", sum(!is.na(vec)), " non-missings")
-        ) +
-        chosen_theme()
+      density_plot <- make_density_plot(df, vec, var, var_name)
 
       # Boxplot with scatterplot
-      boxplot_plot <- ggplot2::ggplot(df, ggplot2::aes(x = !!var, y = "")) +
-        ggplot2::geom_jitter(
-          color = "#03617A",
-          alpha = 0.1,
-          na.rm = TRUE,
-          height = 0.35
-        ) +
-        ggplot2::geom_boxplot(
-          fill = "#B9E1DA",
-          color = "black",
-          alpha = 0.5,
-          na.rm = TRUE,
-          orientation = "y"
-        ) +
-        ggplot2::stat_boxplot(geom = "errorbar", width = 0.5) +
-        ggplot2::ggtitle(paste0("Boxplot with scatterplot of ", var_name)) +
-        ggplot2::labs(x = var_name, y = "") +
-        chosen_theme()
+      boxplot_plot <- make_boxplot(df, vec, var, var_name)
 
-      # Combine
-      plot_list <- list(qqplot, hist_plot, density_plot, boxplot_plot)
+      # Combine, remove NULL objects
+      plot_list <- purrr::compact(list(
+        qqplot,
+        hist_plot,
+        density_plot,
+        boxplot_plot
+      ))
+
+      # Patchwork
       combined_plots <- patchwork::wrap_plots(plot_list) +
         patchwork::plot_annotation(
           title = paste0(
@@ -817,11 +852,12 @@ is_it_normal <- function(
           theme = chosen_theme()
         )
 
+      # Add to the list
       output_list$plots <- combined_plots
     }
   } else if (include_plots && multiple_columns) {
     # Header for the plotting section
-    cli::cli_h3("Plotting Behavior")
+    cli::cli_h3("Visualizations")
 
     # If multiple_columns, then do not include plots
     include_plots <- FALSE

@@ -64,8 +64,6 @@ This function calculates Indicator 3, a measure of the proportion of trauma
 incidents where the probability of survival is recorded. It filters the data
 by trauma center level (I-IV), excluding burn cases, and computes the
 proportion of incidents with a valid probability of survival value.
-Confidence intervals can optionally be calculated for the proportion, using
-either the Wilson or Clopper-Pearson method.
 }
 \details{
 This function:

@@ -66,6 +66,8 @@ threshold.
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Calculates the proportion of trauma records that meet or exceed
 a threshold for data validity among facilities at the specified trauma center
 levels. Optionally computes confidence intervals.

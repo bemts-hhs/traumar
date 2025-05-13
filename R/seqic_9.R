@@ -1,6 +1,9 @@
 #' @title SEQIC Indicator 9 - Emergency Department Transfer Timeliness
 #'
 #' @description
+#'
+#' `r lifecycle::badge("experimental")`
+#'
 #' Calculates the proportion of EMS-transferred trauma patients who experienced
 #' delayed transfer from the emergency department (ED) based on disposition and
 #' decision-to-transfer time frames. This includes both overall rates and
@@ -70,7 +73,7 @@
 #' identifiers or timestamps.
 #'
 #' @returns
-#' A list of two tibbles:
+#' A list of two tibbles, with optional 95% confidence intervals:
 #' \itemize{
 #'   \item{`seqic_9_all`}: Proportion of transferred trauma patients with ED
 #'   discharge or decision delays >2 or >3 hours, grouped by optional

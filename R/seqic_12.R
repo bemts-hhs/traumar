@@ -1,6 +1,9 @@
 #' @title SEQIC Indicator 12 - Timeliness of Data Entry Post-Discharge
 #'
 #' @description
+#'
+#' `r lifecycle::badge("experimental")`
+#'
 #' Calculates the proportion of trauma cases where data were entered into the
 #' trauma registry within a defined number of days post-discharge. This measure
 #' supports trauma system quality improvement by identifying facilities meeting

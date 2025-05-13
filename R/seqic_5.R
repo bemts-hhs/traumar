@@ -6,8 +6,7 @@
 #'
 #' Computes SEQIC Indicator 5a–5d for trauma system quality monitoring. These
 #' indicators measure alcohol and drug screening rates among trauma patients at
-#' trauma level I–IV facilities. Confidence intervals can optionally be
-#' calculated for proportions using the Wilson or Clopper-Pearson method.
+#' trauma level I–IV facilities.
 #'
 #' @inheritParams seqic_indicator_1
 #' @param blood_alcohol_content Unquoted column name for blood alcohol

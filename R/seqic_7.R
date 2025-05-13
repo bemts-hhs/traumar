@@ -7,8 +7,7 @@
 #' Computes SEQIC Indicator 7, which measures the proportion of trauma patients
 #' arriving at the definitive care facility trauma centers (level I–IV) more
 #' than 180 minutes after injury. This indicator identifies delays in definitive
-#' care. Confidence intervals may optionally be computed using the Wilson or
-#' Clopper-Pearson method.
+#' care.
 #'
 #' @inheritParams seqic_indicator_1
 #' @inheritParams seqic_indicator_6
@@ -34,7 +33,7 @@
 #' are numeric and measured in minutes.
 #'
 #' @return A tibble summarizing SEQIC Indicator 7 results. Includes numerator,
-#'   denominator, and proportion. Confidence intervals are included if
+#'   denominator, and proportion. 95% confidence intervals are included if
 #'   requested.
 #'
 #' @examples

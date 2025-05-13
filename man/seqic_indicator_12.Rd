@@ -74,6 +74,8 @@ threshold.
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Calculates the proportion of trauma cases where data were entered into the
 trauma registry within a defined number of days post-discharge. This measure
 supports trauma system quality improvement by identifying facilities meeting

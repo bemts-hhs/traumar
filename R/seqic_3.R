@@ -8,8 +8,6 @@
 #' incidents where the probability of survival is recorded. It filters the data
 #' by trauma center level (I-IV), excluding burn cases, and computes the
 #' proportion of incidents with a valid probability of survival value.
-#' Confidence intervals can optionally be calculated for the proportion, using
-#' either the Wilson or Clopper-Pearson method.
 #'
 #' @inheritParams seqic_indicator_1
 #' @param trauma_type A column name indicating the type of trauma. The function

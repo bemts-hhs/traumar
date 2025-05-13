@@ -83,6 +83,8 @@ specified).
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Calculates the proportion of patients who survived based on risk groups
 existing in the data among trauma patients transported to Level I–IV trauma
 centers.
