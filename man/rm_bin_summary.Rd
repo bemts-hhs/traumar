@@ -14,6 +14,7 @@ rm_bin_summary(
   Divisor2 = 5,
   Threshold_1 = 0.9,
   Threshold_2 = 0.99,
+  bootstrap_ci = TRUE,
   seed = NULL
 )
 }
@@ -26,7 +27,8 @@ rm_bin_summary(
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
 should represent "alive" (survived), while \code{0} should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.}
+not survive).  \code{TRUE/FALSE} are accepted as well. Ensure the column
+contains only these possible values.}
 
 \item{group_vars}{Optional character vector specifying grouping variables for
 stratified analysis. If \code{NULL}, the calculation is performed on the entire
@@ -46,6 +48,10 @@ probabilities (default is 0.9).}
 
 \item{Threshold_2}{The second threshold for dividing the survival
 probabilities (default is 0.99).}
+
+\item{bootstrap_ci}{A logical indicating whether to return the relative
+mortality metric estimate and 95\% confidence intervals using bootstrap
+sampling. Default is \code{TRUE}.}
 
 \item{seed}{Optional numeric value to set a random seed for reproducibility.
 If \code{NULL} (default), no seed is set.}
@@ -75,13 +81,13 @@ population existing in \code{data}.
 the population RMM.
 \item \code{population_CI}: The confidence interval width for the population RMM.
 \item \code{bootstrap_RMM_LL}: The lower bound of the 95\% confidence interval for
-the bootstrap RMM.
+the bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_RMM}: The average RMM value calculated for the bootstrap
-sample.
+sample. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_RMM_UL}: The upper bound of the 95\% confidence interval for
-the bootstrap RMM.
+the bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 \item \code{bootstrap_CI}: The width of the 95\% confidence interval for the
-bootstrap RMM.
+bootstrap RMM. (optional, if \code{bootstrap_ci = TRUE})
 }
 }
 \description{
@@ -114,55 +120,98 @@ error method.
 \details{
 Like other statistical computing functions, \code{rm_bin_summary()} is happiest
 without missing data.  It is best to pass complete probability of survival
-and outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, \code{rm_bin_summary()} will
-handle \code{NA} values and throw a warning about missing probability of survival
-values, if any exist in \code{Ps_col}.
+and mortality outcome data to the function for optimal performance. With
+smaller datasets, this is especially helpful.  However, \code{rm_bin_summary()}
+will throw a warning about missing values, if any exist in \code{Ps_col} and/or
+\code{outcome_col}.
+
+\code{rm_bin_summary()} assumes \code{Ps_col} contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.
 
 Due to the use of bootstrap sampling within the function, users should
 consider setting the random number seed within \code{rm_bin_summary()} using the
 \code{seed} argument for reproducibility.
 }
 \examples{
-# Generate example data with high negative skewness
-set.seed(10232015)
+# Generate example data
+set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-Ps <- plogis(rnorm(n_patients, mean = 2,
-                    sd = 1.5)
-                    )  # Skewed towards higher values
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
-survival_outcomes <- rbinom(n_patients,
-                            size = 1,
-                            prob = Ps
-                            )
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
-# Example usage of the `rm_bin_summary` function
-rm_bin_summary(data = data, Ps_col = Ps,
-               outcome_col = survival,
-               n_samples = 10,
-               Divisor1 = 4,
-               Divisor2 = 4
-               )
+# Example usage of the `rm_bin_summary()` function
+rm_bin_summary(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  n_samples = 10,
+  Divisor1 = 4,
+  Divisor2 = 4
+)
 
 # Create example grouping variable (e.g., hospital)
 hospital <- sample(c("Hospital A", "Hospital B"), n_patients, replace = TRUE)
 
 # Create data frame
-data <- data.frame(Ps = Ps,
-                  survival = survival_outcomes,
-                  hospital = hospital
-                  ) |>
+data <- data.frame(
+  Ps = Ps,
+  survival = survival_outcomes,
+  hospital = hospital
+) |>
   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
-# Example usage of the `rm_bin_summary` function with grouping
+# Example usage of the `rm_bin_summary()` function with grouping
 rm_bin_summary(
   data = data,
   Ps_col = Ps,
@@ -192,7 +241,7 @@ Prehospital Emergency Care, 23(2), 254–262.
 \url{doi:10.1080/10903127.2018.1489021}
 }
 \seealso{
-\code{\link[=rmm]{rmm()}}, and \code{\link[=nonlinear_bins]{nonlinear_bins()}}
+\code{\link[=probability_of_survival]{probability_of_survival()}}, \code{\link[=rmm]{rmm()}}, and \code{\link[=nonlinear_bins]{nonlinear_bins()}}
 }
 \author{
 Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas

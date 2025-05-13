@@ -1,4 +1,6 @@
-#' Classify Dates as Weekday or Weekend
+#' @title Classify Dates as Weekday or Weekend
+#'
+#' @description
 #'
 #' This function classifies each date in a vector of dates as either "Weekday"
 #' or "Weekend". The function returns "Weekday" for Monday to Friday and
@@ -31,17 +33,14 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 weekend <- function(input_date) {
-
   #check if the value supplied is in fact Date or POSIXct
   if (!lubridate::is.Date(input_date) & !lubridate::is.POSIXct(input_date)) {
-
     cli::cli_abort(
       paste0(
         "The input to {.var input_date} must be an object of class {.cls Date} or {.cls POSIXct}, but you supplied an object of class {.cls {class(input_date)}}.",
         "i" = "Supply a {.cls Date} object to {.fn weekend}."
       )
     )
-
   }
 
   # Get the day of the week
@@ -49,10 +48,15 @@ weekend <- function(input_date) {
 
   # Classify as Weekday or Weekend
   classification <- ifelse(
-    day_of_week %in% c("Saturday", "Sunday"), "Weekend",
-    base::ifelse(day_of_week %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"), "Weekday", "Undetermined")
+    day_of_week %in% c("Saturday", "Sunday"),
+    "Weekend",
+    base::ifelse(
+      day_of_week %in%
+        c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
+      "Weekday",
+      "Undetermined"
+    )
   )
 
   return(classification)
-
 }

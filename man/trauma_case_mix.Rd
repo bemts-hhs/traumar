@@ -2,8 +2,8 @@
 % Please edit documentation in R/trauma_case_mix.r
 \name{trauma_case_mix}
 \alias{trauma_case_mix}
-\title{View the Current Patient Population Case Mix Compared to the Major Trauma
-Study Case Mix}
+\title{View the Current Patient Population Case Mix Compared to the Major
+Trauma Study Case Mix}
 \usage{
 trauma_case_mix(df, Ps_col, outcome_col)
 }
@@ -17,42 +17,98 @@ trauma_case_mix(df, Ps_col, outcome_col)
 (valid values are 1 or TRUE for alive, 0 or FALSE for dead).}
 }
 \value{
-A data frame containing the Ps ranges, the fraction of patients in
-each range in the current population, and the MTOS distribution for each
-range.
+A data frame containing:
+\itemize{
+\item \code{Ps_range}: The probability of survival range category.
+\item \code{current_fraction}: The fraction of patients in the current
+dataset within each Ps range.
+\item \code{MTOS_distribution}: The reference distribution of patients in
+each Ps range based on the MTOS study.
+\item \code{survivals}: The number of observed survivors (outcome = 1) in
+each Ps range.
+\item \code{predicted_survivals}: The sum of predicted survivals (sum of
+Ps values) in each Ps range.
+\item \code{deaths}: The number of observed deaths (outcome = 0) in each
+Ps range.
+\item \code{predicted_deaths}: The sum of predicted deaths (sum of 1 - Ps
+values) in each Ps range.
+\item \code{count}: The total number of patients in each Ps range.
+}
 }
 \description{
 This function compares the current patient population's case mix (based on
 probability of survival, Ps) to the MTOS case mix by binning patients into
 specific Ps ranges. It returns the fraction of patients in each range and
-compares it to the MTOS distribution. For more information on the methods used
-in these calculations, please see Flora (1978) and Boyd et al. (1987).
+compares it to the MTOS distribution. For more information on the methods
+used in these calculations, please see Flora (1978) and Boyd et al. (1987).
 }
 \details{
-The function checks whether the \code{outcome_col} contains exactly two
-unique values representing a binary outcome. It also ensures that \code{Ps_col}
-contains numeric values within the range 0 to 100. If any values exceed 1,
-they are converted to decimal format. The patients are then grouped into
-predefined Ps ranges, and the function compares the fraction of patients in
-each range with the MTOS case mix distribution.
+The function checks whether the \code{outcome_col} contains values representing a
+binary outcome. It also ensures that \code{Ps_col} contains numeric values within
+the range 0 to 1. If any values exceed 1, a warning is issued. The patients
+are then grouped into predefined Ps ranges, and the function compares the
+fraction of patients in each range with the MTOS case mix distribution.
+
+Like other statistical computing functions, \code{trauma_case_mix()} is happiest
+without missing data.  It is best to pass complete probability of survival
+and outcome data to the function for optimal performance. With smaller
+datasets, this is especially helpful.  However, \code{trauma_case_mix()} will
+throw a warning about missing values, if any exist in \code{Ps_col} and/or
+\code{outcome_col}.
 }
 \examples{
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-# Generate survival probabilities (Ps) using a logistic distribution
-set.seed(123)  # For reproducibility
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)

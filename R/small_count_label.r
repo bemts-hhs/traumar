@@ -1,4 +1,6 @@
-#' Label Small Counts Based on a Cutoff
+#' @title Label Small Counts Based on a Cutoff
+#'
+#' @description
 #'
 #' This function labels values in a vector as a replacement string if they are
 #' smaller than a specified cutoff. The input can be numeric, and the function
@@ -28,7 +30,6 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 small_count_label <- function(var, cutoff, replacement) {
-
   # Check if var is numeric
   if (!is.numeric(var)) {
     cli::cli_abort(
@@ -60,18 +61,12 @@ small_count_label <- function(var, cutoff, replacement) {
   if (
     !is.character(replacement) ||
 
-      ( is.character(replacement) && all(var >= cutoff, na.rm = T) )
-
-      ) {
-
+      (is.character(replacement) && all(var >= cutoff, na.rm = T))
+  ) {
     output <- ifelse(var < cutoff, replacement, var)
-
   } else {
-
     output <- ifelse(var < cutoff, replacement, as.character(var))
-
   }
 
   return(output)
-
 }

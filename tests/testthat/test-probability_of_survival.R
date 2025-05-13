@@ -10,7 +10,7 @@ test_that("probability_of_survival handles valid inputs correctly", {
   )
 
   result <- probability_of_survival(trauma_type, age, rts, iss)
-  expect_equal(result, round(expected, digits = 3))
+  expect_equal(result, expected)
 })
 
 # Test invalid trauma_type
@@ -36,7 +36,7 @@ test_that("probability_of_survival handles invalid trauma_type", {
 # Test invalid age
 test_that("probability_of_survival handles invalid age", {
   trauma_type <- c("Blunt", "Penetrating")
-  age <- c(-5, 60)  # Negative age
+  age <- c(-5, 60) # Negative age
   rts <- c(7.84, 6.90)
   iss <- c(10, 25)
 
@@ -47,7 +47,7 @@ test_that("probability_of_survival handles invalid age", {
 test_that("probability_of_survival handles invalid rts", {
   trauma_type <- c("Blunt", "Penetrating")
   age <- c(30, 60)
-  rts <- c(8, 6.90)  # Out of range RTS
+  rts <- c(8, 6.90) # Out of range RTS
   iss <- c(10, 25)
 
   expect_warning(probability_of_survival(trauma_type, age, rts, iss))
@@ -58,7 +58,7 @@ test_that("probability_of_survival handles invalid iss", {
   trauma_type <- c("Blunt", "Penetrating")
   age <- c(30, 60)
   rts <- c(7.84, 6.90)
-  iss <- c(10, 80)  # Out of range ISS
+  iss <- c(10, 80) # Out of range ISS
 
   expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 })
@@ -81,7 +81,6 @@ test_that("probability_of_survival handles invalid values correctly", {
   iss <- c(10, 25)
 
   testthat::expect_warning(probability_of_survival(trauma_type, age, rts, iss))
-
 })
 
 # Test NA handling
@@ -92,5 +91,4 @@ test_that("probability_of_survival handles NA values correctly", {
   iss <- c(10, NA)
 
   expect_warning(probability_of_survival(trauma_type, age, rts, iss))
-
 })

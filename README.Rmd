@@ -29,12 +29,13 @@ pillars of healthcare, particularly in the care of injured patients. However,
 hospitals, trauma systems, and their trauma program managers (TPMs) often lack
 access to standardized quality measures derived from academic literature. The
 {traumar} package addresses this gap by providing tools to calculate quality
-measures related to relative mortality efficiently and accurately. By automating
-these calculations, {traumar} empowers hospital systems, trauma networks, and
-TPMs to focus their efforts on analyzing outcomes and driving meaningful
-improvements in patient care. Whether you're seeking to enhance PI initiatives
-or streamline CQI processes, {traumar} serves as a valuable resource for
-advancing trauma care quality.
+measures from trauma center or trauma system effectiveness and efficiency, to
+relative mortality efficiently and accurately. By automating these calculations,
+{traumar} empowers hospital systems, trauma networks, and TPMs to focus their
+efforts on analyzing outcomes and driving meaningful improvements in patient
+care. Whether you're seeking to enhance PI initiatives or streamline CQI
+processes, {traumar} serves as a valuable resource for advancing trauma care
+quality.
 
 ## Installation
 
@@ -57,8 +58,27 @@ install.packages("traumar")
 particular, if you do not presently have access to probability of survival data,
 {traumar} provides the `probability_of_survival()` function to do just that
 using the TRISS method. Check out the additional package documentation at
-https://bemts-hhs.github.io/traumar/ where you can
-find examples of each function the package has to offer.
+https://bemts-hhs.github.io/traumar/ where you can find examples of each
+function the package has to offer.
+
+## Trauma System Evaluation and Quality Improvement
+{traumar} includes functions to allow users to calculate the efficiency and
+effectiveness of one or more trauma centers, or even a trauma system. The
+`seqic_indicator_*` family of functions affords users the logic and formulas to
+assess their center or system on topics of importance such as:
+
+- Surgeon/physician/mid-level provider response times
+- Data Quality
+- Rate of autopsy among deceased trauma patients
+- Blood alcohol measurements / drug testing
+- Analysis of mortality among risk groups
+- Time from patient arrival to a) physical discharge, b) decision, c) time from
+  decision to physical discharge
+- Trauma team activations
+- Under and over triage
+- ...among many others.  Please check the {traumar}
+  https://bemts-hhs.github.io/traumar/ documentation to explore all these
+  analytical opportunities
 
 ## Calculating the W-Score
 
@@ -70,20 +90,30 @@ package.
 
 ```{r all_data}
 
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+n_patients <- 5000  # Total number of patients
 
-# Generate survival probabilities (Ps) using a logistic distribution
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE) # Arbitrary group labels
+
+trauma_type_values <- sample(x = c("Blunt", "Penetrating"), size = n_patients, replace = TRUE) # Trauma types
+
+rts_values <- sample(x = seq(from = 0, to = 7.8408, by = 0.005), size = n_patients, replace = TRUE) # RTS values
+
+ages <- sample(x = seq(from = 0, to = 100, by = 1), size = n_patients, replace = TRUE) # patient ages
+
+iss_scores <- sample(x = seq(from = 0, to = 75, by = 1), size = n_patients, replace = TRUE) # ISS scores
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(trauma_type = trauma_type_values, age = ages, rts = rts_values, iss = iss_scores)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
 dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 
@@ -171,10 +201,10 @@ W-Score may mask declines in performance due to the influence of lower acuity
 patients via the MTOS Distribution. The {traumar} package automates RMM
 calculation as a single score using the nonlinear binning method from Napoli et
 al. (2017). The `rmm()` and `rm_bin_summary()` functions internally call
-`nonlinear_bins()` to generate the non-linear binning process. The function uses 
-a bootstrap process with `n_samples` repetitions to simulate an RMM distribution and
-estimate 95% confidence intervals. The RMM, along with corresponding
-confidence intervals, are provided for the population in `data`, as well.
+`nonlinear_bins()` to generate the non-linear binning process. The function uses
+bootstrap sampling with `n_samples` to simulate an RMM distribution and estimate
+95% confidence intervals. The RMM, along with corresponding confidence
+intervals, are provided for the population in `data`, as well.
 
 ```{r rmm}
 

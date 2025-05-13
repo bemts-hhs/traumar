@@ -25,7 +25,8 @@ data for a set of patients.}
 \item{outcome_col}{The name of the column containing the outcome data. It
 should be binary, with values indicating patient survival. A value of \code{1}
 should represent "alive" (survived), while \code{0} should represent "dead" (did
-not survive). Ensure the column contains only these two possible values.}
+not survive).  \code{TRUE/FALSE} are accepted as well. Ensure the column
+contains only these possible values.}
 
 \item{group_vars}{Optional grouping variables for bin statistics
 calculations. These should be specified as quoted column names.}
@@ -60,7 +61,7 @@ decedents, respectively.
 respectively.
 \item \code{alive}, \code{dead}: Count of observed survivors and non-survivors.
 \item \code{count}: Total records in the bin.
-\item \code{percent}: Percentage of records within each bin.
+\item \code{percent}: Percentage of total records within each bin.
 }
 }
 }
@@ -75,38 +76,81 @@ count, and percentage for each bin.
 Like other statistical computing functions, \code{nonlinear_bins()} is happiest
 without missing data.  It is best to pass complete probability of survival
 and outcome data to the function for optimal performance. With smaller
-datasets, this is especially helpful.  However, \code{nonlinear_bins()} will
-handle \code{NA} values and throw a warning about missing probability of survival
-values, if any exist in \code{Ps_col}.
+datasets, this is especially helpful.  However, \code{nonlinear_bins()} will throw
+a warning about missing values, if any exist in \code{Ps_col} and/or
+\code{outcome_col}.
+
+\code{nonlinear_bins()} assumes \code{Ps_col} contains probabilities derived from
+real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+Synthetic or low-variability data—especially with small sample sizes—may not
+reflect the logistic distribution of TRISS-derived survival probabilities.
+This can result in unstable estimates or function failure due to insufficient
+dispersion.
 }
 \examples{
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+# Total number of patients
+n_patients <- 5000
 
-# Skewed towards higher values
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+# Arbitrary group labels
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+
+# Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+)
+
+# RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+)
+
+# patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+)
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
-survival_outcomes <- rbinom(n_patients,
-                            size = 1,
-                            prob = Ps
-                            )
+survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Apply the nonlinear_bins function
-results <- nonlinear_bins(data = data,
-                          Ps_col = Ps,
-                          outcome_col = survival,
-                          divisor1 = 5,
-                          divisor2 = 5,
-                          threshold_1 = 0.9,
-                          threshold_2 = 0.99)
+results <- nonlinear_bins(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  divisor1 = 4,
+  divisor2 = 4,
+  threshold_1 = 0.9,
+  threshold_2 = 0.99
+)
 
 # View results
 results$intervals
@@ -114,15 +158,13 @@ results$bin_stats
 
 # Example with grouping by a categorical variable
 
-# Add random group variable
-data$group <- sample(c("A", "B"), size = n_patients, replace = TRUE)
-
 # Run the function using a single grouping variable
-results_grouped <- nonlinear_bins(data,
-                                  Ps_col = Ps,
-                                  outcome_col = survival,
-                                  group_vars = "group"
-                                  )
+results_grouped <- nonlinear_bins(
+  data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  group_vars = "groups"
+)
 
 # View grouped results
 results_grouped$bin_stats
@@ -146,7 +188,7 @@ Prehospital Emergency Care, 23(2), 254–262.
 \url{doi:10.1080/10903127.2018.1489021}
 }
 \seealso{
-\code{\link[=rmm]{rmm()}}, and \code{\link[=rm_bin_summary]{rm_bin_summary()}}
+\code{\link[=probability_of_survival]{probability_of_survival()}}, \code{\link[=rmm]{rmm()}}, and \code{\link[=rm_bin_summary]{rm_bin_summary()}}
 }
 \author{
 Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas

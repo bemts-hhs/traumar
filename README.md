@@ -16,11 +16,12 @@ essential pillars of healthcare, particularly in the care of injured
 patients. However, hospitals, trauma systems, and their trauma program
 managers (TPMs) often lack access to standardized quality measures
 derived from academic literature. The {traumar} package addresses this
-gap by providing tools to calculate quality measures related to relative
-mortality efficiently and accurately. By automating these calculations,
-{traumar} empowers hospital systems, trauma networks, and TPMs to focus
-their efforts on analyzing outcomes and driving meaningful improvements
-in patient care. Whether you’re seeking to enhance PI initiatives or
+gap by providing tools to calculate quality measures from trauma center
+or trauma system effectiveness and efficiency, to relative mortality
+efficiently and accurately. By automating these calculations, {traumar}
+empowers hospital systems, trauma networks, and TPMs to focus their
+efforts on analyzing outcomes and driving meaningful improvements in
+patient care. Whether you’re seeking to enhance PI initiatives or
 streamline CQI processes, {traumar} serves as a valuable resource for
 advancing trauma care quality.
 
@@ -50,6 +51,27 @@ additional package documentation at
 <https://bemts-hhs.github.io/traumar/> where you can find examples of
 each function the package has to offer.
 
+## Trauma System Evaluation and Quality Improvement
+
+{traumar} includes functions to allow users to calculate the efficiency
+and effectiveness of one or more trauma centers, or even a trauma
+system. The `seqic_indicator_*` family of functions affords users the
+logic and formulas to assess their center or system on topics of
+importance such as:
+
+- Surgeon/physician/mid-level provider response times
+- Data Quality
+- Rate of autopsy among deceased trauma patients
+- Blood alcohol measurements / drug testing
+- Analysis of mortality among risk groups
+- Time from patient arrival to a) physical discharge, b) decision, c)
+  time from decision to physical discharge
+- Trauma team activations
+- Under and over triage
+- …among many others. Please check the {traumar}
+  <https://bemts-hhs.github.io/traumar/> documentation to explore all
+  these analytical opportunities
+
 ## Calculating the W-Score
 
 The W-Score tells us how many survivals (or deaths) on average out of
@@ -60,20 +82,30 @@ the {traumar} package.
 
 ``` r
 
-# Generate example data with high negative skewness
+# Generate example data
 set.seed(123)
 
 # Parameters
-n_patients <- 10000  # Total number of patients
+n_patients <- 5000  # Total number of patients
 
-# Generate survival probabilities (Ps) using a logistic distribution
-Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))  # Skewed towards higher values
+groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE) # Arbitrary group labels
+
+trauma_type_values <- sample(x = c("Blunt", "Penetrating"), size = n_patients, replace = TRUE) # Trauma types
+
+rts_values <- sample(x = seq(from = 0, to = 7.8408, by = 0.005), size = n_patients, replace = TRUE) # RTS values
+
+ages <- sample(x = seq(from = 0, to = 100, by = 1), size = n_patients, replace = TRUE) # patient ages
+
+iss_scores <- sample(x = seq(from = 0, to = 75, by = 1), size = n_patients, replace = TRUE) # ISS scores
+
+# Generate survival probabilities (Ps)
+Ps <- traumar::probability_of_survival(trauma_type = trauma_type_values, age = ages, rts = rts_values, iss = iss_scores)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
-data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
+data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
 dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 ```
 
@@ -83,18 +115,12 @@ dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
 # Calculate trauma performance (W, M, Z scores)
 trauma_performance(data, Ps_col = Ps, outcome_col = death)
-#> # A tibble: 9 × 2
-#>   Calculation_Name        Value
-#>   <chr>                   <dbl>
-#> 1 N_Patients          10000    
-#> 2 N_Survivors          8137    
-#> 3 N_Deaths             1863    
-#> 4 Predicted_Survivors  8097.   
-#> 5 Predicted_Deaths     1903.   
-#> 6 Patient_Estimate       40.3  
-#> 7 W_Score                 0.403
-#> 8 M_Score                 0.374
-#> 9 Z_Score                 1.18
+#> # A tibble: 1 × 9
+#>   N_Patients N_Survivors N_Deaths Predicted_Survivors Predicted_Deaths
+#>        <int>       <int>    <int>               <dbl>            <dbl>
+#> 1       5000        1701     3299               1711.            3289.
+#> # ℹ 4 more variables: Patient_Estimate <dbl>, W_Score <dbl>, M_Score <dbl>,
+#> #   Z_Score <dbl>
 ```
 
 ## Comparing the Probability of Survival Distribution of your Patient Mix to the [Major Trauma Outcomes Study](https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx)
@@ -112,13 +138,20 @@ how much confidence you can put into the Z score.
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
-#>      Ps_range current_fraction MTOS_distribution
-#> 1 0.00 - 0.25           0.0209             0.010
-#> 2 0.26 - 0.50           0.0742             0.043
-#> 3 0.51 - 0.75           0.1907             0.000
-#> 4 0.76 - 0.90           0.3000             0.052
-#> 5 0.91 - 0.95           0.1979             0.053
-#> 6 0.96 - 1.00           0.2163             0.842
+#>      Ps_range current_fraction MTOS_distribution survivals predicted_survivals
+#> 1 0.00 - 0.25           0.5414             0.010      2534            187.9191
+#> 2 0.26 - 0.50           0.1432             0.043       468            269.5871
+#> 3 0.51 - 0.75           0.1278             0.000       217            405.8877
+#> 4 0.76 - 0.90           0.0870             0.052        58            366.1312
+#> 5 0.91 - 0.95           0.0508             0.053        18            237.6390
+#> 6 0.96 - 1.00           0.0498             0.842         4            243.4833
+#>   deaths predicted_deaths count
+#> 1    173      2519.080869  2707
+#> 2    248       446.412896   716
+#> 3    422       233.112251   639
+#> 4    377        68.868790   435
+#> 5    236        16.361033   254
+#> 6    245         5.516716   249
 ```
 
 ## The Relative Mortality Metric
@@ -162,23 +195,22 @@ results <- nonlinear_bins(data = data,
 
 # View intervals created by the algorithm
 results$intervals
-#>  [1] 0.02257717 0.59018811 0.75332640 0.84397730 0.90005763 0.93040607
-#>  [7] 0.95446838 0.97345230 0.99000626 0.99957866
+#> [1] 0.0002015449 0.0256191282 0.1455317587 0.4842820556 0.9003870455
+#> [6] 0.9285354475 0.9518925450 0.9722272703 0.9968989233
 
 # View the bin statistics
 results$bin_stats
-#> # A tibble: 9 × 13
-#>   bin_number bin_start bin_end  mean      sd Pred_Survivors_b Pred_Deaths_b
-#>        <int>     <dbl>   <dbl> <dbl>   <dbl>            <dbl>         <dbl>
-#> 1          1    0.0226   0.590 0.416 0.133               578.        812.  
-#> 2          2    0.590    0.753 0.681 0.0480              946.        443.  
-#> 3          3    0.753    0.844 0.803 0.0260             1116.        273.  
-#> 4          4    0.844    0.900 0.873 0.0162             1211.        176.  
-#> 5          5    0.900    0.930 0.916 0.00878             922.         84.5 
-#> 6          6    0.930    0.954 0.943 0.00699             949.         57.3 
-#> 7          7    0.954    0.973 0.964 0.00544             970.         36.0 
-#> 8          8    0.973    0.990 0.981 0.00485             987.         18.6 
-#> 9          9    0.990    1.00  0.994 0.00253             418.          2.60
+#> # A tibble: 8 × 13
+#>   bin_number bin_start bin_end    mean      sd Pred_Survivors_b Pred_Deaths_b
+#>        <int>     <dbl>   <dbl>   <dbl>   <dbl>            <dbl>         <dbl>
+#> 1          1  0.000202  0.0256 0.00935 0.00722             10.4       1106.  
+#> 2          2  0.0256    0.146  0.0732  0.0345              81.7       1033.  
+#> 3          3  0.146     0.484  0.293   0.0959             327.         788.  
+#> 4          4  0.484     0.900  0.697   0.124              777.         337.  
+#> 5          5  0.900     0.929  0.916   0.00790            114.          10.5 
+#> 6          6  0.929     0.952  0.940   0.00680            117.           7.50
+#> 7          7  0.952     0.972  0.963   0.00564            120.           4.65
+#> 8          8  0.972     0.997  0.984   0.00686            162.           2.67
 #> # ℹ 6 more variables: AntiS_b <dbl>, AntiM_b <dbl>, alive <int>, dead <int>,
 #> #   count <int>, percent <dbl>
 ```
@@ -192,11 +224,10 @@ influence of lower acuity patients via the MTOS Distribution. The
 {traumar} package automates RMM calculation as a single score using the
 nonlinear binning method from Napoli et al. (2017). The `rmm()` and
 `rm_bin_summary()` functions internally call `nonlinear_bins()` to
-generate the non-linear binning process. The function uses a bootstrap
-process with `n_samples` repetitions to simulate an RMM distribution and
-estimate 95% confidence intervals. The RMM, along with corresponding
-confidence intervals, are provided for the population in `data`, as
-well.
+generate the non-linear binning process. The function uses bootstrap
+sampling with `n_samples` to simulate an RMM distribution and estimate
+95% confidence intervals. The RMM, along with corresponding confidence
+intervals, are provided for the population in `data`, as well.
 
 ``` r
 
@@ -211,7 +242,7 @@ rmm(data = data,
 #> # A tibble: 1 × 8
 #>   population_RMM_LL population_RMM population_RMM_UL population_CI
 #>               <dbl>          <dbl>             <dbl>         <dbl>
-#> 1           -0.0275         0.0370             0.101        0.0645
+#> 1            -0.106        0.00247             0.111         0.108
 #> # ℹ 4 more variables: bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>,
 #> #   bootstrap_RMM_UL <dbl>, bootstrap_CI <dbl>
 
@@ -226,16 +257,16 @@ rmm(
   pivot = TRUE
 )
 #> # A tibble: 8 × 2
-#>   stat                 value
-#>   <chr>                <dbl>
-#> 1 population_RMM_LL -0.0275 
-#> 2 population_RMM     0.0370 
-#> 3 population_RMM_UL  0.101  
-#> 4 population_CI      0.0645 
-#> 5 bootstrap_RMM_LL   0.0344 
-#> 6 bootstrap_RMM      0.0369 
-#> 7 bootstrap_RMM_UL   0.0393 
-#> 8 bootstrap_CI       0.00248
+#>   stat                  value
+#>   <chr>                 <dbl>
+#> 1 population_RMM_LL -0.106   
+#> 2 population_RMM     0.00247 
+#> 3 population_RMM_UL  0.111   
+#> 4 population_CI      0.108   
+#> 5 bootstrap_RMM_LL   0.000492
+#> 6 bootstrap_RMM      0.00218 
+#> 7 bootstrap_RMM_UL   0.00386 
+#> 8 bootstrap_CI       0.00168
 
 # RMM calculated by non-linear bin range
 # `rm_bin_summary()` function
@@ -246,20 +277,18 @@ rm_bin_summary(data = data,
                Divisor2 = 4,
                n_samples = 250
                )
-#> # A tibble: 9 × 19
-#>   bin_number  TA_b  TD_b   N_b    EM_b AntiS_b AntiM_b bin_start bin_end
-#>        <int> <int> <int> <int>   <dbl>   <dbl>   <dbl>     <dbl>   <dbl>
-#> 1          1   615   775  1390 0.558     0.416   0.584    0.0226   0.590
-#> 2          2   953   436  1389 0.314     0.681   0.319    0.590    0.753
-#> 3          3  1108   281  1389 0.202     0.803   0.197    0.753    0.844
-#> 4          4  1208   179  1387 0.129     0.873   0.127    0.844    0.900
-#> 5          5   911    95  1006 0.0944    0.916   0.084    0.900    0.930
-#> 6          6   954    52  1006 0.0517    0.943   0.057    0.930    0.954
-#> 7          7   979    27  1006 0.0268    0.964   0.036    0.954    0.973
-#> 8          8   989    17  1006 0.0169    0.981   0.019    0.973    0.990
-#> 9          9   420     1   421 0.00238   0.994   0.006    0.990    1.00 
-#> # ℹ 10 more variables: midpoint <dbl>, R_b <dbl>, population_RMM_LL <dbl>,
-#> #   population_RMM <dbl>, population_RMM_UL <dbl>, population_CI <dbl>,
-#> #   bootstrap_RMM_LL <dbl>, bootstrap_RMM <dbl>, bootstrap_RMM_UL <dbl>,
-#> #   bootstrap_CI <dbl>
+#> # A tibble: 8 × 19
+#>   bin_number  TA_b  TD_b   N_b  EM_b AntiS_b AntiM_b bin_start bin_end midpoint
+#>        <int> <int> <int> <int> <dbl>   <dbl>   <dbl>     <dbl>   <dbl>    <dbl>
+#> 1          1     9  1107  1116 0.992 0.00935  0.991   0.000202  0.0256   0.0129
+#> 2          2    72  1043  1115 0.935 0.0732   0.927   0.0256    0.146    0.0856
+#> 3          3   300   815  1115 0.731 0.293    0.707   0.146     0.484    0.315 
+#> 4          4   805   309  1114 0.277 0.697    0.303   0.484     0.900    0.692 
+#> 5          5   115    10   125 0.08  0.916    0.0844  0.900     0.929    0.914 
+#> 6          6   116     9   125 0.072 0.940    0.0600  0.929     0.952    0.940 
+#> 7          7   119     6   125 0.048 0.963    0.0372  0.952     0.972    0.962 
+#> 8          8   165     0   165 0     0.984    0.0162  0.972     0.997    0.985 
+#> # ℹ 9 more variables: R_b <dbl>, population_RMM_LL <dbl>, population_RMM <dbl>,
+#> #   population_RMM_UL <dbl>, population_CI <dbl>, bootstrap_RMM_LL <dbl>,
+#> #   bootstrap_RMM <dbl>, bootstrap_RMM_UL <dbl>, bootstrap_CI <dbl>
 ```

@@ -30,7 +30,8 @@
 #' @param outcome_col The name of the column containing the outcome data. It
 #'   should be binary, with values indicating patient survival. A value of `1`
 #'   should represent "alive" (survived), while `0` should represent "dead" (did
-#'   not survive). Ensure the column contains only these two possible values.
+#'   not survive).  `TRUE/FALSE` are accepted as well. Ensure the column
+#'   contains only these possible values.
 #' @param group_vars Optional character vector specifying grouping variables for
 #'   stratified analysis. If `NULL`, the calculation is performed on the entire
 #'   dataset.
@@ -44,6 +45,9 @@
 #'   probabilities (default is 0.9).
 #' @param Threshold_2 The second threshold for dividing the survival
 #'   probabilities (default is 0.99).
+#' @param bootstrap_ci A logical indicating whether to return the relative
+#'   mortality metric estimate and 95% confidence intervals using bootstrap
+#'   sampling. Default is `TRUE`.
 #' @param pivot A logical indicating whether to return the results in a long
 #'   format (`pivot = TRUE`) or wide format (`pivot = FALSE`, default). Use with
 #'   caution in tandem with `group_vars` if the grouping variable is of a
@@ -53,12 +57,18 @@
 #'   If `NULL` (default), no seed is set.
 #'
 #' @details
-#' Like other statistical computing functions, `rmm()` is happiest
-#' without missing data.  It is best to pass complete probability of survival
-#' and outcome data to the function for optimal performance. With smaller
-#' datasets, this is especially helpful.  However, `rmm()` will
-#' handle `NA` values and throw a warning about missing probability of survival
-#' values, if any exist in `Ps_col`.
+#' Like other statistical computing functions, `rmm()` is happiest without
+#' missing data.  It is best to pass complete probability of survival and
+#' mortality outcome data to the function for optimal performance. With smaller
+#' datasets, this is especially helpful.  However, `rmm()` will throw a warning
+#' about missing values, if any exist in `Ps_col` and/or `outcome_col`.
+#'
+#' `rmm()` assumes `Ps_col` contains probabilities derived from
+#' real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+#' Synthetic or low-variability data—especially with small sample sizes—may not
+#' reflect the logistic distribution of TRISS-derived survival probabilities.
+#' This can result in unstable estimates or function failure due to insufficient
+#' dispersion.
 #'
 #' Due to the use of bootstrap sampling within the function, users should
 #' consider setting the random number `seed` within `rmm()` for reproducibility.
@@ -73,13 +83,13 @@
 #'     the population RMM.
 #'   - `population_CI`: The confidence interval width for the population RMM.
 #'   - `bootstrap_RMM_LL`: The lower bound of the 95% confidence interval for
-#'     the bootstrap RMM.
+#'     the bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_RMM`: The average RMM value calculated for the bootstrap
-#'     sample.
+#'     sample. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_RMM_UL`: The upper bound of the 95% confidence interval for
-#'     the bootstrap RMM.
+#'     the bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_CI`: The width of the 95% confidence interval for the
-#'     bootstrap RMM.
+#'     bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - If `pivot = TRUE`, the results will be in long format with two columns:
 #'     `stat` and `value`, where each row corresponds to one of the calculated
 #'     statistics.
@@ -106,27 +116,62 @@
 #' Prehospital Emergency Care, 23(2), 254–262.
 #' <doi:10.1080/10903127.2018.1489021>
 #'
-#' @seealso [rm_bin_summary()], and [nonlinear_bins()]
+#' @seealso [probability_of_survival()], [rm_bin_summary()], and
+#'   [nonlinear_bins()]
 #'
 #' @examples
-#' # Generate example data with high negative skewness
-#' set.seed(10232015)
+#' # Generate example data
+#' set.seed(123)
 #'
 #' # Parameters
-#' n_patients <- 10000  # Total number of patients
+#' # Total number of patients
+#' n_patients <- 5000
 #'
-#' # Skewed towards higher values
-#' Ps <- plogis(rnorm(n_patients, mean = 2, sd = 1.5))
+#' # Arbitrary group labels
+#' groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+#'
+#' # Trauma types
+#' trauma_type_values <- sample(
+#'   x = c("Blunt", "Penetrating"),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # RTS values
+#' rts_values <- sample(
+#'   x = seq(from = 0, to = 7.8408, by = 0.005),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # patient ages
+#' ages <- sample(
+#'   x = seq(from = 0, to = 100, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # ISS scores
+#' iss_scores <- sample(
+#'   x = seq(from = 0, to = 75, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # Generate survival probabilities (Ps)
+#' Ps <- traumar::probability_of_survival(
+#'   trauma_type = trauma_type_values,
+#'   age = ages,
+#'   rts = rts_values,
+#'   iss = iss_scores
+#' )
 #'
 #' # Simulate survival outcomes based on Ps
-#' survival_outcomes <- rbinom(n_patients,
-#'                             size = 1,
-#'                             prob = Ps
-#'                             )
+#' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 #'
 #' # Create data frame
-#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+#'   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
 #' # Example usage of the `rmm` function
 #' rmm(data = data, Ps_col = Ps,
@@ -182,19 +227,20 @@
 #' @author Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas
 #'   J. Napoli, Ph.D., MS
 #'
-rmm <- function(data,
-                Ps_col,
-                outcome_col,
-                group_vars = NULL,
-                n_samples = 100,
-                Divisor1 = 5,
-                Divisor2 = 5,
-                Threshold_1 = 0.9,
-                Threshold_2 = 0.99,
-                pivot = FALSE,
-                seed = NULL
+rmm <- function(
+  data,
+  Ps_col,
+  outcome_col,
+  group_vars = NULL,
+  n_samples = 100,
+  Divisor1 = 5,
+  Divisor2 = 5,
+  Threshold_1 = 0.9,
+  Threshold_2 = 0.99,
+  bootstrap_ci = TRUE,
+  pivot = FALSE,
+  seed = NULL
 ) {
-
   # Validation checks using `cli` for robust error messaging:
   # Ensures the input data is a data frame or tibble.
   if (!is.data.frame(data) && !tibble::is_tibble(data)) {
@@ -202,33 +248,76 @@ rmm <- function(data,
   }
 
   # check the n_samples value
-  if(!is.numeric(n_samples) && !is.integer(n_samples)) {
+  if (!is.numeric(n_samples) && !is.integer(n_samples)) {
+    cli::cli_abort(
+      "A value of class {.cls numeric} must be passed to {.var n_samples}. The value passed to {.var n_samples} was of class {.val {class(n_samples)}}, please provide a {.cls numeric} value."
+    )
+  }
 
-    cli::cli_abort("A value of class {.cls numeric} must be passed to {.var n_samples}. The value passed to {.var n_samples} was of class {.val {class(n_samples)}}, please provide a {.cls numeric} value.")
-
+  # Validate the CI argument
+  if (!is.logical(bootstrap_ci)) {
+    cli::cli_abort(c(
+      "{.var bootstrap_ci} only accepts logical {.val TRUE} or {.val FALSE} values.",
+      "i" = "The value passed to {.var bootstrap_ci} had class {.cls {class(bootstrap_ci)}}."
+    ))
   }
 
   # No explicit validation for column existence; use tidy evaluation directly
-  ps_data <- rlang::enquo(Ps_col)     # Capture Ps_col argument
+  ps_data <- rlang::enquo(Ps_col) # Capture Ps_col argument
 
   # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
   if (missing(Ps_col) && missing(outcome_col)) {
-    cli::cli_abort("Both {.var Ps_col} and {.var outcome_col} arguments must be provided.")
+    cli::cli_abort(
+      "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
+    )
   } else if (missing(Ps_col)) {
     cli::cli_abort("The {.var Ps_col} argument must be provided.")
   } else if (missing(outcome_col)) {
     cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # Check if the outcome_col is binary
-  binary_data <- data |>
-    dplyr::pull({{ outcome_col }})
+  # Pull and check the outcome column
+  binary_data <- data |> dplyr::pull({{ outcome_col }})
 
-  # Validate binary data
-  unique_values <- unique(stats::na.omit(binary_data))
+  # Ensure the column is either logical or numeric
+  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
+    cli::cli_abort(
+      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
 
-  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2 || length(unique_values) < 2) {
-    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
+  # Get unique non-missing values
+  non_missing <- stats::na.omit(binary_data)
+
+  # Validate type and values
+  if (is.logical(binary_data)) {
+    # Logical vector: ensure only TRUE/FALSE (no coercion needed)
+    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
+      )
+    }
+  } else if (is.numeric(binary_data)) {
+    # Numeric vector: ensure strictly 0 or 1
+    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
+      )
+    }
+  } else {
+    # Not logical or numeric
+    cli::cli_abort(
+      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
+
+  # Warn if missing
+  if (any(is.na(binary_data))) {
+    cli::cli_warn(
+      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn rmm}."
+    )
   }
 
   # Check if Ps column is numeric
@@ -242,21 +331,23 @@ rmm <- function(data,
   }
 
   if (any(is.na(Ps_check))) {
-    cli::cli_warn("Missing values detected in {.var Ps_col}; they will be ignored in calculations.")
+    cli::cli_warn(
+      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn rmm}."
+    )
   }
 
   # Check if Ps column is continuous (values between 0 and 1)
   if (any(Ps_check < 0 | Ps_check > 1, na.rm = TRUE)) {
-    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 1.")
+    cli::cli_abort(
+      "The probability of survival (Ps) values must be between 0 and 1."
+    )
   }
 
   if (!is.null(seed) && !is.numeric(seed)) {
-
     cli::cli_warn(c(
       "The value passed to {.var seed} was of class {.cls {class(seed)}}, but it should be {.cls numeric}.",
       "i" = "The random seed will not be set."
     ))
-
   }
 
   # Check if all elements in group_vars are strings (i.e., character vectors)
@@ -270,25 +361,21 @@ rmm <- function(data,
   # Check if all group_vars exist in the data
   if (!all(group_vars %in% names(data))) {
     invalid_vars <- group_vars[!group_vars %in% names(data)]
-    cli::cli_abort("The following group variable(s) are not valid columns in the data: {paste(invalid_vars, collapse = ', ')}")
+    cli::cli_abort(
+      "The following group variable(s) are not valid columns in the data: {paste(invalid_vars, collapse = ', ')}"
+    )
   }
 
   # Treat the column-names-as-strings as symbols
-  if(!is.null(group_vars)) {
-
+  if (!is.null(group_vars)) {
     group_vars_syms <- rlang::syms(group_vars)
-
   } else if (is.null(group_vars)) {
-
     group_vars_syms <- NULL
-
   }
 
   # Set the random seed if a value is given
-  if(!is.null(seed) && is.numeric(seed)) {
-
+  if (!is.null(seed) && is.numeric(seed)) {
     set.seed(seed)
-
   }
 
   # Assume same distribution of POS scores over years
@@ -297,7 +384,7 @@ rmm <- function(data,
   # those methods are adapted using this function
 
   # get the population level bins
-  bin_data <- nonlinear_bins(
+  bin_data <- suppressWarnings(nonlinear_bins(
     data = data,
     Ps_col = {{ Ps_col }},
     outcome_col = {{ outcome_col }},
@@ -306,38 +393,42 @@ rmm <- function(data,
     divisor2 = Divisor2,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
-  )
+  ))
 
-  # Bootstrap process
-  bootstrap_data <- data |>
-    dplyr::select({{ Ps_col }}, {{ outcome_col }}, !!!group_vars_syms) |>  # Select only relevant columns
-    dplyr::group_by(!!!group_vars_syms) |>
-    infer::generate(reps = n_samples, type = "bootstrap") |>   # Generate bootstrap samples
-    dplyr::ungroup()
+  if (bootstrap_ci) {
+    # Bootstrap process
+    bootstrap_data <- data |>
+      dplyr::select({{ Ps_col }}, {{ outcome_col }}, !!!group_vars_syms) |> # Select only relevant columns
+      dplyr::group_by(!!!group_vars_syms) |>
+      infer::generate(reps = n_samples, type = "bootstrap") |> # Generate bootstrap samples
+      dplyr::ungroup()
 
-  # bootstrapping to get bins for the population to then create
-  # the confidence intervals
-  # Nest data by replicate and optional group_vars and apply nonlinear_bins
-  bin_data_boot <- bootstrap_data |>
-    tidyr::nest(data = -replicate) |> # Nest data
-    dplyr::mutate(
-      bins = purrr::map(
-        data,
-        ~ nonlinear_bins(
-          .x, Ps_col = {{ Ps_col }}, outcome_col = {{ outcome_col }},
-          group_vars = group_vars,
-          divisor1 = Divisor1,
-          divisor2 = Divisor2,
-          threshold_1 = Threshold_1,
-          threshold_2 = Threshold_2
+    # bootstrapping to get bins for the population to then create
+    # the confidence intervals
+    # Nest data by replicate and optional group_vars and apply nonlinear_bins
+    bin_data_boot <- bootstrap_data |>
+      tidyr::nest(data = -replicate) |> # Nest data
+      dplyr::mutate(
+        bins = purrr::map(
+          data,
+          ~ suppressWarnings(nonlinear_bins(
+            .x,
+            Ps_col = {{ Ps_col }},
+            outcome_col = {{ outcome_col }},
+            group_vars = group_vars,
+            divisor1 = Divisor1,
+            divisor2 = Divisor2,
+            threshold_1 = Threshold_1,
+            threshold_2 = Threshold_2
+          ))
         )
-      )
-    ) |>
-    dplyr::mutate(
-      bins_temp = purrr::map(bins, ~ .x$bin_stats)
-    ) |>
-    tidyr::unnest(bins_temp) |>
-    dplyr::select(-bins)
+      ) |>
+      dplyr::mutate(
+        bins_temp = purrr::map(bins, ~ .x$bin_stats)
+      ) |>
+      tidyr::unnest(bins_temp) |>
+      dplyr::select(-bins)
+  }
 
   # Initialize the bin_df to hold bin statistics
   bin_df <- bin_data$bin_stats |>
@@ -346,14 +437,21 @@ rmm <- function(data,
     dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
     dplyr::arrange(!!!group_vars_syms, bin_number) # Sort the bins by bin_number
 
-  # Initialize the bind_df_boot to hold bin statistics for each replicate
-  # Initialize the bin_df with bootstrap samples
-  bin_df_boot <- bin_data_boot |>
-    dplyr::select(!!!group_vars_syms, replicate, bin_number, bin_start, bin_end) |>
-    # Calculate the midpoint of each bin for each bootstrap replicate
-    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
-    dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Sort by replicate and bin_number
-
+  if (bootstrap_ci) {
+    # Initialize the bind_df_boot to hold bin statistics for each replicate
+    # Initialize the bin_df with bootstrap samples
+    bin_df_boot <- bin_data_boot |>
+      dplyr::select(
+        !!!group_vars_syms,
+        replicate,
+        bin_number,
+        bin_start,
+        bin_end
+      ) |>
+      # Calculate the midpoint of each bin for each bootstrap replicate
+      dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
+      dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Sort by replicate and bin_number
+  }
   # Summarize bin-level statistics:
   # - TA_b: Total alive (patients in the bin that survived)
   # - TD_b: Total dead (patients in the bin that did not survive)
@@ -372,24 +470,26 @@ rmm <- function(data,
     ) |>
     dplyr::arrange(!!!group_vars_syms, bin_number) # Arrange the bins by bin_number
 
-  # Summarize bin-level statistics for the boostrapped data:
-  # - TA_b: Total alive (patients in the bin that survived)
-  # - TD_b: Total dead (patients in the bin that did not survive)
-  # - N_b: Total number of observations (patients in the bin)
-  # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
-  bin_summary_boot <- bin_data_boot |>
-    # Perform this calculation for each replicate and bin
-    dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-    dplyr::summarize(
-      TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
-      TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
-      N_b = sum(count, na.rm = TRUE), # Total number of patients in the bin
-      EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
-      AntiS_b = AntiS_b, # keep the predicted survival data
-      AntiM_b = AntiM_b, # keep the predicted mortality data
-      .groups = "drop"
-    ) |>
-    dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Arrange the bins by bin_number
+  if (bootstrap_ci) {
+    # Summarize bin-level statistics for the boostrapped data:
+    # - TA_b: Total alive (patients in the bin that survived)
+    # - TD_b: Total dead (patients in the bin that did not survive)
+    # - N_b: Total number of observations (patients in the bin)
+    # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
+    bin_summary_boot <- bin_data_boot |>
+      # Perform this calculation for each replicate and bin
+      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+      dplyr::summarize(
+        TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
+        TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
+        N_b = sum(count, na.rm = TRUE), # Total number of patients in the bin
+        EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+        AntiS_b = AntiS_b, # keep the predicted survival data
+        AntiM_b = AntiM_b, # keep the predicted mortality data
+        .groups = "drop"
+      ) |>
+      dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Arrange the bins by bin_number
+  }
 
   if (is.null(group_vars)) {
     # Join the bin statistics (bin_summary) with the bin_df for further calculations
@@ -403,43 +503,48 @@ rmm <- function(data,
         R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
       ) |>
       dplyr::ungroup()
-
   } else {
-
     bin_stats <- bin_summary |>
-      dplyr::left_join(bin_df, by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)) |>
+      dplyr::left_join(
+        bin_df,
+        by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)
+      ) |>
       dplyr::group_by(!!!group_vars_syms, bin_number) |>
       dplyr::mutate(
         R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
       ) |>
       dplyr::ungroup()
-
   }
 
-  if (is.null(group_vars)) {
-    # For the bootstrapped data
-    # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
-    # The merged data will contain the bin information and corresponding statistics
-    # Not using AntiM_b = -1 * midpoint + 1
-    # i.e., Anticipated mortality (1 - midpoint, reversed scale)
-    bin_stats_boot <- bin_summary_boot |>
-      dplyr::left_join(bin_df_boot, by = dplyr::join_by(replicate, bin_number)) |>
-      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-      dplyr::mutate(
-        R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      ) |>
-      dplyr::ungroup()
-
-  } else {
-
-    bin_stats_boot <- bin_summary_boot |>
-      dplyr::left_join(bin_df_boot, by = dplyr::join_by(!!!rlang::syms(group_vars), replicate, bin_number)) |>
-      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-      dplyr::mutate(
-        R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
-      ) |>
-      dplyr::ungroup()
-
+  if (bootstrap_ci) {
+    if (is.null(group_vars)) {
+      # For the bootstrapped data
+      # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
+      # The merged data will contain the bin information and corresponding statistics
+      # Not using AntiM_b = -1 * midpoint + 1
+      # i.e., Anticipated mortality (1 - midpoint, reversed scale)
+      bin_stats_boot <- bin_summary_boot |>
+        dplyr::left_join(
+          bin_df_boot,
+          by = dplyr::join_by(replicate, bin_number)
+        ) |>
+        dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+        dplyr::mutate(
+          R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
+        ) |>
+        dplyr::ungroup()
+    } else {
+      bin_stats_boot <- bin_summary_boot |>
+        dplyr::left_join(
+          bin_df_boot,
+          by = dplyr::join_by(!!!rlang::syms(group_vars), replicate, bin_number)
+        ) |>
+        dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+        dplyr::mutate(
+          R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
+        ) |>
+        dplyr::ungroup()
+    }
   }
 
   # Calculate the Relative Mortality Metric (RMM):
@@ -452,10 +557,22 @@ rmm <- function(data,
       numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
       denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
       population_RMM = numerator / denominator, # Final RMM calculation
-      population_RMM = pmin(1, pmax(-1, population_RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
-      population_CI = 1.96 * sqrt((sum(AntiM_b, na.rm = TRUE) * sum(AntiS_b, na.rm = TRUE)) / sum(N_b, na.rm = TRUE)),
+      population_RMM = pmin(
+        1,
+        pmax(-1, population_RMM, na.rm = TRUE),
+        na.rm = TRUE
+      ), # Ensure RMM is within [-1, 1]
+      population_CI = 1.96 *
+        sqrt(
+          (sum(AntiM_b, na.rm = TRUE) * sum(AntiS_b, na.rm = TRUE)) /
+            sum(N_b, na.rm = TRUE)
+        ),
       # Lower bound of 95% CI
-      population_RMM_LL = pmax(-1, population_RMM - population_CI, na.rm = TRUE), # Clip LL
+      population_RMM_LL = pmax(
+        -1,
+        population_RMM - population_CI,
+        na.rm = TRUE
+      ), # Clip LL
       # Upper bound of 95% CI
       population_RMM_UL = pmin(1, population_RMM + population_CI, na.rm = TRUE), # Clip UL,
       .groups = "drop"
@@ -463,89 +580,104 @@ rmm <- function(data,
     dplyr::relocate(population_RMM_LL, .before = population_RMM) |>
     dplyr::relocate(population_CI, .after = population_RMM_UL)
 
-  # For the bootstrapped data
-  # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
-  # RMM is calculated by:
-  # - Computing the weighted difference between anticipated and observed mortality.
-  # - Normalizing by the weighted anticipated mortality.
-  # The confidence intervals are adjusted based on the weighted error bound.
-  rmm_result_boot <- bin_stats_boot |>
-    dplyr::group_by(!!!group_vars_syms, replicate) |>
-    dplyr::summarize(
-      numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
-      denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
-      RMM = numerator / denominator, # Final RMM calculation
-      RMM = pmin(1, pmax(-1, RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
-      .groups = "drop"
-    ) |>
-    dplyr::ungroup()
+  if (bootstrap_ci) {
+    # For the bootstrapped data
+    # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
+    # RMM is calculated by:
+    # - Computing the weighted difference between anticipated and observed mortality.
+    # - Normalizing by the weighted anticipated mortality.
+    # The confidence intervals are adjusted based on the weighted error bound.
+    rmm_result_boot <- bin_stats_boot |>
+      dplyr::group_by(!!!group_vars_syms, replicate) |>
+      dplyr::summarize(
+        numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
+        denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
+        RMM = numerator / denominator, # Final RMM calculation
+        RMM = pmin(1, pmax(-1, RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
+        .groups = "drop"
+      ) |>
+      dplyr::ungroup()
 
-  # Calculate mean, standard deviation, and 95% confidence intervals
-  rmm_result_ci <- rmm_result_boot |>
-    dplyr::group_by(!!!group_vars_syms) |>
-    dplyr::summarize(
-      bootstrap_RMM = mean(RMM, na.rm = TRUE), # Mean RMM
-      sd_bootstrap_RMM = sd(RMM, na.rm = TRUE), # Standard deviation of RMM
-      se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
-      bootstrap_CI = 1.96 * se_bootstrap_RMM, # Standard error
-      # Lower bound of 95% CI
-      bootstrap_RMM_LL = pmax(-1, bootstrap_RMM - bootstrap_CI, na.rm = TRUE), # Clip LL
-      # Upper bound of 95% CI
-      bootstrap_RMM_UL = pmin(1, bootstrap_RMM + bootstrap_CI, na.rm = TRUE), # Clip UL
-      .groups = "drop"
-    ) |>
-    dplyr::ungroup()
+    # Calculate mean, standard deviation, and 95% confidence intervals
+    rmm_result_ci <- rmm_result_boot |>
+      dplyr::group_by(!!!group_vars_syms) |>
+      dplyr::summarize(
+        bootstrap_RMM = mean(RMM, na.rm = TRUE), # Mean RMM
+        sd_bootstrap_RMM = sd(RMM, na.rm = TRUE), # Standard deviation of RMM
+        se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
+        bootstrap_CI = 1.96 * se_bootstrap_RMM, # Standard error
+        # Lower bound of 95% CI
+        bootstrap_RMM_LL = pmax(-1, bootstrap_RMM - bootstrap_CI, na.rm = TRUE), # Clip LL
+        # Upper bound of 95% CI
+        bootstrap_RMM_UL = pmin(1, bootstrap_RMM + bootstrap_CI, na.rm = TRUE), # Clip UL
+        .groups = "drop"
+      ) |>
+      dplyr::ungroup()
+  }
 
-  if (is.null(group_vars)) {
-    # add the confidence intervals from the bootstrap distribution
-    # to the final result
-    rmm_result_final <- rmm_result |>
-      dplyr::bind_cols(rmm_result_ci) |>
-      dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
-      dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
-      dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
-      dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
-
+  if (bootstrap_ci) {
+    if (is.null(group_vars)) {
+      # add the confidence intervals from the bootstrap distribution
+      # to the final result
+      rmm_result_final <- rmm_result |>
+        dplyr::bind_cols(rmm_result_ci) |>
+        dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+        dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+        dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+        dplyr::select(
+          -numerator,
+          -denominator,
+          -sd_bootstrap_RMM,
+          -se_bootstrap_RMM
+        )
+    } else {
+      rmm_result_final <- rmm_result |>
+        dplyr::left_join(
+          rmm_result_ci,
+          by = dplyr::join_by(!!!rlang::syms(group_vars))
+        ) |>
+        dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+        dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+        dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+        dplyr::select(
+          -numerator,
+          -denominator,
+          -sd_bootstrap_RMM,
+          -se_bootstrap_RMM
+        )
+    }
   } else {
-
     rmm_result_final <- rmm_result |>
-      dplyr::left_join(rmm_result_ci, by = dplyr::join_by(!!!rlang::syms(group_vars))) |>
-      dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
-      dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
-      dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
-      dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
-
+      dplyr::select(
+        -numerator,
+        -denominator
+      )
   }
 
   # Return the final result containing the RMM and its confidence intervals
   # optionally, pivot
-  if(pivot && is.null(group_vars)) {
-
+  if (pivot && is.null(group_vars)) {
     rmm_result_final <- rmm_result_final |>
-      tidyr::pivot_longer(tidyselect::everything(),
-                          names_to = "stat",
-                          values_to = "value"
-                          )
+      tidyr::pivot_longer(
+        tidyselect::everything(),
+        names_to = "stat",
+        values_to = "value"
+      )
 
     return(rmm_result_final)
-
-  } else if (pivot && !is.null(group_vars)){
-
-      rmm_result_final <- rmm_result_final |>
-      tidyr::pivot_longer(-dplyr::all_of(group_vars),
-                          names_to = "stat",
-                          values_to = "value"
-                          )
+  } else if (pivot && !is.null(group_vars)) {
+    rmm_result_final <- rmm_result_final |>
+      tidyr::pivot_longer(
+        -dplyr::all_of(group_vars),
+        names_to = "stat",
+        values_to = "value"
+      )
 
     return(rmm_result_final)
-
   } else if (!pivot) {
-
     # wide result
     return(rmm_result_final)
-
   }
-
 }
 
 #' @title Bin-Level Summary for Relative Mortality Metric (RMM)
@@ -583,7 +715,8 @@ rmm <- function(data,
 #' @param outcome_col The name of the column containing the outcome data. It
 #'   should be binary, with values indicating patient survival. A value of `1`
 #'   should represent "alive" (survived), while `0` should represent "dead" (did
-#'   not survive). Ensure the column contains only these two possible values.
+#'   not survive).  `TRUE/FALSE` are accepted as well. Ensure the column
+#'   contains only these possible values.
 #' @param group_vars Optional character vector specifying grouping variables for
 #'   stratified analysis. If `NULL`, the calculation is performed on the entire
 #'   dataset.
@@ -597,16 +730,26 @@ rmm <- function(data,
 #'   probabilities (default is 0.9).
 #' @param Threshold_2 The second threshold for dividing the survival
 #'   probabilities (default is 0.99).
+#' @param bootstrap_ci A logical indicating whether to return the relative
+#'   mortality metric estimate and 95% confidence intervals using bootstrap
+#'   sampling. Default is `TRUE`.
 #' @param seed Optional numeric value to set a random seed for reproducibility.
 #'   If `NULL` (default), no seed is set.
 #'
 #' @details
 #' Like other statistical computing functions, `rm_bin_summary()` is happiest
 #' without missing data.  It is best to pass complete probability of survival
-#' and outcome data to the function for optimal performance. With smaller
-#' datasets, this is especially helpful.  However, `rm_bin_summary()` will
-#' handle `NA` values and throw a warning about missing probability of survival
-#' values, if any exist in `Ps_col`.
+#' and mortality outcome data to the function for optimal performance. With
+#' smaller datasets, this is especially helpful.  However, `rm_bin_summary()`
+#' will throw a warning about missing values, if any exist in `Ps_col` and/or
+#' `outcome_col`.
+#'
+#' `rm_bin_summary()` assumes `Ps_col` contains probabilities derived from
+#' real-world inputs for the Trauma Injury Severity Score (TRISS) model.
+#' Synthetic or low-variability data—especially with small sample sizes—may not
+#' reflect the logistic distribution of TRISS-derived survival probabilities.
+#' This can result in unstable estimates or function failure due to insufficient
+#' dispersion.
 #'
 #' Due to the use of bootstrap sampling within the function, users should
 #' consider setting the random number seed within `rm_bin_summary()` using the
@@ -635,13 +778,13 @@ rmm <- function(data,
 #'      the population RMM.
 #'   - `population_CI`: The confidence interval width for the population RMM.
 #'   - `bootstrap_RMM_LL`: The lower bound of the 95% confidence interval for
-#'      the bootstrap RMM.
+#'      the bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_RMM`: The average RMM value calculated for the bootstrap
-#'      sample.
+#'      sample. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_RMM_UL`: The upper bound of the 95% confidence interval for
-#'      the bootstrap RMM.
+#'      the bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_CI`: The width of the 95% confidence interval for the
-#'      bootstrap RMM.
+#'      bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'
 #' @export
 #'
@@ -663,48 +806,84 @@ rmm <- function(data,
 #' Prehospital Emergency Care, 23(2), 254–262.
 #' <doi:10.1080/10903127.2018.1489021>
 #'
-#' @seealso [rmm()], and [nonlinear_bins()]
+#' @seealso [probability_of_survival()], [rmm()], and [nonlinear_bins()]
 #'
 #' @examples
-#' # Generate example data with high negative skewness
-#' set.seed(10232015)
+#' # Generate example data
+#' set.seed(123)
 #'
 #' # Parameters
-#' n_patients <- 10000  # Total number of patients
+#' # Total number of patients
+#' n_patients <- 5000
 #'
-#' Ps <- plogis(rnorm(n_patients, mean = 2,
-#'                     sd = 1.5)
-#'                     )  # Skewed towards higher values
+#' # Arbitrary group labels
+#' groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE)
+#'
+#' # Trauma types
+#' trauma_type_values <- sample(
+#'   x = c("Blunt", "Penetrating"),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # RTS values
+#' rts_values <- sample(
+#'   x = seq(from = 0, to = 7.8408, by = 0.005),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # patient ages
+#' ages <- sample(
+#'   x = seq(from = 0, to = 100, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # ISS scores
+#' iss_scores <- sample(
+#'   x = seq(from = 0, to = 75, by = 1),
+#'   size = n_patients,
+#'   replace = TRUE
+#' )
+#'
+#' # Generate survival probabilities (Ps)
+#' Ps <- traumar::probability_of_survival(
+#'   trauma_type = trauma_type_values,
+#'   age = ages,
+#'   rts = rts_values,
+#'   iss = iss_scores
+#' )
 #'
 #' # Simulate survival outcomes based on Ps
-#' survival_outcomes <- rbinom(n_patients,
-#'                             size = 1,
-#'                             prob = Ps
-#'                             )
+#' survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 #'
 #' # Create data frame
-#' data <- data.frame(Ps = Ps, survival = survival_outcomes) |>
-#' dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+#' data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+#'   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
-#' # Example usage of the `rm_bin_summary` function
-#' rm_bin_summary(data = data, Ps_col = Ps,
-#'                outcome_col = survival,
-#'                n_samples = 10,
-#'                Divisor1 = 4,
-#'                Divisor2 = 4
-#'                )
+#' # Example usage of the `rm_bin_summary()` function
+#' rm_bin_summary(
+#'   data = data,
+#'   Ps_col = Ps,
+#'   outcome_col = survival,
+#'   n_samples = 10,
+#'   Divisor1 = 4,
+#'   Divisor2 = 4
+#' )
 #'
 #' # Create example grouping variable (e.g., hospital)
 #' hospital <- sample(c("Hospital A", "Hospital B"), n_patients, replace = TRUE)
 #'
 #' # Create data frame
-#' data <- data.frame(Ps = Ps,
-#'                   survival = survival_outcomes,
-#'                   hospital = hospital
-#'                   ) |>
+#' data <- data.frame(
+#'   Ps = Ps,
+#'   survival = survival_outcomes,
+#'   hospital = hospital
+#' ) |>
 #'   dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 #'
-#' # Example usage of the `rm_bin_summary` function with grouping
+#' # Example usage of the `rm_bin_summary()` function with grouping
 #' rm_bin_summary(
 #'   data = data,
 #'   Ps_col = Ps,
@@ -718,18 +897,19 @@ rmm <- function(data,
 #' @author Nicolas Foss, Ed.D, MS, original implementation in MATLAB by Nicholas
 #'   J. Napoli, Ph.D., MS
 #'
-rm_bin_summary <- function(data,
-                           Ps_col,
-                           outcome_col,
-                           group_vars = NULL,
-                           n_samples = 100,
-                           Divisor1 = 5,
-                           Divisor2 = 5,
-                           Threshold_1 = 0.9,
-                           Threshold_2 = 0.99,
-                           seed = NULL
+rm_bin_summary <- function(
+  data,
+  Ps_col,
+  outcome_col,
+  group_vars = NULL,
+  n_samples = 100,
+  Divisor1 = 5,
+  Divisor2 = 5,
+  Threshold_1 = 0.9,
+  Threshold_2 = 0.99,
+  bootstrap_ci = TRUE,
+  seed = NULL
 ) {
-
   # Validation checks using `cli` for robust error messaging:
   # Ensures the input data is a data frame or tibble.
   if (!is.data.frame(data) && !tibble::is_tibble(data)) {
@@ -737,33 +917,76 @@ rm_bin_summary <- function(data,
   }
 
   # check the n_samples value
-  if(!is.numeric(n_samples) && !is.integer(n_samples)) {
+  if (!is.numeric(n_samples) && !is.integer(n_samples)) {
+    cli::cli_abort(
+      "A value of class {.cls numeric} must be passed to {.var n_samples}. The value passed to {.var n_samples} was of class {.val {class(n_samples)}}, please provide a {.cls numeric} value."
+    )
+  }
 
-    cli::cli_abort("A value of class {.cls numeric} must be passed to {.var n_samples}. The value passed to {.var n_samples} was of class {.val {class(n_samples)}}, please provide a {.cls numeric} value.")
-
+  # Validate the CI argument
+  if (!is.logical(bootstrap_ci)) {
+    cli::cli_abort(c(
+      "{.var bootstrap_ci} only accepts logical {.val TRUE} or {.val FALSE} values.",
+      "i" = "The value passed to {.var bootstrap_ci} had class {.cls {class(bootstrap_ci)}}."
+    ))
   }
 
   # No explicit validation for column existence; use tidy evaluation directly
-  ps_data <- rlang::enquo(Ps_col)     # Capture Ps_col argument
+  ps_data <- rlang::enquo(Ps_col) # Capture Ps_col argument
 
   # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
   if (missing(Ps_col) && missing(outcome_col)) {
-    cli::cli_abort("Both {.var Ps_col} and {.var outcome_col} arguments must be provided.")
+    cli::cli_abort(
+      "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
+    )
   } else if (missing(Ps_col)) {
     cli::cli_abort("The {.var Ps_col} argument must be provided.")
   } else if (missing(outcome_col)) {
     cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # Check if the outcome_col is binary
-  binary_data <- data |>
-    dplyr::pull({{ outcome_col }})
+  # Pull and check the outcome column
+  binary_data <- data |> dplyr::pull({{ outcome_col }})
 
-  # Validate binary data
-  unique_values <- unique(stats::na.omit(binary_data))
+  # Ensure the column is either logical or numeric
+  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
+    cli::cli_abort(
+      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
 
-  if (!all(unique_values %in% c(0, 1, TRUE, FALSE)) || length(unique_values) > 2 || length(unique_values) < 2) {
-    cli::cli_abort("The {.var outcome_col} must be binary, such as 1/0, TRUE/FALSE, or a combination of these. Ensure the column has a binary structure.")
+  # Get unique non-missing values
+  non_missing <- stats::na.omit(binary_data)
+
+  # Validate type and values
+  if (is.logical(binary_data)) {
+    # Logical vector: ensure only TRUE/FALSE (no coercion needed)
+    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
+      )
+    }
+  } else if (is.numeric(binary_data)) {
+    # Numeric vector: ensure strictly 0 or 1
+    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
+    if (length(invalid_vals) > 0) {
+      cli::cli_abort(
+        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
+      )
+    }
+  } else {
+    # Not logical or numeric
+    cli::cli_abort(
+      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    )
+  }
+
+  # Warn if missing
+  if (any(is.na(binary_data))) {
+    cli::cli_warn(
+      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn rm_bin_summary}."
+    )
   }
 
   # Check if Ps column is numeric
@@ -777,21 +1000,23 @@ rm_bin_summary <- function(data,
   }
 
   if (any(is.na(Ps_check))) {
-    cli::cli_warn("Missing values detected in {.var Ps_col}; they will be ignored in calculations.")
+    cli::cli_warn(
+      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn rm_bin_summary}."
+    )
   }
 
   # Check if Ps column is continuous (values between 0 and 1)
   if (any(Ps_check < 0 | Ps_check > 1, na.rm = TRUE)) {
-    cli::cli_abort("The probability of survival (Ps) values must be between 0 and 1.")
+    cli::cli_abort(
+      "The probability of survival (Ps) values must be between 0 and 1."
+    )
   }
 
   if (!is.null(seed) && !is.numeric(seed)) {
-
     cli::cli_warn(c(
       "The value passed to {.var seed} was of class {.cls {class(seed)}}, but it should be {.cls numeric}.",
       "i" = "The random seed will not be set."
     ))
-
   }
 
   # Check if all elements in group_vars are strings (i.e., character vectors)
@@ -801,7 +1026,6 @@ rm_bin_summary <- function(data,
       "i" = "You passed a {.cls {class(group_vars)}} variable to {.var group_vars}."
     ))
   }
-
 
   # Check if all elements in group_vars are strings (i.e., character vectors)
   if (!all(sapply(group_vars, is.character))) {
@@ -814,25 +1038,21 @@ rm_bin_summary <- function(data,
   # Check if all group_vars exist in the data
   if (!all(group_vars %in% names(data))) {
     invalid_vars <- group_vars[!group_vars %in% names(data)]
-    cli::cli_abort("The following group variable(s) are not valid columns in the data: {paste(invalid_vars, collapse = ', ')}")
+    cli::cli_abort(
+      "The following group variable(s) are not valid columns in the data: {paste(invalid_vars, collapse = ', ')}"
+    )
   }
 
   # Treat the column-names-as-strings as symbols
-  if(!is.null(group_vars)) {
-
+  if (!is.null(group_vars)) {
     group_vars_syms <- rlang::syms(group_vars)
-
   } else if (is.null(group_vars)) {
-
     group_vars_syms <- NULL
-
   }
 
   # Set the random seed if a value is given
-  if(!is.null(seed) && is.numeric(seed)) {
-
+  if (!is.null(seed) && is.numeric(seed)) {
     set.seed(seed)
-
   }
 
   # Assume same distribution of POS scores over years
@@ -841,7 +1061,7 @@ rm_bin_summary <- function(data,
   # those methods are adapted using this function
 
   # get the population level bins
-  bin_data <- nonlinear_bins(
+  bin_data <- suppressWarnings(nonlinear_bins(
     data,
     Ps_col = {{ Ps_col }},
     outcome_col = {{ outcome_col }},
@@ -850,38 +1070,42 @@ rm_bin_summary <- function(data,
     divisor2 = Divisor2,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
-  )
+  ))
 
-  # Bootstrap process
-  bootstrap_data <- data |>
-    dplyr::select({{ Ps_col }}, {{ outcome_col }}, !!!group_vars_syms) |>  # Select only relevant columns
-    dplyr::group_by(!!!group_vars_syms) |>
-    infer::generate(reps = n_samples, type = "bootstrap") |>   # Generate bootstrap samples
-    dplyr::ungroup()
+  if (bootstrap_ci) {
+    # Bootstrap process
+    bootstrap_data <- data |>
+      dplyr::select({{ Ps_col }}, {{ outcome_col }}, !!!group_vars_syms) |> # Select only relevant columns
+      dplyr::group_by(!!!group_vars_syms) |>
+      infer::generate(reps = n_samples, type = "bootstrap") |> # Generate bootstrap samples
+      dplyr::ungroup()
 
-  # bootstrapping to get bins for the population to then create
-  # the confidence intervals
-  # Nest data by replicate and apply nonlinear_bins
-  bin_data_boot <- bootstrap_data |>
-    tidyr::nest(data = -replicate) |>  # Nest data by replicate
-    dplyr::mutate(
-      bins = purrr::map(
-        data,
-        ~ nonlinear_bins(
-          .x, Ps_col = {{ Ps_col }}, outcome_col = {{ outcome_col }},
-          group_vars = group_vars,
-          divisor1 = Divisor1,
-          divisor2 = Divisor2,
-          threshold_1 = Threshold_1,
-          threshold_2 = Threshold_2
+    # bootstrapping to get bins for the population to then create
+    # the confidence intervals
+    # Nest data by replicate and apply nonlinear_bins
+    bin_data_boot <- bootstrap_data |>
+      tidyr::nest(data = -replicate) |> # Nest data by replicate
+      dplyr::mutate(
+        bins = purrr::map(
+          data,
+          ~ suppressWarnings(nonlinear_bins(
+            .x,
+            Ps_col = {{ Ps_col }},
+            outcome_col = {{ outcome_col }},
+            group_vars = group_vars,
+            divisor1 = Divisor1,
+            divisor2 = Divisor2,
+            threshold_1 = Threshold_1,
+            threshold_2 = Threshold_2
+          ))
         )
-      )
-    ) |>
-    dplyr::mutate(
-      bins_temp = purrr::map(bins, ~ .x$bin_stats)
-    ) |>
-    tidyr::unnest(bins_temp) |>
-    dplyr::select(-bins)
+      ) |>
+      dplyr::mutate(
+        bins_temp = purrr::map(bins, ~ .x$bin_stats)
+      ) |>
+      tidyr::unnest(bins_temp) |>
+      dplyr::select(-bins)
+  }
 
   # Initialize the bin_df to hold bin statistics
   bin_df <- bin_data$bin_stats |>
@@ -890,13 +1114,21 @@ rm_bin_summary <- function(data,
     dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
     dplyr::arrange(!!!group_vars_syms, bin_number) # Sort the bins by bin_number
 
-  # Initialize the bind_df_boot to hold bin statistics for each replicate
-  # Initialize the bin_df with bootstrap samples
-  bin_df_boot <- bin_data_boot |>
-    dplyr::select(!!!group_vars_syms, replicate, bin_number, bin_start, bin_end) |>
-    # Calculate the midpoint of each bin for each bootstrap replicate
-    dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
-    dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Sort by replicate and bin_number
+  if (bootstrap_ci) {
+    # Initialize the bind_df_boot to hold bin statistics for each replicate
+    # Initialize the bin_df with bootstrap samples
+    bin_df_boot <- bin_data_boot |>
+      dplyr::select(
+        !!!group_vars_syms,
+        replicate,
+        bin_number,
+        bin_start,
+        bin_end
+      ) |>
+      # Calculate the midpoint of each bin for each bootstrap replicate
+      dplyr::mutate(midpoint = (bin_end + bin_start) / 2) |>
+      dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Sort by replicate and bin_number
+  }
 
   # Summarize bin-level statistics:
   # - TA_b: Total alive (patients in the bin that survived)
@@ -916,24 +1148,26 @@ rm_bin_summary <- function(data,
     ) |>
     dplyr::arrange(!!!group_vars_syms, bin_number) # Arrange the bins by bin_number
 
-  # Summarize bin-level statistics for the boostrapped data:
-  # - TA_b: Total alive (patients in the bin that survived)
-  # - TD_b: Total dead (patients in the bin that did not survive)
-  # - N_b: Total number of observations (patients in the bin)
-  # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
-  bin_summary_boot <- bin_data_boot |>
-    # Perform this calculation for each replicate and bin
-    dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-    dplyr::summarize(
-      TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
-      TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
-      N_b = sum(count, na.rm = TRUE), # Total number of patients in the bin
-      EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
-      AntiS_b = AntiS_b, # keep the predicted survival data
-      AntiM_b = AntiM_b, # keep the predicted mortality data
-      .groups = "drop"
-    ) |>
-    dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Arrange the bins by bin_number
+  if (bootstrap_ci) {
+    # Summarize bin-level statistics for the boostrapped data:
+    # - TA_b: Total alive (patients in the bin that survived)
+    # - TD_b: Total dead (patients in the bin that did not survive)
+    # - N_b: Total number of observations (patients in the bin)
+    # - EM_b: Estimated mortality for the bin (TD_b / (TA_b + TD_b))
+    bin_summary_boot <- bin_data_boot |>
+      # Perform this calculation for each replicate and bin
+      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+      dplyr::summarize(
+        TA_b = sum(alive, na.rm = TRUE), # Total number of survivors in the bin
+        TD_b = sum(dead, na.rm = TRUE), # Total number of deaths in the bin
+        N_b = sum(count, na.rm = TRUE), # Total number of patients in the bin
+        EM_b = TD_b / N_b, # Estimated mortality (TD_b / total patients)
+        AntiS_b = AntiS_b, # keep the predicted survival data
+        AntiM_b = AntiM_b, # keep the predicted mortality data
+        .groups = "drop"
+      ) |>
+      dplyr::arrange(!!!group_vars_syms, replicate, bin_number) # Arrange the bins by bin_number
+  }
 
   if (is.null(group_vars)) {
     # Join the bin statistics (bin_summary) with the bin_df for further calculations
@@ -947,43 +1181,48 @@ rm_bin_summary <- function(data,
         R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
       ) |>
       dplyr::ungroup()
-
   } else {
-
     bin_stats <- bin_summary |>
-      dplyr::left_join(bin_df, by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)) |>
+      dplyr::left_join(
+        bin_df,
+        by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)
+      ) |>
       dplyr::group_by(!!!group_vars_syms, bin_number) |>
       dplyr::mutate(
         R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
       ) |>
       dplyr::ungroup()
-
   }
 
-  if (is.null(group_vars)) {
-    # For the bootstrapped data
-    # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
-    # The merged data will contain the bin information and corresponding statistics
-    # Not using AntiM_b = -1 * midpoint + 1
-    # i.e., Anticipated mortality (1 - midpoint, reversed scale)
-    bin_stats_boot <- bin_summary_boot |>
-      dplyr::left_join(bin_df_boot, by = dplyr::join_by(replicate, bin_number)) |>
-      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-      dplyr::mutate(
-        R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
-      ) |>
-      dplyr::ungroup()
-
-  } else {
-
-    bin_stats_boot <- bin_summary_boot |>
-      dplyr::left_join(bin_df_boot, by = dplyr::join_by(!!!rlang::syms(group_vars), replicate, bin_number)) |>
-      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-      dplyr::mutate(
-        R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
-      ) |>
-      dplyr::ungroup()
-
+  if (bootstrap_ci) {
+    if (is.null(group_vars)) {
+      # For the bootstrapped data
+      # Join the bin statistics (bin_summary) with the bin_df_boot for further calculations
+      # The merged data will contain the bin information and corresponding statistics
+      # Not using AntiM_b = -1 * midpoint + 1
+      # i.e., Anticipated mortality (1 - midpoint, reversed scale)
+      bin_stats_boot <- bin_summary_boot |>
+        dplyr::left_join(
+          bin_df_boot,
+          by = dplyr::join_by(replicate, bin_number)
+        ) |>
+        dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+        dplyr::mutate(
+          R_b = bin_end - bin_start, # Calculate the bin width (R_b = end - start)
+        ) |>
+        dplyr::ungroup()
+    } else {
+      bin_stats_boot <- bin_summary_boot |>
+        dplyr::left_join(
+          bin_df_boot,
+          by = dplyr::join_by(!!!rlang::syms(group_vars), replicate, bin_number)
+        ) |>
+        dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+        dplyr::mutate(
+          R_b = bin_end - bin_start # Calculate the bin width (R_b = end - start)
+        ) |>
+        dplyr::ungroup()
+    }
   }
 
   # Calculate the Relative Mortality Metric (RMM):
@@ -996,10 +1235,22 @@ rm_bin_summary <- function(data,
       numerator = R_b * (AntiM_b - EM_b), # Weighted numerator (difference between anticipated and observed mortality)
       denominator = R_b * AntiM_b, # Weighted denominator (anticipated mortality)
       population_RMM = numerator / denominator, # Final RMM calculation
-      population_RMM = pmin(1, pmax(-1, population_RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
-      population_CI = 1.96 * sqrt((sum(AntiM_b, na.rm = TRUE) * sum(AntiS_b, na.rm = TRUE)) / sum(N_b, na.rm = TRUE)),
+      population_RMM = pmin(
+        1,
+        pmax(-1, population_RMM, na.rm = TRUE),
+        na.rm = TRUE
+      ), # Ensure RMM is within [-1, 1]
+      population_CI = 1.96 *
+        sqrt(
+          (sum(AntiM_b, na.rm = TRUE) * sum(AntiS_b, na.rm = TRUE)) /
+            sum(N_b, na.rm = TRUE)
+        ),
       # Lower bound of 95% CI
-      population_RMM_LL = pmax(-1, population_RMM - population_CI, na.rm = TRUE), # Clip LL
+      population_RMM_LL = pmax(
+        -1,
+        population_RMM - population_CI,
+        na.rm = TRUE
+      ), # Clip LL
       # Upper bound of 95% CI
       population_RMM_UL = pmin(1, population_RMM + population_CI, na.rm = TRUE), # Clip UL,
     ) |>
@@ -1007,47 +1258,59 @@ rm_bin_summary <- function(data,
     dplyr::relocate(population_RMM_LL, .before = population_RMM) |>
     dplyr::relocate(population_CI, .after = population_RMM_UL)
 
-  # For the bootstrapped data
-  # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
-  # RMM is calculated by:
-  # - Computing the weighted difference between anticipated and observed mortality.
-  # - Normalizing by the weighted anticipated mortality.
-  # The confidence intervals are adjusted based on the weighted error bound.
-  rmm_result_boot <- bin_stats_boot |>
-    dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
-    dplyr::mutate(
-      numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
-      denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
-      RMM = numerator / denominator, # Final RMM calculation
-      RMM = pmin(1, pmax(-1, RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
-    ) |>
-    dplyr::ungroup()
+  if (bootstrap_ci) {
+    # For the bootstrapped data
+    # Calculate the Relative Mortality Metric (RMM) and its upper and lower confidence intervals:
+    # RMM is calculated by:
+    # - Computing the weighted difference between anticipated and observed mortality.
+    # - Normalizing by the weighted anticipated mortality.
+    # The confidence intervals are adjusted based on the weighted error bound.
+    rmm_result_boot <- bin_stats_boot |>
+      dplyr::group_by(!!!group_vars_syms, replicate, bin_number) |>
+      dplyr::mutate(
+        numerator = sum(R_b * (AntiM_b - EM_b), na.rm = TRUE), # Weighted numerator (difference between anticipated and observed mortality)
+        denominator = sum(R_b * AntiM_b, na.rm = TRUE), # Weighted denominator (anticipated mortality)
+        RMM = numerator / denominator, # Final RMM calculation
+        RMM = pmin(1, pmax(-1, RMM, na.rm = TRUE), na.rm = TRUE), # Ensure RMM is within [-1, 1]
+      ) |>
+      dplyr::ungroup()
 
-  # Calculate mean, standard deviation, and 95% confidence intervals
-  rmm_result_ci <- rmm_result_boot |>
-    dplyr::group_by(!!!group_vars_syms, bin_number) |>
-    dplyr::summarize(
-      bootstrap_RMM = mean(RMM, na.rm = TRUE), # Mean RMM
-      sd_bootstrap_RMM = sd(RMM, na.rm = TRUE), # Standard deviation of RMM
-      se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
-      bootstrap_CI = 1.96 * se_bootstrap_RMM, # Standard error
-      # Lower bound of 95% CI
-      bootstrap_RMM_LL = pmax(-1, bootstrap_RMM - bootstrap_CI, na.rm = TRUE), # Clip LL
-      # Upper bound of 95% CI
-      bootstrap_RMM_UL = pmin(1, bootstrap_RMM + bootstrap_CI, na.rm = TRUE), # Clip UL
-      .groups = "drop"
-    )
+    # Calculate mean, standard deviation, and 95% confidence intervals
+    rmm_result_ci <- rmm_result_boot |>
+      dplyr::group_by(!!!group_vars_syms, bin_number) |>
+      dplyr::summarize(
+        bootstrap_RMM = mean(RMM, na.rm = TRUE), # Mean RMM
+        sd_bootstrap_RMM = sd(RMM, na.rm = TRUE), # Standard deviation of RMM
+        se_bootstrap_RMM = sd_bootstrap_RMM / sqrt(n_samples),
+        bootstrap_CI = 1.96 * se_bootstrap_RMM, # Standard error
+        # Lower bound of 95% CI
+        bootstrap_RMM_LL = pmax(-1, bootstrap_RMM - bootstrap_CI, na.rm = TRUE), # Clip LL
+        # Upper bound of 95% CI
+        bootstrap_RMM_UL = pmin(1, bootstrap_RMM + bootstrap_CI, na.rm = TRUE), # Clip UL
+        .groups = "drop"
+      )
 
-  # add the confidence intervals from the bootstrap distribution
-  # to the final result
-  rmm_result_final <- rmm_result |>
-    dplyr::left_join(rmm_result_ci, by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)) |>
-    dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
-    dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
-    dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
-    dplyr::select(-numerator, -denominator, -sd_bootstrap_RMM, -se_bootstrap_RMM)
+    # add the confidence intervals from the bootstrap distribution
+    # to the final result
+    rmm_result_final <- rmm_result |>
+      dplyr::left_join(
+        rmm_result_ci,
+        by = dplyr::join_by(!!!rlang::syms(group_vars), bin_number)
+      ) |>
+      dplyr::relocate(bootstrap_RMM_LL, .before = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_RMM_UL, .after = bootstrap_RMM) |>
+      dplyr::relocate(bootstrap_CI, .after = bootstrap_RMM_UL) |>
+      dplyr::select(
+        -numerator,
+        -denominator,
+        -sd_bootstrap_RMM,
+        -se_bootstrap_RMM
+      )
+  } else {
+    rmm_result_final <- rmm_result |>
+      dplyr::select(-numerator, -denominator)
+  }
 
   # complete
   return(rmm_result_final)
-
 }

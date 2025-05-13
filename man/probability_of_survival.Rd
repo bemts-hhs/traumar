@@ -40,6 +40,7 @@ trauma_data <- data.frame(
   ISS = c(10, 25)
 )
 
+# Run the function on example data
 result <- trauma_data |>
   dplyr::mutate(Ps = probability_of_survival(
     trauma_type = Trauma_Type,
@@ -47,6 +48,9 @@ result <- trauma_data |>
     rts = RTS,
     iss = ISS
   ))
+
+# Print the result
+result
 
 }
 \author{
