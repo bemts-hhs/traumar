@@ -48,6 +48,12 @@
 #'     \item \code{count}: The total number of patients in each Ps range.
 #'   }
 #'
+#' @note
+#'
+#' This function will produce the most reliable and interpretable results when
+#' using a dataset that has one row per patient, with each column being a
+#' feature.
+#'
 #' @examples
 #' # Generate example data
 #' set.seed(123)

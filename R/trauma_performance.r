@@ -73,6 +73,12 @@
 #' `trauma_performance()` will throw a warning about missing values, if any
 #' exist in `Ps_col` and/or `outcome_col`.
 #'
+#' @note
+#'
+#' This function will produce the most reliable and interpretable results when
+#' using a dataset that has one row per patient, with each column being a
+#' feature.
+#'
 #' @examples
 #' # Generate example data
 #' set.seed(123)

@@ -136,6 +136,11 @@ Due to the use of bootstrap sampling within the function, users should
 consider setting the random number seed within \code{rm_bin_summary()} using the
 \code{seed} argument for reproducibility.
 }
+\note{
+This function will produce the most reliable and interpretable results when
+using a dataset that has one row per patient, with each column being a
+feature.
+}
 \examples{
 # Generate example data
 set.seed(123)

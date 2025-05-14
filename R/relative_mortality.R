@@ -96,6 +96,12 @@
 #'   - If `pivot = FALSE` (default), the results will be returned in wide
 #'     format, with each statistic as a separate column.
 #'
+#' @note
+#'
+#' This function will produce the most reliable and interpretable results when
+#' using a dataset that has one row per patient, with each column being a
+#' feature.
+#'
 #' @export
 #'
 #' @references
@@ -785,6 +791,12 @@ rmm <- function(
 #'      the bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
 #'   - `bootstrap_CI`: The width of the 95% confidence interval for the
 #'      bootstrap RMM. (optional, if `bootstrap_ci = TRUE`)
+#'
+#' @note
+#'
+#' This function will produce the most reliable and interpretable results when
+#' using a dataset that has one row per patient, with each column being a
+#' feature.
 #'
 #' @export
 #'

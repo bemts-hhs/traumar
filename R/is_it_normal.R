@@ -689,7 +689,7 @@ is_it_normal <- function(
     # Header for the plotting section
     cli::cli_h3("Visualizations")
 
-    if (nrow(df) > 10000) {
+    if (nrow(df) > 5000) {
       # Issue a warning
       cli::cli_alert_warning(
         c(

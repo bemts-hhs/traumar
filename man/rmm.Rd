@@ -131,6 +131,11 @@ dispersion.
 Due to the use of bootstrap sampling within the function, users should
 consider setting the random number \code{seed} within \code{rmm()} for reproducibility.
 }
+\note{
+This function will produce the most reliable and interpretable results when
+using a dataset that has one row per patient, with each column being a
+feature.
+}
 \examples{
 # Generate example data
 set.seed(123)

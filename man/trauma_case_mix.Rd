@@ -56,6 +56,11 @@ datasets, this is especially helpful.  However, \code{trauma_case_mix()} will
 throw a warning about missing values, if any exist in \code{Ps_col} and/or
 \code{outcome_col}.
 }
+\note{
+This function will produce the most reliable and interpretable results when
+using a dataset that has one row per patient, with each column being a
+feature.
+}
 \examples{
 # Generate example data
 set.seed(123)
