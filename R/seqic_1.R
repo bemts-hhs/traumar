@@ -82,7 +82,7 @@
 #'
 #' @return A tibble summarizing SEQIC Indicator 1 results across sub-measures
 #'   (1a–1f). Includes numerators, denominators, and performance rate for each
-#'   indicator.
+#'   indicator. 95% confidence intervals are provided optionally.
 #'
 #' @examples
 #'

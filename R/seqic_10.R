@@ -9,11 +9,11 @@
 #' \itemize{
 #'   \item 10a: Proportion of patients meeting triage criteria (based on Injury
 #'   Severity Score or Need For Trauma Intervention) who received low-level
-#'   or no activation (under-triage).
+#'   or no activation (undertriage).
 #'   \item 10b: Proportion of patients not meeting triage criteria who received
-#'   highest-level trauma activation (over-triage).
+#'   highest-level trauma activation (overtriage).
 #'   \item 10c: Proportion of major trauma patients receiving a full activation
-#'   (under-triage via Peng & Xiang, 2019).
+#'   (undertriage via Peng & Xiang, 2019).
 #'
 #'   (10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
 #'   Intervention based on user choice)
@@ -54,10 +54,10 @@
 #' pre-processed to include the necessary fields without missing critical
 #' identifiers or timestamps.
 #'
-#' @returns A list of tibbles with counts and proportions for SEQIC Indicators
-#'   10a, 10b, and 10c, along with model diagnostics for the Cribari or NFTI
-#'   ouputs.  The proportions in 10a, 10b, and 10c will optionally include
-#'   95% confidence intervals grouped by user-specified variables.
+#' @returns A list of two tibbles with counts and proportions for SEQIC
+#'   Indicators 10a, 10b, and 10c, along with model diagnostics for the Cribari
+#'   or NFTI ouputs.  The proportions in 10a, 10b, and 10c will optionally
+#'   include 95% confidence intervals.
 #'
 #' @examples
 #' # Packages
@@ -112,7 +112,7 @@
 #'
 #' Beam G, Gorman K, Nannapaneni S, Zipf J, Simunich T, et al. (2022) Need for
 #' Trauma Intervention and Improving Under-Triaging in Geriatric Trauma
-#' Patients: Under-Triaged or Misclassified. Int J Crit Care Emerg Med 8:136.
+#' Patients: undertriaged or Misclassified. Int J Crit Care Emerg Med 8:136.
 #' doi.org/10.23937/2474-3674/1510136
 #'
 #' Peng J, Xiang H. Trauma undertriage and overtriage rates: are we using the
@@ -384,7 +384,7 @@ seqic_indicator_10 <- function(
   # Initiate the list for output
   seqic_10 <- list()
 
-  # --- Measure 10a: Under-triage ---
+  # --- Measure 10a: undertriage ---
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all limited-to-no trauma team activation cases
   # Numerator: major_trauma AND limited_no_activation
@@ -405,7 +405,7 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     )
 
-  # --- Measure 10b: Over-triage ---
+  # --- Measure 10b: overtriage ---
   # Patients who did NOT meet triage criteria (negative) but received highest
   # activation
   # Denominator: all full trauma team activations
@@ -425,7 +425,7 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     )
 
-  # --- Measure 10c: Under-triage ---
+  # --- Measure 10c: undertriage ---
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all major trauma cases
   # Numerator: major_trauma AND limited_no_activation

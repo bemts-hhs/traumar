@@ -58,8 +58,7 @@ Wilson intervals. Defaults to \code{TRUE}.}
 \value{
 A tibble summarizing SEQIC Indicator 5a–5d results. Includes
 numerator, denominator, and calculated proportion for each measure.
-Optionally includes 95\% confidence intervals using the method specified in
-\code{...}.
+Optionally includes 95\% confidence intervals.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

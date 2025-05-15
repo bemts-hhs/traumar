@@ -76,7 +76,7 @@ Wilson intervals. Defaults to \code{TRUE}.}
   }}
 }
 \value{
-A list of two tibbles, with optional 95\% confidence intervals:
+A list of four tibbles, with optional 95\% confidence intervals:
 \itemize{
 \item{\code{seqic_9_all}}: Proportion of transferred trauma patients with ED
 discharge or decision delays >2 or >3 hours, grouped by optional
@@ -85,6 +85,8 @@ variables.
 by trauma team activation status.
 \item{\code{seqic_9_risk}}: Same proportions as above, further stratified by
 risk groups.
+\item{\code{seqic_9_activations_risk}}: Same proportions as above, further
+stratified by risk groups and trauma team activation status.
 }
 
 Each tibble includes numerators, denominators, proportions, and (optionally)

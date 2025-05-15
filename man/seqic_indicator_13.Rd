@@ -54,16 +54,9 @@ Wilson intervals. Defaults to \code{TRUE}.}
   }}
 }
 \value{
-A tibble containing:
-\itemize{
-\item \code{numerator_13}: Number of records with validity score >= \code{validity}.
-\item \code{denominator_13}: Total number of included trauma records.
-\item \code{seqic_13}: Proportion of records in \code{df} meeting the \code{validity}
-threshold.
-\item \code{lower_ci_13},
-\item \code{upper_ci_13}: (Optional) 95\% confidence interval bounds.
-\item \code{Data}: Label indicating population/sample-level summary.
-}
+A tibble summarizing SEQIC Indicator 13 results. Includes numerator,
+denominator, and performance rate 95\% confidence intervals are included if
+requested.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

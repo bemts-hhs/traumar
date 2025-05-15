@@ -39,18 +39,9 @@
 #' includes no missing or malformed identifiers, trauma level classifications,
 #' or validity scores.
 #'
-#' @returns
-#' A tibble containing:
-#' \itemize{
-#'   \item `numerator_13`: Number of records with validity score >= `validity`.
-#'   \item `denominator_13`: Total number of included trauma records.
-#'   \item `seqic_13`: Proportion of records in `df` meeting the `validity`
-#'   threshold.
-#'   \item `lower_ci_13`,
-#'   \item `upper_ci_13`: (Optional) 95% confidence interval bounds.
-#'   \item `Data`: Label indicating population/sample-level summary.
-#' }
-#'
+#' @return A tibble summarizing SEQIC Indicator 13 results. Includes numerator,
+#'   denominator, and performance rate 95% confidence intervals are included if
+#'   requested.
 #'
 #' @examples
 #' # Packages

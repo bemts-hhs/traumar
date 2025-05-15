@@ -2,6 +2,71 @@
 # test the rmm function
 ###_____________________________________________________________________________
 
+testthat::test_that("rmm() input validation for Ps_col and outcome_col", {
+  testthat::expect_error(
+    traumar::rmm(data = dplyr::tibble(x = 1:5)),
+    "Both `Ps_col` and `outcome_col` arguments must be provided."
+  )
+})
+
+testthat::test_that("rmm() rejects outcome_col with wrong data type", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = letters[1:10])
+  testthat::expect_error(
+    traumar::rmm(data = df, Ps_col = Ps, outcome_col = outcome),
+    "The `outcome_col` must be of type logical \\(TRUE/FALSE\\) or numeric \\(1/0\\)\\."
+  )
+})
+
+testthat::test_that("rmm() validates bootstrap_ci is logical", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rmm(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      bootstrap_ci = "yes"
+    ),
+    "bootstrap_ci.*logical.*"
+  )
+})
+
+testthat::test_that("rmm() warns if seed is not numeric", {
+  df <- dplyr::tibble(
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
+    outcome = rbinom(1000, 1, 0.5)
+  )
+  testthat::expect_warning(
+    traumar::rmm(data = df, Ps_col = Ps, outcome_col = outcome, seed = "foo"),
+    "The value passed to `seed` was of class"
+  )
+})
+
+testthat::test_that("rmm() validates group_vars are character vectors", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rmm(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      group_vars = list(1)
+    ),
+    "All elements in `group_vars` must be strings."
+  )
+})
+
+testthat::test_that("rmm() validates group_vars exist in data", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rmm(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      group_vars = c("fake_col")
+    ),
+    "The following group variable\\(s\\) are not valid columns in the data: fake_col"
+  )
+})
+
 testthat::test_that("rmm function validates inputs correctly", {
   # Test if data is a data frame
   testthat::expect_error(rmm(data = NULL, Ps_col = Ps, outcome_col = survival))
@@ -419,6 +484,76 @@ testthat::test_that("rmm function handles large datasets without performance iss
 ###_____________________________________________________________________________
 # test the rm_bin_summary function
 ###_____________________________________________________________________________
+
+testthat::test_that("rm_bin_summary() input validation for Ps_col and outcome_col", {
+  testthat::expect_error(
+    traumar::rm_bin_summary(data = dplyr::tibble(x = 1:5)),
+    "Both `Ps_col` and `outcome_col` arguments must be provided."
+  )
+})
+
+testthat::test_that("rm_bin_summary() rejects outcome_col with wrong data type", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = letters[1:10])
+  testthat::expect_error(
+    traumar::rm_bin_summary(data = df, Ps_col = Ps, outcome_col = outcome),
+    "The `outcome_col` must be of type logical \\(TRUE/FALSE\\) or numeric \\(1/0\\)\\."
+  )
+})
+
+testthat::test_that("rm_bin_summary() validates bootstrap_ci is logical", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rm_bin_summary(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      bootstrap_ci = "yes"
+    ),
+    "bootstrap_ci.*logical.*"
+  )
+})
+
+testthat::test_that("rm_bin_summary() warns if seed is not numeric", {
+  df <- dplyr::tibble(
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
+    outcome = rbinom(1000, 1, 0.5)
+  )
+  testthat::expect_warning(
+    traumar::rm_bin_summary(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      seed = "foo"
+    ),
+    "The value passed to `seed` was of class"
+  )
+})
+
+testthat::test_that("rm_bin_summary() validates group_vars are character vectors", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rm_bin_summary(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      group_vars = list(1)
+    ),
+    "All elements in `group_vars` must be strings."
+  )
+})
+
+testthat::test_that("rm_bin_summary() validates group_vars exist in data", {
+  df <- dplyr::tibble(Ps = runif(10), outcome = rbinom(10, 1, 0.5))
+  testthat::expect_error(
+    traumar::rm_bin_summary(
+      data = df,
+      Ps_col = Ps,
+      outcome_col = outcome,
+      group_vars = c("fake_col")
+    ),
+    "The following group variable\\(s\\) are not valid columns in the data: fake_col"
+  )
+})
 
 testthat::test_that("rm_bin_summary validates inputs correctly", {
   # Test if data is a data frame

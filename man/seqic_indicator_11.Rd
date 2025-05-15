@@ -2,7 +2,7 @@
 % Please edit documentation in R/seqic_11.R
 \name{seqic_indicator_11}
 \alias{seqic_indicator_11}
-\title{SEQIC Indicator 11 – Over-triage for Minor Trauma Patients}
+\title{SEQIC Indicator 11 – Overtriage for Minor Trauma Patients}
 \usage{
 seqic_indicator_11(
   df,
@@ -66,8 +66,7 @@ Wilson intervals. Defaults to \code{TRUE}.}
 \value{
 A tibble summarizing the numerator, denominator, and proportion of
 overtriaged patients (Indicator 11), with optional 95\% confidence
-intervals. If no grouping variables are provided, the result represents a
-population or overall estimate.
+intervals.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -75,7 +74,7 @@ population or overall estimate.
 Calculates SEQIC Indicator 11, which estimates the proportion of minor trauma
 patients who were transferred into a trauma center and remained in the
 Emergency Department for less than 24 hours. This indicator is designed to
-identify potential over-triage events within the trauma system. Minor trauma
+identify potential overtriage events within the trauma system. Minor trauma
 patients are identified using the Injury Severity Score (ISS < 9). Patients
 must not have been transferred out and must have been received at a trauma
 center level included in \code{included_levels}.

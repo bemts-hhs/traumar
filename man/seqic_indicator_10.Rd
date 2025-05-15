@@ -60,10 +60,10 @@ Wilson intervals. Defaults to \code{TRUE}.}
   }}
 }
 \value{
-A list of tibbles with counts and proportions for SEQIC Indicators
-10a, 10b, and 10c, along with model diagnostics for the Cribari or NFTI
-ouputs.  The proportions in 10a, 10b, and 10c will optionally include
-95\% confidence intervals grouped by user-specified variables.
+A list of two tibbles with counts and proportions for SEQIC
+Indicators 10a, 10b, and 10c, along with model diagnostics for the Cribari
+or NFTI ouputs.  The proportions in 10a, 10b, and 10c will optionally
+include 95\% confidence intervals.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -73,11 +73,11 @@ activations where the patient was kept at the facility:
 \itemize{
 \item 10a: Proportion of patients meeting triage criteria (based on Injury
 Severity Score or Need For Trauma Intervention) who received low-level
-or no activation (under-triage).
+or no activation (undertriage).
 \item 10b: Proportion of patients not meeting triage criteria who received
-highest-level trauma activation (over-triage).
+highest-level trauma activation (overtriage).
 \item 10c: Proportion of major trauma patients receiving a full activation
-(under-triage via Peng & Xiang, 2019).
+(undertriage via Peng & Xiang, 2019).
 
 (10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
 Intervention based on user choice)
@@ -153,7 +153,7 @@ try(
 \references{
 Beam G, Gorman K, Nannapaneni S, Zipf J, Simunich T, et al. (2022) Need for
 Trauma Intervention and Improving Under-Triaging in Geriatric Trauma
-Patients: Under-Triaged or Misclassified. Int J Crit Care Emerg Med 8:136.
+Patients: undertriaged or Misclassified. Int J Crit Care Emerg Med 8:136.
 doi.org/10.23937/2474-3674/1510136
 
 Peng J, Xiang H. Trauma undertriage and overtriage rates: are we using the

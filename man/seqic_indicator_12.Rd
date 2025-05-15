@@ -63,15 +63,9 @@ Wilson intervals. Defaults to \code{TRUE}.}
   }}
 }
 \value{
-A tibble containing:
-\itemize{
-\item \code{numerator_12}: Number of records meeting the data entry timeliness
-threshold.
-\item \code{denominator_12}: Total number of included trauma records.
-\item \code{seqic_12}: Proportion of timely data entries.
-\item \code{lower_ci_12},
-\item \code{upper_ci_12}: (Optional) 95\% confidence interval bounds.
-}
+A tibble summarizing SEQIC Indicator 12 results. Includes numerator,
+denominator, and performance rate. 95\% confidence intervals are included if
+requested.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

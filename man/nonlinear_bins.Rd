@@ -82,10 +82,18 @@ a warning about missing values, if any exist in \code{Ps_col} and/or
 
 \code{nonlinear_bins()} assumes \code{Ps_col} contains probabilities derived from
 real-world inputs for the Trauma Injury Severity Score (TRISS) model.
-Synthetic or low-variability data—especially with small sample sizes—may not
-reflect the logistic distribution of TRISS-derived survival probabilities.
-This can result in unstable estimates or function failure due to insufficient
+Synthetic or low-variability data (especially with small sample sizes) may
+not reflect the distribution of TRISS-derived survival probabilities. This
+can result in unstable estimates or function failure due to insufficient
 dispersion.
+}
+\note{
+This function will produce the most reliable and interpretable results when
+using a dataset that has one row per patient, with each column being a
+feature.
+
+The \code{mean} and \code{AntiS_b} are approximately equivalent in this context.  They
+are kept in the output for clarity.
 }
 \examples{
 # Generate example data

@@ -47,8 +47,7 @@
 #'
 #' @return A tibble summarizing SEQIC Indicator 5a–5d results. Includes
 #'   numerator, denominator, and calculated proportion for each measure.
-#'   Optionally includes 95% confidence intervals using the method specified in
-#'   `...`.
+#'   Optionally includes 95% confidence intervals.
 #'
 #' @examples
 #' # Packages

@@ -1,5 +1,94 @@
 # Tests for nonlinear_bins function
 
+testthat::test_that("nonlinear_bins handles missing values and invalid data types", {
+  set.seed(123)
+  Ps <- plogis(rnorm(1000, mean = 2, sd = 1.5))
+  survival <- rbinom(1000, 1, prob = 0.9)
+  data <- data.frame(Ps = Ps, survival = survival)
+
+  # Inject missing values into Ps
+  data_na_Ps <- data
+  data_na_Ps$Ps[1:5] <- NA
+  testthat::expect_warning(
+    nonlinear_bins(data = data_na_Ps, Ps_col = Ps, outcome_col = survival),
+    regexp = "Missing values detected in .*Ps_col.*"
+  )
+
+  # Inject missing values into outcome_col
+  data_na_surv <- data
+  data_na_surv$survival[1:5] <- NA
+  testthat::expect_warning(
+    nonlinear_bins(data = data_na_surv, Ps_col = Ps, outcome_col = survival),
+    regexp = "Missing values detected in .*outcome_col.*"
+  )
+
+  # Invalid logical values
+  data_logical_invalid <- data |>
+    dplyr::mutate(survival = as.logical(survival)) |>
+    dplyr::mutate(survival = replace(survival, 1:3, NA)) # Valid NAs only
+  testthat::expect_warning(
+    nonlinear_bins(
+      data = data_logical_invalid,
+      Ps_col = Ps,
+      outcome_col = survival
+    ),
+    regexp = "Missing values detected in .*outcome_col.*"
+  )
+})
+
+testthat::test_that("nonlinear_bins handles error messaging appropriately", {
+  set.seed(123)
+  Ps <- plogis(rnorm(1000, mean = 2, sd = 1.5))
+  survival <- rbinom(1000, 1, prob = 0.9)
+  data <- data.frame(Ps = Ps, survival = survival)
+
+  # Missing Ps_col and outcome_col arguments
+  testthat::expect_error(
+    nonlinear_bins(data = data),
+    regexp = "Both.*Ps_col.*outcome_col.*must be provided"
+  )
+
+  # Missing Ps_col only
+  testthat::expect_error(
+    nonlinear_bins(data = data, outcome_col = survival),
+    regexp = "Ps_col.*must be provided"
+  )
+
+  # Missing outcome_col only
+  testthat::expect_error(
+    nonlinear_bins(data = data, Ps_col = Ps),
+    regexp = "outcome_col.*must be provided"
+  )
+
+  # Set up the survival variable so that it is of class character
+  bad_data <- data |> dplyr::mutate(survival = ifelse(survival == 1, "a", "b"))
+
+  # Test a character survival column
+  testthat::expect_error(
+    nonlinear_bins(data = bad_data, Ps_col = Ps, outcome_col = survival),
+    regexp = "outcome_col.*must be of type logical"
+  )
+
+  # Test the case when the data are not sufficiently dispersed and cause errors
+  # usually when the data do not come from the same distribution as the
+  # probability of survival metric
+  bad_data <- data.frame(
+    Ps = rbinom(10, 1, prob = 0.9),
+    survival = rbinom(10, 1, 0.9)
+  )
+
+  testthat::expect_error(
+    nonlinear_bins(
+      data = bad_data,
+      Ps_col = Ps,
+      outcome_col = survival,
+      divisor1 = 4,
+      divisor2 = 4
+    ),
+    regexp = "One or more of the values calculated to assign step sizes"
+  )
+})
+
 testthat::test_that("nonlinear_bins handles basic functionality correctly", {
   # Generate example data
   set.seed(123)
@@ -120,6 +209,8 @@ testthat::test_that("nonlinear_bins handles invalid inputs gracefully", {
     Ps_col = Ps,
     outcome_col = survival
   ))
+
+  # Check a logical outcome_col is binary
 })
 
 testthat::test_that("nonlinear_bins produces accurate bin statistics", {

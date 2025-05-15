@@ -77,7 +77,7 @@ Wilson intervals. Defaults to \code{TRUE}.}
 \value{
 A tibble summarizing SEQIC Indicator 1 results across sub-measures
 (1a–1f). Includes numerators, denominators, and performance rate for each
-indicator.
+indicator. 95\% confidence intervals are provided optionally.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

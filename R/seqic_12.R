@@ -45,16 +45,9 @@
 #' pre-processed to include the necessary fields without missing critical
 #' identifiers or timestamps.
 #'
-#' @returns
-#' A tibble containing:
-#' \itemize{
-#'   \item `numerator_12`: Number of records meeting the data entry timeliness
-#'   threshold.
-#'   \item `denominator_12`: Total number of included trauma records.
-#'   \item `seqic_12`: Proportion of timely data entries.
-#'   \item `lower_ci_12`,
-#'   \item `upper_ci_12`: (Optional) 95% confidence interval bounds.
-#' }
+#' @return A tibble summarizing SEQIC Indicator 12 results. Includes numerator,
+#'   denominator, and performance rate. 95% confidence intervals are included if
+#'   requested.
 #'
 #' @examples
 #' # Packages

@@ -73,7 +73,7 @@
 #' identifiers or timestamps.
 #'
 #' @returns
-#' A list of two tibbles, with optional 95% confidence intervals:
+#' A list of four tibbles, with optional 95% confidence intervals:
 #' \itemize{
 #'   \item{`seqic_9_all`}: Proportion of transferred trauma patients with ED
 #'   discharge or decision delays >2 or >3 hours, grouped by optional
@@ -82,6 +82,8 @@
 #'   by trauma team activation status.
 #'   \item{`seqic_9_risk`}: Same proportions as above, further stratified by
 #'   risk groups.
+#'   \item{`seqic_9_activations_risk`}: Same proportions as above, further
+#'   stratified by risk groups and trauma team activation status.
 #' }
 #'
 #' Each tibble includes numerators, denominators, proportions, and (optionally)

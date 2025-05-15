@@ -390,7 +390,7 @@ rmm <- function(
   # those methods are adapted using this function
 
   # get the population level bins
-  bin_data <- suppressWarnings(nonlinear_bins(
+  bin_data <- nonlinear_bins(
     data = data,
     Ps_col = {{ Ps_col }},
     outcome_col = {{ outcome_col }},
@@ -399,7 +399,7 @@ rmm <- function(
     divisor2 = Divisor2,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
-  ))
+  )
 
   if (bootstrap_ci) {
     # Bootstrap process
@@ -417,7 +417,7 @@ rmm <- function(
       dplyr::mutate(
         bins = purrr::map(
           data,
-          ~ suppressWarnings(nonlinear_bins(
+          ~ nonlinear_bins(
             .x,
             Ps_col = {{ Ps_col }},
             outcome_col = {{ outcome_col }},
@@ -426,7 +426,7 @@ rmm <- function(
             divisor2 = Divisor2,
             threshold_1 = Threshold_1,
             threshold_2 = Threshold_2
-          ))
+          )
         )
       ) |>
       dplyr::mutate(
@@ -1073,7 +1073,7 @@ rm_bin_summary <- function(
   # those methods are adapted using this function
 
   # get the population level bins
-  bin_data <- suppressWarnings(nonlinear_bins(
+  bin_data <- nonlinear_bins(
     data,
     Ps_col = {{ Ps_col }},
     outcome_col = {{ outcome_col }},
@@ -1082,7 +1082,7 @@ rm_bin_summary <- function(
     divisor2 = Divisor2,
     threshold_1 = Threshold_1,
     threshold_2 = Threshold_2
-  ))
+  )
 
   if (bootstrap_ci) {
     # Bootstrap process
@@ -1100,7 +1100,7 @@ rm_bin_summary <- function(
       dplyr::mutate(
         bins = purrr::map(
           data,
-          ~ suppressWarnings(nonlinear_bins(
+          ~ nonlinear_bins(
             .x,
             Ps_col = {{ Ps_col }},
             outcome_col = {{ outcome_col }},
@@ -1109,7 +1109,7 @@ rm_bin_summary <- function(
             divisor2 = Divisor2,
             threshold_1 = Threshold_1,
             threshold_2 = Threshold_2
-          ))
+          )
         )
       ) |>
       dplyr::mutate(
