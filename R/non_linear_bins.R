@@ -342,6 +342,8 @@ nonlinear_bins <- function(
       len <- attempt
     }
   } else {
+    # If either of the parts of the interval calculation are not finite throw an
+    # error
     cli::cli_abort(
       c(
         "One or more of the values calculated to assign step sizes in the probability of survival intervals is non-finite.",
