@@ -4,11 +4,11 @@ Calculates three trauma system quality indicators related to trauma team
 activations where the patient was kept at the facility:
 10a: Proportion of patients meeting triage criteria (based on Injury
 Severity Score or Need For Trauma Intervention) who received low-level
-or no activation (under-triage).
+or no activation (undertriage).
 10b: Proportion of patients not meeting triage criteria who received
-highest-level trauma activation (over-triage).
+highest-level trauma activation (overtriage).
 10c: Proportion of major trauma patients receiving a full activation
-(under-triage via Peng &amp;amp; Xiang, 2019).
+(undertriage via Peng &amp;amp; Xiang, 2019).
 (10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
 Intervention based on user choice)
 
@@ -19,11 +19,11 @@ Calculates three trauma system quality indicators related to trauma team
 activations where the patient was kept at the facility:
 10a: Proportion of patients meeting triage criteria (based on Injury
 Severity Score or Need For Trauma Intervention) who received low-level
-or no activation (under-triage).
+or no activation (undertriage).
 10b: Proportion of patients not meeting triage criteria who received
-highest-level trauma activation (over-triage).
+highest-level trauma activation (overtriage).
 10c: Proportion of major trauma patients receiving a full activation
-(under-triage via Peng &amp;amp; Xiang, 2019).
+(undertriage via Peng &amp;amp; Xiang, 2019).
 (10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
 Intervention based on user choice)
 
@@ -68,11 +68,11 @@ compute confidence intervals."></head><body>
 <p>Calculates three trauma system quality indicators related to trauma team
 activations where the patient was kept at the facility:</p><ul><li><p>10a: Proportion of patients meeting triage criteria (based on Injury
 Severity Score or Need For Trauma Intervention) who received low-level
-or no activation (under-triage).</p></li>
+or no activation (undertriage).</p></li>
 <li><p>10b: Proportion of patients not meeting triage criteria who received
-highest-level trauma activation (over-triage).</p></li>
+highest-level trauma activation (overtriage).</p></li>
 <li><p>10c: Proportion of major trauma patients receiving a full activation
-(under-triage via Peng &amp; Xiang, 2019).</p>
+(undertriage via Peng &amp; Xiang, 2019).</p>
 <p>(10a, 10b, 10c can be based on Injury Severity Score or Need For Trauma
 Intervention based on user choice)</p></li>
 </ul><p>Users may stratify results by one or more grouping variables and optionally
@@ -166,10 +166,10 @@ Wilson intervals. Defaults to <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of tibbles with counts and proportions for SEQIC Indicators
-10a, 10b, and 10c, along with model diagnostics for the Cribari or NFTI
-ouputs.  The proportions in 10a, 10b, and 10c will optionally include
-95% confidence intervals grouped by user-specified variables.</p>
+    <p>A list of two tibbles with counts and proportions for SEQIC
+Indicators 10a, 10b, and 10c, along with model diagnostics for the Cribari
+or NFTI ouputs.  The proportions in 10a, 10b, and 10c will optionally
+include 95% confidence intervals.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -186,7 +186,7 @@ identifiers or timestamps.</p>
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Beam G, Gorman K, Nannapaneni S, Zipf J, Simunich T, et al. (2022) Need for
 Trauma Intervention and Improving Under-Triaging in Geriatric Trauma
-Patients: Under-Triaged or Misclassified. Int J Crit Care Emerg Med 8:136.
+Patients: undertriaged or Misclassified. Int J Crit Care Emerg Med 8:136.
 doi.org/10.23937/2474-3674/1510136</p>
 <p>Peng J, Xiang H. Trauma undertriage and overtriage rates: are we using the
 wrong formulas? Am J Emerg Med. 2016 Nov;34(11):2191-2192. doi:

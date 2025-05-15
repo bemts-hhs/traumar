@@ -123,14 +123,10 @@ Wilson intervals. Defaults to <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble containing:</p><ul><li><p><code>numerator_13</code>: Number of records with validity score &gt;= <code>validity</code>.</p></li>
-<li><p><code>denominator_13</code>: Total number of included trauma records.</p></li>
-<li><p><code>seqic_13</code>: Proportion of records in <code>df</code> meeting the <code>validity</code>
-threshold.</p></li>
-<li><p><code>lower_ci_13</code>,</p></li>
-<li><p><code>upper_ci_13</code>: (Optional) 95% confidence interval bounds.</p></li>
-<li><p><code>Data</code>: Label indicating population/sample-level summary.</p></li>
-</ul></div>
+    <p>A tibble summarizing SEQIC Indicator 13 results. Includes numerator,
+denominator, and performance rate 95% confidence intervals are included if
+requested.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function:</p><ul><li><p>Filters to include only patients treated at trauma centers with

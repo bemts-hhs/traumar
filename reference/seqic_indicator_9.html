@@ -161,13 +161,15 @@ Wilson intervals. Defaults to <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of two tibbles, with optional 95% confidence intervals:</p><ul><li><p><code>seqic_9_all</code>: Proportion of transferred trauma patients with ED
+    <p>A list of four tibbles, with optional 95% confidence intervals:</p><ul><li><p><code>seqic_9_all</code>: Proportion of transferred trauma patients with ED
 discharge or decision delays &gt;2 or &gt;3 hours, grouped by optional
 variables.</p></li>
 <li><p><code>seqic_9_activations</code>: Same proportions as above, further stratified
 by trauma team activation status.</p></li>
 <li><p><code>seqic_9_risk</code>: Same proportions as above, further stratified by
 risk groups.</p></li>
+<li><p><code>seqic_9_activations_risk</code>: Same proportions as above, further
+stratified by risk groups and trauma team activation status.</p></li>
 </ul><p>Each tibble includes numerators, denominators, proportions, and (optionally)
 confidence intervals for:</p><ul><li><p>9a: Delayed discharge &gt;2 hours</p></li>
 <li><p>9b: Delayed discharge &gt;3 hours</p></li>

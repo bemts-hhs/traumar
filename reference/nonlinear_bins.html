@@ -138,10 +138,18 @@ a warning about missing values, if any exist in <code>Ps_col</code> and/or
 <code>outcome_col</code>.</p>
 <p><code>nonlinear_bins()</code> assumes <code>Ps_col</code> contains probabilities derived from
 real-world inputs for the Trauma Injury Severity Score (TRISS) model.
-Synthetic or low-variability data—especially with small sample sizes—may not
-reflect the logistic distribution of TRISS-derived survival probabilities.
-This can result in unstable estimates or function failure due to insufficient
+Synthetic or low-variability data (especially with small sample sizes) may
+not reflect the distribution of TRISS-derived survival probabilities. This
+can result in unstable estimates or function failure due to insufficient
 dispersion.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p>This function will produce the most reliable and interpretable results when
+using a dataset that has one row per patient, with each column being a
+feature.</p>
+<p>The <code>mean</code> and <code>AntiS_b</code> are approximately equivalent in this context.  They
+are kept in the output for clarity.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

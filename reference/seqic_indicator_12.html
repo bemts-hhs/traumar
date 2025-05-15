@@ -139,13 +139,10 @@ Wilson intervals. Defaults to <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble containing:</p><ul><li><p><code>numerator_12</code>: Number of records meeting the data entry timeliness
-threshold.</p></li>
-<li><p><code>denominator_12</code>: Total number of included trauma records.</p></li>
-<li><p><code>seqic_12</code>: Proportion of timely data entries.</p></li>
-<li><p><code>lower_ci_12</code>,</p></li>
-<li><p><code>upper_ci_12</code>: (Optional) 95% confidence interval bounds.</p></li>
-</ul></div>
+    <p>A tibble summarizing SEQIC Indicator 12 results. Includes numerator,
+denominator, and performance rate. 95% confidence intervals are included if
+requested.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function:</p><ul><li><p>Filters to include only patients treated at Level I–IV trauma
