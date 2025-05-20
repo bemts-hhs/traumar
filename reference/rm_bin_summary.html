@@ -221,10 +221,13 @@ will throw a warning about missing values, if any exist in <code>Ps_col</code> a
 <code>outcome_col</code>.</p>
 <p><code>rm_bin_summary()</code> assumes <code>Ps_col</code> contains probabilities derived from
 real-world inputs for the Trauma Injury Severity Score (TRISS) model.
-Synthetic or low-variability data—especially with small sample sizes—may not
-reflect the logistic distribution of TRISS-derived survival probabilities.
-This can result in unstable estimates or function failure due to insufficient
-dispersion.</p>
+Synthetic or low-variability data (especially with small sample sizes) may
+not reflect the distribution of TRISS-derived survival probabilities. This
+can result in unstable estimates or function failure due to insufficient
+dispersion. With small sample sizes, it may be important to use smaller
+values with the divisor arguments and adjust the thresholds (based on the
+distribution of the <code>Ps_col</code> values) to create bins that better accommodate
+the data.</p>
 <p>Due to the use of bootstrap sampling within the function, users should
 consider setting the random number seed within <code>rm_bin_summary()</code> using the
 <code>seed</code> argument for reproducibility.</p>
@@ -234,6 +237,15 @@ consider setting the random number seed within <code>rm_bin_summary()</code> usi
     <p>This function will produce the most reliable and interpretable results when
 using a dataset that has one row per patient, with each column being a
 feature.</p>
+<p>By default, <code>rm_bin_summary()</code> derives bin cut points from the full dataset’s
+distribution. This ensures comparability across groups when <code>group_vars</code> is
+used. To tailor results to a specific group (e.g., a single hospital), filter
+the dataset to that subgroup before calling <code>rm_bin_summary()</code>. The function
+will then compute bins and related statistics using only that subset’s
+<code>Ps_col</code> distribution. When <code>group_vars</code> is used, and ff a group lacks
+observations within one or more bins, <code>rm_bin_summary()</code> will compute
+statistics only for the bins that contain data. Bins with no observations are
+excluded from the summary for that group.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
