@@ -13,7 +13,7 @@ Emergency Department for less than 24 hours. This indicator is designed to
 identify potential overtriage events within the trauma system. Minor trauma
 patients are identified using the Injury Severity Score (ISS &amp;lt; 9). Patients
 must not have been transferred out and must have been received at a trauma
-center level included in included_levels."></head><body>
+center level included in included_levels."><meta property="og:image" content="https://bemts-hhs.github.io/traumar/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -41,8 +41,7 @@ center level included in included_levels."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>SEQIC Indicator 11 – Overtriage for Minor Trauma Patients</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>SEQIC Indicator 11 – Overtriage for Minor Trauma Patients</h1>
       <small class="dont-index">Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/R/seqic_11.R" class="external-link"><code>R/seqic_11.R</code></a></small>
       <div class="d-none name"><code>seqic_indicator_11.Rd</code></div>
     </div>
@@ -61,7 +60,7 @@ center level included in <code>included_levels</code>.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seqic_indicator_11</span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">level</span>,</span>
 <span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span>
 <span>  <span class="va">transfer_out_indicator</span>,</span>
@@ -79,7 +78,7 @@ center level included in <code>included_levels</code>.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame containing trauma incident records.</p></dd>
 
 
@@ -90,7 +89,7 @@ II, III, IV).</p></dd>
 
 <dt id="arg-included-levels">included_levels<a class="anchor" aria-label="anchor" href="#arg-included-levels"></a></dt>
 <dd><p>Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
+include in the analysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
 
 
 <dt id="arg-transfer-out-indicator">transfer_out_indicator<a class="anchor" aria-label="anchor" href="#arg-transfer-out-indicator"></a></dt>
@@ -207,7 +206,7 @@ May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the function</span></span></span>
 <span class="r-in"><span><span class="fu">traumar</span><span class="fu">::</span><span class="fu">seqic_indicator_11</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  df <span class="op">=</span> <span class="va">test_data</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">test_data</span>,</span></span>
 <span class="r-in"><span>  level <span class="op">=</span> <span class="va">trauma_level</span>,</span></span>
 <span class="r-in"><span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  transfer_out_indicator <span class="op">=</span> <span class="va">transferred_out</span>,</span></span>

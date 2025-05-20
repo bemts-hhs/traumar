@@ -29,7 +29,7 @@ Intervention based on user choice)
 
 
 Users may stratify results by one or more grouping variables and optionally
-compute confidence intervals."></head><body>
+compute confidence intervals."><meta property="og:image" content="https://bemts-hhs.github.io/traumar/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -57,8 +57,7 @@ compute confidence intervals."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>SEQIC Indicator 10 – Trauma Team Activation Appropriateness</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>SEQIC Indicator 10 – Trauma Team Activation Appropriateness</h1>
       <small class="dont-index">Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/R/seqic_10.R" class="external-link"><code>R/seqic_10.R</code></a></small>
       <div class="d-none name"><code>seqic_indicator_10.Rd</code></div>
     </div>
@@ -82,7 +81,7 @@ compute confidence intervals.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seqic_indicator_10</span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">level</span>,</span>
 <span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span>
 <span>  <span class="va">unique_incident_id</span>,</span>
@@ -100,7 +99,7 @@ compute confidence intervals.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame containing trauma incident records.</p></dd>
 
 
@@ -111,7 +110,7 @@ II, III, IV).</p></dd>
 
 <dt id="arg-included-levels">included_levels<a class="anchor" aria-label="anchor" href="#arg-included-levels"></a></dt>
 <dd><p>Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
+include in the analysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
 
 
 <dt id="arg-unique-incident-id">unique_incident_id<a class="anchor" aria-label="anchor" href="#arg-unique-incident-id"></a></dt>
@@ -225,7 +224,7 @@ May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the function, this will succeed</span></span></span>
 <span class="r-in"><span><span class="fu">traumar</span><span class="fu">::</span><span class="fu">seqic_indicator_10</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  df <span class="op">=</span> <span class="va">test_data</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">test_data</span>,</span></span>
 <span class="r-in"><span>  level <span class="op">=</span> <span class="va">trauma_level</span>,</span></span>
 <span class="r-in"><span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  unique_incident_id <span class="op">=</span> <span class="va">id</span>,</span></span>
@@ -262,7 +261,7 @@ May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.</p>
 <span class="r-in"><span><span class="co"># Run the function, this will fail</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">traumar</span><span class="fu">::</span><span class="fu">seqic_indicator_10</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  df <span class="op">=</span> <span class="va">test_data</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">test_data</span>,</span></span>
 <span class="r-in"><span>  level <span class="op">=</span> <span class="va">trauma_level</span>,</span></span>
 <span class="r-in"><span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  unique_incident_id <span class="op">=</span> <span class="va">id</span>,</span></span>
@@ -273,8 +272,8 @@ May/Jun;24(3):150-157. doi: 10.1097/JTN.0000000000000283. PMID: 28486318.</p>
 <span class="r-in"><span>  groups <span class="op">=</span> <span class="st">"region"</span>,</span></span>
 <span class="r-in"><span>  calculate_ci <span class="op">=</span> <span class="st">"wilson"</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Error in traumar::seqic_indicator_10(df = test_data, level = trauma_level,  : </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Please supply exactly one of `iss` or `nfti`, not both.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in traumar::seqic_indicator_10(data = test_data, level = trauma_level,  : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Please supply exactly one of `iss` or `nfti`.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

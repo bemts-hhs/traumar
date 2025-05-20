@@ -9,7 +9,7 @@ Computes SEQIC Indicator 4a and 4b for trauma center performance. Indicator
 4a captures the proportion of deceased trauma patients at trauma level I–IV
 facilities who had an autopsy performed. Indicator 4b identifies deceased
 trauma patients with a prolonged length of stay (LOS &amp;gt; 3 days) but without an
-autopsy."></head><body>
+autopsy."><meta property="og:image" content="https://bemts-hhs.github.io/traumar/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -37,8 +37,7 @@ autopsy."></head><body>
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>SEQIC Indicator 4 - Autopsy and Long LOS Without Autopsy</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>SEQIC Indicator 4 - Autopsy and Long LOS Without Autopsy</h1>
       <small class="dont-index">Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/R/seqic_4.R" class="external-link"><code>R/seqic_4.R</code></a></small>
       <div class="d-none name"><code>seqic_indicator_4.Rd</code></div>
     </div>
@@ -55,7 +54,7 @@ autopsy.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seqic_indicator_4</span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">level</span>,</span>
 <span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span>
 <span>  <span class="va">ed_disposition</span>,</span>
@@ -74,7 +73,7 @@ autopsy.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame containing trauma incident records.</p></dd>
 
 
@@ -85,7 +84,7 @@ II, III, IV).</p></dd>
 
 <dt id="arg-included-levels">included_levels<a class="anchor" aria-label="anchor" href="#arg-included-levels"></a></dt>
 <dd><p>Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
+include in the analysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
 
 
 <dt id="arg-ed-disposition">ed_disposition<a class="anchor" aria-label="anchor" href="#arg-ed-disposition"></a></dt>
@@ -213,7 +212,7 @@ identifiers or timestamps.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the indicator function</span></span></span>
 <span class="r-in"><span><span class="fu">traumar</span><span class="fu">::</span><span class="fu">seqic_indicator_4</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  df <span class="op">=</span> <span class="va">test_data</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">test_data</span>,</span></span>
 <span class="r-in"><span>  level <span class="op">=</span> <span class="va">trauma_level</span>,</span></span>
 <span class="r-in"><span>  ed_disposition <span class="op">=</span> <span class="va">ed_disp</span>,</span></span>
 <span class="r-in"><span>  ed_LOS <span class="op">=</span> <span class="va">ed_los</span>,</span></span>

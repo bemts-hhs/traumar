@@ -13,6 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Calculate Metrics for Trauma System Performance">
 <meta name="description" content="Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. traumar provides robust functions driven by the academic literature to automate the calculation of relevant metrics to individuals desiring to measure the performance of their trauma center or even a trauma system. traumar also provides some helper functions for the data analysis journey. Users can refer to the following publications for descriptions of the methods used in traumar. TRISS methodology, including probability of survival, and the W, M, and Z Scores - Flora (1978) &lt;doi:10.1097/00005373-197810000-00003&gt;, Boyd et al. (1987, PMID:3106646), Llullaku et al. (2009) &lt;doi:10.1186/1749-7922-4-2&gt;, Singh et al. (2011) &lt;doi:10.4103/0974-2700.86626&gt;, Baker et al. (1974, PMID:4814394), and Champion et al. (1989) &lt;doi:10.1097/00005373-198905000-00017&gt;. For the Relative Mortality Metric, see Napoli et al. (2017) &lt;doi:10.1080/24725579.2017.1325948&gt;, Schroeder et al. (2019) &lt;doi:10.1080/10903127.2018.1489021&gt;, and Kassar et al. (2016) &lt;doi:10.1177/00031348221093563&gt;. For more information about methods to calculate over- and under-triage in trauma hospital populations and samples, please see the following publications - Peng &amp; Xiang (2016) &lt;doi:10.1016/j.ajem.2016.08.061&gt;, Beam et al. (2022) &lt;doi:10.23937/2474-3674/1510136&gt;, Roden-Foreman et al. (2017) &lt;doi:10.1097/JTN.0000000000000283&gt;.">
 <meta property="og:description" content="Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. traumar provides robust functions driven by the academic literature to automate the calculation of relevant metrics to individuals desiring to measure the performance of their trauma center or even a trauma system. traumar also provides some helper functions for the data analysis journey. Users can refer to the following publications for descriptions of the methods used in traumar. TRISS methodology, including probability of survival, and the W, M, and Z Scores - Flora (1978) &lt;doi:10.1097/00005373-197810000-00003&gt;, Boyd et al. (1987, PMID:3106646), Llullaku et al. (2009) &lt;doi:10.1186/1749-7922-4-2&gt;, Singh et al. (2011) &lt;doi:10.4103/0974-2700.86626&gt;, Baker et al. (1974, PMID:4814394), and Champion et al. (1989) &lt;doi:10.1097/00005373-198905000-00017&gt;. For the Relative Mortality Metric, see Napoli et al. (2017) &lt;doi:10.1080/24725579.2017.1325948&gt;, Schroeder et al. (2019) &lt;doi:10.1080/10903127.2018.1489021&gt;, and Kassar et al. (2016) &lt;doi:10.1177/00031348221093563&gt;. For more information about methods to calculate over- and under-triage in trauma hospital populations and samples, please see the following publications - Peng &amp; Xiang (2016) &lt;doi:10.1016/j.ajem.2016.08.061&gt;, Beam et al. (2022) &lt;doi:10.23937/2474-3674/1510136&gt;, Roden-Foreman et al. (2017) &lt;doi:10.1097/JTN.0000000000000283&gt;.">
+<meta property="og:image" content="https://bemts-hhs.github.io/traumar/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,8 +49,11 @@
 <div class="row">
   <main id="main" class="col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="traumar-">traumar <img src="reference/figures/try_object.png" align="right" width="200" style="display: block; margin: auto;"><a class="anchor" aria-label="anchor" href="#traumar-"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="traumar-">traumar 
+<a class="anchor" aria-label="anchor" href="#traumar-"></a>
+</h1>
+</div>
 <p>Continuous Quality Improvement (CQI) and Process Improvement (PI) are essential pillars of healthcare, particularly in the care of injured patients. However, hospitals, trauma systems, and their trauma program managers (TPMs) often lack access to standardized quality measures derived from academic literature. The {traumar} package addresses this gap by providing tools to calculate quality measures from trauma center or trauma system effectiveness and efficiency, to relative mortality efficiently and accurately. By automating these calculations, {traumar} empowers hospital systems, trauma networks, and TPMs to focus their efforts on analyzing outcomes and driving meaningful improvements in patient care. Whether you’re seeking to enhance PI initiatives or streamline CQI processes, {traumar} serves as a valuable resource for advancing trauma care quality.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -270,6 +274,11 @@
 <span><span class="co">#&gt; #   population_RMM_UL &lt;dbl&gt;, population_CI &lt;dbl&gt;, bootstrap_RMM_LL &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   bootstrap_RMM &lt;dbl&gt;, bootstrap_RMM_UL &lt;dbl&gt;, bootstrap_CI &lt;dbl&gt;</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
+</h2>
+<p>Please note that the traumar project is released with a <a href="https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
@@ -289,6 +298,14 @@
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+<li><a href="SUPPORT.html">Getting help</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>

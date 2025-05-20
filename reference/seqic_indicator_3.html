@@ -7,7 +7,7 @@ proportion of incidents with a valid probability of survival value."><meta prope
 This function calculates Indicator 3, a measure of the proportion of trauma
 incidents where the probability of survival is recorded. It filters the data
 by trauma center level (I-IV), excluding burn cases, and computes the
-proportion of incidents with a valid probability of survival value."></head><body>
+proportion of incidents with a valid probability of survival value."><meta property="og:image" content="https://bemts-hhs.github.io/traumar/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -35,8 +35,7 @@ proportion of incidents with a valid probability of survival value."></head><bod
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>SEQIC Indicator 3 - Presence of Probability of Survival Calculations</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>SEQIC Indicator 3 - Presence of Probability of Survival Calculations</h1>
       <small class="dont-index">Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/R/seqic_3.R" class="external-link"><code>R/seqic_3.R</code></a></small>
       <div class="d-none name"><code>seqic_indicator_3.Rd</code></div>
     </div>
@@ -52,7 +51,7 @@ proportion of incidents with a valid probability of survival value.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">seqic_indicator_3</span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">level</span>,</span>
 <span>  included_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span><span class="op">)</span>,</span>
 <span>  <span class="va">trauma_type</span>,</span>
@@ -68,7 +67,7 @@ proportion of incidents with a valid probability of survival value.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame containing trauma incident records.</p></dd>
 
 
@@ -79,7 +78,7 @@ II, III, IV).</p></dd>
 
 <dt id="arg-included-levels">included_levels<a class="anchor" aria-label="anchor" href="#arg-included-levels"></a></dt>
 <dd><p>Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
+include in the analysis.  Defaults to <code>c("I", "II", "III", "IV")</code>.</p></dd>
 
 
 <dt id="arg-trauma-type">trauma_type<a class="anchor" aria-label="anchor" href="#arg-trauma-type"></a></dt>
@@ -166,7 +165,7 @@ identifiers or timestamps.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run the indicator function</span></span></span>
 <span class="r-in"><span><span class="fu">traumar</span><span class="fu">::</span><span class="fu">seqic_indicator_3</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  df <span class="op">=</span> <span class="va">test_data</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">test_data</span>,</span></span>
 <span class="r-in"><span>  level <span class="op">=</span> <span class="va">trauma_level</span>,</span></span>
 <span class="r-in"><span>  trauma_type <span class="op">=</span> <span class="va">trauma_category</span>,</span></span>
 <span class="r-in"><span>  unique_incident_id <span class="op">=</span> <span class="va">unique_id</span>,</span></span>
