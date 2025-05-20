@@ -43,7 +43,20 @@
 #' Synthetic or low-variability data (especially with small sample sizes) may
 #' not reflect the distribution of TRISS-derived survival probabilities. This
 #' can result in unstable estimates or function failure due to insufficient
-#' dispersion.
+#' dispersion. With small sample sizes, it may be important to use smaller
+#' values with the divisor arguments and adjust the thresholds (based on the
+#' distribution of the `Ps_col` values) to create bins that better accommodate
+#' the data.
+#'
+#' By default, `nonlinear_bins()` derives bin cut points from the full dataset’s
+#' distribution. This ensures comparability across groups when `group_vars` is
+#' used. To tailor binning to a specific group (e.g., a single hospital), filter
+#' the dataset to that subgroup before calling `nonlinear_bins()`. The function
+#' will then compute bins and related statistics using only that subset’s
+#' `Ps_col` distribution. When `group_vars` is used, and ff a group lacks
+#' observations within one or more bins, `rm_bin_summary()` will compute
+#' statistics only for the bins that contain data. Bins with no observations are
+#' excluded from the summary for that group.
 #'
 #' @returns A list with two elements:
 #'   - `intervals`: A vector defining bin boundaries for probability of
@@ -295,6 +308,14 @@ nonlinear_bins <- function(
   survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
   total <- length(survival_data)
 
+  # length of non-missing `Ps_col` must be >= 2
+  if (na.omit(total) < 2) {
+    cli::cli_abort(c(
+      "At least two non-missing values are required in {.var Ps_col} to compute survival probability intervals.",
+      "v" = "Ensure {.var Ps_col} contains at least two valid, non-missing numeric entries."
+    ))
+  }
+
   # Step 1: Find indices for level thresholds
   loc_9A <- which(survival_data > threshold_1) # Everything above 0.9 or other threshold
   loc_9B <- which(survival_data > threshold_2) # Everything above 0.99 or other threshold
@@ -312,7 +333,7 @@ nonlinear_bins <- function(
     )
   ) {
     # Defensive approach to control for potential error when `Ps_col`
-    # does not come from the same distribution as the probability of survival
+    # is not sufficiently dispersed and/or has a low sample size.
     attempt <- try(
       unique(
         c(
@@ -334,8 +355,11 @@ nonlinear_bins <- function(
 
     if (inherits(attempt, "try-error")) {
       cli::cli_abort(c(
-        "One or more of the values calculated to assign step sizes in the probability of survival intervals is non-finite.",
-        "i" = "This is likely due to insufficient dispersion in {.var Ps_col}, and/or small sample/population size. Please check the data and consider resampling methods."
+        "Unable to calculate valid step sizes for defining survival probability intervals due to non-finite values.",
+        "i" = "This typically occurs when {.var Ps_col} has low variability or the sample size is too small to support the requested binning.",
+        "v" = "Try reducing {.var divisor1} and {.var divisor2} to create fewer, broader bins.",
+        "v" = "Examine the distribution of {.var Ps_col} and consider adjusting {.var threshold_1} and {.var threshold_2} to better match the data.",
+        "v" = "Increasing the sample size may also improve dispersion and allow for more stable interval boundaries."
       ))
     } else {
       # If `Ps_col` meets distributional assumptions, proceed
@@ -346,8 +370,11 @@ nonlinear_bins <- function(
     # error
     cli::cli_abort(
       c(
-        "One or more of the values calculated to assign step sizes in the probability of survival intervals is non-finite.",
-        "i" = "This is likely due to insufficient dispersion in {.var Ps_col}, and/or small sample/population size. Please check the data and consider resampling methods."
+        "Unable to calculate valid step sizes for defining survival probability intervals due to non-finite values.",
+        "i" = "This typically occurs when {.var Ps_col} has low variability or the sample size is too small to support the requested binning.",
+        "v" = "Try reducing {.var divisor1} and {.var divisor2} to create fewer, broader bins.",
+        "v" = "Examine the distribution of {.var Ps_col} and consider adjusting {.var threshold_1} and {.var threshold_2} to better match the data.",
+        "v" = "Increasing the sample size may also improve dispersion and allow for more stable interval boundaries."
       )
     )
   }

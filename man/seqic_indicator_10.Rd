@@ -93,7 +93,7 @@ This function:
 \item Removes duplicate incidents using \code{unique_incident_id}.
 \item Classifies each record as meeting or not meeting triage criteria
 based on ISS or NFTI logic.
-\item Optionally computes binomial confidence intervals for each indicator.
+\item Optionally computes 95\% confidence intervals for each indicator.
 }
 
 Users must ensure appropriate column names are passed and data is

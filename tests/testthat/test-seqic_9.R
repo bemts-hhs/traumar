@@ -1,3 +1,198 @@
+# tests/testthat/test-seqic_indicator_9.R
+
+testthat::test_that("seqic_indicator_9() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  test_data <- dplyr::tibble(
+    id = as.character(1:6),
+    trauma_level = c("I", "II", "V", "III", "II", "IV"),
+    transport = c(
+      "Ambulance",
+      "Private Vehicle",
+      "Ambulance",
+      "walk-in",
+      "Ambulance",
+      "Other"
+    ),
+    transfer_out = c(TRUE, TRUE, TRUE, TRUE, FALSE, TRUE),
+    activated = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE),
+    ed_LOS = c(121, 90, 200, 100, 80, 130),
+    ed_decision = c(61, 55, 130, 50, 30, 125),
+    ed_discharge = c(130, 110, 140, 70, 60, 160),
+    risk = c("High", "Moderate", "Low", "High", "Moderate", "Low")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = false,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = not_a_column,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  bad_method <- test_data |> dplyr::mutate(transport_method = 1:6)
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = bad_method,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport_method,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "transport_method.*must be of class.*character.*or.*factor"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = fake,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_hospitals,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = length_of_stay,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = decision_time,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = a_fake,
+      trauma_team_activated = activated,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = uninterested,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_9(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transport_method = transport,
+      transfer_out_indicator = transfer_out,
+      ed_LOS = ed_LOS,
+      ed_decision_LOS = ed_decision,
+      ed_decision_discharge_LOS = ed_discharge,
+      trauma_team_activated = activated,
+      risk_group = TRUE
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_9() validates input types correctly", {
   data <- tibble::tibble(
     id = 1:3,

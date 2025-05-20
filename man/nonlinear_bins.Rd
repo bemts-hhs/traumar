@@ -85,7 +85,20 @@ real-world inputs for the Trauma Injury Severity Score (TRISS) model.
 Synthetic or low-variability data (especially with small sample sizes) may
 not reflect the distribution of TRISS-derived survival probabilities. This
 can result in unstable estimates or function failure due to insufficient
-dispersion.
+dispersion. With small sample sizes, it may be important to use smaller
+values with the divisor arguments and adjust the thresholds (based on the
+distribution of the \code{Ps_col} values) to create bins that better accommodate
+the data.
+
+By default, \code{nonlinear_bins()} derives bin cut points from the full dataset’s
+distribution. This ensures comparability across groups when \code{group_vars} is
+used. To tailor binning to a specific group (e.g., a single hospital), filter
+the dataset to that subgroup before calling \code{nonlinear_bins()}. The function
+will then compute bins and related statistics using only that subset’s
+\code{Ps_col} distribution. When \code{group_vars} is used, and ff a group lacks
+observations within one or more bins, \code{rm_bin_summary()} will compute
+statistics only for the bins that contain data. Bins with no observations are
+excluded from the summary for that group.
 }
 \note{
 This function will produce the most reliable and interpretable results when

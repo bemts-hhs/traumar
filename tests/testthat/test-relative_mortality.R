@@ -278,7 +278,7 @@ testthat::test_that("rmm function handles edge cases correctly", {
       Ps_col = Ps,
       outcome_col = survival
     ),
-    regexp = "One or more of the values calculated.*is non-finite"
+    regexp = "At least two non-missing values"
   )
 
   # Test with all NA values in Ps

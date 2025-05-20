@@ -1,3 +1,81 @@
+# tests/testthat/test-seqic_indicator_8.R
+
+testthat::test_that("seqic_indicator_8() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  test_data <- dplyr::tibble(
+    id = as.character(1:10),
+    trauma_level = c("I", "II", "III", "IV", "V", "II", "I", "III", "IV", "II"),
+    mortality = c(
+      FALSE,
+      "No",
+      TRUE,
+      "Yes",
+      FALSE,
+      TRUE,
+      "No",
+      FALSE,
+      "Yes",
+      TRUE
+    ),
+    risk = c(
+      "High",
+      "High",
+      "Moderate",
+      "Moderate",
+      "Low",
+      "Low",
+      "High",
+      "Moderate",
+      "Low",
+      "Moderate"
+    )
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_8(
+      data = test_data,
+      level = "fake",
+      unique_incident_id = id,
+      mortality_indicator = mortality,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_8(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = not_a_column,
+      mortality_indicator = mortality,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_8(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      mortality_indicator = still_alive,
+      risk_group = risk
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_8(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      mortality_indicator = mortality,
+      risk_group = low_risk_group
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_8() data validation - data must be a data.frame or tibble", {
   testthat::expect_error(
     traumar::seqic_indicator_8(

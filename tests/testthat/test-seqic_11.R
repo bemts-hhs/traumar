@@ -1,3 +1,108 @@
+# tests/testthat/test-seqic_indicator_11.R
+
+testthat::test_that("seqic_indicator_11() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    id = 1:6,
+    trauma_level = c("I", "II", "III", "IV", "II", "III"),
+    transferred_out = c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE),
+    received = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+    iss = c(4, 8, 10, 6, 5, 3),
+    ed_LOS = c(8, 22, 12, 5, 7, 3),
+    region = c("East", "West", "East", "East", "West", "West")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = fake,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = transferred_out,
+      receiving_indicator = received,
+      unique_incident_id = id,
+      iss = iss,
+      ed_LOS = ed_LOS,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = blah,
+      receiving_indicator = received,
+      unique_incident_id = id,
+      iss = iss,
+      ed_LOS = ed_LOS,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = transferred_out,
+      receiving_indicator = error,
+      unique_incident_id = id,
+      iss = iss,
+      ed_LOS = ed_LOS,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = transferred_out,
+      receiving_indicator = received,
+      unique_incident_id = TRUE,
+      iss = iss,
+      ed_LOS = ed_LOS,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = transferred_out,
+      receiving_indicator = received,
+      unique_incident_id = id,
+      iss = FALSE,
+      ed_LOS = ed_LOS,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_11(
+      data = data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      transfer_out_indicator = transferred_out,
+      receiving_indicator = received,
+      unique_incident_id = id,
+      iss = iss,
+      ed_LOS = length_of_stay,
+      groups = "region"
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_11 works with minimal valid input", {
   data <- tibble::tibble(
     id = 1:6,

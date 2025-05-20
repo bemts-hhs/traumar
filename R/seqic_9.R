@@ -246,6 +246,30 @@ seqic_indicator_9 <- function(
     )
   }
 
+  # Validate that `transport_method` is character or factor.
+  transport_method_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ transport_method }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var transport_method}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_9())
+      )
+    }
+  )
+  if (
+    !is.character(transport_method_check) &&
+      !is.factor(transport_method_check)
+  ) {
+    cli::cli_abort(
+      c(
+        "{.var transport_method} must be of class {.cls character} or {.cls factor}.",
+        "i" = "{.var transport_method} was an object of class {.cls {class(transport_method_check)}}."
+      )
+    )
+  }
+
   # Validate `ed_LOS`
   ed_los_check <- tryCatch(
     {

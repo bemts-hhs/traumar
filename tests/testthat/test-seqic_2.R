@@ -1,3 +1,50 @@
+# tests/testthat/test-seqic_indicator_2.R
+
+testthat::test_that("seqic_indicator_2() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    incident_id = c("A", "B", "C", "D", "E"),
+    trauma_level = c("I", "II", "III", "V", "II"),
+    incident_time = as.POSIXct(c(
+      NA,
+      "2023-01-02 12:00",
+      NA,
+      "2023-01-03 14:00",
+      "2023-01-04 15:00"
+    ))
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_2(
+      data = data,
+      unique_incident_id = TRUE,
+      level = trauma_level,
+      incident_time = incident_time
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_2(
+      data = data,
+      unique_incident_id = incident_id,
+      level = "fake",
+      incident_time = incident_time
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_2(
+      data = data,
+      unique_incident_id = incident_id,
+      level = trauma_level,
+      incident_time = "false"
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_2() validates `data` input type", {
   testthat::expect_error(
     traumar::seqic_indicator_2(

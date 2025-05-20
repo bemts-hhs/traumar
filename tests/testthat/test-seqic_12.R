@@ -1,4 +1,63 @@
-# test-seqic_indicator_12.R
+# tests/testthat/test-seqic_indicator_12.R
+
+testthat::test_that("seqic_indicator_12() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    id = 1:4,
+    trauma_level = c("I", "II", "III", "IV"),
+    facility = c("A", "B", "C", "D"),
+    data_entry_delay = c(10, 20, 80, 70)
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_12(
+      data = data,
+      level = TRUE,
+      facility_id = facility,
+      unique_incident_id = id,
+      data_entry_time = data_entry_delay,
+      data_entry_standard = 60
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_12(
+      data = data,
+      level = trauma_level,
+      facility_id = fake,
+      unique_incident_id = id,
+      data_entry_time = data_entry_delay,
+      data_entry_standard = 60
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_12(
+      data = data,
+      level = trauma_level,
+      facility_id = facility,
+      unique_incident_id = not_a_column,
+      data_entry_time = data_entry_delay,
+      data_entry_standard = 60
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_12(
+      data = data,
+      level = trauma_level,
+      facility_id = facility,
+      unique_incident_id = id,
+      data_entry_time = something,
+      data_entry_standard = 60
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_12: input validation", {
   data <- tibble::tibble(
     id = 1:3,

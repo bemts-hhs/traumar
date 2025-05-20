@@ -1,3 +1,59 @@
+# tests/testthat/test-seqic_indicator_5.R
+
+testthat::test_that("seqic_indicator_5() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  valid_data <- tibble::tibble(
+    level = factor(c("I", "II")),
+    id = c("a", "b"),
+    bac = c(0.08, 0),
+    drug = c("opioid", "none")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_5(
+      data = valid_data,
+      level = TRUE,
+      unique_incident_id = id,
+      blood_alcohol_content = bac,
+      drug_screen = drug
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_5(
+      data = valid_data,
+      level = trauma_level,
+      unique_incident_id = fake,
+      blood_alcohol_content = bac,
+      drug_screen = drug
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_5(
+      data = valid_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      blood_alcohol_content = something_else,
+      drug_screen = drug
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_5(
+      data = valid_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      blood_alcohol_content = bac,
+      drug_screen = FALSE
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_5() data validation errors", {
   # Minimal valid input for baseline
   valid_data <- tibble::tibble(

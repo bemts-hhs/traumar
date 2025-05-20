@@ -1,3 +1,134 @@
+# tests/testthat/test-seqic_indicator_4.R
+
+testthat::test_that("seqic_indicator_4() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    id = as.character(1:8),
+    trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV"),
+    ed_disp = c(
+      "Operating Room",
+      "Admitted",
+      "Deceased/Expired",
+      "Transferred",
+      "Deceased/Expired",
+      "Deceased/Expired",
+      "Admitted",
+      "Deceased/Expired"
+    ),
+    ed_los = c(120, 200, 5000, 180, 3000, 4321, 60, 4000),
+    hosp_disp = c(
+      "Deceased/Expired",
+      "Deceased/Expired",
+      "Deceased/Expired",
+      "Discharged",
+      "Deceased/Expired",
+      "Deceased/Expired",
+      "Discharged",
+      "Deceased/Expired"
+    ),
+    hosp_los = c(3000, 4500, 1000, 200, 5000, 4400, 150, 3000),
+    autopsy_done = c("Yes", "No", "No", NA, "Yes", "No", NA, "Yes")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = FAKE,
+      ed_disposition = ed_disp,
+      ed_LOS = ed_los,
+      hospital_disposition = hosp_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = id,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = NOT_TRUE,
+      ed_LOS = ed_los,
+      hospital_disposition = hosp_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = id,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = ed_disp,
+      ed_LOS = "something else",
+      hospital_disposition = hosp_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = id,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = ed_disp,
+      ed_LOS = ed_los,
+      hospital_disposition = other_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = id,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = ed_disp,
+      ed_LOS = ed_los,
+      hospital_disposition = hosp_disp,
+      hospital_LOS = a_fake_column,
+      unique_incident_id = id,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = ed_disp,
+      ed_LOS = ed_los,
+      hospital_disposition = hosp_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = error,
+      autopsy = autopsy_done
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_4(
+      data = data,
+      level = trauma_level,
+      ed_disposition = ed_disp,
+      ed_LOS = ed_los,
+      hospital_disposition = hosp_disp,
+      hospital_LOS = hosp_los,
+      unique_incident_id = id,
+      autopsy = FALSE
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_4() input validation works as expected", {
   valid_data <- tibble::tibble(
     trauma_level = factor(rep("I", 2)),

@@ -1,5 +1,59 @@
 # tests/testthat/test-seqic_indicator_7.R
 
+testthat::test_that("seqic_indicator_7() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    id = as.character(1:5),
+    trauma_level = c("I", "II", "III", "IV", "V"),
+    time_to_arrival = c(200, 100, 220, 150, 400),
+    transfer_out = c("No", "No", "No", "No", "Yes")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_7(
+      data = data,
+      level = fake,
+      unique_incident_id = id,
+      time_from_injury_to_arrival = time_to_arrival,
+      transfer_out_indicator = transfer_out
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_7(
+      data = data,
+      level = trauma_level,
+      unique_incident_id = not_a_column,
+      time_from_injury_to_arrival = time_to_arrival,
+      transfer_out_indicator = transfer_out
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_7(
+      data = data,
+      level = trauma_level,
+      unique_incident_id = id,
+      time_from_injury_to_arrival = "false",
+      transfer_out_indicator = transfer_out
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_7(
+      data = data,
+      level = trauma_level,
+      unique_incident_id = id,
+      time_from_injury_to_arrival = time_to_arrival,
+      transfer_out_indicator = not_real
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 test_that("Valid input returns expected structure and values", {
   data <- tibble::tibble(
     id = as.character(1:5),

@@ -1,4 +1,70 @@
-# test-seqic_indicator_13.R
+# tests/testthat/test-seqic_indicator_13.R
+
+testthat::test_that("seqic_indicator_13() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  data <- tibble::tibble(
+    id = 1:6,
+    trauma_level = c("I", "II", "III", "IV", "I", "II"),
+    validity = c(90, 85, 75, 92, 86, 70)
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_13(
+      data = data,
+      level = TRUE,
+      unique_incident_id = id,
+      validity_score = validity,
+      validity_threshold = 85
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_13(
+      data = data,
+      level = trauma_level,
+      included_levels = logical(length = 6),
+      unique_incident_id = id,
+      validity_score = validity,
+      validity_threshold = 85
+    ),
+    regexp = "included_levels.*must be of class.*character.*factor.*numeric"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_13(
+      data = data,
+      level = fake,
+      unique_incident_id = id,
+      validity_score = validity,
+      validity_threshold = 85
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_13(
+      data = data,
+      level = trauma_level,
+      unique_incident_id = "faked",
+      validity_score = validity,
+      validity_threshold = 85
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_13(
+      data = data,
+      level = trauma_level,
+      unique_incident_id = id,
+      validity_score = a_fake,
+      validity_threshold = 85
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_13: input validation", {
   data <- tibble::tibble(
     id = 1:4,

@@ -1,3 +1,117 @@
+# tests/testthat/test-seqic_indicator_6.R
+
+testthat::test_that("seqic_indicator_6() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  test_data <- tibble::tibble(
+    id = as.character(1:10),
+    trauma_level = rep(c("I", "II", "III", "IV", "V"), times = 2),
+    transfer_out = c(
+      "No",
+      "No",
+      "Yes",
+      "No",
+      "No",
+      "No",
+      "No",
+      "No",
+      "No",
+      "No"
+    ),
+    transfer_in = c(
+      "Yes",
+      "Yes",
+      "No",
+      "Yes",
+      "No",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes"
+    ),
+    gcs_low = c(TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+    time_to_arrival = c(200, 100, 300, 190, 400, 181, 100, 179, 240, 178)
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = wrong_level,
+      unique_incident_id = id,
+      transfer_out_indicator = transfer_out,
+      receiving_indicator = transfer_in,
+      low_GCS_indicator = gcs_low,
+      time_from_injury_to_arrival = time_to_arrival
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = FALSE,
+      transfer_out_indicator = transfer_out,
+      receiving_indicator = transfer_in,
+      low_GCS_indicator = gcs_low,
+      time_from_injury_to_arrival = time_to_arrival
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      transfer_out_indicator = "another thing",
+      receiving_indicator = transfer_in,
+      low_GCS_indicator = gcs_low,
+      time_from_injury_to_arrival = time_to_arrival
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      transfer_out_indicator = transfer_out,
+      receiving_indicator = sample,
+      low_GCS_indicator = gcs_low,
+      time_from_injury_to_arrival = time_to_arrival
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      transfer_out_indicator = transfer_out,
+      receiving_indicator = transfer_in,
+      low_GCS_indicator = gcs_high,
+      time_from_injury_to_arrival = time_to_arrival
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_6(
+      data = test_data,
+      level = trauma_level,
+      unique_incident_id = id,
+      transfer_out_indicator = transfer_out,
+      receiving_indicator = transfer_in,
+      low_GCS_indicator = gcs_low,
+      time_from_injury_to_arrival = arrival_time
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 test_that("Data validation for seqic_indicator_6 works correctly", {
   # Create a simple test data frame for validation
   test_data <- tibble::tibble(

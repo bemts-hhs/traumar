@@ -1,3 +1,130 @@
+# tests/testthat/test-seqic_indicator_10.R
+
+testthat::test_that("seqic_indicator_10() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  test_data <- tibble::tibble(
+    id = 1:6,
+    trauma_level = c("I", "II", "II", "III", "IV", "II"),
+    acute_transfer = rep("No", 6),
+    activation = c("Level 1", "None", "Level 2", "Level 1", NA, "Consultation"),
+    iss = c(20, 10, 25, 12, 18, 9),
+    nfti = c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
+    region = c("East", "West", "East", "West", "East", "West")
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = false,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = activation,
+      iss = iss,
+      nfti = NULL,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = other,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = activation,
+      iss = iss,
+      nfti = NULL,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = minor_transfer,
+      trauma_team_activation_level = activation,
+      iss = iss,
+      nfti = NULL,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = TRUE,
+      iss = iss,
+      nfti = NULL,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = activation,
+      iss = "faked",
+      nfti = NULL,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = activation,
+      iss = NULL,
+      nfti = FALSE,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_10(
+      data = test_data,
+      level = trauma_level,
+      included_levels = c("I", "II", "III", "IV"),
+      unique_incident_id = id,
+      transfer_out_indicator = acute_transfer,
+      trauma_team_activation_level = activation,
+      iss = iss,
+      nfti = nfti,
+      groups = "region",
+      calculate_ci = NULL
+    ),
+    regexp = "Please supply exactly one of"
+  )
+})
+
 test_that("data validation fails appropriately", {
   data <- tibble::tibble(
     id = as.character(1:3),
@@ -273,10 +400,10 @@ test_that("Model diagnostic statistics are calculated correctly", {
   diag <- result$diagnostics
   testthat::expect_true(all(
     c(
-      "a",
-      "b",
-      "c",
-      "d",
+      "full_minor",
+      "full_major",
+      "limited_minor",
+      "limited_major",
       "sensitivity",
       "specificity",
       "positive_predictive_value",
@@ -371,10 +498,10 @@ testthat::test_that("classification works with ISS only", {
   expected_cols <- c(
     "data",
     "triage_logic",
-    "a",
-    "b",
-    "c",
-    "d",
+    "full_minor",
+    "full_major",
+    "limited_minor",
+    "limited_major",
     "N",
     "sensitivity",
     "specificity",
@@ -414,10 +541,10 @@ testthat::test_that("classification works with NFTI only", {
   expected_cols <- c(
     "data",
     "triage_logic",
-    "a",
-    "b",
-    "c",
-    "d",
+    "full_minor",
+    "full_major",
+    "limited_minor",
+    "limited_major",
     "N",
     "sensitivity",
     "specificity",

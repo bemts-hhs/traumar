@@ -65,10 +65,13 @@
 #'
 #' `rmm()` assumes `Ps_col` contains probabilities derived from
 #' real-world inputs for the Trauma Injury Severity Score (TRISS) model.
-#' Synthetic or low-variability data—especially with small sample sizes—may not
-#' reflect the logistic distribution of TRISS-derived survival probabilities.
-#' This can result in unstable estimates or function failure due to insufficient
-#' dispersion.
+#' Synthetic or low-variability data (especially with small sample sizes) may
+#' not reflect the distribution of TRISS-derived survival probabilities. This
+#' can result in unstable estimates or function failure due to insufficient
+#' dispersion. With small sample sizes, it may be important to use smaller
+#' values with the divisor arguments and adjust the thresholds (based on the
+#' distribution of the `Ps_col` values) to create bins that better accommodate
+#' the data.
 #'
 #' Due to the use of bootstrap sampling within the function, users should
 #' consider setting the random number `seed` within `rmm()` for reproducibility.
@@ -101,6 +104,16 @@
 #' This function will produce the most reliable and interpretable results when
 #' using a dataset that has one row per patient, with each column being a
 #' feature.
+#'
+#' By default, `rmm()` derives bin cut points from the full dataset’s
+#' distribution. This ensures comparability across groups when `group_vars` is
+#' used. To tailor results to a specific group (e.g., a single hospital), filter
+#' the dataset to that subgroup before calling `rmm()`. The function will then
+#' compute bins and related statistics using only that subset’s `Ps_col`
+#' distribution. When `group_vars` is used, and ff a group lacks
+#' observations within one or more bins, `rm_bin_summary()` will compute
+#' statistics only for the bins that contain data. Bins with no observations are
+#' excluded from the summary for that group.
 #'
 #' @export
 #'
@@ -752,10 +765,13 @@ rmm <- function(
 #'
 #' `rm_bin_summary()` assumes `Ps_col` contains probabilities derived from
 #' real-world inputs for the Trauma Injury Severity Score (TRISS) model.
-#' Synthetic or low-variability data—especially with small sample sizes—may not
-#' reflect the logistic distribution of TRISS-derived survival probabilities.
-#' This can result in unstable estimates or function failure due to insufficient
-#' dispersion.
+#' Synthetic or low-variability data (especially with small sample sizes) may
+#' not reflect the distribution of TRISS-derived survival probabilities. This
+#' can result in unstable estimates or function failure due to insufficient
+#' dispersion. With small sample sizes, it may be important to use smaller
+#' values with the divisor arguments and adjust the thresholds (based on the
+#' distribution of the `Ps_col` values) to create bins that better accommodate
+#' the data.
 #'
 #' Due to the use of bootstrap sampling within the function, users should
 #' consider setting the random number seed within `rm_bin_summary()` using the
@@ -797,6 +813,17 @@ rmm <- function(
 #' This function will produce the most reliable and interpretable results when
 #' using a dataset that has one row per patient, with each column being a
 #' feature.
+#'
+#' By default, `rm_bin_summary()` derives bin cut points from the full dataset’s
+#' distribution. This ensures comparability across groups when `group_vars` is
+#' used. To tailor results to a specific group (e.g., a single hospital), filter
+#' the dataset to that subgroup before calling `rm_bin_summary()`. The function
+#' will then compute bins and related statistics using only that subset’s
+#' `Ps_col` distribution. When `group_vars` is used, and ff a group lacks
+#' observations within one or more bins, `rm_bin_summary()` will compute
+#' statistics only for the bins that contain data. Bins with no observations are
+#' excluded from the summary for that group.
+
 #'
 #' @export
 #'

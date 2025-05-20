@@ -1,3 +1,70 @@
+# tests/testthat/test-seqic_indicator_3.R
+
+testthat::test_that("seqic_indicator_3() correctly expects columns to be in the 'data'", {
+  # Minimal valid data
+  test_data <- tibble::tibble(
+    unique_id = c("1", "2", "3", "4", "5", "6"),
+    trauma_level = c("I", "II", "III", "IV", "I", "III"),
+    trauma_category = c(
+      "Blunt",
+      "Penetrating",
+      "Burn",
+      "Blunt",
+      "Burn",
+      "Penetrating"
+    ),
+    survival_prob = c(0.9, 0.8, NA, 0.95, NA, 0.88)
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_3(
+      data = test_data,
+      level = TRUE,
+      trauma_type = trauma_category,
+      unique_incident_id = unique_id,
+      probability_of_survival = survival_prob,
+      groups = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_3(
+      data = test_data,
+      level = trauma_level,
+      trauma_type = "faked",
+      unique_incident_id = unique_id,
+      probability_of_survival = survival_prob,
+      groups = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_3(
+      data = test_data,
+      level = trauma_level,
+      trauma_type = trauma_category,
+      unique_incident_id = FALSE,
+      probability_of_survival = survival_prob,
+      groups = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_3(
+      data = test_data,
+      level = trauma_level,
+      trauma_type = trauma_category,
+      unique_incident_id = unique_id,
+      probability_of_survival = "some fake thing",
+      groups = NULL
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_3: input validation", {
   data <- tibble::tibble(
     trauma_level = c("I", "II"),

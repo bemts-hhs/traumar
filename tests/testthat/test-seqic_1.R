@@ -1,5 +1,95 @@
 # tests/testthat/test-seqic_indicator_1.R
 
+testthat::test_that("seqic_indicator_1() correctly expects columns to be in the 'data'", {
+  # Create minimal valid input
+  valid_data <- tibble::tibble(
+    activation_level = factor("Level 1"),
+    provider_type = factor("Surgery/Trauma"),
+    trauma_level = factor("I"),
+    response_minutes = 10,
+    provider = "Dr. A",
+    incident_id = 1
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_leve,
+      trauma_team_physician_service_type = provider_type,
+      level = trauma_level,
+      unique_incident_id = incident_id,
+      response_time = response_minutes,
+      trauma_team_activation_provider = provider
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_level,
+      trauma_team_physician_service_type = TRUE,
+      level = trauma_level,
+      unique_incident_id = incident_id,
+      response_time = response_minutes,
+      trauma_team_activation_provider = provider
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_level,
+      trauma_team_physician_service_type = provider_type,
+      level = trauma_leve,
+      unique_incident_id = incident_id,
+      response_time = response_minutes,
+      trauma_team_activation_provider = provider
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_level,
+      trauma_team_physician_service_type = provider_type,
+      level = trauma_level,
+      unique_incident_id = "thing",
+      response_time = response_minutes,
+      trauma_team_activation_provider = provider
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_level,
+      trauma_team_physician_service_type = provider_type,
+      level = trauma_level,
+      unique_incident_id = incident_id,
+      response_time = response_seconds,
+      trauma_team_activation_provider = provider
+    ),
+    regexp = "It was not possible to validate"
+  )
+
+  testthat::expect_error(
+    traumar::seqic_indicator_1(
+      data = valid_data,
+      trauma_team_activation_level = activation_leve,
+      trauma_team_physician_service_type = provider_type,
+      level = trauma_level,
+      unique_incident_id = incident_id,
+      response_time = response_minutes,
+      trauma_team_activation_provider = "fake"
+    ),
+    regexp = "It was not possible to validate"
+  )
+})
+
 testthat::test_that("seqic_indicator_1() validates input types correctly", {
   # Create minimal valid input
   valid_data <- tibble::tibble(

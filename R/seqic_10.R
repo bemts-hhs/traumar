@@ -47,7 +47,7 @@
 #'   \item Removes duplicate incidents using `unique_incident_id`.
 #'   \item Classifies each record as meeting or not meeting triage criteria
 #'   based on ISS or NFTI logic.
-#'   \item Optionally computes binomial confidence intervals for each indicator.
+#'   \item Optionally computes 95% confidence intervals for each indicator.
 #' }
 #'
 #' Users must ensure appropriate column names are passed and data is
@@ -389,8 +389,8 @@ seqic_indicator_10 <- function(
       dplyr::mutate(
         # Patients who should have had activation based on Cribari ISS > 15
         major_trauma = {{ iss }} > 15,
-        # Patients who clearly did not require activation (ISS <= 15)
-        minor_trauma = {{ iss }} <= 15,
+        # Patients who clearly did not require activation (ISS < 9)
+        minor_trauma = {{ iss }} < 9,
         # Over triage = full activation and minor trauma
         overtriage = full_activation & minor_trauma,
         # Under triage = limited-to-no activation and major trauma
@@ -435,7 +435,7 @@ seqic_indicator_10 <- function(
       !rlang::quo_is_null(rlang::enquo(iss))
   ) {
     cli::cli_abort(
-      "Please supply exactly one of {.var iss} or {.var nfti}, not both."
+      "Please supply exactly one of {.var iss} or {.var nfti}."
     )
   }
 
@@ -541,53 +541,77 @@ seqic_indicator_10 <- function(
   diagnostics <- data_prep |>
     dplyr::summarize(
       # Calculate the key confusion matrix values
-      a = sum(full_activation & minor_trauma, na.rm = TRUE), # False Positive
-      b = sum(full_activation & major_trauma, na.rm = TRUE), # True Positive
-      c = sum(limited_no_activation & minor_trauma, na.rm = TRUE), # True Negative
-      d = sum(limited_no_activation & major_trauma, na.rm = TRUE), # False Negative
+      full_minor = sum(full_activation & minor_trauma, na.rm = TRUE), # False Positive
+      full_major = sum(full_activation & major_trauma, na.rm = TRUE), # True Positive
+      limited_minor = sum(limited_no_activation & minor_trauma, na.rm = TRUE), # True Negative
+      limited_major = sum(limited_no_activation & major_trauma, na.rm = TRUE), # False Negative
       .by = {{ groups }}
     ) |>
     dplyr::mutate(
       # Total number of classified records
       # N here is total records not missing classification information
-      N = a + b + c + d,
+      N = full_minor + full_major + limited_minor + limited_major,
 
       # Sensitivity = b / (b + d)
-      sensitivity = dplyr::if_else((b + d) > 0, b / (b + d), NA_real_),
+      sensitivity = dplyr::if_else(
+        (full_major + limited_major) > 0,
+        full_major / (full_major + limited_major),
+        NA_real_
+      ),
 
       # Specificity = c / (a + c)
-      specificity = dplyr::if_else((a + c) > 0, c / (a + c), NA_real_),
+      specificity = dplyr::if_else(
+        (full_minor + limited_minor) > 0,
+        limited_minor / (full_minor + limited_minor),
+        NA_real_
+      ),
 
       # Positive Predictive Value (PPV) = b / (a + b)
       positive_predictive_value = dplyr::if_else(
-        (a + b) > 0,
-        b / (a + b),
+        (full_minor + full_major) > 0,
+        full_major / (full_minor + full_major),
         NA_real_
       ),
 
       # Negative Predictive Value (NPV) = c / (c + d)
       negative_predictive_value = dplyr::if_else(
-        (c + d) > 0,
-        c / (c + d),
+        (limited_minor + limited_major) > 0,
+        limited_minor / (limited_minor + limited_major),
         NA_real_
       ),
 
       # False Negative Rate (FNR) = d / (b + d); 1 - Sensitivity
-      false_negative_rate = dplyr::if_else((b + d) > 0, d / (b + d), NA_real_),
+      false_negative_rate = dplyr::if_else(
+        (full_major + limited_major) > 0,
+        limited_major / (full_major + limited_major),
+        NA_real_
+      ),
 
       # False Positive Rate (FPR) = a / (a + c); 1 - Specificity
-      false_positive_rate = dplyr::if_else((a + c) > 0, a / (a + c), NA_real_),
+      false_positive_rate = dplyr::if_else(
+        (full_minor + limited_minor) > 0,
+        full_minor / (full_minor + limited_minor),
+        NA_real_
+      ),
 
       # False Discovery Rate (FDR) = a / (a + b); 1 - Positive Predictive Value
-      false_discovery_rate = dplyr::if_else((a + b) > 0, a / (a + b), NA_real_),
+      false_discovery_rate = dplyr::if_else(
+        (full_minor + full_major) > 0,
+        full_minor / (full_minor + full_major),
+        NA_real_
+      ),
 
       # False Omission Rate (FOR) = d / (c + d); 1 - Negative Predictive Value
-      false_omission_rate = dplyr::if_else((c + d) > 0, d / (c + d), NA_real_)
+      false_omission_rate = dplyr::if_else(
+        (limited_minor + limited_major) > 0,
+        limited_major / (limited_minor + limited_major),
+        NA_real_
+      )
     )
 
   # Optionally compute confidence intervals
   if (!is.null(calculate_ci)) {
-    # Apply binomial confidence interval function
+    # Apply 95% confidence interval function
 
     # 10a CIs
     seqic_10a <- seqic_10a |>

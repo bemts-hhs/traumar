@@ -85,7 +85,7 @@ testthat::test_that("nonlinear_bins handles error messaging appropriately", {
       divisor1 = 4,
       divisor2 = 4
     ),
-    regexp = "One or more of the values calculated to assign step sizes"
+    regexp = "Unable to calculate valid step sizes"
   )
 })
 
