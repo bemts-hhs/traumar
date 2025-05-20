@@ -1,5 +1,5 @@
 testthat::test_that("seqic_indicator_4() input validation works as expected", {
-  valid_df <- tibble::tibble(
+  valid_data <- tibble::tibble(
     trauma_level = factor(rep("I", 2)),
     ed_disp = c("Deceased/Expired", "Deceased/Expired"),
     ed_los = c(3000, 4000),
@@ -10,10 +10,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
     group_var = c("A", "B")
   )
 
-  # df must be data.frame or tibble
+  # data must be data.frame or tibble
   expect_error(
     traumar::seqic_indicator_4(
-      df = list(),
+      data = list(),
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -26,10 +26,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # level must be character or factor
-  bad_df <- valid_df |> dplyr::mutate(trauma_level = as.numeric(1:2))
+  bad_data <- valid_data |> dplyr::mutate(trauma_level = as.numeric(1:2))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -42,10 +42,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # ed_disposition must be character or factor
-  bad_df <- valid_df |> dplyr::mutate(ed_disp = as.numeric(1:2))
+  bad_data <- valid_data |> dplyr::mutate(ed_disp = as.numeric(1:2))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -58,10 +58,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # hospital_disposition must be character or factor
-  bad_df <- valid_df |> dplyr::mutate(hosp_disp = as.numeric(1:2))
+  bad_data <- valid_data |> dplyr::mutate(hosp_disp = as.numeric(1:2))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -74,10 +74,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # ed_LOS must be numeric
-  bad_df <- valid_df |> dplyr::mutate(ed_los = as.character(ed_los))
+  bad_data <- valid_data |> dplyr::mutate(ed_los = as.character(ed_los))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -90,10 +90,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # hospital_LOS must be numeric
-  bad_df <- valid_df |> dplyr::mutate(hosp_los = as.character(hosp_los))
+  bad_data <- valid_data |> dplyr::mutate(hosp_los = as.character(hosp_los))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -106,10 +106,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # autopsy must be character or factor
-  bad_df <- valid_df |> dplyr::mutate(autopsy_done = as.numeric(1:2))
+  bad_data <- valid_data |> dplyr::mutate(autopsy_done = as.numeric(1:2))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -122,10 +122,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   )
 
   # unique_incident_id must be character, factor, or numeric
-  bad_df <- valid_df |> dplyr::mutate(id = list(1, 2))
+  bad_data <- valid_data |> dplyr::mutate(id = list(1, 2))
   expect_error(
     traumar::seqic_indicator_4(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -137,10 +137,10 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
     "unique_incident_id.*character.*numeric.*factor"
   )
 
-  # groups must be character vector and present in df
+  # groups must be character vector and present in data
   expect_error(
     traumar::seqic_indicator_4(
-      df = valid_df,
+      data = valid_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -155,7 +155,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
 
   expect_error(
     traumar::seqic_indicator_4(
-      df = valid_df,
+      data = valid_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -165,13 +165,13 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       autopsy = autopsy_done,
       groups = c("bad_col")
     ),
-    "not valid columns in.*df"
+    "not valid columns in.*data"
   )
 
   # calculate_ci must be NULL, "wilson", or "clopper-pearson"
   expect_error(
     traumar::seqic_indicator_4(
-      df = valid_df,
+      data = valid_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -187,7 +187,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
   # included_levels must be character, factor, or numeric
   expect_error(
     traumar::seqic_indicator_4(
-      df = valid_df,
+      data = valid_data,
       level = trauma_level,
       ed_disposition = ed_disp,
       ed_LOS = ed_los,
@@ -202,7 +202,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
 })
 
 testthat::test_that("seqic_indicator_4 computes 4a and 4b correctly", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = as.character(1:8),
     trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV"),
     ed_disp = c(
@@ -231,7 +231,7 @@ testthat::test_that("seqic_indicator_4 computes 4a and 4b correctly", {
   )
 
   result <- traumar::seqic_indicator_4(
-    df = df,
+    data = data,
     level = trauma_level,
     ed_disposition = ed_disp,
     ed_LOS = ed_los,
@@ -260,7 +260,7 @@ testthat::test_that("seqic_indicator_4 computes 4a and 4b correctly", {
 })
 
 testthat::test_that("seqic_indicator_4 computes correctly with grouping", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = as.character(1:4),
     trauma_level = c("I", "II", "I", "II"),
     ed_disp = rep("Deceased/Expired", 4),
@@ -272,7 +272,7 @@ testthat::test_that("seqic_indicator_4 computes correctly with grouping", {
   )
 
   result <- traumar::seqic_indicator_4(
-    df = df,
+    data = data,
     level = trauma_level,
     ed_disposition = ed_disp,
     ed_LOS = ed_los,
@@ -289,7 +289,7 @@ testthat::test_that("seqic_indicator_4 computes correctly with grouping", {
 })
 
 testthat::test_that("seqic_indicator_4 returns confidence intervals", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = as.character(1:5),
     trauma_level = rep("I", 5),
     ed_disp = rep("Deceased/Expired", 5),
@@ -300,7 +300,7 @@ testthat::test_that("seqic_indicator_4 returns confidence intervals", {
   )
 
   result <- traumar::seqic_indicator_4(
-    df = df,
+    data = data,
     level = trauma_level,
     ed_disposition = ed_disp,
     ed_LOS = ed_los,

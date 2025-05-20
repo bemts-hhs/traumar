@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 1 – Trauma Team Response Evaluation}
 \usage{
 seqic_indicator_1(
-  df,
+  data,
   trauma_team_activation_level,
   trauma_team_physician_service_type,
   level,
@@ -19,7 +19,7 @@ seqic_indicator_1(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{trauma_team_activation_level}{Column identifying trauma team activation
 level (e.g., Level 1, Level 2).}
@@ -45,7 +45,7 @@ following service types:
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -100,8 +100,9 @@ surgical response <= 15 minutes.
 \item 1c: Proportion of Level 1 activations with missing surgical response
 time.
 \item 1d/e: Response within 5 and 20 minutes, respectively, for specific
-provider types and activation levels.
-\item 1f: Proportion of missing response times among the group in 1d/e.
+provider types and activation levels, includes level I-IV trauma centers.
+\item 1f: Proportion of missing response times among the group in 1d/e,
+includes level I-IV trauma centers.
 }
 }
 \note{
@@ -142,7 +143,7 @@ data <- tibble::tibble(
 
 # Run the function
 traumar::seqic_indicator_1(
-  df = data,
+  data = data,
   trauma_team_activation_level = activation_level,
   trauma_team_physician_service_type = provider_type,
   level = trauma_level,

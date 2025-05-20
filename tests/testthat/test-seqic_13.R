@@ -1,6 +1,6 @@
 # test-seqic_indicator_13.R
 testthat::test_that("seqic_indicator_13: input validation", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:4,
     trauma_level = c("I", "II", "III", "IV"),
     validity = c(90, 85, 75, 92)
@@ -8,7 +8,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = "not a df",
+      data = "not a data",
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity
@@ -18,7 +18,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df |> dplyr::mutate(trauma_level = 1:4),
+      data = data |> dplyr::mutate(trauma_level = 1:4),
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity
@@ -26,10 +26,10 @@ testthat::test_that("seqic_indicator_13: input validation", {
     "must be character or factor"
   )
 
-  bad_id <- df |> dplyr::mutate(id = c(T, T, F, F))
+  bad_id <- data |> dplyr::mutate(id = c(T, T, F, F))
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = bad_id,
+      data = bad_id,
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity
@@ -39,7 +39,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df |> dplyr::mutate(validity = as.character(validity)),
+      data = data |> dplyr::mutate(validity = as.character(validity)),
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity
@@ -49,7 +49,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df |> dplyr::mutate(validity = c(90, -1, 105, 92)),
+      data = data |> dplyr::mutate(validity = c(90, -1, 105, 92)),
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity
@@ -59,7 +59,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity,
@@ -70,7 +70,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity,
@@ -81,7 +81,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity,
@@ -92,7 +92,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_13(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       validity_score = validity,
@@ -103,14 +103,14 @@ testthat::test_that("seqic_indicator_13: input validation", {
 })
 
 testthat::test_that("seqic_indicator_13: correct computation", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "II", "III", "IV", "I", "II"),
     validity = c(90, 85, 75, 92, 86, 70)
   )
 
   out <- traumar::seqic_indicator_13(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     validity_score = validity,
@@ -125,7 +125,7 @@ testthat::test_that("seqic_indicator_13: correct computation", {
 })
 
 testthat::test_that("seqic_indicator_13: grouping works", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "I", "II", "II", "III", "III"),
     region = c("A", "A", "A", "B", "B", "B"),
@@ -133,7 +133,7 @@ testthat::test_that("seqic_indicator_13: grouping works", {
   )
 
   out <- traumar::seqic_indicator_13(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     validity_score = validity,
@@ -152,14 +152,14 @@ testthat::test_that("seqic_indicator_13: grouping works", {
 })
 
 testthat::test_that("seqic_indicator_13: CI calculation works", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:10,
     trauma_level = rep("I", 10),
     validity = c(rep(90, 7), rep(70, 3))
   )
 
   out <- traumar::seqic_indicator_13(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     validity_score = validity,
@@ -173,14 +173,14 @@ testthat::test_that("seqic_indicator_13: CI calculation works", {
 })
 
 testthat::test_that("seqic_indicator_13: zero denominator handled", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:3,
     trauma_level = c("V", "V", "V"),
     validity = c(90, 95, 88)
   )
 
   out <- traumar::seqic_indicator_13(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     validity_score = validity
@@ -191,14 +191,14 @@ testthat::test_that("seqic_indicator_13: zero denominator handled", {
 })
 
 testthat::test_that("seqic_indicator_13: deduplication works", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = c(1, 1, 2, 3, 4),
     trauma_level = c("I", "I", "I", "I", "I"),
     validity = c(90, 90, 80, 85, 95)
   )
 
   out <- traumar::seqic_indicator_13(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     validity_score = validity

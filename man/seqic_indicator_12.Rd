@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 12 - Timeliness of Data Entry Post-Discharge}
 \usage{
 seqic_indicator_12(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   facility_id,
@@ -19,13 +19,13 @@ seqic_indicator_12(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{facility_id}{Numeric, character, or factor. Column giving the unique
 facility identifiers in the trauma dataset.}
@@ -113,7 +113,7 @@ test_data <- tibble::tibble(
 
 # Run the function
 traumar::seqic_indicator_12(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   facility_id = facility,

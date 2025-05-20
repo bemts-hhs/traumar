@@ -9,3 +9,5 @@
 
 checking for future file timestamps ... NOTE
   unable to verify current time
+
+* I added a code of conduct in the README.

@@ -34,7 +34,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Valid inputs should pass without errors
   testthat::expect_silent(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -44,10 +44,10 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
     )
   )
 
-  # Test: Invalid `df` (not a data frame or tibble)
+  # Test: Invalid `data` (not a data frame or tibble)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = list(),
+      data = list(),
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -61,7 +61,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `level` (not character or factor)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = time_to_arrival, # Using `id` which is character, should be `trauma_level`
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -73,10 +73,10 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   )
 
   # Test: Invalid `unique_incident_id` (not character, factor, or numeric)
-  bad_df <- test_data |> dplyr::mutate(id = logical(10))
+  bad_data <- test_data |> dplyr::mutate(id = logical(10))
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       unique_incident_id = id, # Using `trauma_level`, which is factor, should be `id`
       transfer_out_indicator = transfer_out,
@@ -90,7 +90,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `transfer_out_indicator` (not character, factor, or logical)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = time_to_arrival, # Using `gcs_low`, which is logical, should be `transfer_out`
@@ -104,7 +104,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `receiving_indicator` (not character, factor, or logical)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -118,7 +118,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `low_GCS_indicator` (not character, factor, or logical)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -132,7 +132,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `time_from_injury_to_arrival` (not numeric)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -146,7 +146,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `groups` (not a character vector)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -158,10 +158,10 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
     regexp = "All elements in.*groups.*must be strings."
   )
 
-  # Test: Invalid `groups` (columns not present in `df`)
+  # Test: Invalid `groups` (columns not present in `data`)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -176,7 +176,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `calculate_ci` (not NULL, "wilson", or "clopper-pearson")
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -191,7 +191,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Valid `included_levels` (should pass)
   testthat::expect_silent(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -205,7 +205,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
   # Test: Invalid `included_levels` (not character, factor, or numeric)
   testthat::expect_error(
     traumar::seqic_indicator_6(
-      df = test_data,
+      data = test_data,
       level = trauma_level,
       unique_incident_id = id,
       transfer_out_indicator = transfer_out,
@@ -251,7 +251,7 @@ testthat::test_that("seqic_indicator_6 calculates correct values without CI", {
   )
 
   result <- traumar::seqic_indicator_6(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     unique_incident_id = id,
     transfer_out_indicator = transfer_out,
@@ -299,7 +299,7 @@ testthat::test_that("seqic_indicator_6 computes CI and supports grouping", {
   )
 
   result_grouped <- traumar::seqic_indicator_6(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     unique_incident_id = id,
     transfer_out_indicator = transfer_out,

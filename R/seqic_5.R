@@ -67,7 +67,7 @@
 #'
 #' # Run the indicator function
 #' traumar::seqic_indicator_5(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   unique_incident_id = id,
 #'   blood_alcohol_content = bac,
@@ -81,7 +81,7 @@
 #' @export
 
 seqic_indicator_5 <- function(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
@@ -95,18 +95,28 @@ seqic_indicator_5 <- function(
   ### Data validation
   ###___________________________________________________________________________
 
-  # Validate if `df` is a data frame or tibble.
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+  # Validate if `data` is a data frame or tibble.
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
     cli::cli_abort(
       c(
-        "{.var df} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var df} was an object of class {.cls {class(df)}}."
+        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
+        "i" = "{.var data} was an object of class {.cls {class(data)}}."
       )
     )
   }
 
-  # Validate `level`
-  level_check <- df |> dplyr::pull({{ level }})
+  # make the `level` column accessible for validation
+  level_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ level }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var level}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_5())
+      )
+    }
+  )
   if (!is.character(level_check) && !is.factor(level_check)) {
     cli::cli_abort(
       c(
@@ -116,9 +126,18 @@ seqic_indicator_5 <- function(
     )
   }
 
-  # Make the `unique_incident_id` column accessible for validation.
-  unique_incident_id_check <- df |>
-    dplyr::pull({{ unique_incident_id }})
+  # make the `unique_incident_id` column accessible for validation
+  unique_incident_id_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ unique_incident_id }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_5())
+      )
+    }
+  )
 
   # Validate `unique_incident_id` to ensure it's either character or factor.
   if (
@@ -135,7 +154,17 @@ seqic_indicator_5 <- function(
   }
 
   # Validate `blood_alcohol_content`
-  blood_alcohol_content_check <- df |> dplyr::pull({{ blood_alcohol_content }})
+  blood_alcohol_content_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ blood_alcohol_content }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var blood_alcohol_content}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_5())
+      )
+    }
+  )
   if (!is.numeric(blood_alcohol_content_check)) {
     cli::cli_abort(
       c(
@@ -146,7 +175,17 @@ seqic_indicator_5 <- function(
   }
 
   # Validate `drug_screen`
-  drug_screen_check <- df |> dplyr::pull({{ drug_screen }})
+  drug_screen_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ drug_screen }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var drug_screen}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_5())
+      )
+    }
+  )
   if (!is.character(drug_screen_check) && !is.factor(drug_screen_check)) {
     cli::cli_abort(
       c(
@@ -166,11 +205,11 @@ seqic_indicator_5 <- function(
     }
   }
 
-  # Check if all groups exist in the `df`
-  if (!all(groups %in% names(df))) {
-    invalid_vars <- groups[!groups %in% names(df)]
+  # Check if all groups exist in the `data`
+  if (!all(groups %in% names(data))) {
+    invalid_vars <- groups[!groups %in% names(data)]
     cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var df}: {paste(invalid_vars, collapse = ', ')}"
+      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
     )
   }
 
@@ -265,7 +304,7 @@ seqic_indicator_5 <- function(
   ###___________________________________________________________________________
   ### Compute numerator and denominator for each SEQIC Indicator 5 sub-measure
   ###___________________________________________________________________________
-  seqic_5 <- df |>
+  seqic_5 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::summarize(

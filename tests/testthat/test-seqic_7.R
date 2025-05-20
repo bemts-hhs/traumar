@@ -1,7 +1,7 @@
 # tests/testthat/test-seqic_indicator_7.R
 
 test_that("Valid input returns expected structure and values", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = as.character(1:5),
     trauma_level = c("I", "II", "III", "IV", "V"),
     time_to_arrival = c(200, 100, 220, 150, 400),
@@ -9,7 +9,7 @@ test_that("Valid input returns expected structure and values", {
   )
 
   res <- traumar::seqic_indicator_7(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     time_from_injury_to_arrival = time_to_arrival,
@@ -24,7 +24,7 @@ test_that("Valid input returns expected structure and values", {
 })
 
 test_that("Grouping works correctly", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = c(1, 2, 3, 4),
     trauma_level = c("I", "I", "II", "II"),
     time_to_arrival = c(200, 100, 300, 90),
@@ -33,7 +33,7 @@ test_that("Grouping works correctly", {
   )
 
   res <- traumar::seqic_indicator_7(
-    df,
+    data,
     level = trauma_level,
     unique_incident_id = id,
     time_from_injury_to_arrival = time_to_arrival,
@@ -48,7 +48,7 @@ test_that("Grouping works correctly", {
 })
 
 test_that("Confidence intervals are added correctly", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = rep("I", 6),
     time_to_arrival = c(200, 210, 90, 80, 185, 195),
@@ -56,7 +56,7 @@ test_that("Confidence intervals are added correctly", {
   )
 
   res <- traumar::seqic_indicator_7(
-    df,
+    data,
     level = trauma_level,
     unique_incident_id = id,
     time_from_injury_to_arrival = time_to_arrival,
@@ -72,21 +72,21 @@ test_that("Confidence intervals are added correctly", {
 # Input Validation Tests
 #-------------------------------
 
-test_that("Errors are thrown for invalid `df` input", {
+test_that("Errors are thrown for invalid `data` input", {
   expect_error(
     traumar::seqic_indicator_7(
-      "not_a_df",
+      "not_a_data",
       trauma_level,
       id,
       time_to_arrival,
       transfer_out
     ),
-    "df"
+    "data"
   )
 })
 
 test_that("Errors are thrown for invalid `level` column type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = 1L,
     time_to_arrival = 10,
@@ -94,7 +94,7 @@ test_that("Errors are thrown for invalid `level` column type", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df,
+      data,
       trauma_level,
       id,
       time_to_arrival,
@@ -105,7 +105,7 @@ test_that("Errors are thrown for invalid `level` column type", {
 })
 
 test_that("Errors are thrown for invalid `unique_incident_id` type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = list("a"),
     trauma_level = "I",
     time_to_arrival = 10,
@@ -113,7 +113,7 @@ test_that("Errors are thrown for invalid `unique_incident_id` type", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,
@@ -124,7 +124,7 @@ test_that("Errors are thrown for invalid `unique_incident_id` type", {
 })
 
 test_that("Errors are thrown for invalid `transfer_out_indicator` type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = "I",
     time_to_arrival = 10,
@@ -132,7 +132,7 @@ test_that("Errors are thrown for invalid `transfer_out_indicator` type", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,
@@ -143,7 +143,7 @@ test_that("Errors are thrown for invalid `transfer_out_indicator` type", {
 })
 
 test_that("Errors are thrown for non-numeric `time_from_injury_to_arrival`", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = "I",
     time_to_arrival = "late",
@@ -151,7 +151,7 @@ test_that("Errors are thrown for non-numeric `time_from_injury_to_arrival`", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,
@@ -162,7 +162,7 @@ test_that("Errors are thrown for non-numeric `time_from_injury_to_arrival`", {
 })
 
 test_that("Invalid group column throws error", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = "I",
     time_to_arrival = 10,
@@ -170,7 +170,7 @@ test_that("Invalid group column throws error", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,
@@ -182,7 +182,7 @@ test_that("Invalid group column throws error", {
 })
 
 test_that("Invalid calculate_ci argument throws error", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = "I",
     time_to_arrival = 10,
@@ -190,7 +190,7 @@ test_that("Invalid calculate_ci argument throws error", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,
@@ -202,7 +202,7 @@ test_that("Invalid calculate_ci argument throws error", {
 })
 
 test_that("Invalid included_levels throws error", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1,
     trauma_level = "I",
     time_to_arrival = 10,
@@ -210,7 +210,7 @@ test_that("Invalid included_levels throws error", {
   )
   expect_error(
     traumar::seqic_indicator_7(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       time_from_injury_to_arrival = time_to_arrival,

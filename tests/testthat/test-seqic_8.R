@@ -1,18 +1,18 @@
-testthat::test_that("seqic_indicator_8() data validation - df must be a data.frame or tibble", {
+testthat::test_that("seqic_indicator_8() data validation - data must be a data.frame or tibble", {
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = "not_a_df",
+      data = "not_a_data",
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
       risk_group = risk
     ),
-    "df.*must be a data frame or tibble"
+    "data.*must be a data frame or tibble"
   )
 })
 
 testthat::test_that("seqic_indicator_8() data validation - level must be character or factor", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.numeric(1:3),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -20,7 +20,7 @@ testthat::test_that("seqic_indicator_8() data validation - level must be charact
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -31,7 +31,7 @@ testthat::test_that("seqic_indicator_8() data validation - level must be charact
 })
 
 testthat::test_that("seqic_indicator_8() data validation - unique_incident_id must be character, numeric, or factor", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = list(1, 2, 3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -39,7 +39,7 @@ testthat::test_that("seqic_indicator_8() data validation - unique_incident_id mu
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -50,7 +50,7 @@ testthat::test_that("seqic_indicator_8() data validation - unique_incident_id mu
 })
 
 testthat::test_that("seqic_indicator_8() data validation - mortality_indicator must be character, factor, or logical", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = as.Date(c("2023-01-01", "2023-01-02", "2023-01-03")),
@@ -58,7 +58,7 @@ testthat::test_that("seqic_indicator_8() data validation - mortality_indicator m
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -69,7 +69,7 @@ testthat::test_that("seqic_indicator_8() data validation - mortality_indicator m
 })
 
 testthat::test_that("seqic_indicator_8() data validation - risk_group must be character or factor", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -77,7 +77,7 @@ testthat::test_that("seqic_indicator_8() data validation - risk_group must be ch
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -88,7 +88,7 @@ testthat::test_that("seqic_indicator_8() data validation - risk_group must be ch
 })
 
 testthat::test_that("seqic_indicator_8() data validation - groups must be character vector", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -96,7 +96,7 @@ testthat::test_that("seqic_indicator_8() data validation - groups must be charac
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -107,8 +107,8 @@ testthat::test_that("seqic_indicator_8() data validation - groups must be charac
   )
 })
 
-testthat::test_that("seqic_indicator_8() data validation - all groups must exist in df", {
-  df <- tibble::tibble(
+testthat::test_that("seqic_indicator_8() data validation - all groups must exist in data", {
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -116,7 +116,7 @@ testthat::test_that("seqic_indicator_8() data validation - all groups must exist
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -128,7 +128,7 @@ testthat::test_that("seqic_indicator_8() data validation - all groups must exist
 })
 
 testthat::test_that("seqic_indicator_8() data validation - calculate_ci must be wilson or clopper-pearson", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -136,7 +136,7 @@ testthat::test_that("seqic_indicator_8() data validation - calculate_ci must be 
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -148,7 +148,7 @@ testthat::test_that("seqic_indicator_8() data validation - calculate_ci must be 
 })
 
 testthat::test_that("seqic_indicator_8() data validation - included_levels must be character, numeric, or factor", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = as.character(c("I", "II", "III")),
     id = as.character(1:3),
     mortality = c(TRUE, FALSE, TRUE),
@@ -156,7 +156,7 @@ testthat::test_that("seqic_indicator_8() data validation - included_levels must 
   )
   testthat::expect_error(
     traumar::seqic_indicator_8(
-      df = df,
+      data = data,
       level = trauma_level,
       unique_incident_id = id,
       mortality_indicator = mortality,
@@ -198,7 +198,7 @@ testthat::test_that("seqic_indicator_8 correctly calculates overall and risk gro
   )
 
   result <- traumar::seqic_indicator_8(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     unique_incident_id = id,
     mortality_indicator = mortality,
@@ -224,7 +224,7 @@ testthat::test_that("seqic_indicator_8 correctly calculates overall and risk gro
 })
 
 testthat::test_that("seqic_indicator_8 filters by included_levels", {
-  df <- dplyr::tibble(
+  data <- dplyr::tibble(
     id = 1:5,
     trauma_level = c("I", "V", "II", "III", "IV"),
     mortality = c("No", "Yes", FALSE, TRUE, "No"),
@@ -232,7 +232,7 @@ testthat::test_that("seqic_indicator_8 filters by included_levels", {
   )
 
   result <- traumar::seqic_indicator_8(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     mortality_indicator = mortality,
@@ -244,7 +244,7 @@ testthat::test_that("seqic_indicator_8 filters by included_levels", {
 })
 
 testthat::test_that("seqic_indicator_8 includes confidence intervals when calculate_ci is specified", {
-  df <- dplyr::tibble(
+  data <- dplyr::tibble(
     id = 1:6,
     trauma_level = rep("II", 6),
     mortality = c("No", "Yes", "No", "No", "Yes", FALSE),
@@ -252,7 +252,7 @@ testthat::test_that("seqic_indicator_8 includes confidence intervals when calcul
   )
 
   result <- traumar::seqic_indicator_8(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     mortality_indicator = mortality,
@@ -269,7 +269,7 @@ testthat::test_that("seqic_indicator_8 includes confidence intervals when calcul
 })
 
 testthat::test_that("seqic_indicator_8 handles groupings correctly", {
-  df <- dplyr::tibble(
+  data <- dplyr::tibble(
     id = 1:6,
     trauma_level = rep("III", 6),
     mortality = c(TRUE, FALSE, FALSE, "Yes", "No", "No"),
@@ -278,7 +278,7 @@ testthat::test_that("seqic_indicator_8 handles groupings correctly", {
   )
 
   result <- traumar::seqic_indicator_8(
-    df = df,
+    data = data,
     level = trauma_level,
     unique_incident_id = id,
     mortality_indicator = mortality,

@@ -2,7 +2,7 @@
 
 testthat::test_that("seqic_indicator_1() validates input types correctly", {
   # Create minimal valid input
-  valid_df <- tibble::tibble(
+  valid_data <- tibble::tibble(
     activation_level = factor("Level 1"),
     provider_type = factor("Surgery/Trauma"),
     trauma_level = factor("I"),
@@ -14,7 +14,7 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   # Valid call should not error
   testthat::expect_silent(
     traumar::seqic_indicator_1(
-      df = valid_df,
+      data = valid_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -24,10 +24,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
     )
   )
 
-  # df is not a data.frame
+  # data is not a data.frame
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = as.matrix(valid_df),
+      data = as.matrix(valid_data),
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -35,14 +35,14 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
       response_time = response_minutes,
       trauma_team_activation_provider = provider
     ),
-    "df.*must be of class"
+    "data.*must be of class"
   )
 
   # trauma_team_activation_level is not character or factor
-  bad_df <- dplyr::mutate(valid_df, activation_level = 1)
+  bad_data <- dplyr::mutate(valid_data, activation_level = 1)
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -54,10 +54,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   )
 
   # trauma_team_physician_service_type is invalid
-  bad_df <- dplyr::mutate(valid_df, provider_type = 42)
+  bad_data <- dplyr::mutate(valid_data, provider_type = 42)
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -69,10 +69,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   )
 
   # unique_incident_id invalid
-  bad_df <- dplyr::mutate(valid_df, incident_id = list("A"))
+  bad_data <- dplyr::mutate(valid_data, incident_id = list("A"))
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -84,10 +84,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   )
 
   # level is not character or factor
-  bad_df <- dplyr::mutate(valid_df, trauma_level = 99)
+  bad_data <- dplyr::mutate(valid_data, trauma_level = 99)
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -99,10 +99,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   )
 
   # response_time is not numeric
-  bad_df <- dplyr::mutate(valid_df, response_minutes = "soon")
+  bad_data <- dplyr::mutate(valid_data, response_minutes = "soon")
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -114,10 +114,10 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
   )
 
   # trauma_team_activation_provider is not character or factor
-  bad_df <- dplyr::mutate(valid_df, provider = 999)
+  bad_data <- dplyr::mutate(valid_data, provider = 999)
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = bad_df,
+      data = bad_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -130,7 +130,7 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
 })
 
 testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
-  valid_df <- tibble::tibble(
+  valid_data <- tibble::tibble(
     activation_level = "Level 1",
     provider_type = "Surgery/Trauma",
     trauma_level = "I",
@@ -143,7 +143,7 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
   # groups contains a non-string
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = valid_df,
+      data = valid_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -155,10 +155,10 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
     "All elements in.*groups.*must be strings"
   )
 
-  # groups contains a string not found in df
+  # groups contains a string not found in data
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = valid_df,
+      data = valid_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -173,7 +173,7 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
   # calculate_ci is invalid
   testthat::expect_error(
     traumar::seqic_indicator_1(
-      df = valid_df,
+      data = valid_data,
       trauma_team_activation_level = activation_level,
       trauma_team_physician_service_type = provider_type,
       level = trauma_level,
@@ -213,7 +213,7 @@ testthat::test_that("seqic_indicator_1 calculates indicators 1a–1c correctly",
 
   # Run without CI
   result <- traumar::seqic_indicator_1(
-    df = test_data,
+    data = test_data,
     trauma_team_activation_level = activation_level,
     trauma_team_physician_service_type = provider_type,
     level = trauma_level,
@@ -250,7 +250,7 @@ testthat::test_that("seqic_indicator_1 returns confidence intervals when request
   )
 
   result <- traumar::seqic_indicator_1(
-    df = test_data,
+    data = test_data,
     trauma_team_activation_level = activation_level,
     trauma_team_physician_service_type = provider_type,
     level = trauma_level,

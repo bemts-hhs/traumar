@@ -81,7 +81,7 @@
 #'
 #' # Run the function, this will succeed
 #' traumar::seqic_indicator_10(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   unique_incident_id = id,
@@ -96,7 +96,7 @@
 #' # Run the function, this will fail
 #' try(
 #'   traumar::seqic_indicator_10(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   unique_incident_id = id,
@@ -130,7 +130,7 @@
 #' @export
 #'
 seqic_indicator_10 <- function(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
@@ -147,15 +147,26 @@ seqic_indicator_10 <- function(
   ###___________________________________________________________________________
 
   # Ensure input is a data frame or tibble
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
     cli::cli_abort(c(
-      "{.var df} must be a data frame or tibble.",
-      "i" = "You provided an object of class {.cls {class(df)}}."
+      "{.var data} must be a data frame or tibble.",
+      "i" = "You provided an object of class {.cls {class(data)}}."
     ))
   }
 
   # Validate the `level` column
-  level_check <- df |> dplyr::pull({{ level }})
+  level_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ level }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var level}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_10())
+      )
+    }
+  )
+
   if (!is.character(level_check) && !is.factor(level_check)) {
     cli::cli_abort(c(
       "{.var level} must be character or factor.",
@@ -164,8 +175,17 @@ seqic_indicator_10 <- function(
   }
 
   # Make the `unique_incident_id` column accessible for validation.
-  unique_incident_id_check <- df |>
-    dplyr::pull({{ unique_incident_id }})
+  unique_incident_id_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ unique_incident_id }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_10())
+      )
+    }
+  )
 
   # Validate `unique_incident_id` to ensure it's either character or factor.
   if (
@@ -182,8 +202,18 @@ seqic_indicator_10 <- function(
   }
 
   # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- df |>
-    dplyr::pull({{ transfer_out_indicator }})
+  transfer_out_indicator_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ transfer_out_indicator }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_10())
+      )
+    }
+  )
+
   if (
     !is.character(transfer_out_indicator_check) &&
       !is.factor(transfer_out_indicator_check) &&
@@ -198,8 +228,18 @@ seqic_indicator_10 <- function(
   }
 
   # Validate that `trauma_team_activation_level` is character, factor, or logical.
-  trauma_team_activation_level_check <- df |>
-    dplyr::pull({{ trauma_team_activation_level }})
+  trauma_team_activation_level_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ trauma_team_activation_level }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var trauma_team_activation_level}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_10())
+      )
+    }
+  )
+
   if (
     !is.character(trauma_team_activation_level_check) &&
       !is.factor(trauma_team_activation_level_check)
@@ -212,7 +252,18 @@ seqic_indicator_10 <- function(
 
   # Validate that `iss` is numeric.
   if (!rlang::quo_is_null(rlang::enquo(iss))) {
-    iss_check <- df |> dplyr::pull({{ iss }})
+    iss_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ iss }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var iss}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_10())
+        )
+      }
+    )
+
     if (!is.numeric(iss_check)) {
       cli::cli_abort(c(
         "{.var iss} must be numeric when provided.",
@@ -223,7 +274,18 @@ seqic_indicator_10 <- function(
 
   # Validate that `nfti` is character, factor, or logical.
   if (!rlang::quo_is_null(rlang::enquo(nfti))) {
-    nfti_check <- df |> dplyr::pull({{ nfti }})
+    nfti_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ nfti }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var nfti}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_10())
+        )
+      }
+    )
+
     if (
       !is.character(nfti_check) &&
         !is.factor(nfti_check) &&
@@ -246,9 +308,9 @@ seqic_indicator_10 <- function(
     }
   }
 
-  # Check if all groups exist in the `df`
-  if (!all(groups %in% names(df))) {
-    invalid_vars <- groups[!groups %in% names(df)]
+  # Check if all groups exist in the `data`
+  if (!all(groups %in% names(data))) {
+    invalid_vars <- groups[!groups %in% names(data)]
     cli::cli_abort(
       "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
     )
@@ -293,7 +355,7 @@ seqic_indicator_10 <- function(
   # - Exclude transfers out (e.g., for whom definitive triage data may be
   # incomplete)
 
-  df_prep <- df |>
+  data_prep <- data |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
     dplyr::filter(
       {{ level }} %in% included_levels,
@@ -323,7 +385,7 @@ seqic_indicator_10 <- function(
     !rlang::quo_is_null(rlang::enquo(iss)) &&
       rlang::quo_is_null(rlang::enquo(nfti))
   ) {
-    df_prep <- df_prep |>
+    data_prep <- data_prep |>
       dplyr::mutate(
         # Patients who should have had activation based on Cribari ISS > 15
         major_trauma = {{ iss }} > 15,
@@ -338,7 +400,7 @@ seqic_indicator_10 <- function(
     rlang::quo_is_null(rlang::enquo(iss)) &&
       !rlang::quo_is_null(rlang::enquo(nfti))
   ) {
-    df_prep <- df_prep |>
+    data_prep <- data_prep |>
       dplyr::mutate(
         # Patients flagged by NFTI as needing activation
         major_trauma = {{ nfti }} %in% c("Positive", TRUE, "Yes"),
@@ -352,7 +414,7 @@ seqic_indicator_10 <- function(
   } else {
     # Fail clearly if both or neither triage criteria are supplied
     cli::cli_abort(
-      "Please supply exactly one of {.var iss} or {.var nfti}, not both."
+      "Please supply exactly one of {.var iss} or {.var nfti}."
     )
   }
 
@@ -388,7 +450,7 @@ seqic_indicator_10 <- function(
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all limited-to-no trauma team activation cases
   # Numerator: major_trauma AND limited_no_activation
-  seqic_10a <- df_prep |>
+  seqic_10a <- data_prep |>
     dplyr::summarize(
       numerator_10a = sum(
         undertriage,
@@ -410,7 +472,7 @@ seqic_indicator_10 <- function(
   # activation
   # Denominator: all full trauma team activations
   # Numerator: minor_trauma AND full_activation
-  seqic_10b <- df_prep |>
+  seqic_10b <- data_prep |>
     dplyr::summarize(
       numerator_10b = sum(
         overtriage,
@@ -431,7 +493,7 @@ seqic_indicator_10 <- function(
   # Numerator: major_trauma AND limited_no_activation
   # This is Peng & Xiang's (2016) update to the Cribari method of calculating
   # under triage
-  seqic_10c <- df_prep |>
+  seqic_10c <- data_prep |>
     dplyr::summarize(
       numerator_10c = sum(
         undertriage,
@@ -476,7 +538,7 @@ seqic_indicator_10 <- function(
   # False Discovery Rate (FDR) = a / (a + b)     # 1 - PPV
   # False Omission Rate (FOR)  = d / (c + d)     # 1 - NPV
 
-  diagnostics <- df_prep |>
+  diagnostics <- data_prep |>
     dplyr::summarize(
       # Calculate the key confusion matrix values
       a = sum(full_activation & minor_trauma, na.rm = TRUE), # False Positive

@@ -1,5 +1,5 @@
 testthat::test_that("seqic_indicator_11 works with minimal valid input", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "II", "III", "IV", "II", "III"),
     transferred_out = c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE),
@@ -10,7 +10,7 @@ testthat::test_that("seqic_indicator_11 works with minimal valid input", {
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     transfer_out_indicator = transferred_out,
@@ -28,7 +28,7 @@ testthat::test_that("seqic_indicator_11 works with minimal valid input", {
 })
 
 testthat::test_that("seqic_indicator_11 correctly validates columns", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "II", "III", "IV", "II", "III"),
     transferred_out = c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE),
@@ -38,12 +38,12 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
     region = c("East", "West", "East", "East", "West", "West")
   )
 
-  testthat::expect_error(seqic_indicator_11(df = "not_a_df"))
+  testthat::expect_error(seqic_indicator_11(data = "not_a_data"))
 
-  bad_level <- df |> dplyr::mutate(trauma_level = 1:6)
+  bad_level <- data |> dplyr::mutate(trauma_level = 1:6)
   testthat::expect_error(
     seqic_indicator_11(
-      df = bad_level,
+      data = bad_level,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -54,10 +54,10 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
     "level.*must be character or factor"
   )
 
-  bad_id <- df |> dplyr::mutate(id = rep(TRUE, 6))
+  bad_id <- data |> dplyr::mutate(id = rep(TRUE, 6))
   testthat::expect_error(
     seqic_indicator_11(
-      df = bad_id,
+      data = bad_id,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -68,11 +68,11 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
     "unique_incident_id.*must be of class.*character.*numeric.*factor"
   )
 
-  bad_transfer_indicator <- df |>
+  bad_transfer_indicator <- data |>
     dplyr::mutate(transferred_out = numeric(length = 6))
   testthat::expect_error(
     seqic_indicator_11(
-      df = bad_transfer_indicator,
+      data = bad_transfer_indicator,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -83,11 +83,11 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
     "transfer_out_indicator.*must be of class.*character.*factor.*logical"
   )
 
-  bad_receiving_indicator <- df |>
+  bad_receiving_indicator <- data |>
     dplyr::mutate(received = numeric(length = 6))
   testthat::expect_error(
     seqic_indicator_11(
-      df = bad_receiving_indicator,
+      data = bad_receiving_indicator,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -98,11 +98,11 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
     "receiving_indicator.*must be of class.*character.*factor.*logical"
   )
 
-  bad_los <- df |>
+  bad_los <- data |>
     dplyr::mutate(ed_LOS = character(length = 6))
   testthat::expect_error(
     seqic_indicator_11(
-      df = bad_los,
+      data = bad_los,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -115,7 +115,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
 
   testthat::expect_error(
     seqic_indicator_11(
-      df = df,
+      data = data,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -129,7 +129,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
 
   testthat::expect_error(
     seqic_indicator_11(
-      df = df,
+      data = data,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -143,7 +143,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
 
   testthat::expect_error(
     seqic_indicator_11(
-      df = df,
+      data = data,
       unique_incident_id = id,
       level = trauma_level,
       transfer_out_indicator = transferred_out,
@@ -157,7 +157,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
 
   testthat::expect_error(
     seqic_indicator_11(
-      df = df,
+      data = data,
       unique_incident_id = id,
       level = trauma_level,
       included_levels = c(T, F, NA),
@@ -171,7 +171,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
 })
 
 testthat::test_that("seqic_indicator_11 includes CI columns when calculate_ci is specified", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "II", "III", "IV", "II", "III"),
     transferred_out = rep(FALSE, 6),
@@ -181,7 +181,7 @@ testthat::test_that("seqic_indicator_11 includes CI columns when calculate_ci is
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     transfer_out_indicator = transferred_out,
@@ -196,7 +196,7 @@ testthat::test_that("seqic_indicator_11 includes CI columns when calculate_ci is
 })
 
 testthat::test_that("seqic_indicator_11 fails with both invalid and missing arguments", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:3,
     trauma_level = c("I", "II", "III"),
     transferred_out = c(FALSE, FALSE, FALSE),
@@ -207,7 +207,7 @@ testthat::test_that("seqic_indicator_11 fails with both invalid and missing argu
 
   testthat::expect_error(
     traumar::seqic_indicator_11(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       transfer_out_indicator = transferred_out,
@@ -221,7 +221,7 @@ testthat::test_that("seqic_indicator_11 fails with both invalid and missing argu
 })
 
 testthat::test_that("seqic_indicator_11 correctly filters and deduplicates input", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = c(1, 1, 2, 3),
     trauma_level = c("I", "I", "II", "III"),
     transferred_out = c(FALSE, FALSE, FALSE, TRUE),
@@ -231,7 +231,7 @@ testthat::test_that("seqic_indicator_11 correctly filters and deduplicates input
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III"),
     transfer_out_indicator = transferred_out,
@@ -245,7 +245,7 @@ testthat::test_that("seqic_indicator_11 correctly filters and deduplicates input
 })
 
 testthat::test_that("seqic_indicator_11 calculates correct numerator and denominator", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:4,
     trauma_level = c("I", "II", "II", "III"),
     transferred_out = c(FALSE, FALSE, FALSE, FALSE),
@@ -255,7 +255,7 @@ testthat::test_that("seqic_indicator_11 calculates correct numerator and denomin
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III"),
     transfer_out_indicator = transferred_out,
@@ -271,7 +271,7 @@ testthat::test_that("seqic_indicator_11 calculates correct numerator and denomin
 })
 
 testthat::test_that("seqic_indicator_11 appends CI columns when requested", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:10,
     trauma_level = rep("I", 10),
     transferred_out = rep(FALSE, 10),
@@ -281,7 +281,7 @@ testthat::test_that("seqic_indicator_11 appends CI columns when requested", {
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = "I",
     transfer_out_indicator = transferred_out,
@@ -296,7 +296,7 @@ testthat::test_that("seqic_indicator_11 appends CI columns when requested", {
 })
 
 testthat::test_that("seqic_indicator_11 includes 'population/sample' label if no grouping", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:3,
     trauma_level = c("I", "II", "III"),
     transferred_out = rep(FALSE, 3),
@@ -306,7 +306,7 @@ testthat::test_that("seqic_indicator_11 includes 'population/sample' label if no
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III"),
     transfer_out_indicator = transferred_out,
@@ -321,7 +321,7 @@ testthat::test_that("seqic_indicator_11 includes 'population/sample' label if no
 })
 
 testthat::test_that("seqic_indicator_11 orders by group variable if provided", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:4,
     trauma_level = c("II", "II", "I", "III"),
     transferred_out = rep(FALSE, 4),
@@ -332,7 +332,7 @@ testthat::test_that("seqic_indicator_11 orders by group variable if provided", {
   )
 
   res <- traumar::seqic_indicator_11(
-    df = df,
+    data = data,
     level = trauma_level,
     included_levels = c("I", "II", "III"),
     transfer_out_indicator = transferred_out,
@@ -343,5 +343,5 @@ testthat::test_that("seqic_indicator_11 orders by group variable if provided", {
     groups = "region"
   )
 
-  testthat::expect_equal(res$region, sort(df$region))
+  testthat::expect_equal(res$region, sort(data$region))
 })

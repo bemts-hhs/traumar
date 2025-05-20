@@ -6,6 +6,8 @@
 \alias{traumar-package}
 \title{traumar: Calculate Metrics for Trauma System Performance}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Hospitals, hospital systems, and even trauma systems that provide care to injured patients may not be aware of robust metrics that can help gauge the efficacy of their programs in saving the lives of injured patients. 'traumar' provides robust functions driven by the academic literature to automate the calculation of relevant metrics to individuals desiring to measure the performance of their trauma center or even a trauma system. 'traumar' also provides some helper functions for the data analysis journey. Users can refer to the following publications for descriptions of the methods used in 'traumar'. TRISS methodology, including probability of survival, and the W, M, and Z Scores - Flora (1978) \doi{10.1097/00005373-197810000-00003}, Boyd et al. (1987, PMID:3106646), Llullaku et al. (2009) \doi{10.1186/1749-7922-4-2}, Singh et al. (2011) \doi{10.4103/0974-2700.86626}, Baker et al. (1974, PMID:4814394), and Champion et al. (1989) \doi{10.1097/00005373-198905000-00017}. For the Relative Mortality Metric, see Napoli et al. (2017) \doi{10.1080/24725579.2017.1325948}, Schroeder et al. (2019) \doi{10.1080/10903127.2018.1489021}, and Kassar et al. (2016) \doi{10.1177/00031348221093563}. For more information about methods to calculate over- and under-triage in trauma hospital populations and samples, please see the following publications - Peng & Xiang (2016) \doi{10.1016/j.ajem.2016.08.061}, Beam et al. (2022) \doi{10.23937/2474-3674/1510136}, Roden-Foreman et al. (2017) \doi{10.1097/JTN.0000000000000283}.
 }
 \seealso{

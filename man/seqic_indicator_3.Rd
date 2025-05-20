@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 3 - Presence of Probability of Survival Calculations}
 \usage{
 seqic_indicator_3(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   trauma_type,
@@ -17,13 +17,13 @@ seqic_indicator_3(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{trauma_type}{A column name indicating the type of trauma. The function
 filters out "Burn" cases.}
@@ -97,7 +97,7 @@ test_data <- tibble::tibble(
 
 # Run the indicator function
 traumar::seqic_indicator_3(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   trauma_type = trauma_category,
   unique_incident_id = unique_id,

@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 2 – Missing Incident Time}
 \usage{
 seqic_indicator_2(
-  df,
+  data,
   unique_incident_id,
   level,
   included_levels = c("I", "II", "III", "IV"),
@@ -16,7 +16,7 @@ seqic_indicator_2(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -24,7 +24,7 @@ seqic_indicator_2(
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{incident_time}{The time the patient's injury occurred.}
 
@@ -90,7 +90,7 @@ data <- tibble::tibble(
 
 # Run the function
 traumar::seqic_indicator_2(
-  df = data,
+  data = data,
   unique_incident_id = incident_id,
   level = trauma_level,
   incident_time = incident_time,

@@ -67,7 +67,7 @@
 #'
 #' # Run the function
 #' traumar::seqic_indicator_11(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   transfer_out_indicator = transferred_out,
@@ -91,7 +91,7 @@
 #' @export
 
 seqic_indicator_11 <- function(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   transfer_out_indicator,
@@ -108,15 +108,25 @@ seqic_indicator_11 <- function(
   ###___________________________________________________________________________
 
   # Ensure input is a data frame or tibble
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
     cli::cli_abort(c(
-      "{.var df} must be a data frame or tibble.",
-      "i" = "You provided an object of class {.cls {class(df)}}."
+      "{.var data} must be a data frame or tibble.",
+      "i" = "You provided an object of class {.cls {class(data)}}."
     ))
   }
 
-  # Validate the `level` column
-  level_check <- df |> dplyr::pull({{ level }})
+  # make the `level` column accessible for validation
+  level_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ level }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var level}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_11())
+      )
+    }
+  )
   if (!is.character(level_check) && !is.factor(level_check)) {
     cli::cli_abort(c(
       "{.var level} must be character or factor.",
@@ -124,9 +134,18 @@ seqic_indicator_11 <- function(
     ))
   }
 
-  # Make the `unique_incident_id` column accessible for validation.
-  unique_incident_id_check <- df |>
-    dplyr::pull({{ unique_incident_id }})
+  # make the `unique_incident_id` column accessible for validation
+  unique_incident_id_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ unique_incident_id }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_11())
+      )
+    }
+  )
 
   # Validate `unique_incident_id` to ensure it's either character or factor.
   if (
@@ -143,7 +162,17 @@ seqic_indicator_11 <- function(
   }
 
   # Validate that `iss` is numeric.
-  iss_check <- df |> dplyr::pull({{ iss }})
+  iss_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ iss }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var iss}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_11())
+      )
+    }
+  )
   if (!is.numeric(iss_check)) {
     cli::cli_abort(c(
       "{.var iss} must be numeric when provided.",
@@ -152,8 +181,17 @@ seqic_indicator_11 <- function(
   }
 
   # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- df |>
-    dplyr::pull({{ transfer_out_indicator }})
+  transfer_out_indicator_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ transfer_out_indicator }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_11())
+      )
+    }
+  )
   if (
     !is.character(transfer_out_indicator_check) &&
       !is.factor(transfer_out_indicator_check) &&
@@ -168,7 +206,17 @@ seqic_indicator_11 <- function(
   }
 
   # Validate that `receiving_indicator` is character, factor, or logical.
-  receiving_indicator_check <- df |> dplyr::pull({{ receiving_indicator }})
+  receiving_indicator_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ receiving_indicator }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var receiving_indicator}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_11())
+      )
+    }
+  )
   if (
     !is.character(receiving_indicator_check) &&
       !is.factor(receiving_indicator_check) &&
@@ -183,7 +231,18 @@ seqic_indicator_11 <- function(
   }
 
   # Validate `ed_LOS`
-  ed_los_check <- df |> dplyr::pull({{ ed_LOS }})
+  ed_los_check <- # Validate `ed_LOS`
+    ed_los_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ ed_LOS }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var ed_LOS}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_11())
+        )
+      }
+    )
   if (!is.numeric(ed_los_check)) {
     cli::cli_abort(
       c(
@@ -203,9 +262,9 @@ seqic_indicator_11 <- function(
     }
   }
 
-  # Check if all groups exist in the `df`
-  if (!all(groups %in% names(df))) {
-    invalid_vars <- groups[!groups %in% names(df)]
+  # Check if all groups exist in the `data`
+  if (!all(groups %in% names(data))) {
+    invalid_vars <- groups[!groups %in% names(data)]
     cli::cli_abort(
       "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
     )
@@ -245,7 +304,7 @@ seqic_indicator_11 <- function(
   ###___________________________________________________________________________
 
   # Dynamically classify patients using either ISS or NFTI logic
-  df_prep <- df |>
+  data_prep <- data |>
     dplyr::filter(
       {{ level }} %in% included_levels,
       {{ transfer_out_indicator }} %in% c("No", FALSE),
@@ -263,7 +322,7 @@ seqic_indicator_11 <- function(
   ###___________________________________________________________________________
 
   # state 11
-  seqic_11 <- df_prep |>
+  seqic_11 <- data_prep |>
     dplyr::summarize(
       numerator_11 = sum(
         minor_trauma &

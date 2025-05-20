@@ -1,5 +1,5 @@
 test_that("data validation fails appropriately", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = as.character(1:3),
     trauma_level = c("I", "II", "III"),
     acute_transfer = rep("No", 3),
@@ -12,7 +12,7 @@ test_that("data validation fails appropriately", {
   # Not a data frame
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = list(),
+      data = list(),
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -25,10 +25,10 @@ test_that("data validation fails appropriately", {
   )
 
   # Level not character or factor
-  bad_df <- df |> dplyr::mutate(trauma_level = as.numeric(1:3))
+  bad_data <- data |> dplyr::mutate(trauma_level = as.numeric(1:3))
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -41,10 +41,10 @@ test_that("data validation fails appropriately", {
   )
 
   # unique_incident_id wrong class
-  bad_df <- df |> dplyr::mutate(id = as.Date("2023-01-01") + 0:2)
+  bad_data <- data |> dplyr::mutate(id = as.Date("2023-01-01") + 0:2)
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -57,10 +57,10 @@ test_that("data validation fails appropriately", {
   )
 
   # trauma_team_activation_level not character/factor
-  bad_df <- df |> dplyr::mutate(activation = as.Date("2023-01-01") + 0:2)
+  bad_data <- data |> dplyr::mutate(activation = as.Date("2023-01-01") + 0:2)
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -73,10 +73,10 @@ test_that("data validation fails appropriately", {
   )
 
   # trauma_team_activation_level not character/factor
-  bad_df <- df |> dplyr::mutate(acute_transfer = numeric(length = 3))
+  bad_data <- data |> dplyr::mutate(acute_transfer = numeric(length = 3))
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -89,10 +89,10 @@ test_that("data validation fails appropriately", {
   )
 
   # iss is not numeric
-  bad_df <- df |> dplyr::mutate(iss = as.character(iss))
+  bad_data <- data |> dplyr::mutate(iss = as.character(iss))
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -105,10 +105,10 @@ test_that("data validation fails appropriately", {
   )
 
   # nfti wrong class
-  bad_df <- df |> dplyr::mutate(nfti = as.Date("2023-01-01") + 0:2)
+  bad_data <- data |> dplyr::mutate(nfti = as.Date("2023-01-01") + 0:2)
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -123,7 +123,7 @@ test_that("data validation fails appropriately", {
   # groups not character
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -139,7 +139,7 @@ test_that("data validation fails appropriately", {
   # groups has invalid column names
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -155,7 +155,7 @@ test_that("data validation fails appropriately", {
   # calculate_ci invalid
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = c("I", "II", "III", "IV"),
       unique_incident_id = id,
@@ -171,7 +171,7 @@ test_that("data validation fails appropriately", {
   # included_levels wrong type
   testthat::expect_error(
     traumar::seqic_indicator_10(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = list("I", "II"),
       unique_incident_id = id,
@@ -195,7 +195,7 @@ test_that("SEQIC Indicator 10a, 10b, 10c calculate correctly", {
   )
 
   result <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,
@@ -258,7 +258,7 @@ test_that("Model diagnostic statistics are calculated correctly", {
   )
 
   result <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,
@@ -305,7 +305,7 @@ test_that("Function includes triage logic indicator", {
   )
 
   res <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,
@@ -328,7 +328,7 @@ test_that("Confidence intervals are returned when requested", {
   )
 
   res <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I"),
     unique_incident_id = id,
@@ -359,7 +359,7 @@ testthat::test_that("classification works with ISS only", {
   )
 
   res <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     unique_incident_id = id,
     level = trauma_level,
     transfer_out_indicator = acute_transfer,
@@ -402,7 +402,7 @@ testthat::test_that("classification works with NFTI only", {
   )
 
   res <- traumar::seqic_indicator_10(
-    df = test_data,
+    data = test_data,
     unique_incident_id = id,
     level = trauma_level,
     transfer_out_indicator = acute_transfer,
@@ -447,7 +447,7 @@ testthat::test_that("error is thrown when both ISS and NFTI are supplied", {
 
   expect_error(
     traumar::seqic_indicator_10(
-      df = test_data,
+      data = test_data,
       unique_incident_id = id,
       transfer_out_indicator = acute_transfer,
       level = trauma_level,
@@ -455,6 +455,6 @@ testthat::test_that("error is thrown when both ISS and NFTI are supplied", {
       trauma_team_activation_level = activation,
       nfti = NFTI
     ),
-    "Please supply exactly one of.*not both"
+    "Please supply exactly one of"
   )
 })

@@ -1,5 +1,5 @@
 testthat::test_that("seqic_indicator_9() validates input types correctly", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:3,
     trauma_level = c("I", "II", "III"),
     transport = c("Ambulance", "Ambulance", "Private"),
@@ -11,10 +11,10 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
     risk = c("High", "Moderate", "Low")
   )
 
-  # df is not a data.frame or tibble
+  # data is not a data.frame or tibble
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df = as.matrix(df),
+      data = as.matrix(data),
       level = trauma_level,
       included_levels = c("I", "II", "III"),
       unique_incident_id = id,
@@ -30,10 +30,10 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
   )
 
   # level column invalid type
-  bad_df <- dplyr::mutate(df, trauma_level = as.numeric(1:3))
+  bad_data <- dplyr::mutate(data, trauma_level = as.numeric(1:3))
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III"),
       unique_incident_id = id,
@@ -49,10 +49,10 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
   )
 
   # unique_incident_id wrong class
-  bad_df <- dplyr::mutate(df, id = list(1, 2, 3)) # list column
+  bad_data <- dplyr::mutate(data, id = list(1, 2, 3)) # list column
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III"),
       unique_incident_id = id,
@@ -68,10 +68,10 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
   )
 
   # transfer_out_indicator wrong class
-  bad_df <- dplyr::mutate(df, transfer_out = as.Date("2024-01-01") + 0:2)
+  bad_data <- dplyr::mutate(data, transfer_out = as.Date("2024-01-01") + 0:2)
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III"),
       unique_incident_id = id,
@@ -87,10 +87,10 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
   )
 
   # ed_LOS not numeric
-  bad_df <- dplyr::mutate(df, ed_LOS = as.character(ed_LOS))
+  bad_data <- dplyr::mutate(data, ed_LOS = as.character(ed_LOS))
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       included_levels = c("I", "II", "III"),
       unique_incident_id = id,
@@ -107,7 +107,7 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
 })
 
 testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
-  df <- dplyr::tibble(
+  data <- dplyr::tibble(
     incident_id = "G",
     probability_of_survival = 0.95,
     trauma_center_level = "I",
@@ -123,7 +123,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   # ed_decision_LOS must be numeric
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -138,11 +138,11 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   )
 
   # ed_decision_discharge_LOS must be numeric
-  df$ed_decision_LOS <- 2.0
-  df$ed_decision_discharge_LOS <- "1.5 hours"
+  data$ed_decision_LOS <- 2.0
+  data$ed_decision_discharge_LOS <- "1.5 hours"
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -157,10 +157,10 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   )
 
   # trauma_team_activated must be character, factor, or logical
-  df$ed_decision_discharge_LOS <- 1.5
+  data$ed_decision_discharge_LOS <- 1.5
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -175,10 +175,10 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   )
 
   # risk_group must be character or factor
-  df$trauma_team_activated <- "Yes"
+  data$trauma_team_activated <- "Yes"
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -193,10 +193,10 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   )
 
   # groups must be character vector
-  df$risk_group <- "Low"
+  data$risk_group <- "Low"
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -211,10 +211,10 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
     "groups.*strings"
   )
 
-  # groups must exist in df
+  # groups must exist in data
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -232,7 +232,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   # calculate_ci must be "wilson" or "clopper-pearson"
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -250,7 +250,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
   # included_levels must be character, numeric, or factor
   testthat::expect_error(
     traumar::seqic_indicator_9(
-      df,
+      data,
       level = trauma_center_level,
       transfer_out_indicator = transfer_out,
       transport_method = transport_method,
@@ -287,7 +287,7 @@ testthat::test_that("seqic_indicator_9 filtering and flags behave as expected", 
   )
 
   result <- traumar::seqic_indicator_9(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,
@@ -300,22 +300,22 @@ testthat::test_that("seqic_indicator_9 filtering and flags behave as expected", 
     risk_group = risk
   )
 
-  prep_df <- result$overall
+  prep_data <- result$overall
 
   # Expect only records with trauma level I-IV and valid transport
-  testthat::expect_equal(nrow(prep_df), 1)
+  testthat::expect_equal(nrow(prep_data), 1)
 
   # Validate numerator counts
-  testthat::expect_equal(prep_df$numerator_9a_all, 1) # ed_LOS > 120
-  testthat::expect_equal(prep_df$numerator_9b_all, 0) # ed_LOS > 180
-  testthat::expect_equal(prep_df$numerator_9c_all, 1) # ed_decision > 60
-  testthat::expect_equal(prep_df$numerator_9d_all, 0) # ed_decision > 120
-  testthat::expect_equal(prep_df$numerator_9e_all, 1) # ed_discharge > 60
-  testthat::expect_equal(prep_df$numerator_9f_all, 1) # ed_discharge > 120
+  testthat::expect_equal(prep_data$numerator_9a_all, 1) # ed_LOS > 120
+  testthat::expect_equal(prep_data$numerator_9b_all, 0) # ed_LOS > 180
+  testthat::expect_equal(prep_data$numerator_9c_all, 1) # ed_decision > 60
+  testthat::expect_equal(prep_data$numerator_9d_all, 0) # ed_decision > 120
+  testthat::expect_equal(prep_data$numerator_9e_all, 1) # ed_discharge > 60
+  testthat::expect_equal(prep_data$numerator_9f_all, 1) # ed_discharge > 120
 
   # Validate denominators match count of eligible filtered records
-  testthat::expect_equal(prep_df$denominator_9a_all, 1)
-  testthat::expect_equal(prep_df$denominator_9b_all, 1)
+  testthat::expect_equal(prep_data$denominator_9a_all, 1)
+  testthat::expect_equal(prep_data$denominator_9b_all, 1)
 })
 
 testthat::test_that("regex transport exclusion works", {
@@ -343,7 +343,7 @@ testthat::test_that("regex transport exclusion works", {
   )
 
   result <- traumar::seqic_indicator_9(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,
@@ -362,7 +362,7 @@ testthat::test_that("regex transport exclusion works", {
 
 testthat::test_that("CI computation for seqic_indicator_9() returns expected columns and structure", {
   # Simulated data
-  test_df <- tibble::tibble(
+  test_data <- tibble::tibble(
     id = as.character(1:6),
     trauma_level = c("I", "II", "III", "IV", "I", "II"),
     transport = c(
@@ -383,7 +383,7 @@ testthat::test_that("CI computation for seqic_indicator_9() returns expected col
 
   # Run function with CI enabled
   result <- traumar::seqic_indicator_9(
-    df = test_df,
+    data = test_data,
     level = trauma_level,
     included_levels = c("I", "II", "III", "IV"),
     unique_incident_id = id,

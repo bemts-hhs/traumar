@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 4 - Autopsy and Long LOS Without Autopsy}
 \usage{
 seqic_indicator_4(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   ed_disposition,
@@ -20,13 +20,13 @@ seqic_indicator_4(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{ed_disposition}{Column representing the emergency department
 disposition. For a record to be picked up in this function, the ED
@@ -136,7 +136,7 @@ test_data <- tibble::tibble(
 
 # Run the indicator function
 traumar::seqic_indicator_4(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   ed_disposition = ed_disp,
   ed_LOS = ed_los,

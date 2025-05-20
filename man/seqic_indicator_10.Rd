@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 10 – Trauma Team Activation Appropriateness}
 \usage{
 seqic_indicator_10(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
@@ -19,13 +19,13 @@ seqic_indicator_10(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -122,7 +122,7 @@ test_data <- tibble::tibble(
 
 # Run the function, this will succeed
 traumar::seqic_indicator_10(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,
@@ -137,7 +137,7 @@ traumar::seqic_indicator_10(
 # Run the function, this will fail
 try(
   traumar::seqic_indicator_10(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,

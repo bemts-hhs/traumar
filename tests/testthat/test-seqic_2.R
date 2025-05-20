@@ -1,24 +1,24 @@
-testthat::test_that("seqic_indicator_2() validates `df` input type", {
+testthat::test_that("seqic_indicator_2() validates `data` input type", {
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = "not_a_df",
+      data = "not_a_data",
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
     ),
-    "df.*must be of class"
+    "data.*must be of class"
   )
 })
 
 testthat::test_that("seqic_indicator_2() validates `unique_incident_id` column type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = logical(length = 1),
     trauma_level = "I",
     incident_time = Sys.time() # invalid type
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
@@ -28,14 +28,14 @@ testthat::test_that("seqic_indicator_2() validates `unique_incident_id` column t
 })
 
 testthat::test_that("seqic_indicator_2() validates `incident_time` column type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = "I",
     incident_time = 12345 # invalid type
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
@@ -45,14 +45,14 @@ testthat::test_that("seqic_indicator_2() validates `incident_time` column type",
 })
 
 testthat::test_that("seqic_indicator_2() validates `level` column type", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = 3, # numeric, invalid
     incident_time = Sys.time()
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
@@ -62,14 +62,14 @@ testthat::test_that("seqic_indicator_2() validates `level` column type", {
 })
 
 testthat::test_that("seqic_indicator_2() validates `groups` is character vector", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = "I",
     incident_time = Sys.time()
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time,
@@ -79,15 +79,15 @@ testthat::test_that("seqic_indicator_2() validates `groups` is character vector"
   )
 })
 
-testthat::test_that("seqic_indicator_2() validates `groups` exist in df", {
-  df <- tibble::tibble(
+testthat::test_that("seqic_indicator_2() validates `groups` exist in data", {
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = "I",
     incident_time = Sys.time()
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time,
@@ -98,14 +98,14 @@ testthat::test_that("seqic_indicator_2() validates `groups` exist in df", {
 })
 
 testthat::test_that("seqic_indicator_2() validates `calculate_ci` options", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = "I",
     incident_time = Sys.time()
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time,
@@ -116,14 +116,14 @@ testthat::test_that("seqic_indicator_2() validates `calculate_ci` options", {
 })
 
 testthat::test_that("seqic_indicator_2() validates `included_levels` class", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = 1,
     trauma_level = "I",
     incident_time = Sys.time()
   )
   testthat::expect_error(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time,
@@ -134,7 +134,7 @@ testthat::test_that("seqic_indicator_2() validates `included_levels` class", {
 })
 
 testthat::test_that("seqic_indicator_2 basic calculations work", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = c("A", "B", "C", "D", "E"),
     trauma_level = c("I", "II", "III", "V", "II"),
     incident_time = as.POSIXct(c(
@@ -147,7 +147,7 @@ testthat::test_that("seqic_indicator_2 basic calculations work", {
   )
 
   result <- traumar::seqic_indicator_2(
-    df = df,
+    data = data,
     unique_incident_id = incident_id,
     level = trauma_level,
     incident_time = incident_time
@@ -160,7 +160,7 @@ testthat::test_that("seqic_indicator_2 basic calculations work", {
 })
 
 testthat::test_that("seqic_indicator_2 handles confidence intervals", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = c("A", "B", "C", "D"),
     trauma_level = c("I", "II", "III", "IV"),
     incident_time = as.POSIXct(c(
@@ -172,7 +172,7 @@ testthat::test_that("seqic_indicator_2 handles confidence intervals", {
   )
 
   result <- traumar::seqic_indicator_2(
-    df = df,
+    data = data,
     unique_incident_id = incident_id,
     level = trauma_level,
     incident_time = incident_time,
@@ -186,7 +186,7 @@ testthat::test_that("seqic_indicator_2 handles confidence intervals", {
 })
 
 testthat::test_that("seqic_indicator_2 respects grouping", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = c("A", "B", "C", "D", "E", "F"),
     trauma_level = c("I", "I", "II", "II", "III", "III"),
     region = c("East", "East", "West", "West", "East", "East"),
@@ -194,7 +194,7 @@ testthat::test_that("seqic_indicator_2 respects grouping", {
   )
 
   result <- traumar::seqic_indicator_2(
-    df = df,
+    data = data,
     unique_incident_id = incident_id,
     level = trauma_level,
     incident_time = incident_time,
@@ -207,7 +207,7 @@ testthat::test_that("seqic_indicator_2 respects grouping", {
 })
 
 testthat::test_that("seqic_indicator_2 handles character incident_time (invalid)", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = c("A", "B"),
     trauma_level = c("I", "II"),
     incident_time = c(NA, "2023-01-01 12:00") # Not POSIXct
@@ -215,7 +215,7 @@ testthat::test_that("seqic_indicator_2 handles character incident_time (invalid)
 
   testthat::expect_warning(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
@@ -225,7 +225,7 @@ testthat::test_that("seqic_indicator_2 handles character incident_time (invalid)
 
   result <- suppressWarnings(
     traumar::seqic_indicator_2(
-      df = df,
+      data = data,
       unique_incident_id = incident_id,
       level = trauma_level,
       incident_time = incident_time
@@ -236,14 +236,14 @@ testthat::test_that("seqic_indicator_2 handles character incident_time (invalid)
 })
 
 testthat::test_that("seqic_indicator_2 returns label if not grouped", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     incident_id = c("A", "B"),
     trauma_level = c("I", "II"),
     incident_time = as.POSIXct(c(NA, "2023-01-01 12:00"))
   )
 
   result <- traumar::seqic_indicator_2(
-    df = df,
+    data = data,
     unique_incident_id = incident_id,
     level = trauma_level,
     incident_time = incident_time

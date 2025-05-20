@@ -1,15 +1,15 @@
 testthat::test_that("seqic_indicator_3: input validation", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     trauma_level = c("I", "II"),
     trauma_category = c("Blunt", "Penetrating"),
     unique_id = 1:2,
     survival_prob = c(0.9, 0.8)
   )
 
-  # Invalid df
+  # Invalid data
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = "not_a_df",
+      data = "not_a_data",
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -19,7 +19,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   )
 
   # Set up error prone logical unique id
-  logical_df <- tibble::tibble(
+  logical_data <- tibble::tibble(
     trauma_level = c("I", "II"),
     trauma_category = c("Blunt", "Penetrating"),
     unique_id = logical(length = 2),
@@ -29,7 +29,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   # Invalid unique_id
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = logical_df,
+      data = logical_data,
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -39,7 +39,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   )
 
   # Invalid level
-  bad_df <- tibble::tibble(
+  bad_data <- tibble::tibble(
     level = c(1L, 2L), # integer instead of character/factor
     trauma_type = c("Blunt", "Burn"),
     unique_id = c("1", "2"),
@@ -48,7 +48,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
 
   expect_error(
     traumar::seqic_indicator_3(
-      df = bad_df,
+      data = bad_data,
       level = level,
       trauma_type = trauma_type,
       unique_incident_id = unique_id,
@@ -58,7 +58,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   )
 
   # Invalid groups
-  valid_df <- tibble::tibble(
+  valid_data <- tibble::tibble(
     level = factor(c("I", "II")),
     trauma_type = c("Blunt", "Penetrating"),
     unique_id = c("1", "2"),
@@ -67,7 +67,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
 
   expect_error(
     traumar::seqic_indicator_3(
-      df = valid_df,
+      data = valid_data,
       level = level,
       trauma_type = trauma_type,
       unique_incident_id = unique_id,
@@ -78,10 +78,10 @@ testthat::test_that("seqic_indicator_3: input validation", {
   )
 
   # Invalid trauma_type
-  bad_df <- dplyr::mutate(df, trauma_category = as.numeric(c(1, 2)))
+  bad_data <- dplyr::mutate(data, trauma_category = as.numeric(c(1, 2)))
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -91,10 +91,10 @@ testthat::test_that("seqic_indicator_3: input validation", {
   )
 
   # Invalid probability_of_survival
-  bad_df <- dplyr::mutate(df, survival_prob = as.character(survival_prob))
+  bad_data <- dplyr::mutate(data, survival_prob = as.character(survival_prob))
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -106,7 +106,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   # Invalid group var
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = df,
+      data = data,
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -119,7 +119,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
   # Invalid calculate_ci
   testthat::expect_error(
     traumar::seqic_indicator_3(
-      df = df,
+      data = data,
       level = trauma_level,
       trauma_type = trauma_category,
       unique_incident_id = unique_id,
@@ -131,7 +131,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
 })
 
 testthat::test_that("seqic_indicator_3: basic logic", {
-  test_df <- tibble::tibble(
+  test_data <- tibble::tibble(
     unique_id = c("1", "2", "3", "4", "5", "6"),
     trauma_level = c("I", "II", "III", "IV", "I", "III"),
     trauma_category = c(
@@ -146,7 +146,7 @@ testthat::test_that("seqic_indicator_3: basic logic", {
   )
 
   res <- traumar::seqic_indicator_3(
-    df = test_df,
+    data = test_data,
     level = trauma_level,
     trauma_type = trauma_category,
     unique_incident_id = unique_id,
@@ -165,7 +165,7 @@ testthat::test_that("seqic_indicator_3: basic logic", {
 })
 
 testthat::test_that("seqic_indicator_3: grouped results and confidence intervals", {
-  test_df <- tibble::tibble(
+  test_data <- tibble::tibble(
     unique_id = as.character(1:6),
     trauma_level = c("I", "I", "II", "II", "III", "IV"),
     trauma_category = c(
@@ -180,7 +180,7 @@ testthat::test_that("seqic_indicator_3: grouped results and confidence intervals
   )
 
   res <- traumar::seqic_indicator_3(
-    df = test_df,
+    data = test_data,
     level = trauma_level,
     trauma_type = trauma_category,
     unique_incident_id = unique_id,

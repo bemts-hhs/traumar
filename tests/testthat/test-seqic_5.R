@@ -1,16 +1,16 @@
 testthat::test_that("seqic_indicator_5() data validation errors", {
   # Minimal valid input for baseline
-  valid_df <- tibble::tibble(
+  valid_data <- tibble::tibble(
     level = factor(c("I", "II")),
     id = c("a", "b"),
     bac = c(0.08, 0),
     drug = c("opioid", "none")
   )
 
-  # df must be a data.frame or tibble
+  # data must be a data.frame or tibble
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = list(),
+      data = list(),
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -20,10 +20,10 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   )
 
   # level must be character or factor
-  df_bad_level <- dplyr::mutate(valid_df, level = as.numeric(c(1, 2)))
+  data_bad_level <- dplyr::mutate(valid_data, level = as.numeric(c(1, 2)))
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = df_bad_level,
+      data = data_bad_level,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -33,10 +33,10 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   )
 
   # unique_incident_id must be character, factor, or numeric
-  df_bad_id <- dplyr::mutate(valid_df, id = list(1:2))
+  data_bad_id <- dplyr::mutate(valid_data, id = list(1:2))
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = df_bad_id,
+      data = data_bad_id,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -46,10 +46,10 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   )
 
   # blood_alcohol_content must be numeric
-  df_bad_bac <- dplyr::mutate(valid_df, bac = c("yes", "no"))
+  data_bad_bac <- dplyr::mutate(valid_data, bac = c("yes", "no"))
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = df_bad_bac,
+      data = data_bad_bac,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -59,13 +59,13 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   )
 
   # drug_screen must be character or factor
-  df_bad_drug <- dplyr::mutate(
-    valid_df,
+  data_bad_drug <- dplyr::mutate(
+    valid_data,
     drug = as.Date(c("2022-01-01", "2022-01-02"))
   )
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = df_bad_drug,
+      data = data_bad_drug,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -77,7 +77,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   # groups must be character vector
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = valid_df,
+      data = valid_data,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -87,23 +87,23 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
     "All elements in .*groups.* must be strings"
   )
 
-  # groups must exist in df
+  # groups must exist in data
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = valid_df,
+      data = valid_data,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
       drug_screen = drug,
       groups = "nonexistent_column"
     ),
-    "not valid columns in .*df"
+    "not valid columns in .*data"
   )
 
   # calculate_ci must be "wilson", "clopper-pearson", or NULL
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = valid_df,
+      data = valid_data,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -116,7 +116,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
   # included_levels must be character, numeric, or factor
   testthat::expect_error(
     traumar::seqic_indicator_5(
-      df = valid_df,
+      data = valid_data,
       level = level,
       unique_incident_id = id,
       blood_alcohol_content = bac,
@@ -147,7 +147,7 @@ testthat::test_that("seqic_indicator_5() computes indicators correctly", {
   )
 
   result <- traumar::seqic_indicator_5(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     unique_incident_id = id,
     blood_alcohol_content = bac,
@@ -197,7 +197,7 @@ testthat::test_that("seqic_indicator_5() handles empty input after filter", {
   )
 
   result <- traumar::seqic_indicator_5(
-    df = empty_data,
+    data = empty_data,
     level = trauma_level,
     unique_incident_id = id,
     blood_alcohol_content = bac,
@@ -222,7 +222,7 @@ testthat::test_that("seqic_indicator_5() returns confidence intervals if request
   )
 
   result <- traumar::seqic_indicator_5(
-    df = test_data,
+    data = test_data,
     level = trauma_level,
     unique_incident_id = id,
     blood_alcohol_content = bac,
@@ -249,7 +249,7 @@ testthat::test_that("seqic_indicator_5() works with groupings", {
   )
 
   result <- traumar::seqic_indicator_5(
-    df = grouped_data,
+    data = grouped_data,
     level = trauma_level,
     unique_incident_id = id,
     blood_alcohol_content = bac,

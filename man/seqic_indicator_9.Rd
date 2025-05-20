@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 9 - Emergency Department Transfer Timeliness}
 \usage{
 seqic_indicator_9(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   transfer_out_indicator,
@@ -22,13 +22,13 @@ seqic_indicator_9(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{transfer_out_indicator}{Column name indicating whether the patient was
 transferred out of the initial trauma center to definitive care. Logical,
@@ -176,7 +176,7 @@ test_data <- tibble::tibble(
 
 # Run the function, and store as a list object
 seqic_9_result <- traumar::seqic_indicator_9(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,

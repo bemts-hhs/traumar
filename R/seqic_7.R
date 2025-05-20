@@ -52,7 +52,7 @@
 #'
 #' # Run the indicator function
 #' traumar::seqic_indicator_7(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   unique_incident_id = id,
 #'   time_from_injury_to_arrival = time_to_arrival,
@@ -63,7 +63,7 @@
 #'
 #' @export
 seqic_indicator_7 <- function(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
@@ -77,18 +77,28 @@ seqic_indicator_7 <- function(
   ### Data validation
   ###___________________________________________________________________________
 
-  # Validate that `df` is a data frame or tibble.
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+  # Validate that `data` is a data frame or tibble.
+  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
     cli::cli_abort(
       c(
-        "{.var df} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var df} was an object of class {.cls {class(df)}}."
+        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
+        "i" = "{.var data} was an object of class {.cls {class(data)}}."
       )
     )
   }
 
-  # Validate that `level` column is character or factor.
-  level_check <- df |> dplyr::pull({{ level }})
+  # make the `level` column accessible for validation
+  level_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ level }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var level}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_7())
+      )
+    }
+  )
   if (!is.character(level_check) && !is.factor(level_check)) {
     cli::cli_abort(
       c(
@@ -98,9 +108,18 @@ seqic_indicator_7 <- function(
     )
   }
 
-  # Make the `unique_incident_id` column accessible for validation.
-  unique_incident_id_check <- df |>
-    dplyr::pull({{ unique_incident_id }})
+  # make the `unique_incident_id` column accessible for validation
+  unique_incident_id_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ unique_incident_id }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_7())
+      )
+    }
+  )
 
   # Validate `unique_incident_id` to ensure it's either character or factor.
   if (
@@ -117,8 +136,17 @@ seqic_indicator_7 <- function(
   }
 
   # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- df |>
-    dplyr::pull({{ transfer_out_indicator }})
+  transfer_out_indicator_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ transfer_out_indicator }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_7())
+      )
+    }
+  )
   if (
     !is.character(transfer_out_indicator_check) &&
       !is.factor(transfer_out_indicator_check) &&
@@ -133,8 +161,17 @@ seqic_indicator_7 <- function(
   }
 
   # Validate that `time_from_injury_to_arrival` is numeric.
-  time_from_injury_to_arrival_check <- df |>
-    dplyr::pull({{ time_from_injury_to_arrival }})
+  time_from_injury_to_arrival_check <- tryCatch(
+    {
+      data |> dplyr::pull({{ time_from_injury_to_arrival }})
+    },
+    error = function(e) {
+      cli::cli_abort(
+        "It was not possible to validate {.var time_from_injury_to_arrival}, please check this column in the function call.",
+        call = rlang::expr(seqic_indicator_7())
+      )
+    }
+  )
   if (!is.numeric(time_from_injury_to_arrival_check)) {
     cli::cli_abort(
       c(
@@ -154,11 +191,11 @@ seqic_indicator_7 <- function(
     }
   }
 
-  # Check if all groups exist in the `df`
-  if (!all(groups %in% names(df))) {
-    invalid_vars <- groups[!groups %in% names(df)]
+  # Check if all groups exist in the `data`
+  if (!all(groups %in% names(data))) {
+    invalid_vars <- groups[!groups %in% names(data)]
     cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var df}: {paste(invalid_vars, collapse = ', ')}"
+      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
     )
   }
 
@@ -199,7 +236,7 @@ seqic_indicator_7 <- function(
   ###___________________________________________________________________________
 
   # Filter only trauma center levels I–IV
-  seqic_7 <- df |>
+  seqic_7 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
 
     # Deduplicate records by unique incident ID

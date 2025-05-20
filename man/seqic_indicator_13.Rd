@@ -5,7 +5,7 @@
 \title{SEQIC Indicator 13 – Validation of  Trauma Registry Records}
 \usage{
 seqic_indicator_13(
-  df,
+  data,
   level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id,
@@ -17,13 +17,13 @@ seqic_indicator_13(
 )
 }
 \arguments{
-\item{df}{A data frame containing trauma incident records.}
+\item{data}{A data frame containing trauma incident records.}
 
 \item{level}{Column indicating the trauma center designation level (e.g., I,
 II, III, IV).}
 
 \item{included_levels}{Character vector indicating what facility levels to
-include in the anlaysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
+include in the analysis.  Defaults to \code{c("I", "II", "III", "IV")}.}
 
 \item{unique_incident_id}{Unique identifier for each record.}
 
@@ -102,7 +102,7 @@ test_data <- tibble::tibble(
 
 # Run the function
 traumar::seqic_indicator_13(
-  df = test_data,
+  data = test_data,
   level = trauma_level,
   included_levels = c("I", "II", "III", "IV"),
   unique_incident_id = id,

@@ -1,6 +1,7 @@
 # traumar 1.2.0
 
 - This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.
+- Added a [Contributor Code of Conduct](https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html) and support information. 
 _ Additionally, a convenience function `is_it_normal()` provides the ability for users of `traumar` to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in `is_it_normal()` to conduct exploratory data analysis of one or more variables within zero or more groups.
 - Added the following functions:
   - `seqic_indicator_1()`
@@ -25,9 +26,9 @@ _ Additionally, a convenience function `is_it_normal()` provides the ability for
 - Updated data validation for `trauma_case_mix()`, `trauma_performance()`, `nonlinear_bins()`, `rmm()`, and `rm_bin_summary()` to provide improved messaging related to missings in `Ps_col` and `outcome_col` .
 - Across functions using the probability of survival calculation, it is expected that Ps values have a range of [0, 1].  Functions will no longer handle values in percentage format (e.g. 10, 50, 98).
 - The `outcome` argument was removed from `trauma_performance()` to remove ambiguity in the nature of the `outcome_col` values. Only values of `TRUE/FALSE` and `1/0` are accepted.
-- The `diagnostics` argument was removed from `trauma_performance()` to make the user interface smoother.  Instead of providing guidance via outputs the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.
-- `trauma_performance()` will no longer provide a pivoted output as a default.  Users can elect to pivot the outputs as needed.
-- `rmm()` and `rm_bin_summary()` now have a new argument `bootstrap_ci` that allows a user to elect to use the additional functionality, or not.  `bootstrap_ci` defaults to `TRUE` in order to better support backward compatibility.
+- The `diagnostics` argument was removed from `trauma_performance()` to make the user interface smoother.  Instead of providing guidance via outputs to the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.
+- `trauma_performance()` will no longer provide a pivoted output as a default.  Users can elect to pivot the outputs as needed in their workflows.
+- `rmm()` and `rm_bin_summary()` now have a new argument `bootstrap_ci` that allows a user to elect to use the bootstrap CIs, or not.  `bootstrap_ci` defaults to `TRUE` in order to better support backward compatibility.
 
 # traumar 1.1.0
 

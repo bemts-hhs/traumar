@@ -22,7 +22,7 @@ library(traumar)
 [![Codecov test coverage](https://codecov.io/gh/bemts-hhs/traumar/graph/badge.svg)](https://app.codecov.io/gh/bemts-hhs/traumar)
 <!-- badges: end -->
 
-# traumar <img src="man/figures/try_object.png" align="right" width="200" style="display: block; margin: auto;" />
+# traumar <a href="https://bemts-hhs.github.io/traumar/"><img src="man/figures/logo.png" align="right" height="137" alt="traumar website" /></a>
 
 Continuous Quality Improvement (CQI) and Process Improvement (PI) are essential
 pillars of healthcare, particularly in the care of injured patients. However,
@@ -239,3 +239,7 @@ rm_bin_summary(data = data,
                )
 
 ```
+
+## Code of Conduct
+
+Please note that the traumar project is released with a [Contributor Code of Conduct](https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.

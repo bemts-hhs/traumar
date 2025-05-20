@@ -1,6 +1,6 @@
 # test-seqic_indicator_12.R
 testthat::test_that("seqic_indicator_12: input validation", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:3,
     trauma_level = c("I", "II", "III"),
     facility = c("A", "B", "C"),
@@ -9,7 +9,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = "not a df",
+      data = "not a data",
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -18,10 +18,10 @@ testthat::test_that("seqic_indicator_12: input validation", {
     "must be a data frame"
   )
 
-  bad_id <- df |> dplyr::mutate(id = logical(3))
+  bad_id <- data |> dplyr::mutate(id = logical(3))
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = bad_id,
+      data = bad_id,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -32,7 +32,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -44,7 +44,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -56,7 +56,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -68,7 +68,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       included_levels = c(T, F, NA),
       facility_id = facility,
@@ -80,7 +80,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -90,10 +90,10 @@ testthat::test_that("seqic_indicator_12: input validation", {
     "must be character.*numeric.*factor"
   )
 
-  bad_df <- df |> dplyr::mutate(trauma_level = as.numeric(1:3))
+  bad_data <- data |> dplyr::mutate(trauma_level = as.numeric(1:3))
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = bad_df,
+      data = bad_data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -102,10 +102,10 @@ testthat::test_that("seqic_indicator_12: input validation", {
     "must be character or factor"
   )
 
-  bad_df2 <- df |> dplyr::mutate(facility = list(1, 2, 3))
+  bad_data2 <- data |> dplyr::mutate(facility = list(1, 2, 3))
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = bad_df2,
+      data = bad_data2,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -114,10 +114,10 @@ testthat::test_that("seqic_indicator_12: input validation", {
     "must be of class"
   )
 
-  bad_delay <- df |> dplyr::mutate(data_entry_delay = character(3))
+  bad_delay <- data |> dplyr::mutate(data_entry_delay = character(3))
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = bad_delay,
+      data = bad_delay,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -128,7 +128,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -140,7 +140,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 
   testthat::expect_error(
     traumar::seqic_indicator_12(
-      df = df,
+      data = data,
       level = trauma_level,
       facility_id = facility,
       unique_incident_id = id,
@@ -152,7 +152,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
 })
 
 testthat::test_that("seqic_indicator_12: basic calculation", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:4,
     trauma_level = c("I", "II", "III", "IV"),
     facility = c("A", "B", "C", "D"),
@@ -160,7 +160,7 @@ testthat::test_that("seqic_indicator_12: basic calculation", {
   )
 
   res <- traumar::seqic_indicator_12(
-    df = df,
+    data = data,
     level = trauma_level,
     facility_id = facility,
     unique_incident_id = id,
@@ -175,7 +175,7 @@ testthat::test_that("seqic_indicator_12: basic calculation", {
 })
 
 testthat::test_that("seqic_indicator_12: excluded facilities are removed", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:4,
     trauma_level = c("I", "II", "III", "IV"),
     facility = c("A", "B", "C", "D"),
@@ -183,7 +183,7 @@ testthat::test_that("seqic_indicator_12: excluded facilities are removed", {
   )
 
   res <- traumar::seqic_indicator_12(
-    df = df,
+    data = data,
     level = trauma_level,
     facility_id = facility,
     unique_incident_id = id,
@@ -197,7 +197,7 @@ testthat::test_that("seqic_indicator_12: excluded facilities are removed", {
 })
 
 testthat::test_that("seqic_indicator_12: works with grouping", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:6,
     trauma_level = c("I", "I", "II", "II", "III", "III"),
     facility = c("X", "X", "Y", "Y", "Z", "Z"),
@@ -206,7 +206,7 @@ testthat::test_that("seqic_indicator_12: works with grouping", {
   )
 
   res <- traumar::seqic_indicator_12(
-    df = df,
+    data = data,
     level = trauma_level,
     facility_id = facility,
     unique_incident_id = id,
@@ -227,7 +227,7 @@ testthat::test_that("seqic_indicator_12: works with grouping", {
 })
 
 testthat::test_that("seqic_indicator_12: confidence intervals are added", {
-  df <- tibble::tibble(
+  data <- tibble::tibble(
     id = 1:10,
     trauma_level = rep("I", 10),
     facility = rep("A", 10),
@@ -235,7 +235,7 @@ testthat::test_that("seqic_indicator_12: confidence intervals are added", {
   )
 
   res <- traumar::seqic_indicator_12(
-    df = df,
+    data = data,
     level = trauma_level,
     facility_id = facility,
     unique_incident_id = id,

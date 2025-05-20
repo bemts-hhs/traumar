@@ -65,7 +65,7 @@
 #'
 #' # Run the function
 #' traumar::seqic_indicator_12(
-#'   df = test_data,
+#'   data = test_data,
 #'   level = trauma_level,
 #'   included_levels = c("I", "II", "III", "IV"),
 #'   facility_id = facility,
@@ -82,7 +82,7 @@
 #'
 seqic_indicator_12 <-
   function(
-    df,
+    data,
     level,
     included_levels = c("I", "II", "III", "IV"),
     facility_id,
@@ -99,15 +99,25 @@ seqic_indicator_12 <-
     ###___________________________________________________________________________
 
     # Ensure input is a data frame or tibble
-    if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+    if (!is.data.frame(data) && !tibble::is_tibble(data)) {
       cli::cli_abort(c(
-        "{.var df} must be a data frame or tibble.",
-        "i" = "You provided an object of class {.cls {class(df)}}."
+        "{.var data} must be a data frame or tibble.",
+        "i" = "You provided an object of class {.cls {class(data)}}."
       ))
     }
 
-    # Validate trauma level input column
-    level_check <- df |> dplyr::pull({{ level }})
+    # make the `level` column accessible for validation
+    level_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ level }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var level}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_12())
+        )
+      }
+    )
     if (!is.character(level_check) && !is.factor(level_check)) {
       cli::cli_abort(c(
         "{.var level} must be character or factor.",
@@ -115,9 +125,18 @@ seqic_indicator_12 <-
       ))
     }
 
-    # Make the `unique_incident_id` column accessible for validation.
-    unique_incident_id_check <- df |>
-      dplyr::pull({{ unique_incident_id }})
+    # make the `unique_incident_id` column accessible for validation
+    unique_incident_id_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ unique_incident_id }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_12())
+        )
+      }
+    )
 
     # Validate `unique_incident_id` to ensure it's either character or factor.
     if (
@@ -134,7 +153,17 @@ seqic_indicator_12 <-
     }
 
     # Validate facility ID type
-    facility_id_check <- df |> dplyr::pull({{ facility_id }})
+    facility_id_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ facility_id }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var facility_id}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_12())
+        )
+      }
+    )
     if (
       !is.numeric(facility_id_check) &&
         !is.character(facility_id_check) &&
@@ -149,7 +178,17 @@ seqic_indicator_12 <-
     }
 
     # Validate that data_entry_time is numeric
-    data_entry_time_check <- df |> dplyr::pull({{ data_entry_time }})
+    data_entry_time_check <- tryCatch(
+      {
+        data |> dplyr::pull({{ data_entry_time }})
+      },
+      error = function(e) {
+        cli::cli_abort(
+          "It was not possible to validate {.var data_entry_time}, please check this column in the function call.",
+          call = rlang::expr(seqic_indicator_12())
+        )
+      }
+    )
     if (!is.numeric(data_entry_time_check)) {
       cli::cli_abort(
         c(
@@ -179,9 +218,9 @@ seqic_indicator_12 <-
       }
     }
 
-    # Check if all groups exist in the `df`
-    if (!all(groups %in% names(df))) {
-      invalid_vars <- groups[!groups %in% names(df)]
+    # Check if all groups exist in the `data`
+    if (!all(groups %in% names(data))) {
+      invalid_vars <- groups[!groups %in% names(data)]
       cli::cli_abort(
         "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
       )
@@ -238,7 +277,7 @@ seqic_indicator_12 <-
     ### Calculations
     ###_________________________________________________________________________
 
-    seqic_12 <- df |>
+    seqic_12 <- data |>
       # Filter for designated trauma centers only (Levels defined by user)
       dplyr::filter({{ level }} %in% included_levels) |>
 

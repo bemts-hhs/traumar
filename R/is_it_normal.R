@@ -179,9 +179,6 @@ is_it_normal <- function(
   # Set up variables to use in purrr::map()
   vars <- rlang::enquos(...)
 
-  # Data name
-  data_name <- deparse(substitute(df))
-
   # Dynamically generate the variable names
   var_names <- purrr::map_chr(vars, ~ rlang::as_label(.))
 
@@ -193,11 +190,8 @@ is_it_normal <- function(
   cli::cli_h3("Descriptive Statistics")
   cli::cli_inform(c(
     "*" = paste0(
-      "Exploratory data analysis on the variable(s): ",
-      cli::col_green(cli::style_bold(paste(var_names, collapse = ", "))),
-      " from the '",
-      cli::col_magenta(cli::style_bold(data_name)),
-      "' dataset."
+      "Exploratory data analysis of the variable(s): ",
+      cli::col_green(cli::style_bold(paste(var_names, collapse = ", ")))
     )
   ))
 
@@ -802,9 +796,7 @@ is_it_normal <- function(
           patchwork::wrap_plots(valid_plots) +
             patchwork::plot_annotation(
               title = paste0(
-                "Normality Test of the '",
-                data_name,
-                "' dataset, regarding variable '",
+                "Normality Test of the variable '",
                 var_name,
                 "'"
               ),
@@ -843,9 +835,7 @@ is_it_normal <- function(
       combined_plots <- patchwork::wrap_plots(plot_list) +
         patchwork::plot_annotation(
           title = paste0(
-            "Normality Test of the '",
-            data_name,
-            "' dataset, regarding variable '",
+            "Normality Test of the variable '",
             var_name,
             "'"
           ),
