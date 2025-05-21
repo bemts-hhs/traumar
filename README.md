@@ -295,6 +295,7 @@ rm_bin_summary(data = data,
 
 ## Code of Conduct
 
-Please note that the traumar project is released with a [Contributor Code of
+Please note that the traumar project is released with a [Contributor
+Code of
 Conduct](https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html). By
 contributing to this project, you agree to abide by its terms.
