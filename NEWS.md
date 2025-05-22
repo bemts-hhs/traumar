@@ -1,3 +1,5 @@
+# traumar (development version)
+
 # traumar 1.2.0
 
 - This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.
