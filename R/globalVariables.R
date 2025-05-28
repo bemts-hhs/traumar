@@ -18,7 +18,7 @@ utils::globalVariables(c(
   "current_fraction",
   "smallest_val",
   "prob_death",
-  "predicted_prob_death",
+  "scale_factor",
   "bins",
   "bins_temp",
   "alive",
