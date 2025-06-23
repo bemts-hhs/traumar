@@ -217,6 +217,36 @@ testthat::test_that("rmm function handles the pivot argument correctly", {
 })
 
 testthat::test_that("rmm function handles edge cases correctly", {
+  # Custom expectation function to test for the presence of a specific warning pattern
+  expect_warning_present <- function(expr, pattern) {
+    # Initialize an empty character vector to store warning messages
+    warnings <- character()
+
+    # Evaluate the expression while intercepting all warning conditions
+    withCallingHandlers(
+      # Force evaluation of the expression to ensure any lazy evaluation is triggered
+      force(expr),
+
+      # Define a handler specifically for warning conditions
+      warning = function(w) {
+        # Append the current warning message to the 'warnings' vector
+        warnings <<- c(warnings, conditionMessage(w))
+
+        # Prevent the warning from being printed to the console during tests
+        invokeRestart("muffleWarning")
+      }
+    )
+
+    # Assert that at least one warning matches the specified regular expression pattern
+    testthat::expect_true(
+      # Logical test: does any warning message match the provided pattern?
+      any(stringr::str_detect(warnings, pattern)),
+
+      # Message to display if the expectation fails
+      info = paste("Expected warning matching:", pattern)
+    )
+  }
+
   # Generate example data
   set.seed(123)
 
@@ -267,7 +297,11 @@ testthat::test_that("rmm function handles edge cases correctly", {
   survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
   # Create data frame
-  data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
+  data <- data.frame(
+    Ps = Ps,
+    survival = survival_outcomes,
+    groups = groups
+  ) |>
     dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 
   # Test with edge case: only one row
@@ -284,26 +318,37 @@ testthat::test_that("rmm function handles edge cases correctly", {
   # Test with all NA values in Ps
   df_na_ps <- data |>
     dplyr::mutate(Ps = dplyr::if_else(Ps < 0.01, NA_real_, Ps))
-  testthat::expect_warning(
+
+  # Test that the rmm() function emits a warning about missing values in Ps_col
+  expect_warning_present(
+    # Expression to evaluate: calling rmm() with deliberately missing Ps values
     rmm(
-      data = df_na_ps,
-      Ps_col = Ps,
-      outcome_col = survival
+      data = df_na_ps, # Dataset with intentionally introduced NA values in Ps
+      Ps_col = Ps, # Name of the probability score column being tested
+      outcome_col = survival # Outcome variable for the model
     ),
-    regexp = "Missing values detected in.*Ps_col"
+
+    # Regular expression to match the expected warning message about missing Ps values
+    "Missing values detected in.*Ps_col"
   )
 
-  # Test with all missing outcome values
+  # Create a dataset with deliberately missing values in the outcome column (survival)
   df_na_outcome <- data |>
-    dplyr::mutate(survival = dplyr::if_else(Ps < 0.01, NA_real_, survival))
+    dplyr::mutate(
+      survival = dplyr::if_else(Ps < 0.01, NA_real_, survival)
+    )
 
-  testthat::expect_warning(
+  # Use the custom expect_warning_present() function to test for the specific warning
+  expect_warning_present(
+    # Expression to evaluate: run rmm() on the dataset with missing outcome values
     rmm(
       data = df_na_outcome,
       Ps_col = Ps,
       outcome_col = survival
     ),
-    regexp = "Missing values detected in.*outcome_col"
+
+    # Regular expression to match the expected warning message about missing outcome values
+    "Missing values detected in.*outcome_col"
   )
 })
 
@@ -408,16 +453,46 @@ testthat::test_that("rmm function handles edge cases with seed and group_vars", 
 })
 
 testthat::test_that("rmm function handles missing values with seed and group_vars correctly", {
+  # Custom expectation function to test for the presence of a specific warning pattern
+  expect_warning_present <- function(expr, pattern) {
+    # Initialize an empty character vector to store warning messages
+    warnings <- character()
+
+    # Evaluate the expression while intercepting all warning conditions
+    withCallingHandlers(
+      # Force evaluation of the expression to ensure any lazy evaluation is triggered
+      force(expr),
+
+      # Define a handler specifically for warning conditions
+      warning = function(w) {
+        # Append the current warning message to the 'warnings' vector
+        warnings <<- c(warnings, conditionMessage(w))
+
+        # Prevent the warning from being printed to the console during tests
+        invokeRestart("muffleWarning")
+      }
+    )
+
+    # Assert that at least one warning matches the specified regular expression pattern
+    testthat::expect_true(
+      # Logical test: does any warning message match the provided pattern?
+      any(stringr::str_detect(warnings, pattern)),
+
+      # Message to display if the expectation fails
+      info = paste("Expected warning matching:", pattern)
+    )
+  }
+
   # Create a larger dataset with missing values in Ps, survival, and group variables
   set.seed(123)
   df_missing_values <- tibble::tibble(
     Ps = c(rep(NA, 200), plogis(rnorm(800, mean = 2, sd = 1.5))), # 200 NAs in Ps
-    survival = rbinom(1000, 1, prob = 0.8), # 200 NAs in survival
-    group = rep(c("A", "B", "C", "D", "E"), each = 200) # Group variable
+    survival = rbinom(1000, 1, prob = 0.8), # Binary outcome, no NAs here
+    group = rep(c("A", "B", "C", "D", "E"), each = 200) # Group variable with 5 groups
   )
 
-  # Expect warning when running rmm with missing values in the dataset
-  testthat::expect_warning(
+  # Expect a warning when running rmm() with missing values in the dataset (Ps column missing)
+  expect_warning_present(
     rmm(
       data = df_missing_values,
       Ps_col = Ps,
@@ -429,15 +504,15 @@ testthat::test_that("rmm function handles missing values with seed and group_var
     "Missing values detected"
   )
 
-  # Missing outcome
+  # Create a dataset with missing values in the *outcome* column
   df_missing_values <- tibble::tibble(
-    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), # 200 NAs in Ps
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), # Ps column fully populated
     survival = c(rep(NA, 200), rbinom(800, 1, prob = 0.8)), # 200 NAs in survival
-    group = rep(c("A", "B", "C", "D", "E"), each = 200) # Group variable
+    group = rep(c("A", "B", "C", "D", "E"), each = 200) # Same group structure
   )
 
-  # Expect warning when running rmm with missing values in the dataset
-  testthat::expect_warning(
+  # Expect a warning when running rmm() with missing values in the *outcome* column
+  expect_warning_present(
     rmm(
       data = df_missing_values,
       Ps_col = Ps,
@@ -452,22 +527,24 @@ testthat::test_that("rmm function handles missing values with seed and group_var
 
 testthat::test_that("rmm function handles large datasets without performance issues", {
   # Test with a larger dataset to assess performance
+  # Do not test with the bootstrap CI process
   df_large <- tibble::tibble(
     Ps = plogis(rnorm(100000, mean = 2, sd = 1.5)),
     survival = rbinom(100000, 1, prob = 0.9)
   )
 
-  # record time
+  # record start time
   begin <- Sys.time()
 
+  # run the function
   result_large <- rmm(
     data = df_large,
     Ps_col = Ps,
     outcome_col = survival,
-    n_samples = 100
+    bootstrap_ci = FALSE
   )
 
-  # record time
+  # record stop time
   end <- Sys.time()
 
   # get time difference
@@ -740,19 +817,54 @@ testthat::test_that("rm_bin_summary validates group_vars correctly", {
 })
 
 testthat::test_that("rm_bin_summary validates Ps_col and outcome_col correctly", {
+  # Custom expectation function to test for the presence of a specific warning pattern
+  expect_warning_present <- function(expr, pattern) {
+    # Initialize an empty character vector to store warning messages
+    warnings <- character()
+
+    # Evaluate the expression while intercepting all warning conditions
+    withCallingHandlers(
+      # Force evaluation of the expression to ensure any lazy evaluation is triggered
+      force(expr),
+
+      # Define a handler specifically for warning conditions
+      warning = function(w) {
+        # Append the current warning message to the 'warnings' vector
+        warnings <<- c(warnings, conditionMessage(w))
+
+        # Prevent the warning from being printed to the console during tests
+        invokeRestart("muffleWarning")
+      }
+    )
+
+    # Assert that at least one warning matches the specified regular expression pattern
+    testthat::expect_true(
+      # Logical test: does any warning message match the provided pattern?
+      any(stringr::str_detect(warnings, pattern)),
+
+      # Message to display if the expectation fails
+      info = paste("Expected warning matching:", pattern)
+    )
+  }
+
+  # Set seed for reproducibility
   set.seed(01232025)
 
-  # Test valid grouping
+  # Create a dataset with valid grouping and complete data
   df <- tibble::tibble(
-    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
-    survival = rbinom(1000, 1, prob = 0.9),
-    group = sample(letters[1:5], 1000, replace = TRUE)
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)), # Probability scores (Ps)
+    survival = rbinom(1000, 1, prob = 0.9), # Binary outcome variable
+    group = sample(letters[1:5], 1000, replace = TRUE) # Random group assignment (5 groups)
   )
 
+  # Introduce missing values into the Ps column to create an invalid input scenario
   bad_ps <- df |>
-    dplyr::mutate(Ps = c(rep(NA, 50), plogis(rnorm(950, mean = 2, sd = 1.5))))
+    dplyr::mutate(
+      Ps = c(rep(NA, 50), plogis(rnorm(950, mean = 2, sd = 1.5)))
+    )
 
-  testthat::expect_warning(
+  # Expect a warning for missing values in Ps_col when running rm_bin_summary()
+  expect_warning_present(
     rm_bin_summary(
       bad_ps,
       Ps,
@@ -762,9 +874,14 @@ testthat::test_that("rm_bin_summary validates Ps_col and outcome_col correctly",
     "Missing values.*Ps_col"
   )
 
+  # Introduce missing values into the outcome (survival) column
   bad_outcome <- df |>
-    dplyr::mutate(survival = c(rep(NA, 50), rbinom(950, size = 1, prob = 0.9)))
-  testthat::expect_warning(
+    dplyr::mutate(
+      survival = c(rep(NA, 50), rbinom(950, size = 1, prob = 0.9))
+    )
+
+  # Expect a warning for missing values in outcome_col when running rm_bin_summary()
+  expect_warning_present(
     rm_bin_summary(
       bad_outcome,
       Ps,

@@ -1,7 +1,7 @@
 Type: Package
 Package: traumar
 Title: Calculate Metrics for Trauma System Performance
-Version: 1.2.0.9000
+Version: 1.2.1
 Authors@R: c(
     person("Nicolas", "Foss", , "nicolas.foss@hhs.iowa.gov", role = c("aut", "cre")),
     person("Iowa Department of Health and Human Services", role = "cph")
@@ -47,12 +47,12 @@ Imports:
     lubridate (>= 1.9.4),
     nemsqar (>= 1.1.0),
     nortest (>= 1.0-4),
-    patchwork (>= 1.3.0),
+    patchwork (>= 1.3.1),
     purrr (>= 1.0.4),
     rlang,
     stats,
     stringr (>= 1.5.1),
-    tibble (>= 3.2.1),
+    tibble (>= 3.3.0),
     tidyr (>= 1.3.1),
     tidyselect (>= 1.2.1),
     utils
