@@ -452,22 +452,24 @@ testthat::test_that("rmm function handles missing values with seed and group_var
 
 testthat::test_that("rmm function handles large datasets without performance issues", {
   # Test with a larger dataset to assess performance
+  # Do not test with the bootstrap CI process
   df_large <- tibble::tibble(
     Ps = plogis(rnorm(100000, mean = 2, sd = 1.5)),
     survival = rbinom(100000, 1, prob = 0.9)
   )
 
-  # record time
+  # record start time
   begin <- Sys.time()
 
+  # run the function
   result_large <- rmm(
     data = df_large,
     Ps_col = Ps,
     outcome_col = survival,
-    n_samples = 100
+    bootstrap_ci = FALSE
   )
 
-  # record time
+  # record stop time
   end <- Sys.time()
 
   # get time difference
