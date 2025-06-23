@@ -1,4 +1,4 @@
-# traumar (development version)
+# traumar 1.2.1
 
 # traumar 1.2.0
 
