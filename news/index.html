@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,10 +32,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="traumar-development-version">traumar (development version)<a class="anchor" aria-label="anchor" href="#traumar-development-version"></a></h2>
-</div>
+<h2 class="pkg-version" data-toc-text="1.2.1" id="traumar-121">traumar 1.2.1<a class="anchor" aria-label="anchor" href="#traumar-121"></a></h2>
+<ul><li><p>Within the <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> function, renamed the variable <code>predicted_prob_death</code> to <code>scale_factor</code> which is commensurate with the source literature.</p></li>
+<li><p>updated comments in <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> for <code>z_method</code> method of the <code>Z_score</code> to reflect the right text</p></li>
+<li><p>In <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, completed the comment where the <code>scale_factor</code> is created so that it is complete and clear</p></li>
+<li><p>Corrected a test error at CRAN from using bootstrap CI process in testing with 100,000 observations and 100 bootstrap samples to make sure <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> ran in under 60 sec. That test now does not use the bootstrap process so the core function can be tested and will always run in under a minute with 100,000 observations.</p></li>
+<li><p>Cleaned up other tests within for relative_mortality.R that were checking for correct error / warning handling where multiple lines of output were sent to the console. Built a custom function to deal with those scenarios and correctly perform those unit tests.</p></li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.0" id="traumar-120">traumar 1.2.0<a class="anchor" aria-label="anchor" href="#traumar-120"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.0" id="traumar-120">traumar 1.2.0<a class="anchor" aria-label="anchor" href="#traumar-120"></a></h2><p class="text-muted">CRAN release: 2025-05-22</p>
 <ul><li>This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.</li>
 <li>Added a <a href="https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a> and support information. _ Additionally, a convenience function <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> provides the ability for users of <code>traumar</code> to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> to conduct exploratory data analysis of one or more variables within zero or more groups.</li>
 <li>Added the following functions:
@@ -150,7 +155,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
