@@ -311,7 +311,7 @@ trauma_performance <- function(
   z_data <- df |>
     dplyr::mutate(
       prob_death = 1 - !!Ps_col,
-      scale_factor = !!Ps_col * prob_death
+      scale_factor = !!Ps_col * prob_death # scale factor to account for statistical variation
     )
 
   # extract probability of death
@@ -322,7 +322,7 @@ trauma_performance <- function(
     Z_score <- z_data |>
       dplyr::summarize(
         z_score = (total_deaths - sum(prob_death, na.rm = TRUE)) /
-          sqrt(sum(scale_factor)) # scale factor to account for statistical variation
+          sqrt(sum(scale_factor)) # scale factor implemented
       ) |>
       dplyr::pull(z_score)
   } else if (z_method == "survival") {
@@ -330,7 +330,7 @@ trauma_performance <- function(
     Z_score <- z_data |>
       dplyr::summarize(
         z_score = (total_survivors - sum(!!Ps_col, na.rm = TRUE)) /
-          sqrt(sum(scale_factor, na.rm = TRUE))
+          sqrt(sum(scale_factor, na.rm = TRUE)) # scale factor implemented
       ) |>
       dplyr::pull(z_score)
   }
