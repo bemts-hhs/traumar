@@ -19,9 +19,9 @@ library(traumar)
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/bemts-hhs/traumar/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bemts-hhs/traumar/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/traumar)](https://CRAN.R-project.org/package=traumar)
-![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/nemsqar)
-![CRAN monthly downloads](https://cranlogs.r-pkg.org/badges/last-month/nemsqar)
-![CRAN weekly downloads](https://cranlogs.r-pkg.org/badges/last-week/nemsqar)
+![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/traumar)
+![CRAN monthly downloads](https://cranlogs.r-pkg.org/badges/last-month/traumar)
+![CRAN weekly downloads](https://cranlogs.r-pkg.org/badges/last-week/traumar)
 [![Codecov test coverage](https://codecov.io/gh/bemts-hhs/traumar/graph/badge.svg)](https://app.codecov.io/gh/bemts-hhs/traumar)
 <!-- badges: end -->
 
