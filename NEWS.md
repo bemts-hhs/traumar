@@ -1,3 +1,5 @@
+# traumar 1.2.2
+
 # traumar 1.2.1
 
 - Within the `trauma_performance()` function, renamed the variable `predicted_prob_death` to `scale_factor` which is commensurate with the source literature.
