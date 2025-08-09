@@ -18,8 +18,8 @@
 #' @param iss Numeric vector indicating the patient's Injury Severity Score
 #'   (ISS).
 #'
-#' @returns Numeric vector of probabilities of survival (Ps) expressed as
-#'   percentages on a scale from 0 to 1.
+#' @returns Numeric vector of predicted probabilities of survival on a scale
+#'   from 0 to 1.
 #'
 #' @export
 #'

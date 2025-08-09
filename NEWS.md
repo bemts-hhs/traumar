@@ -1,5 +1,8 @@
 # traumar 1.2.2
 
+- `rmm()`, `rm_bin_summary()`, and `nonlinear_bins()`: Updated the documentation for the threshold arguments along with the divisor arguments. These were updated along with the Details section of the `nonlinear_bins()` function documentation to provide a better explanation of the binning algorithm under the hood.
+- `probability_of_survival()`: Updated the Return section documentation to be more accurate that the output is not a percentage, it is the predicted probability of survival on a scale from 0 to 1. A previous version of this function was multiplied by 100 to seem more like a percentage.
+
 # traumar 1.2.1
 
 - Within the `trauma_performance()` function, renamed the variable `predicted_prob_death` to `scale_factor` which is commensurate with the source literature.
