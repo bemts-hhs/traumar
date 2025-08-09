@@ -15,7 +15,7 @@ count, and percentage for each bin."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,25 +90,35 @@ calculations. These should be specified as quoted column names.</p></dd>
 
 
 <dt id="arg-divisor-">divisor1<a class="anchor" aria-label="anchor" href="#arg-divisor-"></a></dt>
-<dd><p>A parameter to control the width of the probability of
-survival range bins. Affects the creation of step sizes for the beginning
-of each bin range. Defaults to <code>5</code>.</p></dd>
+<dd><p>A positive numeric value controlling the coarseness of bins
+for Ps values below <code>threshold_1</code>. It scales the number of steps from the
+start of the dataset up to the <code>threshold_1</code> cut point. Larger values
+produce fewer, broader bins; smaller values produce more, narrower bins.
+Defaults to <code>5</code>.</p></dd>
 
 
 <dt id="arg-divisor-">divisor2<a class="anchor" aria-label="anchor" href="#arg-divisor-"></a></dt>
-<dd><p>A parameter to control the width of the probability of
-survival range bins. Affects the creation of step sizes for the beginning
-of each bin range. Defaults to <code>5</code>.</p></dd>
+<dd><p>A positive numeric value controlling the coarseness of bins
+for Ps values between <code>threshold_1</code> and <code>threshold_2</code>. Larger values yield
+wider bins, and smaller values yield narrower bins in this range. Defaults
+to <code>5</code>.</p></dd>
 
 
 <dt id="arg-threshold-">threshold_1<a class="anchor" aria-label="anchor" href="#arg-threshold-"></a></dt>
-<dd><p>A parameter to decide where data indices will begin to
-create step sizes. Defaults to <code>0.9</code>.</p></dd>
+<dd><p>A numeric value that defines the lower bound of the
+high-survival probability range in <code>Ps_col</code>. The function identifies the
+first index where <code>Ps_col</code> exceeds this value and begins applying smaller
+bin widths from that point onward. Defaults to <code>0.9</code>, meaning binning
+changes once Ps &gt; 0.90.</p></dd>
 
 
 <dt id="arg-threshold-">threshold_2<a class="anchor" aria-label="anchor" href="#arg-threshold-"></a></dt>
-<dd><p>A parameter to decide where data indices will end to
-create step sizes. Defaults to <code>0.99</code>.</p></dd>
+<dd><p>A numeric value that defines the upper bound of the
+high-survival probability range in <code>Ps_col</code>. The function identifies the
+first index where <code>Ps_col</code> exceeds this value. Between <code>threshold_1</code> and
+<code>threshold_2</code>, finer binning is applied; above <code>threshold_2</code>, binning may
+again change. Defaults to <code>0.99</code>, meaning the special binning range is
+between Ps values of 0.90 and 0.99.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -153,6 +163,13 @@ will then compute bins and related statistics using only that subset’s
 observations within one or more bins, <code><a href="rm_bin_summary.html">rm_bin_summary()</a></code> will compute
 statistics only for the bins that contain data. Bins with no observations are
 excluded from the summary for that group.</p>
+<p>The <code>threshold_1</code> and <code>threshold_2</code> arguments set probability cut points
+that define the start and end of a high-survival range where bin widths are
+adjusted for finer resolution. The <code>divisor1</code> and <code>divisor2</code> arguments are
+scaling factors that determine how many bins are created before and within
+this high-survival range, respectively. Lower divisors yield narrower bins,
+capturing more detail, while higher divisors yield broader bins, smoothing
+the distribution.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>

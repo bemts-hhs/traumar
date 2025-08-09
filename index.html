@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,10 +138,9 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="comparing-the-probability-of-survival-distribution-of-your-patient-mix-to-the-major-trauma-outcomes-study">Comparing the Probability of Survival Distribution of your Patient Mix to the <a href="https://journals.lww.com/jtrauma/Abstract/1990/11000/The_Major_Trauma_Outcome_Study__Establishing.8.aspx" class="external-link">Major Trauma Outcomes Study</a>
-<a class="anchor" aria-label="anchor" href="#comparing-the-probability-of-survival-distribution-of-your-patient-mix-to-the-major-trauma-outcomes-study"></a>
+<h2 id="comparing-the-probability-of-survival-distribution-of-your-patient-mix-to-the-major-trauma-outcomes-study">Comparing the Probability of Survival Distribution of your Patient Mix to the Major Trauma Outcomes Study<a class="anchor" aria-label="anchor" href="#comparing-the-probability-of-survival-distribution-of-your-patient-mix-to-the-major-trauma-outcomes-study"></a>
 </h2>
-<p>The M and Z scores are calculated using methods defined in the <a href="https://journals.lww.com/jtrauma/abstract/1978/10000/a_method_for_comparing_survival_of_burn_patients.3.aspx" class="external-link">literature</a> may not be meaningful if your the distribution of the probability of survival measure is not similar enough to the Major Trauma Outcomes Study distribution. {traumar} provides a way to check this in your data analysis script, or even from the console. The <code><a href="reference/trauma_performance.html">trauma_performance()</a></code> function does this under the hood for you, so you can get a read out of how much confidence you can put into the Z score.</p>
+<p>The M and Z scores are calculated using methods defined in the literature (Champion et al., 1990, Flora, 1978) may not be meaningful if the distribution of the probability of survival measure is not similar enough to the Major Trauma Outcomes Study distribution. {traumar} provides a way to check this in your data analysis script, or even from the console. The <code><a href="reference/trauma_performance.html">trauma_performance()</a></code> function does this under the hood for you, so you can get a read out of how much confidence you can put into the Z score.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Compare the current case mix with the MTOS case mix</span></span>
