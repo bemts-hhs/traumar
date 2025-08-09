@@ -20,8 +20,8 @@ for burn patients, and so these records are excluded here.}
 (ISS).}
 }
 \value{
-Numeric vector of probabilities of survival (Ps) expressed as
-percentages on a scale from 0 to 1.
+Numeric vector of predicted probabilities of survival on a scale
+from 0 to 1.
 }
 \description{
 This function calculates the probability of survival (Ps) for trauma patients
