@@ -37,14 +37,26 @@
 #'   dataset.
 #' @param n_samples A numeric value indicating the number of bootstrap samples
 #'   to take from the data source.
-#' @param Divisor1 A divisor used for binning the survival probabilities
-#'   (default is 5).
-#' @param Divisor2 A second divisor used for binning the survival probabilities
-#'   (default is 5).
-#' @param Threshold_1 The first threshold for dividing the survival
-#'   probabilities (default is 0.9).
-#' @param Threshold_2 The second threshold for dividing the survival
-#'   probabilities (default is 0.99).
+#' @param Divisor1 A positive numeric value controlling the coarseness of bins
+#'   for Ps values below `Threshold_1`. It scales the number of steps from the
+#'   start of the dataset up to the `Threshold_1` cut point. Larger values
+#'   produce fewer, broader bins; smaller values produce more, narrower bins.
+#'   Defaults to `5`.
+#' @param Divisor2 A positive numeric value controlling the coarseness of bins
+#'   for Ps values between `Threshold_1` and `Threshold_2`. Larger values yield
+#'   wider bins, and smaller values yield narrower bins in this range. Defaults
+#'   to `5`.
+#' @param Threshold_1 A numeric value that defines the lower bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value and begins applying smaller
+#'   bin widths from that point onward. Defaults to `0.9`, meaning binning
+#'   changes once Ps > 0.90.
+#' @param Threshold_2 A numeric value that defines the upper bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value. Between `Threshold_1` and
+#'   `Threshold_2`, finer binning is applied; above `Threshold_2`, binning may
+#'   again change. Defaults to `0.99`, meaning the special binning range is
+#'   between Ps values of 0.90 and 0.99.
 #' @param bootstrap_ci A logical indicating whether to return the relative
 #'   mortality metric estimate and 95% confidence intervals using bootstrap
 #'   sampling. Default is `TRUE`.
@@ -741,14 +753,26 @@ rmm <- function(
 #'   dataset.
 #' @param n_samples A numeric value indicating the number of bootstrap samples
 #' to take from the data source.
-#' @param Divisor1 A divisor used for binning the survival probabilities
-#'   (default is 5).
-#' @param Divisor2 A second divisor used for binning the survival probabilities
-#'   (default is 5).
-#' @param Threshold_1 The first threshold for dividing the survival
-#'   probabilities (default is 0.9).
-#' @param Threshold_2 The second threshold for dividing the survival
-#'   probabilities (default is 0.99).
+#' @param Divisor1 A positive numeric value controlling the coarseness of bins
+#'   for Ps values below `Threshold_1`. It scales the number of steps from the
+#'   start of the dataset up to the `Threshold_1` cut point. Larger values
+#'   produce fewer, broader bins; smaller values produce more, narrower bins.
+#'   Defaults to `5`.
+#' @param Divisor2 A positive numeric value controlling the coarseness of bins
+#'   for Ps values between `Threshold_1` and `Threshold_2`. Larger values yield
+#'   wider bins, and smaller values yield narrower bins in this range. Defaults
+#'   to `5`.
+#' @param Threshold_1 A numeric value that defines the lower bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value and begins applying smaller
+#'   bin widths from that point onward. Defaults to `0.9`, meaning binning
+#'   changes once Ps > 0.90.
+#' @param Threshold_2 A numeric value that defines the upper bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value. Between `Threshold_1` and
+#'   `Threshold_2`, finer binning is applied; above `Threshold_2`, binning may
+#'   again change. Defaults to `0.99`, meaning the special binning range is
+#'   between Ps values of 0.90 and 0.99.
 #' @param bootstrap_ci A logical indicating whether to return the relative
 #'   mortality metric estimate and 95% confidence intervals using bootstrap
 #'   sampling. Default is `TRUE`.

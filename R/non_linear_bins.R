@@ -19,16 +19,26 @@
 #'   contains only these possible values.
 #' @param group_vars Optional grouping variables for bin statistics
 #'   calculations. These should be specified as quoted column names.
-#' @param divisor1 A parameter to control the width of the probability of
-#'   survival range bins. Affects the creation of step sizes for the beginning
-#'   of each bin range. Defaults to `5`.
-#' @param divisor2 A parameter to control the width of the probability of
-#'   survival range bins. Affects the creation of step sizes for the beginning
-#'   of each bin range. Defaults to `5`.
-#' @param threshold_1 A parameter to decide where data indices will begin to
-#'   create step sizes. Defaults to `0.9`.
-#' @param threshold_2 A parameter to decide where data indices will end to
-#'   create step sizes. Defaults to `0.99`.
+#' @param divisor1 A positive numeric value controlling the coarseness of bins
+#'   for Ps values below `threshold_1`. It scales the number of steps from the
+#'   start of the dataset up to the `threshold_1` cut point. Larger values
+#'   produce fewer, broader bins; smaller values produce more, narrower bins.
+#'   Defaults to `5`.
+#' @param divisor2 A positive numeric value controlling the coarseness of bins
+#'   for Ps values between `threshold_1` and `threshold_2`. Larger values yield
+#'   wider bins, and smaller values yield narrower bins in this range. Defaults
+#'   to `5`.
+#' @param threshold_1 A numeric value that defines the lower bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value and begins applying smaller
+#'   bin widths from that point onward. Defaults to `0.9`, meaning binning
+#'   changes once Ps > 0.90.
+#' @param threshold_2 A numeric value that defines the upper bound of the
+#'   high-survival probability range in `Ps_col`. The function identifies the
+#'   first index where `Ps_col` exceeds this value. Between `threshold_1` and
+#'   `threshold_2`, finer binning is applied; above `threshold_2`, binning may
+#'   again change. Defaults to `0.99`, meaning the special binning range is
+#'   between Ps values of 0.90 and 0.99.
 #'
 #' @details
 #' Like other statistical computing functions, `nonlinear_bins()` is happiest
@@ -57,6 +67,14 @@
 #' observations within one or more bins, `rm_bin_summary()` will compute
 #' statistics only for the bins that contain data. Bins with no observations are
 #' excluded from the summary for that group.
+#'
+#' The `threshold_1` and `threshold_2` arguments set probability cut points
+#' that define the start and end of a high-survival range where bin widths are
+#' adjusted for finer resolution. The `divisor1` and `divisor2` arguments are
+#' scaling factors that determine how many bins are created before and within
+#' this high-survival range, respectively. Lower divisors yield narrower bins,
+#' capturing more detail, while higher divisors yield broader bins, smoothing
+#' the distribution.
 #'
 #' @returns A list with two elements:
 #'   - `intervals`: A vector defining bin boundaries for probability of
