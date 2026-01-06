@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/bemts-hhs/traumar/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/bemts-hhs/traumar/blob/v1.2.2/DESCRIPTION)
 
 Foss N (2026). *traumar: Calculate Metrics for Trauma System
 Performance*. R package version 1.2.2,
