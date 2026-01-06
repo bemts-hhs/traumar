@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,12 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.2" id="traumar-122">traumar 1.2.2<a class="anchor" aria-label="anchor" href="#traumar-122"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.3" id="traumar-123">traumar 1.2.3<a class="anchor" aria-label="anchor" href="#traumar-123"></a></h2>
+<ul><li>
+<code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code> was updated to enhance code readability and leverage mathematical notation in the calculation of predicted survival probabilities. The function now aligns with the coefficients published in Norouzi et al. (2013) and Merchant et al. (2023). Consistent with Boyd et al. (1987), the function does not treat patients under 15 years of age differently and accounts for penetrating injuries similarly to other age groups. This update ensures a standardized approach to calculating survival probabilities for both blunt and penetrating traumas.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.2" id="traumar-122">traumar 1.2.2<a class="anchor" aria-label="anchor" href="#traumar-122"></a></h2><p class="text-muted">CRAN release: 2025-08-26</p>
 <ul><li>
 <code><a href="../reference/rmm.html">rmm()</a></code>, <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>, and <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>: Updated the documentation for the threshold arguments along with the divisor arguments. These were updated along with the Details section of the <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> function documentation to provide a better explanation of the binning algorithm under the hood.</li>
 <li>
@@ -41,16 +46,18 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.1" id="traumar-121">traumar 1.2.1<a class="anchor" aria-label="anchor" href="#traumar-121"></a></h2><p class="text-muted">CRAN release: 2025-06-24</p>
 <ul><li><p>Within the <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> function, renamed the variable <code>predicted_prob_death</code> to <code>scale_factor</code> which is commensurate with the source literature.</p></li>
-<li><p>updated comments in <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> for <code>z_method</code> method of the <code>Z_score</code> to reflect the right text</p></li>
-<li><p>In <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, completed the comment where the <code>scale_factor</code> is created so that it is complete and clear</p></li>
+<li><p>updated comments in <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> for <code>z_method</code> method of the <code>Z_score</code> to reflect the right text.</p></li>
+<li><p>In <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, completed the comment where the <code>scale_factor</code> is created so that it is complete and clear.</p></li>
 <li><p>Corrected a test error at CRAN from using bootstrap CI process in testing with 100,000 observations and 100 bootstrap samples to make sure <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> ran in under 60 sec. That test now does not use the bootstrap process so the core function can be tested and will always run in under a minute with 100,000 observations.</p></li>
 <li><p>Cleaned up other tests within for relative_mortality.R that were checking for correct error / warning handling where multiple lines of output were sent to the console. Built a custom function to deal with those scenarios and correctly perform those unit tests.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.0" id="traumar-120">traumar 1.2.0<a class="anchor" aria-label="anchor" href="#traumar-120"></a></h2><p class="text-muted">CRAN release: 2025-05-22</p>
-<ul><li>This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.</li>
-<li>Added a <a href="https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a> and support information. _ Additionally, a convenience function <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> provides the ability for users of <code>traumar</code> to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> to conduct exploratory data analysis of one or more variables within zero or more groups.</li>
-<li>Added the following functions:
+<ul><li><p>This minor release introduces functionality to demonstrate how the Iowa trauma system currently engages in the quality improvement process using the System Evaluation and Quality Improvement Committee (SEQIC) Indicators.</p></li>
+<li><p>Added a <a href="https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a> and support information.</p></li>
+<li><p>Additionally, a convenience function <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> provides the ability for users of <code>traumar</code> to get descriptive statistics on one or more numeric variables, with optional normality tests, and diagnostic plots (for one variable only). Grouping functionality is also supported in <code><a href="../reference/is_it_normal.html">is_it_normal()</a></code> to conduct exploratory data analysis of one or more variables within zero or more groups.</p></li>
+<li>
+<p>Added the following functions:</p>
 <ul><li><code><a href="../reference/seqic_indicator_1.html">seqic_indicator_1()</a></code></li>
 <li><code><a href="../reference/seqic_indicator_2.html">seqic_indicator_2()</a></code></li>
 <li><code><a href="../reference/seqic_indicator_3.html">seqic_indicator_3()</a></code></li>
@@ -66,19 +73,17 @@
 <li><code><a href="../reference/seqic_indicator_13.html">seqic_indicator_13()</a></code></li>
 <li><code><a href="../reference/is_it_normal.html">is_it_normal()</a></code></li>
 </ul></li>
-<li>A fix was applied to <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> to make the <code>percent</code> column calculate correctly when groups were not introduced.</li>
-<li>Removed hard-coded rounding from most calculations within the package where possible.</li>
-<li>Improved examples for the the package’s README, <code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> using more helpful data.</li>
-<li>Improved error messages coming from <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> when the argument <code>Ps_col</code> does not follow the expected distribution of the calculated probability of survival, and/or a sample size too small to calculate bins is passed to the function, including when passed to <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>.</li>
-<li>Code formatting changed to the <code>air</code> package through the RStudio IDE.</li>
-<li>Updated data validation for <code><a href="../reference/trauma_case_mix.html">trauma_case_mix()</a></code>, <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> to provide improved messaging related to missings in <code>Ps_col</code> and <code>outcome_col</code> .</li>
-<li>Across functions using the probability of survival calculation, it is expected that Ps values have a range of [0, 1]. Functions will no longer handle values in percentage format (e.g. 10, 50, 98).</li>
-<li>The <code>outcome</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to remove ambiguity in the nature of the <code>outcome_col</code> values. Only values of <code>TRUE/FALSE</code> and <code>1/0</code> are accepted.</li>
-<li>The <code>diagnostics</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to make the user interface smoother. Instead of providing guidance via outputs to the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.</li>
-<li>
-<code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> will no longer provide a pivoted output as a default. Users can elect to pivot the outputs as needed in their workflows.</li>
-<li>
-<code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> now have a new argument <code>bootstrap_ci</code> that allows a user to elect to use the bootstrap CIs, or not. <code>bootstrap_ci</code> defaults to <code>TRUE</code> in order to better support backward compatibility.</li>
+<li><p>A fix was applied to <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> to make the <code>percent</code> column calculate correctly when groups were not introduced.</p></li>
+<li><p>Removed hard-coded rounding from most calculations within the package where possible.</p></li>
+<li><p>Improved examples for the the package’s README, <code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> using more helpful data.</p></li>
+<li><p>Improved error messages coming from <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code> when the argument <code>Ps_col</code> does not follow the expected distribution of the calculated probability of survival, and/or a sample size too small to calculate bins is passed to the function, including when passed to <code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code>.</p></li>
+<li><p>Code formatting changed to the <code>air</code> package through the RStudio IDE.</p></li>
+<li><p>Updated data validation for <code><a href="../reference/trauma_case_mix.html">trauma_case_mix()</a></code>, <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code>, <code><a href="../reference/nonlinear_bins.html">nonlinear_bins()</a></code>, <code><a href="../reference/rmm.html">rmm()</a></code>, and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> to provide improved messaging related to missings in <code>Ps_col</code> and <code>outcome_col</code>.</p></li>
+<li><p>Across functions using the probability of survival calculation, it is expected that Ps values have a range of [0, 1]. Functions will no longer handle values in percentage format (e.g. 10, 50, 98).</p></li>
+<li><p>The <code>outcome</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to remove ambiguity in the nature of the <code>outcome_col</code> values. Only values of <code>TRUE/FALSE</code> and <code>1/0</code> are accepted.</p></li>
+<li><p>The <code>diagnostics</code> argument was removed from <code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> to make the user interface smoother. Instead of providing guidance via outputs to the console, users are encouraged to seek assistance with interpreting results via the source academic literature and the package documentation.</p></li>
+<li><p><code><a href="../reference/trauma_performance.html">trauma_performance()</a></code> will no longer provide a pivoted output as a default. Users can elect to pivot the outputs as needed in their workflows.</p></li>
+<li><p><code><a href="../reference/rmm.html">rmm()</a></code> and <code><a href="../reference/rm_bin_summary.html">rm_bin_summary()</a></code> now have a new argument <code>bootstrap_ci</code> that allows a user to elect to use the bootstrap CIs, or not. <code>bootstrap_ci</code> defaults to <code>TRUE</code> in order to better support backward compatibility.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="traumar-110">traumar 1.1.0<a class="anchor" aria-label="anchor" href="#traumar-110"></a></h2><p class="text-muted">CRAN release: 2025-03-25</p>
@@ -162,7 +167,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
