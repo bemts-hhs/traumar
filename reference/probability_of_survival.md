@@ -39,12 +39,6 @@ probability_of_survival(trauma_type, age, rts, iss)
 Numeric vector of predicted probabilities of survival on a scale from 0
 to 1.
 
-## References
-
-Boyd CR, Tolson MA, Copes WS. Evaluating trauma care: the TRISS method.
-Trauma Score and the Injury Severity Score. J Trauma. 1987
-Apr;27(4):370-8. PMID: 3106646.
-
 ## Author
 
 Nicolas Foss, Ed.D., MS
