@@ -8,8 +8,8 @@ probability_of_survival(trauma_type, age, rts, iss)
 }
 \arguments{
 \item{trauma_type}{Character vector indicating the type of trauma ("Blunt" or
-"Penetrating"). Different methods exist for calculating probability of survival
-for burn patients, and so these records are excluded here.}
+"Penetrating"). Different methods exist for calculating probability of
+survival for burn patients, and so these records are excluded here.}
 
 \item{age}{Numeric vector indicating the patient's age in years.}
 
@@ -30,6 +30,17 @@ combines physiological and anatomical data to predict survival likelihood
 using a logistic regression model. The function incorporates trauma type,
 patient age, Revised Trauma Score (RTS), and Injury Severity Score (ISS) into
 the calculation. Probability of survival is expressed as a percentage.
+}
+\details{
+The methodology used in the calculation of survival probabilities
+aligns with the coefficients published in Norouzi et al. (2013) and Merchant
+et al. (2023). Consistent with Boyd et al. (1987),
+\code{probability_of_survival()} does not treat patients under 15 years of age
+differently and accounts for penetrating injuries similarly to other age
+groups. Norouzi et al. (2013) and Merchant et al. (2023) use the updated
+TRISS coefficients to calculate survival probabilities for penetrating
+traumas with the same coefficients as for blunt traumas. If this approach is
+preferred, please take note and adjust accordingly.
 }
 \examples{
 # Example usage:
@@ -52,6 +63,22 @@ result <- trauma_data |>
 # Print the result
 result
 
+}
+\references{
+Boyd CR, Tolson MA, Copes WS. (1987). Evaluating trauma care: the TRISS
+method. Trauma Score and the Injury Severity Score. J Trauma. 1987
+Apr;27(4):370-8. PMID: 3106646.
+
+Merchant AAH, Shaukat N, Ashraf N, Hassan S, Jarrar Z, Abbasi A, et al.
+(2023). Which curve is better? A comparative analysis of trauma scoring
+systems in a South Asian country. Trauma Surgery & Acute Care Open.
+2023;8:e001171. \url{doi:10.1136/tsaco-2023-001171}
+
+Norouzi V, Feizi I, Vatankhah S, Pourshaikhian M. (2013). Calculation of the
+probability of survival for trauma patients based on trauma score and the
+injury severity score model in fatemi hospital in ardabil. Arch Trauma Res.
+2013 Spring;2(1):30-5. \url{doi:10.5812/atr.9411}. Epub 2013 Jun 1. PMID:
+24396787; PMCID: PMC3876517.
 }
 \author{
 Nicolas Foss, Ed.D., MS
