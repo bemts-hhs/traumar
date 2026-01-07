@@ -1,5 +1,20 @@
 # Changelog
 
+## traumar 1.2.3
+
+- [`probability_of_survival()`](https://bemts-hhs.github.io/traumar/reference/probability_of_survival.md)
+  was updated to enhance code readability and leverage mathematical
+  notation in the calculation of predicted survival probabilities. The
+  function now aligns with the coefficients published in Norouzi et
+  al. (2013) and Merchant et al. (2023). Consistent with Boyd et al.
+  (1987), the function does not treat patients under 15 years of age
+  differently and accounts for penetrating injuries similarly to other
+  age groups. This update ensures a standardized approach to calculating
+  survival probabilities for both blunt and penetrating traumas.
+
+- From this release forward, all development of `traumar` will be done
+  in the IDE Positron!
+
 ## traumar 1.2.2
 
 CRAN release: 2025-08-26
@@ -14,6 +29,7 @@ CRAN release: 2025-08-26
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md)
   function documentation to provide a better explanation of the binning
   algorithm under the hood.
+
 - [`probability_of_survival()`](https://bemts-hhs.github.io/traumar/reference/probability_of_survival.md):
   Updated the Return section documentation to be more accurate that the
   output is not a percentage, it is the predicted probability of
@@ -31,12 +47,12 @@ CRAN release: 2025-06-24
 
 - updated comments in
   [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
-  for `z_method` method of the `Z_score` to reflect the right text
+  for `z_method` method of the `Z_score` to reflect the right text.
 
 - In
   [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md),
   completed the comment where the `scale_factor` is created so that it
-  is complete and clear
+  is complete and clear.
 
 - Corrected a test error at CRAN from using bootstrap CI process in
   testing with 100,000 observations and 100 bootstrap samples to make
@@ -60,9 +76,12 @@ CRAN release: 2025-05-22
   Iowa trauma system currently engages in the quality improvement
   process using the System Evaluation and Quality Improvement Committee
   (SEQIC) Indicators.
+
 - Added a [Contributor Code of
   Conduct](https://bemts-hhs.github.io/traumar/CODE_OF_CONDUCT.html) and
-  support information. \_ Additionally, a convenience function
+  support information.
+
+- Additionally, a convenience function
   [`is_it_normal()`](https://bemts-hhs.github.io/traumar/reference/is_it_normal.md)
   provides the ability for users of `traumar` to get descriptive
   statistics on one or more numeric variables, with optional normality
@@ -71,7 +90,9 @@ CRAN release: 2025-05-22
   [`is_it_normal()`](https://bemts-hhs.github.io/traumar/reference/is_it_normal.md)
   to conduct exploratory data analysis of one or more variables within
   zero or more groups.
+
 - Added the following functions:
+
   - [`seqic_indicator_1()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_1.md)
   - [`seqic_indicator_2()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_2.md)
   - [`seqic_indicator_3()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_3.md)
@@ -86,18 +107,22 @@ CRAN release: 2025-05-22
   - [`seqic_indicator_12()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_12.md)
   - [`seqic_indicator_13()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_13.md)
   - [`is_it_normal()`](https://bemts-hhs.github.io/traumar/reference/is_it_normal.md)
+
 - A fix was applied to
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md)
   to make the `percent` column calculate correctly when groups were not
   introduced.
+
 - Removed hard-coded rounding from most calculations within the package
   where possible.
+
 - Improved examples for the the package’s README,
   [`probability_of_survival()`](https://bemts-hhs.github.io/traumar/reference/probability_of_survival.md),
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md),
   [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md), and
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md)
   using more helpful data.
+
 - Improved error messages coming from
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md)
   when the argument `Ps_col` does not follow the expected distribution
@@ -106,7 +131,9 @@ CRAN release: 2025-05-22
   passed to
   [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md) and
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md).
+
 - Code formatting changed to the `air` package through the RStudio IDE.
+
 - Updated data validation for
   [`trauma_case_mix()`](https://bemts-hhs.github.io/traumar/reference/trauma_case_mix.md),
   [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md),
@@ -115,22 +142,27 @@ CRAN release: 2025-05-22
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md)
   to provide improved messaging related to missings in `Ps_col` and
   `outcome_col` .
+
 - Across functions using the probability of survival calculation, it is
   expected that Ps values have a range of \[0, 1\]. Functions will no
   longer handle values in percentage format (e.g. 10, 50, 98).
+
 - The `outcome` argument was removed from
   [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
   to remove ambiguity in the nature of the `outcome_col` values. Only
   values of `TRUE/FALSE` and `1/0` are accepted.
+
 - The `diagnostics` argument was removed from
   [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
   to make the user interface smoother. Instead of providing guidance via
   outputs to the console, users are encouraged to seek assistance with
   interpreting results via the source academic literature and the
   package documentation.
+
 - [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
   will no longer provide a pivoted output as a default. Users can elect
   to pivot the outputs as needed in their workflows.
+
 - [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md) and
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md)
   now have a new argument `bootstrap_ci` that allows a user to elect to
@@ -147,8 +179,10 @@ CRAN release: 2025-03-25
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md),
   [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md), and
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md).
+
   - Setting `group_vars = NULL` applies the functions to the entire
-    dataset without subgrouping.  
+    dataset without subgrouping.
+
   - For pivoting the
     [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md)
     outputs longer, setting `pivot = TRUE` will work when `group_vars`
@@ -158,19 +192,23 @@ CRAN release: 2025-03-25
 
 - Improved `NA` handling in
   [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md) and
-  [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md).  
+  [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md).
+
 - Ensured RMM calculations remain within the expected range of \[-1 to
-  1\], including their 95% confidence intervals.  
+  1\], including their 95% confidence intervals.
+
 - Optimized
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md)
   by replacing its internal `for` loop with `dplyr` functions, enhancing
   accuracy and efficiency without introducing breaking changes.
+
 - Improved command line messaging and documentation within
   [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md) and
   [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md)
   regarding probability of survival values `Ps_col < 0` and
   `Ps_col > 1`. Now, these functions will throw an error if probability
   of survival values are `Ps_col < 0` or `Ps_col > 1`.
+
 - The
   [`nonlinear_bins()`](https://bemts-hhs.github.io/traumar/reference/nonlinear_bins.md)
   function has improved data validation for the `Ps_col` variable.
