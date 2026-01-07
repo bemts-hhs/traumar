@@ -1,4 +1,9 @@
 utils::globalVariables(c(
+  "b0",
+  "b1",
+  "b2",
+  "b3",
+  "age_points",
   ":=",
   "bin_number",
   "bin_start",
