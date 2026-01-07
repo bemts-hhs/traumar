@@ -76,19 +76,15 @@ test_that("stat_sig handles p-values at the boundary correctly", {
 
 test_that("stat_sig throws an error for non-numeric input", {
   # Test non-numeric input
-  expect_error(stat_sig("a string"),
-               "must be a numeric vector")
+  expect_error(stat_sig("a string"), "must be a numeric vector")
 })
 
 test_that("stat_sig throws an error for p-values outside the [0, 1] range", {
   # Test p-values out of range
-  expect_error(stat_sig(c(-0.01, 0.5, 1.2)),
-               "must be between 0 and 1.")
+  expect_error(stat_sig(c(-0.01, 0.5, 1.2)), "must be between 0 and 1.")
 })
 
-test_that("stat_sig handles edge case of empty vector", {
-  # Test with an empty vector
-  result <- stat_sig(numeric(0))
-  expect_no_success(result)
+test_that("stat_sig handles edge case of NULL vector", {
+  # Test with a NULL
+  expect_error(stat_sig(NULL), regexp = "must be a numeric vector")
 })
-
