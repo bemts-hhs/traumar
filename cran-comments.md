@@ -7,4 +7,5 @@
   `probability_of_survival()` function. Corresponding changes to documentation
   to explain this and better documentation of references are included in this
   patch.
+  
 * No breaking changes are expected.
