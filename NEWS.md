@@ -8,6 +8,9 @@
   update ensures a standardized approach to calculating survival probabilities
   for both blunt and penetrating traumas.
 
+- From this release forward, all development of `traumar` will be done in the
+  IDE Positron!
+
 # traumar 1.2.2
 
 - `rmm()`, `rm_bin_summary()`, and `nonlinear_bins()`: Updated the documentation
