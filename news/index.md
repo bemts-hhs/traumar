@@ -2,6 +2,8 @@
 
 ## traumar 1.2.3
 
+CRAN release: 2026-01-08
+
 - [`probability_of_survival()`](https://bemts-hhs.github.io/traumar/reference/probability_of_survival.md)
   was updated to enhance code readability and leverage mathematical
   notation in the calculation of predicted survival probabilities. The
