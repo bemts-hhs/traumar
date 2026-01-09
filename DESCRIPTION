@@ -1,7 +1,7 @@
 Type: Package
 Package: traumar
 Title: Calculate Metrics for Trauma System Performance
-Version: 1.2.3
+Version: 1.2.3.9000
 Authors@R: c(
     person("Nicolas", "Foss", , "nicolas.foss@hhs.iowa.gov", role = c("aut", "cre")),
     person("Iowa Department of Health and Human Services", role = "cph")

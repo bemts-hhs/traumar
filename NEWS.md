@@ -1,3 +1,5 @@
+# traumar (development version)
+
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
   leverage mathematical notation in the calculation of predicted survival
