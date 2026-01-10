@@ -74,22 +74,31 @@
 #' result
 #'
 probability_of_survival <- function(trauma_type, age, rts, iss) {
-  # Check trauma_type
-  if (!is.character(trauma_type) && !is.factor(trauma_type)) {
-    cli::cli_abort(
-      "The {.var trauma_type} column must be of type {.cls character} or {.cls factor}."
-    )
-  }
+    
+  # Check trauma_type using {checkmate}
+  checkmate::assert(
+    checkmate::check_character(trauma_type),
+    checkmate::check_factor(trauma_type),
+    combine = "or"
+  )
+  
+  # if (!is.character(trauma_type) && !is.factor(trauma_type)) {
+  #   cli::cli_abort(
+  #     "The {.var trauma_type} column must be of type {.cls character} or {.cls factor}."
+  #   )
+  # }
 
   # Check for valid values in trauma_type, ignoring NA
   valid_trauma_types <- c("Blunt", "Penetrating", "Burn")
-  if (
-    !all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))
-  ) {
-    cli::cli_warn(
-      "The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'."
-    )
-  }
+  checkmate::assert_subset(trauma_type[!is.na(trauma_type)], choices = valid_trauma_types)
+
+  # if (
+  #   !all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))
+  # ) {
+  #   cli::cli_warn(
+  #     "The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'."
+  #   )
+  # }
 
   # Warn about 'Burn' and missing values
   if (any(trauma_type %in% "Burn", na.rm = TRUE) | any(is.na(trauma_type))) {

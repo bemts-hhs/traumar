@@ -1,4 +1,4 @@
-# traumar (development version)
+# traumar 1.2.4
 
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
