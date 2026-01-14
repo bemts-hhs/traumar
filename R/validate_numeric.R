@@ -9,8 +9,8 @@
 #' @param column The column to be checked.
 #' @param min Optional. The minimum value for the range check.
 #' @param max Optional. The maximum value for the range check.
-#' @param na_ok Logical. If TRUE, NA values are allowed. Default is FALSE.
-#' @param null_ok Logical. If TRUE, NULL values are allowed. Default is FALSE.
+#' @param na_ok Logical. If TRUE, NA values are allowed. Default is TRUE.
+#' @param null_ok Logical. If TRUE, NULL values are allowed. Default is TRUE.
 #' @param finite Logical. If TRUE, only finite values are allowed. Default is
 #' FALSE.
 #' @param type A character string specifying the type of message to be displayed
