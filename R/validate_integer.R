@@ -1,21 +1,12 @@
-#' @title Validate Numeric Column
+#' @title Validate Integer Column
 #'
 #' @description
-#' This function checks if a column is numeric and optionally checks if the
+#' This function checks if a column is integer and optionally checks if the
 #' values are within a specified range. Depending on the specified type, it will
 #' either throw an error, issue a warning, or send a message. Additional
-#' arguments allow  for checking NA values, NULL values, and finite values.
+#' arguments allow for checking NA values, NULL values, and finite values.
 #'
-#' @param column The column to be checked.
-#' @param min Optional. The minimum value for the range check.
-#' @param max Optional. The maximum value for the range check.
-#' @param na_ok Logical. If TRUE, NA values are allowed. Default is TRUE.
-#' @param null_ok Logical. If TRUE, NULL values are allowed. Default is TRUE.
-#' @param finite Logical. If TRUE, only finite values are allowed. Default is
-#' FALSE.
-#' @param type A character string specifying the type of message to be displayed
-#' if the column is not numeric or if the values are out of range. Must be one
-#' of "error", "warning", or "message".
+#' @inheritParams validate_numeric
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -29,18 +20,19 @@
 #' )
 #'
 #' # Validate the Patient_Age_Years column
-#' validate_numeric(data$Patient_Age_Years,
-#' min = 0,
-#' max = 100,
-#' na_ok = TRUE,
-#' null_ok = FALSE,
-#' finite = FALSE,
-#' type = "warning"
+#' validate_integer(data$Patient_Age_Years,
+#'   min = 0,
+#'   max = 100,
+#'   na_ok = TRUE,
+#'   null_ok = FALSE,
+#'   finite = FALSE,
+#'   type = "warning"
 #' )
 #'
 #' @author
 #' Nicolas Foss, Ed.D., MS
-validate_numeric <- function(
+#'
+validate_integer <- function(
   column,
   min = NULL,
   max = NULL,
@@ -66,11 +58,11 @@ validate_numeric <- function(
     }
   }
 
-  # Check if the column is numeric
-  if (!is.numeric(column)) {
+  # Check if the column is integer
+  if (!is.integer(column)) {
     validate_error_type(
       column = column_name,
-      message = "must be {.cls numeric}.",
+      message = "must be {.cls integer}.",
       type = "e"
     )
   }

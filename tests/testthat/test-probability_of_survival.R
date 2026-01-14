@@ -9,7 +9,12 @@ test_that("probability_of_survival handles valid inputs correctly", {
     1 / (1 + exp(-(-2.5355 + 0.9934 * 6.90 - 0.0651 * 25 - (1.1360 * 1))))
   )
 
-  result <- probability_of_survival(trauma_type, age, rts, iss)
+  result <- probability_of_survival(
+    trauma_type = trauma_type,
+    age = age,
+    rts = rts,
+    iss = iss
+  )
   expect_equal(result, expected)
 })
 
