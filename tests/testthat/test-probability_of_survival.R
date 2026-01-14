@@ -77,7 +77,7 @@ test_that("probability_of_survival warns about 'Burn' trauma type", {
 test_that("probability_of_survival handles invalid values correctly", {
   trauma_type <- c("Blunt", "stuff")
   age <- c(30, 60)
-  rts <- c(7.84, NA)
+  rts <- c(7.84, 6)
   iss <- c(10, 25)
 
   testthat::expect_warning(probability_of_survival(trauma_type, age, rts, iss))
@@ -90,5 +90,5 @@ test_that("probability_of_survival handles NA values correctly", {
   rts <- c(7.84, NA)
   iss <- c(10, NA)
 
-  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
+  expect_error(probability_of_survival(trauma_type, age, rts, iss))
 })
