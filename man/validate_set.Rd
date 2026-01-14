@@ -5,7 +5,7 @@
 \title{Validate Set Equality}
 \usage{
 validate_set(
-  column,
+  input,
   valid_set,
   type = c("error", "warning", "message"),
   na_ok = TRUE,
@@ -13,12 +13,12 @@ validate_set(
 )
 }
 \arguments{
-\item{column}{The column to be checked.}
+\item{input}{The data to be validated.}
 
 \item{valid_set}{A vector of valid values.}
 
 \item{type}{A character string specifying the type of message to be displayed
-if the column is not numeric or if the values are out of range. Must be one
+if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 
 \item{na_ok}{Logical. If TRUE, NA values are allowed. Default is TRUE.}
@@ -29,7 +29,7 @@ of "error", "warning", or "message".}
 NULL. The function is used for its side effects.
 }
 \description{
-This function checks if all elements of a column are within a specified set
+This function checks if all elements of an input are within a specified set
 of valid values. Depending on the specified type, it will either throw an
 error, issue a warning, or send a message.
 }
@@ -42,7 +42,7 @@ data <- data.frame(
   ISS = c(10, 25, 15, 20)
 )
 
-# Validate the Trauma_Type column
+# Validate the Trauma_Type input
 validate_set(data$Trauma_Type,
 valid_set = c("Blunt", "Penetrating"),
 type = "warning",

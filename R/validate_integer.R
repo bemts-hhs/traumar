@@ -1,7 +1,7 @@
-#' @title Validate Integer Column
+#' @title Validate Integer input
 #'
 #' @description
-#' This function checks if a column is integer and optionally checks if the
+#' This function checks if an input is integer and optionally checks if the
 #' values are within a specified range. Depending on the specified type, it will
 #' either throw an error, issue a warning, or send a message. Additional
 #' arguments allow for checking NA values, NULL values, and finite values.
@@ -19,7 +19,7 @@
 #'   ISS = c(10, 25, 15, 20)
 #' )
 #'
-#' # Validate the Patient_Age_Years column
+#' # Validate the Patient_Age_Years input
 #' validate_integer(data$Patient_Age_Years,
 #'   min = 0,
 #'   max = 100,
@@ -33,7 +33,7 @@
 #' Nicolas Foss, Ed.D., MS
 #'
 validate_integer <- function(
-  column,
+  input,
   min = NULL,
   max = NULL,
   na_ok = TRUE,
@@ -44,48 +44,48 @@ validate_integer <- function(
   # Validate the type argument
   type <- match.arg(type, choices = c("error", "warning", "message"))
 
-  # Get the column name
-  column_name <- deparse(substitute(column))
+  # Get the input name
+  input_name <- deparse(substitute(input))
 
-  # Check if the column is NULL
-  if (is.null(column)) {
+  # Check if the input is NULL
+  if (is.null(input)) {
     if (!null_ok) {
       validate_error_type(
-        column = column_name,
+        input = input_name,
         message = "must not be NULL.",
         type = "e"
       )
     }
   }
 
-  # Check if the column is integer
-  if (!is.integer(column)) {
+  # Check if the input is integer
+  if (!is.integer(input)) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = "must be {.cls integer}.",
       type = "e"
     )
   }
 
   # Check for finite values if finite is TRUE
-  if (finite && any(!is.finite(column), na.rm = TRUE)) {
+  if (finite && any(!is.finite(input), na.rm = TRUE)) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = "must contain only finite values.",
       type = "e"
     )
   }
 
   # Check for NA values if na_ok is FALSE
-  if (!na_ok && any(is.na(column))) {
+  if (!na_ok && any(is.na(input))) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = "must not contain NA values.",
       type = "e"
     )
   }
 
-  # Get descriptive statistics on column to provide information in warning
+  # Get descriptive statistics on input to provide information in warning
   # messages
 
   # only take descriptive statistics if limits are requested
@@ -94,50 +94,50 @@ validate_integer <- function(
     required_range <- glue::glue("[{min}, {max}]")
 
     # get minimum
-    observed_min <- min(column, na.rm = TRUE)
+    observed_min <- min(input, na.rm = TRUE)
 
     # get max
-    observed_max <- max(column, na.rm = TRUE)
+    observed_max <- max(input, na.rm = TRUE)
 
     # create a pretty range
     observed_range <- glue::glue("[{observed_min}, {observed_max}]")
   }
 
-  # Check if the column values are within the specified range when only min is
+  # Check if the input values are within the specified range when only min is
   # provided
-  if (!is.null(min) && is.null(max) && any(column < min, na.rm = TRUE)) {
+  if (!is.null(min) && is.null(max) && any(input < min, na.rm = TRUE)) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = glue::glue(
-        "values must be greater than or equal to {cli::col_blue(min)}. Observed range of this column was {cli::col_grey(observed_range)}."
+        "values must be greater than or equal to {cli::col_blue(min)}. Observed range of this input was {cli::col_grey(observed_range)}."
       ),
       type = "w"
     )
   }
 
-  # Check if the column values are within the specified range when only max is
+  # Check if the input values are within the specified range when only max is
   # provided
-  if (!is.null(max) && is.null(min) && any(column > max, na.rm = TRUE)) {
+  if (!is.null(max) && is.null(min) && any(input > max, na.rm = TRUE)) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = glue::glue(
-        "values must be less than or equal to {cli::col_blue(max)}. Observed range of this column was {cli::col_grey(observed_range)}."
+        "values must be less than or equal to {cli::col_blue(max)}. Observed range of this input was {cli::col_grey(observed_range)}."
       ),
       type = "w"
     )
   }
 
-  # Check if the column values are within the specified range when min and max
+  # Check if the input values are within the specified range when min and max
   # are provided
   if (
     !is.null(min) &&
       !is.null(max) &&
-      any(column < min | column > max, na.rm = TRUE)
+      any(input < min | input > max, na.rm = TRUE)
   ) {
     validate_error_type(
-      column = column_name,
+      input = input_name,
       message = glue::glue(
-        "values must be contained within range {cli::col_blue({required_range})}. Observed range of this column was {cli::col_grey(observed_range)}."
+        "values must be contained within range {cli::col_blue({required_range})}. Observed range of this input was {cli::col_grey(observed_range)}."
       ),
       type = "w"
     )

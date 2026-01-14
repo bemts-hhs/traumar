@@ -1,9 +1,9 @@
-#' @title Validate a Character or Factor Input
+#' @title Validate a Date-Time input
 #'
 #' @description
-#' This function checks if an input is of type character or factor. Depending on
-#' the specified type, it will either throw an error, issue a warning, or send a
-#' message. It also checks for NULL and NA values based on the specified
+#' This function checks if an input contains valid date-time objects. Depending
+#' on the specified type, it will either throw an error, issue a warning, or
+#' send a message. It also checks for NULL and NA values based on the specified
 #' parameters.
 #'
 #' @inheritParams validate_numeric
@@ -13,15 +13,17 @@
 #' @examples
 #' # Synthetic data
 #' data <- data.frame(
-#'   Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-#'   Patient_Age_Years = c(30, 60, 45, 50),
-#'   RTS = c(7.84, 6.90, 7.00, 6.50),
-#'   ISS = c(10, 25, 15, 20)
+#'   Event_Time = c(
+#'     "2023-01-01 12:00:00",
+#'     "2023-01-02 13:00:00",
+#'     NA,
+#'     "2023-01-04 15:00:00"
+#'   )
 #' )
 #'
-#' # Validate the Trauma_Type input
-#' validate_character_factor(
-#'   data$Trauma_Type,
+#' # Validate the Event_Time input
+#' validate_date_time(
+#'   data$Event_Time,
 #'   type = "warning",
 #'   na_ok = FALSE,
 #'   null_ok = FALSE
@@ -30,7 +32,7 @@
 #' @author
 #' Nicolas Foss, Ed.D., MS
 #'
-validate_character_factor <- function(
+validate_date_time <- function(
   input,
   type = c("error", "warning", "message"),
   na_ok = TRUE,
@@ -62,12 +64,12 @@ validate_character_factor <- function(
     )
   }
 
-  # Check if the input is character or factor
-  if (!is.character(input) && !is.factor(input)) {
+  # Check if the input contains valid date-time objects
+  if (!all(lubridate::is.POSIXct(input))) {
     # Call the validate_error_type function to handle the message display
     validate_error_type(
       input = input_name,
-      message = "must be of type {.cls character} or {.cls factor}.",
+      message = "must contain valid {.cls date-time} objects.",
       type = type
     )
   }

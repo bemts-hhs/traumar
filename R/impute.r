@@ -31,113 +31,151 @@
 #'
 #' @export
 #'
-impute <- function(x,
-                   focus = c("skew", "missing"),
-                   method = c("winsorize", "iqr", "mean", "median"),
-                   percentile = NULL) {
-
+impute <- function(
+  x,
+  focus = c("skew", "missing"),
+  method = c("winsorize", "iqr", "mean", "median"),
+  percentile = NULL
+) {
   # Check if x is numeric
-  if (!is.numeric(x)) {
-    cli::cli_abort("`x` must be a numeric vector.")
-  }
-
-  if (length(focus) > 1) {
-
-    focus <- "skew"
-    cli::cli_alert_success("`focus` is set to '{focus}'.")
-
-  }
-
-  if (focus == "skew" && length(method) > 1) {
-
-    method <- "winsorize"
-
-    cli::cli_alert_success("`method` is set to '{method}'.")
-
-
-  } else if (focus == "missing" && length(method) > 1) {
-
-    method <- "mean"
-
-    cli::cli_alert_success("`method` is set to '{method}'.")
-
-
-  }
+  validate_numeric(input = x, type = "e")
 
   # Validate focus
-  focus <- base::match.arg(focus)
+  focus <- match.arg(focus, choices = c("skew", "missing"))
 
-  # Validate method
+  # Ensure that focus is used correctly
+  validate_length(input = focus, exact_length = 1, type = "error")
+
+  # Ensure that method is used correctly
+  validate_length(input = method, exact_length = 1, type = "error")
+
+  # Dynamic definition of valid method argument input
   valid_methods <- if (focus == "skew") {
-
     c("winsorize", "iqr")
   } else if (focus == "missing") {
-
     c("mean", "median")
-
-    }
-
-  if (!method %in% valid_methods) {
-    cli::cli_abort("`method` must be one of: {valid_methods} for `focus = '{focus}'`.")
   }
+
+  # Validate method
+  validate_set(input = method, valid_set = valid_methods, type = "error")
 
   # Validate percentile for skew focus and winsorize method
   if (focus == "skew" && method == "winsorize") {
-    if (!is.null(percentile) && (!is.numeric(percentile) || percentile <= 0)) {
-      cli::cli_abort("`percentile` must be a numeric value between 0 and 0.5 (exclusive).")
+    validate_numeric(
+      input = percentile,
+      min = 0,
+      max = 1,
+      na_ok = FALSE,
+      null_ok = FALSE,
+      type = "warning"
+    )
+  }
+
+  # Check if the focus is on skewness
+  if (focus == "skew") {
+    # Check if the method is winsorization and the percentile is not provided
+    if (method == "winsorize" && is.null(percentile)) {
+      # Calculate the upper limit as the 99th percentile of the data
+      upper_limit <- as.numeric(stats::quantile(
+        {{ x }},
+        na.rm = TRUE, # Remove NA values before calculation
+        probs = 0.99 # 99th percentile
+      ))
+
+      # Calculate the lower limit as the 1st percentile of the data
+      lower_limit <- as.numeric(stats::quantile(
+        {{ x }},
+        na.rm = TRUE, # Remove NA values before calculation
+        probs = 0.01 # 1st percentile
+      ))
+
+      # Winsorize the data: replace values above the upper limit with the upper
+      # limit, and values below the lower limit with the lower limit
+      imputed_x <- dplyr::if_else(
+        {{ x }} > upper_limit,
+        upper_limit,
+        dplyr::if_else({{ x }} < lower_limit, lower_limit, {{ x }})
+      )
+
+      # Check if the method is winsorization and the percentile is provided
+    } else if (method == "winsorize" && !is.null(percentile)) {
+      # Calculate the upper limit as the specified percentile of the data
+      upper_limit <- as.numeric(stats::quantile(
+        {{ x }},
+        na.rm = TRUE, # Remove NA values before calculation
+        probs = percentile # Specified percentile
+      ))
+
+      # Calculate the lower limit as the complement of the specified percentile
+      lower_limit <- as.numeric(stats::quantile(
+        {{ x }},
+        na.rm = TRUE, # Remove NA values before calculation
+        probs = 1 - percentile # Complement of the specified percentile
+      ))
+
+      # Winsorize the data: replace values above the upper limit with the upper
+      # limit, and values below the lower limit with the lower limit
+      imputed_x <- dplyr::if_else(
+        {{ x }} > upper_limit,
+        upper_limit,
+        dplyr::if_else({{ x }} < lower_limit, lower_limit, {{ x }})
+      )
+
+      # Check if the method is interquartile range (IQR) for extreme values
+    } else if (method == "iqr") {
+      # Calculate the IQR of the data
+      iqr_x <- stats::IQR({{ x }}, na.rm = TRUE)
+
+      # Calculate the upper quantile (75th percentile) of the data
+      upper_quantile <- as.numeric(stats::quantile(
+        {{ x }},
+        probs = 0.75,
+        na.rm = TRUE
+      ))
+
+      # Calculate the lower quantile (25th percentile) of the data
+      lower_quantile <- as.numeric(stats::quantile(
+        {{ x }},
+        probs = 0.25,
+        na.rm = TRUE
+      ))
+
+      # Calculate the upper limit as the upper quantile plus 1.5 times the IQR
+      upper_limit <- upper_quantile + (1.5 * iqr_x)
+      # Calculate the lower limit as the lower quantile minus 1.5 times the IQR
+      lower_limit <- lower_quantile - (1.5 * iqr_x)
+
+      # Clip the data: replace values above the upper limit with the upper
+      # limit, and values below the lower limit with the lower limit
+      imputed_x <- dplyr::if_else(
+        {{ x }} > upper_limit,
+        upper_limit,
+        dplyr::if_else({{ x }} < lower_limit, lower_limit, {{ x }})
+      )
+    }
+  } else if (focus == "missing") {
+    # Check if the focus is on missing values
+
+    if (method == "mean") {
+      # If the method is mean imputation for missing values
+
+      # Replace missing values with the mean of the data
+      imputed_x <- dplyr::if_else(
+        is.na({{ x }}),
+        base::mean({{ x }}, na.rm = TRUE),
+        {{ x }}
+      )
+    } else if (method == "median") {
+      # If the method is median imputation for missing values
+
+      # Replace missing values with the median of the data
+      imputed_x <- dplyr::if_else(
+        is.na({{ x }}),
+        stats::median({{ x }}, na.rm = TRUE),
+        {{ x }}
+      )
     }
   }
 
-  if (focus == "skew") {
-
-    if (method == "winsorize" & is.null(percentile)) { # for extreme values
-
-      upper_limit <- as.numeric(stats::quantile({{x}}, na.rm = TRUE, probs = 0.99))
-      lower_limit <- as.numeric(stats::quantile({{x}}, na.rm = TRUE, probs = 0.01))
-
-      imputed_x <- dplyr::if_else({{x}} > upper_limit, upper_limit,
-                                  dplyr::if_else({{x}} < lower_limit, lower_limit, {{x}})
-      )
-
-    } else if (method == "winsorize" & !is.null(percentile)) {
-
-      upper_limit <- as.numeric(stats::quantile({{x}}, na.rm = TRUE, probs = percentile))
-      lower_limit <- as.numeric(stats::quantile({{x}}, na.rm = TRUE, probs = 1 - percentile))
-
-      imputed_x <- dplyr::if_else({{x}} > upper_limit, upper_limit,
-                                  dplyr::if_else({{x}} < lower_limit, lower_limit, {{x}})
-      )
-
-    } else if (method == "iqr") { # for extreme values
-
-      iqr_x <- stats::IQR({{x}}, na.rm = TRUE)
-
-      upper_quantile <- as.numeric(stats::quantile({{x}}, probs = 0.75, na.rm = TRUE))
-      lower_quantile <- as.numeric(stats::quantile({{x}}, probs = 0.25, na.rm = TRUE))
-
-      upper_limit <- upper_quantile + (1.5 * iqr_x)
-      lower_limit <- lower_quantile - (1.5 * iqr_x)
-
-      imputed_x <- dplyr::if_else({{x}} > upper_limit, upper_limit,
-                                  dplyr::if_else({{x}} < lower_limit, lower_limit, {{x}}
-                           )
-      )
-
-    }
-
-    } else if (focus == "missing") {
-
-      if(method == "mean") { # only for missing values
-
-      imputed_x <- dplyr::if_else(is.na({{x}}), base::mean({{x}}, na.rm = TRUE), {{x}})
-
-    } else if (method == "median") { # only for missing values
-
-      imputed_x <- dplyr::if_else(is.na({{x}}), stats::median({{x}}, na.rm = TRUE), {{x}})
-
-    }
-      }
-
   return(imputed_x)
-
 }

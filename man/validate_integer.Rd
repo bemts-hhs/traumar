@@ -2,10 +2,10 @@
 % Please edit documentation in R/validate_integer.R
 \name{validate_integer}
 \alias{validate_integer}
-\title{Validate Integer Column}
+\title{Validate Integer input}
 \usage{
 validate_integer(
-  column,
+  input,
   min = NULL,
   max = NULL,
   na_ok = TRUE,
@@ -15,7 +15,7 @@ validate_integer(
 )
 }
 \arguments{
-\item{column}{The column to be checked.}
+\item{input}{The data to be validated.}
 
 \item{min}{Optional. The minimum value for the range check.}
 
@@ -29,14 +29,14 @@ validate_integer(
 FALSE.}
 
 \item{type}{A character string specifying the type of message to be displayed
-if the column is not numeric or if the values are out of range. Must be one
+if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 }
 \value{
 NULL. The function is used for its side effects.
 }
 \description{
-This function checks if a column is integer and optionally checks if the
+This function checks if an input is integer and optionally checks if the
 values are within a specified range. Depending on the specified type, it will
 either throw an error, issue a warning, or send a message. Additional
 arguments allow for checking NA values, NULL values, and finite values.
@@ -50,7 +50,7 @@ data <- data.frame(
   ISS = c(10, 25, 15, 20)
 )
 
-# Validate the Patient_Age_Years column
+# Validate the Patient_Age_Years input
 validate_integer(data$Patient_Age_Years,
   min = 0,
   max = 100,

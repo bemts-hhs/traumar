@@ -4,15 +4,15 @@
 \alias{validate_error_type}
 \title{Validate Error Type}
 \usage{
-validate_error_type(column, message, type = c("error", "warning", "message"))
+validate_error_type(input, message, type = c("error", "warning", "message"))
 }
 \arguments{
-\item{column}{The column to be checked.}
+\item{input}{The data to be validated.}
 
 \item{message}{The message to be displayed.}
 
 \item{type}{A character string specifying the type of message to be displayed
-if the column is not numeric or if the values are out of range. Must be one
+if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 }
 \value{

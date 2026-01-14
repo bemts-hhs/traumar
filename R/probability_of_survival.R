@@ -77,21 +77,21 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
   # Ensure trauma_type is character or factor
 
   # Set up trauma_type validity checks
-  validate_character_factor(column = trauma_type, type = "e")
+  validate_character_factor(input = trauma_type, type = "e")
 
   # Vector of valid trauma_type(s)
   valid_trauma_types <- c("Blunt", "Penetrating")
 
   # Check for valid values in trauma_type, ignoring NA
   validate_set(
-    column = trauma_type,
+    input = trauma_type,
     valid_set = valid_trauma_types,
     type = "w"
   )
 
   # Check age
   validate_numeric(
-    column = age,
+    input = age,
     min = 0,
     type = "warning",
     na_ok = TRUE,
@@ -100,7 +100,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
 
   # Check rts
   validate_numeric(
-    column = rts,
+    input = rts,
     min = 0,
     max = 7.84,
     type = "warning",
@@ -110,7 +110,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
 
   # Check iss
   validate_numeric(
-    column = iss,
+    input = iss,
     min = 0,
     max = 75,
     type = "warning",

@@ -1,27 +1,28 @@
-#' @title Validate a Character or Factor Input
+#' @title Validate String Length
 #'
 #' @description
-#' This function checks if an input is of type character or factor. Depending on
-#' the specified type, it will either throw an error, issue a warning, or send a
-#' message. It also checks for NULL and NA values based on the specified
-#' parameters.
+#' This function checks if the length of strings in an input is within a
+#' specified range. Depending on the specified type, it will either throw an
+#' error, issue a warning, or send a message. It also checks for NULL and NA
+#' values based on the specified parameters.
 #'
 #' @inheritParams validate_numeric
+#' @param min_length The minimum length of the strings.
+#' @param max_length The maximum length of the strings.
 #'
 #' @return NULL. The function is used for its side effects.
 #'
 #' @examples
 #' # Synthetic data
 #' data <- data.frame(
-#'   Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-#'   Patient_Age_Years = c(30, 60, 45, 50),
-#'   RTS = c(7.84, 6.90, 7.00, 6.50),
-#'   ISS = c(10, 25, 15, 20)
+#'   Names = c("Alice", "Bob", "Charlie", "David")
 #' )
 #'
-#' # Validate the Trauma_Type input
-#' validate_character_factor(
-#'   data$Trauma_Type,
+#' # Validate the Names input
+#' validate_string_length(
+#'   data$Names,
+#'   min_length = 3,
+#'   max_length = 7,
 #'   type = "warning",
 #'   na_ok = FALSE,
 #'   null_ok = FALSE
@@ -30,8 +31,10 @@
 #' @author
 #' Nicolas Foss, Ed.D., MS
 #'
-validate_character_factor <- function(
+validate_string_length <- function(
   input,
+  min_length,
+  max_length,
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE
@@ -62,12 +65,16 @@ validate_character_factor <- function(
     )
   }
 
-  # Check if the input is character or factor
-  if (!is.character(input) && !is.factor(input)) {
-    # Call the validate_error_type function to handle the message display
+  # Get required range
+  required_range <- glue::glue("[{min_length}, {max_length}]")
+
+  # Check if the string lengths are within the specified range
+  if (any(nchar(input) < min_length | nchar(input) > max_length)) {
     validate_error_type(
       input = input_name,
-      message = "must be of type {.cls character} or {.cls factor}.",
+      message = glue::glue(
+        "must have string lengths within range {cli::col_blue(required_range)}."
+      ),
       type = type
     )
   }

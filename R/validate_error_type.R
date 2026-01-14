@@ -10,7 +10,7 @@
 #' @return NULL. The function is used for its side effects.
 #'
 validate_error_type <- function(
-  column,
+  input,
   message,
   type = c("error", "warning", "message")
 ) {
@@ -18,7 +18,7 @@ validate_error_type <- function(
   type <- match.arg(type, choices = c("error", "warning", "message"))
 
   # Create the dynamic message using glue
-  dynamic_message <- glue::glue("{cli::col_cyan(column)}: {message}")
+  dynamic_message <- glue::glue("{cli::col_cyan(input)}: {message}")
 
   # Depending on the type, use the appropriate cli function
   if (type == "error") {

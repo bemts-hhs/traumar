@@ -2,10 +2,10 @@
 % Please edit documentation in R/validate_numeric.R
 \name{validate_numeric}
 \alias{validate_numeric}
-\title{Validate Numeric Column}
+\title{Validate Numeric Input}
 \usage{
 validate_numeric(
-  column,
+  input,
   min = NULL,
   max = NULL,
   na_ok = TRUE,
@@ -15,7 +15,7 @@ validate_numeric(
 )
 }
 \arguments{
-\item{column}{The column to be checked.}
+\item{input}{The data to be validated.}
 
 \item{min}{Optional. The minimum value for the range check.}
 
@@ -29,14 +29,14 @@ validate_numeric(
 FALSE.}
 
 \item{type}{A character string specifying the type of message to be displayed
-if the column is not numeric or if the values are out of range. Must be one
+if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 }
 \value{
 NULL. The function is used for its side effects.
 }
 \description{
-This function checks if a column is numeric and optionally checks if the
+This function checks if an input is numeric and optionally checks if the
 values are within a specified range. Depending on the specified type, it will
 either throw an error, issue a warning, or send a message. Additional
 arguments allow  for checking NA values, NULL values, and finite values.
