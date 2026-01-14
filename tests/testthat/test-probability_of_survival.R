@@ -90,5 +90,5 @@ test_that("probability_of_survival handles NA values correctly", {
   rts <- c(7.84, NA)
   iss <- c(10, NA)
 
-  expect_error(probability_of_survival(trauma_type, age, rts, iss))
+  expect_warning(probability_of_survival(trauma_type, age, rts, iss))
 })

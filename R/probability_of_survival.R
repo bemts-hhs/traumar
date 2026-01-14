@@ -90,13 +90,33 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
   )
 
   # Check age
-  validate_numeric(column = age, min = 0, type = "warning")
+  validate_numeric(
+    column = age,
+    min = 0,
+    type = "warning",
+    na_ok = TRUE,
+    null_ok = TRUE
+  )
 
   # Check rts
-  validate_numeric(column = rts, min = 0, max = 7.84, type = "warning")
+  validate_numeric(
+    column = rts,
+    min = 0,
+    max = 7.84,
+    type = "warning",
+    na_ok = TRUE,
+    null_ok = TRUE
+  )
 
   # Check iss
-  validate_numeric(column = iss, min = 0, max = 75, type = "warning")
+  validate_numeric(
+    column = iss,
+    min = 0,
+    max = 75,
+    type = "warning",
+    na_ok = TRUE,
+    null_ok = TRUE
+  )
 
   # Assign age category
   # Age points are assigned as 0 if age is less than 55, otherwise 1

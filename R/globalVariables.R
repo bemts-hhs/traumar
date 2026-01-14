@@ -1,4 +1,8 @@
 utils::globalVariables(c(
+  "valid_trauma_types",
+  "dynamic_message",
+  "type",
+  "column_name",
   "b0",
   "b1",
   "b2",

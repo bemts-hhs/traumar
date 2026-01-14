@@ -8,8 +8,8 @@ validate_numeric(
   column,
   min = NULL,
   max = NULL,
-  na_ok = FALSE,
-  null_ok = FALSE,
+  na_ok = TRUE,
+  null_ok = TRUE,
   finite = FALSE,
   type = c("error", "warning", "message")
 )
@@ -21,9 +21,9 @@ validate_numeric(
 
 \item{max}{Optional. The maximum value for the range check.}
 
-\item{na_ok}{Logical. If TRUE, NA values are allowed. Default is FALSE.}
+\item{na_ok}{Logical. If TRUE, NA values are allowed. Default is TRUE.}
 
-\item{null_ok}{Logical. If TRUE, NULL values are allowed. Default is FALSE.}
+\item{null_ok}{Logical. If TRUE, NULL values are allowed. Default is TRUE.}
 
 \item{finite}{Logical. If TRUE, only finite values are allowed. Default is
 FALSE.}

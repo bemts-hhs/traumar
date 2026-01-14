@@ -44,8 +44,8 @@ validate_numeric <- function(
   column,
   min = NULL,
   max = NULL,
-  na_ok = FALSE,
-  null_ok = FALSE,
+  na_ok = TRUE,
+  null_ok = TRUE,
   finite = FALSE,
   type = c("error", "warning", "message")
 ) {

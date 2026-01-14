@@ -34,8 +34,8 @@ validate_set <- function(
   column,
   valid_set,
   type = c("error", "warning", "message"),
-  na_ok = FALSE,
-  null_ok = FALSE
+  na_ok = TRUE,
+  null_ok = TRUE
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))

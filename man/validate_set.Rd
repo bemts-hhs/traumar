@@ -8,8 +8,8 @@ validate_set(
   column,
   valid_set,
   type = c("error", "warning", "message"),
-  na_ok = FALSE,
-  null_ok = FALSE
+  na_ok = TRUE,
+  null_ok = TRUE
 )
 }
 \arguments{
@@ -21,9 +21,9 @@ validate_set(
 if the column is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 
-\item{na_ok}{Logical. If TRUE, NA values are allowed. Default is FALSE.}
+\item{na_ok}{Logical. If TRUE, NA values are allowed. Default is TRUE.}
 
-\item{null_ok}{Logical. If TRUE, NULL values are allowed. Default is FALSE.}
+\item{null_ok}{Logical. If TRUE, NULL values are allowed. Default is TRUE.}
 }
 \value{
 NULL. The function is used for its side effects.
