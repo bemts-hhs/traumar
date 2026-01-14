@@ -37,7 +37,6 @@ BugReports: https://github.com/bemts-hhs/traumar/issues
 Depends:
     R (>= 4.1)
 Imports: 
-    checkmate (>= 2.3.3),
     cli,
     dplyr (>= 1.1.4),
     ggplot2 (>= 3.5.2),

@@ -74,62 +74,29 @@
 #' result
 #'
 probability_of_survival <- function(trauma_type, age, rts, iss) {
-    
-  # Check trauma_type using {checkmate}
-  checkmate::assert(
-    checkmate::check_character(trauma_type),
-    checkmate::check_factor(trauma_type),
-    combine = "or"
-  )
-  
-  # if (!is.character(trauma_type) && !is.factor(trauma_type)) {
-  #   cli::cli_abort(
-  #     "The {.var trauma_type} column must be of type {.cls character} or {.cls factor}."
-  #   )
-  # }
+  # Ensure trauma_type is character or factor
+
+  # Set up trauma_type validity checks
+  validate_character_factor(column = trauma_type, type = "e")
+
+  # Vector of valid trauma_type(s)
+  valid_trauma_types <- c("Blunt", "Penetrating")
 
   # Check for valid values in trauma_type, ignoring NA
-  valid_trauma_types <- c("Blunt", "Penetrating", "Burn")
-  checkmate::assert_subset(trauma_type[!is.na(trauma_type)], choices = valid_trauma_types)
-
-  # if (
-  #   !all(unique(trauma_type[!is.na(trauma_type)]) %in% c(valid_trauma_types))
-  # ) {
-  #   cli::cli_warn(
-  #     "The {.var trauma_type} column contains values other than 'Blunt', 'Penetrating', or 'Burn'."
-  #   )
-  # }
-
-  # Warn about 'Burn' and missing values
-  if (any(trauma_type %in% "Burn", na.rm = TRUE) | any(is.na(trauma_type))) {
-    cli::cli_warn(
-      "The {.var trauma_type} column contains missing and/or 'Burn' values. These records will not receive a probability of survival calculation."
-    )
-  }
+  validate_set(
+    column = trauma_type,
+    valid_set = valid_trauma_types,
+    type = "w"
+  )
 
   # Check age
-  if (any(age < 0, na.rm = TRUE)) {
-    cli::cli_warn(c(
-      "Negative values detected in the {.var age} column.",
-      "i" = "{.var age} must be a non-negative {.cls numeric} value."
-    ))
-  }
+  validate_numeric(column = age, min = 0, type = "warning")
 
   # Check rts
-  if (any(rts < 0 | rts > 7.84, na.rm = TRUE)) {
-    cli::cli_warn(c(
-      "Negative values detected in the {.var rts} column.",
-      "i" = "{.var rts} must be a {.cls numeric} value between 0 and 7.84."
-    ))
-  }
+  validate_numeric(column = rts, min = 0, max = 7.84, type = "warning")
 
   # Check iss
-  if (any(iss < 0 | iss > 75, na.rm = TRUE)) {
-    cli::cli_warn(c(
-      "{.var iss} values less than 0 or greater than 75 were detected.",
-      "i" = "{.var iss} must be a {.cls numeric} value between 0 and 75."
-    ))
-  }
+  validate_numeric(column = iss, min = 0, max = 75, type = "warning")
 
   # Assign age category
   # Age points are assigned as 0 if age is less than 55, otherwise 1

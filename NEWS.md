@@ -1,4 +1,10 @@
 # traumar 1.2.4
+- Added the functions to perform all data validation. These functions take the
+  form of `validate_()`, such as `validate_character_factor()`. After exploring
+  options from other packages to lean on existing methods to validate data via
+  functional programming, the decision was made to create functions "in-house"
+  to avoid issues with adding another dependency. The `validate_*()` family of
+  functions is not exported from `traumar`.
 
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
