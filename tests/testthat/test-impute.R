@@ -1,25 +1,45 @@
 test_that("impute() handles non-numeric input", {
-  expect_error(impute(c("a", "b", "c")), "`x` must be a numeric vector.")
+  expect_error(impute(c("a", "b", "c")), "x: must be.*numeric")
 })
 
 test_that("impute() defaults focus and method correctly", {
   x <- c(10, 20, 30, 10000, 2000, NA)
-  expect_message(impute(x, focus = c("skew", "missing")), "`focus` is set to 'skew'.")
-  expect_message(impute(x, focus = "skew", method = c("winsorize", "iqr")))
-  expect_message(impute(x, focus = "missing", method = c("mean", "median")))
+  expect_error(
+    impute(x, focus = c("skew", "missing")),
+    "must have an exact length of 1"
+  )
+  expect_error(
+    impute(x, focus = "skew", method = c("winsorize", "iqr")),
+    "must have an exact length of 1"
+  )
+  expect_error(
+    impute(x, focus = "missing", method = c("mean", "median")),
+    "must have an exact length of 1"
+  )
 })
 
 test_that("impute() validates method for skew focus", {
   x <- c(10, 20, 30, 10000, 2000, NA)
   expect_error(
-    impute(x, focus = "skew", method = "mean"))
+    impute(x, focus = "skew", method = "mean")
+  )
 })
 
 
 test_that("impute() validates percentile for winsorization", {
   x <- c(10, 20, 30, 10000, 2000, NA)
-  expect_error(impute(x, focus = "skew", method = "winsorize", percentile = -0.1))
-  expect_no_error(impute(x, focus = "skew", method = "winsorize", percentile = 0.1))
+  expect_error(impute(
+    x,
+    focus = "skew",
+    method = "winsorize",
+    percentile = -0.1
+  ))
+  expect_no_error(impute(
+    x,
+    focus = "skew",
+    method = "winsorize",
+    percentile = 0.1
+  ))
 })
 
 test_that("impute() correctly winsorizes with default percentiles", {

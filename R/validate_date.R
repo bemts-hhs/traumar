@@ -39,6 +39,15 @@ validate_date <- function(
   # Get the input name
   input_name <- deparse(substitute(input))
 
+  # Check for NA values if na_ok is FALSE
+  if (!na_ok && any(is.na(input))) {
+    validate_error_type(
+      input = input_name,
+      message = "must not contain NA values.",
+      type = "e"
+    )
+  }
+
   # Check if the input is NULL
   if (is.null(input)) {
     if (!null_ok) {
@@ -55,16 +64,7 @@ validate_date <- function(
     validate_error_type(
       input = input_name,
       message = "must be a valid {.cls Date}.",
-      type = "e"
-    )
-  }
-
-  # Check for NA values if na_ok is FALSE
-  if (!na_ok && any(is.na(input))) {
-    validate_error_type(
-      input = input_name,
-      message = "must not contain NA values.",
-      type = "e"
+      type = type
     )
   }
 }

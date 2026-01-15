@@ -60,14 +60,14 @@ impute <- function(
   validate_set(input = method, valid_set = valid_methods, type = "error")
 
   # Validate percentile for skew focus and winsorize method
-  if (focus == "skew" && method == "winsorize") {
+  if (focus == "skew" && method == "winsorize" && !is.null(percentile)) {
     validate_numeric(
       input = percentile,
       min = 0,
       max = 1,
       na_ok = FALSE,
-      null_ok = FALSE,
-      type = "warning"
+      null_ok = TRUE,
+      type = "error"
     )
   }
 

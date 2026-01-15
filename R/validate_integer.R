@@ -63,7 +63,7 @@ validate_integer <- function(
     validate_error_type(
       input = input_name,
       message = "must be {.cls integer}.",
-      type = "e"
+      type = type
     )
   }
 
@@ -85,22 +85,35 @@ validate_integer <- function(
     )
   }
 
-  # Get descriptive statistics on input to provide information in warning
-  # messages
-
+  # Get descriptive statistics on input to provide information in a message
   # only take descriptive statistics if limits are requested
   if (!is.null(min) || !is.null(max)) {
     # Define the required range
     required_range <- glue::glue("[{min}, {max}]")
 
-    # get minimum
-    observed_min <- min(input, na.rm = TRUE)
+    # Get unique values of the input
+    unique_input <- unique(input)
 
-    # get max
-    observed_max <- max(input, na.rm = TRUE)
+    # Check the length of the unique values
+    if (length(unique_input) > 1) {
+      # get minimum
+      observed_min <- min(input, na.rm = TRUE)
 
-    # create a pretty range
-    observed_range <- glue::glue("[{observed_min}, {observed_max}]")
+      # get max
+      observed_max <- max(input, na.rm = TRUE)
+
+      # create a pretty range
+      observed_range <- glue::glue("[{observed_min}, {observed_max}]")
+
+      # dynamnic text
+      dynamic_text <- "Range"
+    } else {
+      # If only one unique value, use that value for the message
+      observed_range <- unique_input
+
+      # dynamnic text
+      dynamic_text <- "Value"
+    }
   }
 
   # Check if the input values are within the specified range when only min is
@@ -109,9 +122,9 @@ validate_integer <- function(
     validate_error_type(
       input = input_name,
       message = glue::glue(
-        "values must be greater than or equal to {cli::col_blue(min)}. Observed range of this input was {cli::col_grey(observed_range)}."
+        "values must be greater than or equal to {cli::col_blue(min)}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = "w"
+      type = type
     )
   }
 
@@ -121,9 +134,9 @@ validate_integer <- function(
     validate_error_type(
       input = input_name,
       message = glue::glue(
-        "values must be less than or equal to {cli::col_blue(max)}. Observed range of this input was {cli::col_grey(observed_range)}."
+        "values must be less than or equal to {cli::col_blue(max)}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = "w"
+      type = type
     )
   }
 
@@ -137,9 +150,9 @@ validate_integer <- function(
     validate_error_type(
       input = input_name,
       message = glue::glue(
-        "values must be contained within range {cli::col_blue({required_range})}. Observed range of this input was {cli::col_grey(observed_range)}."
+        "values must be contained within range {cli::col_blue({required_range})}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = "w"
+      type = type
     )
   }
 }
