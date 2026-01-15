@@ -86,13 +86,22 @@ is_it_normal <- function(
   ###___________________________________________________________________________
 
   # Validate the `df` argument
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
-    cli::cli_abort(c(
-      "Input to argument {.strong {.var df}} was not of the correct class. {.fn is_it_normal} does not know what to do with it!",
-      "x" = "You supplied an object of class {.cls {class(df)}}.",
-      "i" = "Please use an object of class {.cls data.frame} or {.cls tibble}."
-    ))
-  }
+  validate_data_structure(
+    input = df,
+    structure_type = c("data.frame", "tibble"),
+    logic = "or",
+    type = "error",
+    na_ok = TRUE,
+    null_ok = FALSE
+  )
+
+  # if (!is.data.frame(df) && !tibble::is_tibble(df)) {
+  #   cli::cli_abort(c(
+  #     "Input to argument {.strong {.var df}} was not of the correct class. {.fn is_it_normal} does not know what to do with it!",
+  #     "x" = "You supplied an object of class {.cls {class(df)}}.",
+  #     "i" = "Please use an object of class {.cls data.frame} or {.cls tibble}."
+  #   ))
+  # }
 
   # Validate group_vars
   if (!is.null(group_vars)) {
@@ -404,8 +413,11 @@ is_it_normal <- function(
         na.rm = TRUE
       ) +
       ggplot2::ggtitle(
-        if (is.null(group_label)) paste0("Histogram of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Histogram of ", var_name)
+        } else {
           paste0("Histogram (", group_label, ")")
+        }
       ) +
       ggplot2::labs(x = var_name) +
       chosen_theme()
@@ -436,9 +448,11 @@ is_it_normal <- function(
       ) +
       ggplot2::stat_boxplot(geom = "errorbar", width = 0.5) +
       ggplot2::ggtitle(
-        if (is.null(group_label))
-          paste0("Boxplot with scatterplot of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Boxplot with scatterplot of ", var_name)
+        } else {
           paste0("Boxplot (", group_label, ")")
+        }
       ) +
       ggplot2::labs(x = var_name, y = "") +
       chosen_theme()
@@ -467,8 +481,11 @@ is_it_normal <- function(
         na.rm = TRUE
       ) +
       ggplot2::ggtitle(
-        if (is.null(group_label)) paste0("Normal Q-Q Plot of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Normal Q-Q Plot of ", var_name)
+        } else {
           paste0("Normal Q-Q Plot (", group_label, ")")
+        }
       ) +
       chosen_theme()
   }

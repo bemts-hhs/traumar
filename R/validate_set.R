@@ -72,7 +72,7 @@ validate_set <- function(
     validate_error_type(
       input = input_name,
       message = glue::glue(
-        "contains invalid values: {cli::col_grey(paste0(invalid_values, collapse = ', '))}. Valid values are: {cli::col_blue(paste0(valid_set, collapse = ', '))}"
+        "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
       ),
       type = type
     )
