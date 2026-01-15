@@ -68,13 +68,31 @@ validate_set <- function(
 
   # Check to ensure the invalid_values are not empty
   if (length(invalid_values) > 0) {
-    # Call the validate_error_type function to handle the message display
-    validate_error_type(
-      input = input_name,
-      message = glue::glue(
-        "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
-      ),
-      type = type
-    )
+    if (length(valid_set) <= 10) {
+      # Call the validate_error_type function to handle the message display
+      # For small valid_set
+      validate_error_type(
+        input = input_name,
+        message = glue::glue(
+          "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
+        ),
+        type = type
+      )
+    } else {
+      # Call the validate_error_type function to handle the message display
+      # For large valid_set
+
+      # Clip valid_set down to a length of <= 10
+      valid_set <- head(valid_set, 10)
+
+      # Modified messaging
+      validate_error_type(
+        input = input_name,
+        message = glue::glue(
+          "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), '...', ')'))}"
+        ),
+        type = type
+      )
+    }
   }
 }

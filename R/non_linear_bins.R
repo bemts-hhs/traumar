@@ -219,9 +219,12 @@ nonlinear_bins <- function(
 ) {
   # Validation checks using `cli` for robust error messaging:
   # Ensures the input data is a data frame or tibble.
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort("The input data must be a data frame or tibble.")
-  }
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tibble"),
+    logic = "or",
+    type = "error"
+  )
 
   # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
   if (missing(Ps_col) && missing(outcome_col)) {
@@ -240,17 +243,13 @@ nonlinear_bins <- function(
   Ps_check <- data |> dplyr::pull({{ Ps_col }})
 
   # check the Ps_check remains continuous
+  # Check if Ps column is continuous (values between 0 and 1)
+  validate_numeric(input = Ps_check, min = 0, max = 1, type = "error")
   if (!is.numeric(Ps_check)) {
     cli::cli_abort("The {.var Ps_col} must contain numeric values.")
   }
 
-  # Check if Ps column is continuous (values between 0 and 1)
-  if (any(Ps_check < 0 | Ps_check > 1, na.rm = TRUE)) {
-    cli::cli_abort(
-      "The probability of survival (Ps) values must be between 0 and 1."
-    )
-  }
-
+  # Check for missingness in the probability of survival data
   if (any(is.na(Ps_check))) {
     cli::cli_warn(
       "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn nonlinear_bins}."

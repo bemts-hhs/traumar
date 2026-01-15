@@ -95,31 +95,13 @@ is_it_normal <- function(
     null_ok = FALSE
   )
 
-  # if (!is.data.frame(df) && !tibble::is_tibble(df)) {
-  #   cli::cli_abort(c(
-  #     "Input to argument {.strong {.var df}} was not of the correct class. {.fn is_it_normal} does not know what to do with it!",
-  #     "x" = "You supplied an object of class {.cls {class(df)}}.",
-  #     "i" = "Please use an object of class {.cls data.frame} or {.cls tibble}."
-  #   ))
-  # }
-
   # Validate group_vars
   if (!is.null(group_vars)) {
-    if (!is.character(group_vars)) {
-      cli::cli_abort(c(
-        "Argument {.var group_vars} must be {.cls character} or {.val NULL}.",
-        "x" = "You supplied an object of class {.cls {class(group_vars)}}."
-      ))
-    }
+    # Enforce requirement that group_vars is a character vector
+    validate_character_factor(input = group_vars, type = "error")
 
-    missing_vars <- setdiff(group_vars, names(df))
-    if (length(missing_vars) > 0) {
-      cli::cli_abort(c(
-        "Some values in {.var group_vars} are not columns in {.var df}.",
-        "x" = "Missing column(s): {.val {missing_vars}}.",
-        "i" = "Check that all values in {.var group_vars} match column names in {.var df}."
-      ))
-    }
+    # Enforce requirement that group_vars are always column names in df
+    validate_names(input = df, check_names = group_vars, type = "error")
   }
 
   # validate the `normality_test`
@@ -139,6 +121,7 @@ is_it_normal <- function(
       normality_test # if not an alias, keep original
     )
 
+    # Use match.arg to check normality_test
     attempt <- try(
       match.arg(
         normality_test,
@@ -177,6 +160,9 @@ is_it_normal <- function(
   } else {
     chosen_theme <- as.function(plot_theme)
   }
+
+  # Validate the seed argument
+  validate_numeric(input = seed, type = "error")
 
   if (!is.numeric(seed)) {
     cli::cli_abort(c(
@@ -403,8 +389,10 @@ is_it_normal <- function(
       return(NULL)
     }
 
+    # Deftaul bin width
     bin_width <- (max(vec, na.rm = TRUE) - min(vec, na.rm = TRUE)) / 15
 
+    # Histogram
     ggplot2::ggplot(data, ggplot2::aes(x = !!var)) +
       ggplot2::geom_histogram(
         binwidth = bin_width,
@@ -432,6 +420,7 @@ is_it_normal <- function(
       return(NULL)
     }
 
+    # Boxplot
     ggplot2::ggplot(data, ggplot2::aes(x = !!var, y = "")) +
       ggplot2::geom_jitter(
         color = "#03617A",
