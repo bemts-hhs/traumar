@@ -8,7 +8,8 @@
 #'
 #' @inheritParams validate_numeric
 #' @param structure_type A vector of data structure types to check. Possible
-#' values are "data.frame", "tibble", "matrix", "list", "array", "vector".
+#' values are "data.frame", "tibble", "matrix", "list", "array",
+#' "atomic_vector".
 #' @param logic The logical operator to use when combining checks. Possible
 #' values are "and" or "or".
 #'
@@ -43,7 +44,7 @@ validate_data_structure <- function(
     "matrix",
     "list",
     "array",
-    "vector"
+    "atomic_vector"
   ),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
@@ -56,7 +57,14 @@ validate_data_structure <- function(
   # Validate the structure_type argument
   structure_type <- match.arg(
     arg = structure_type,
-    choices = c("data.frame", "tibble", "matrix", "list", "array", "vector"),
+    choices = c(
+      "data.frame",
+      "tibble",
+      "matrix",
+      "list",
+      "array",
+      "atomic_vector"
+    ),
     several.ok = TRUE
   )
 
@@ -95,7 +103,7 @@ validate_data_structure <- function(
       "matrix" = is.matrix(input),
       "list" = is.list(input),
       "array" = is.array(input),
-      "vector" = is.vector(input)
+      "atomic_vector" = is.atomic(input)
     )
   })
 

@@ -226,7 +226,8 @@ nonlinear_bins <- function(
     type = "error"
   )
 
-  # Ensure Ps_col and outcome_col arguments are provided with tailored error messages
+  # Ensure Ps_col and outcome_col arguments are provided with tailored error
+  # messages
   if (missing(Ps_col) && missing(outcome_col)) {
     cli::cli_abort(
       "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
@@ -245,76 +246,48 @@ nonlinear_bins <- function(
   # check the Ps_check remains continuous
   # Check if Ps column is continuous (values between 0 and 1)
   validate_numeric(input = Ps_check, min = 0, max = 1, type = "error")
-  if (!is.numeric(Ps_check)) {
-    cli::cli_abort("The {.var Ps_col} must contain numeric values.")
-  }
 
   # Check for missingness in the probability of survival data
-  if (any(is.na(Ps_check))) {
-    cli::cli_warn(
-      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn nonlinear_bins}."
-    )
-  }
+  validate_complete(input = Ps_check, type = "warning")
 
   # Pull and check the outcome column
   binary_data <- data |> dplyr::pull({{ outcome_col }})
 
   # Ensure the column is either logical or numeric
-  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
-    cli::cli_abort(
-      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
-    )
-  }
+  validate_class(
+    input = binary_data,
+    class_type = c("logical", "numeric", "integer"),
+    logic = "or",
+    type = "error"
+  )
 
   # Get unique non-missing values
   non_missing <- stats::na.omit(binary_data)
 
+  # Provide a warning about missing values
+  validate_complete(input = binary_data, type = "warning")
+
   # Validate type and values
   if (is.logical(binary_data)) {
-    # Logical vector: ensure only TRUE/FALSE (no coercion needed)
-    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
-      )
-    }
-  } else if (is.numeric(binary_data)) {
-    # Numeric vector: ensure strictly 0 or 1
-    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
-      )
-    }
-  } else {
-    # Not logical or numeric
-    cli::cli_abort(
-      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    validate_set(
+      input = non_missing,
+      valid_set = c(TRUE, FALSE),
+      type = "error"
     )
-  }
-
-  # Warn if missing
-  if (any(is.na(binary_data))) {
-    cli::cli_warn(
-      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn nonlinear_bins}."
+  } else if (is.numeric(binary_data) || is.integer(binary_data)) {
+    # Numeric vector: ensure strictly 0 or 1
+    validate_set(
+      input = non_missing,
+      valid_set = c(0, 1, 0L, 1L),
+      type = "error"
     )
   }
 
   # Check if all elements in group_vars are strings (i.e., character vectors)
-  if (!all(sapply(group_vars, is.character))) {
-    cli::cli_abort(c(
-      "All elements in {.var group_vars} must be strings.",
-      "i" = "You passed a {.cls {class(group_vars)}} variable to {.var group_vars}."
-    ))
-  }
+  validate_character_factor(input = group_vars, type = "error")
 
   # Check if all group_vars exist in the data
-  if (!all(group_vars %in% names(data))) {
-    invalid_vars <- group_vars[!group_vars %in% names(data)]
-    cli::cli_abort(
-      "The following group variable(s) are not valid columns in the data: {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  validate_names(input = group_vars, check_names = data, type = "error")
 
   # Treat the column-names-as-strings as symbols
   if (!is.null(group_vars)) {
@@ -416,58 +389,81 @@ nonlinear_bins <- function(
   # Optionally group data by dynamic group_vars
   # Or run the bin statistics on the whole dataset
   if (!is.null(group_vars)) {
+    # Group the data by the specified group_vars and bin-related columns
     grouped_stats <- data |>
       dplyr::group_by(!!!group_vars, bin_number, bin_start, bin_end) |>
       dplyr::summarize(
+        # Calculate the mean of the probability of survival (Ps_col)
         mean = mean({{ Ps_col }}, na.rm = TRUE),
+        # Calculate the standard deviation of the probability of survival (Ps_col)
         sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+        # Sum the predicted survivors based on the probability of survival (Ps_col)
         Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+        # Sum the predicted deaths based on the probability of survival (Ps_col)
         Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+        # Calculate the anticipated survival rate
         AntiS_b = dplyr::if_else(
           dplyr::n() > 0,
           Pred_Survivors_b / dplyr::n(),
           NA_real_
         ),
+        # Calculate the anticipated mortality rate
         AntiM_b = dplyr::if_else(
           dplyr::n() > 0,
           Pred_Deaths_b / dplyr::n(),
           NA_real_
         ),
+        # Count the number of alive patients
         alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+        # Count the number of dead patients
         dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+        # Count the total number of observations
         count = dplyr::n(),
         .groups = "drop"
       ) |>
       dplyr::ungroup() |>
+      # Group the data again by the specified group_vars
       dplyr::group_by(!!!group_vars) |>
       dplyr::mutate(
+        # Calculate the percentage of each group
         percent = count / sum(count, na.rm = TRUE)
       ) |>
       dplyr::ungroup()
   } else {
+    # Group the data by bin-related columns only
     grouped_stats <- data |>
       dplyr::group_by(bin_number, bin_start, bin_end) |>
       dplyr::summarize(
+        # Calculate the mean of the probability of survival (Ps_col)
         mean = mean({{ Ps_col }}, na.rm = TRUE),
+        # Calculate the standard deviation of the probability of survival (Ps_col)
         sd = stats::sd({{ Ps_col }}, na.rm = TRUE),
+        # Sum the predicted survivors based on the probability of survival (Ps_col)
         Pred_Survivors_b = sum({{ Ps_col }}, na.rm = TRUE),
+        # Sum the predicted deaths based on the probability of survival (Ps_col)
         Pred_Deaths_b = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+        # Calculate the anticipated survival; rate
         AntiS_b = dplyr::if_else(
           dplyr::n() > 0,
           Pred_Survivors_b / dplyr::n(),
           NA_real_
         ),
+        # Calculate the anticipated mortality rate
         AntiM_b = dplyr::if_else(
           dplyr::n() > 0,
           Pred_Deaths_b / dplyr::n(),
           NA_real_
         ),
+        # Count the number of alive patients
         alive = sum({{ outcome_col }} == 1, na.rm = TRUE),
+        # Count the number of dead patients
         dead = sum({{ outcome_col }} == 0, na.rm = TRUE),
+        # Count the total number of observations
         count = dplyr::n(),
         .groups = "drop"
       ) |>
       dplyr::mutate(
+        # Calculate the percentage of each group
         percent = count / sum(count, na.rm = TRUE)
       )
   }
