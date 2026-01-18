@@ -66,7 +66,7 @@ testthat::test_that("nonlinear_bins handles error messaging appropriately", {
   # Test a character survival column
   testthat::expect_error(
     nonlinear_bins(data = bad_data, Ps_col = Ps, outcome_col = survival),
-    regexp = "outcome_col.*must be of type logical"
+    regexp = "must be of class.*logical, numeric, integer.*"
   )
 
   # Test the case when the data are not sufficiently dispersed and cause errors
@@ -489,7 +489,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
   # Test for non-data.frame input
   testthat::expect_error(
     nonlinear_bins(matrix(1:10, ncol = 2), Ps_col = Ps, outcome_col = survival),
-    "The input data must be a data frame or tibble."
+    "data.*must be of type.*data\\.frame, tbl, tbl_df.*"
   )
 
   # Test for missing Ps_col and outcome_col
@@ -522,7 +522,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
   data_invalid_outcome$survival <- sample(1:3, 1000, replace = TRUE)
   testthat::expect_error(
     nonlinear_bins(data_invalid_outcome, Ps_col = Ps, outcome_col = survival),
-    "contains numeric values other than 0 and 1"
+    "outcome_col.*contains invalid values.*3, 2.*Valid values are.*0, 1.*"
   )
 
   # Test for non-character group_vars
@@ -533,7 +533,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
       outcome_col = survival,
       group_vars = list(1, 2)
     ),
-    "must be strings."
+    "group_vars.*must be of type.*character.*or.*factor.*"
   )
 
   # Test for non-existent group_vars
@@ -544,6 +544,6 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
       outcome_col = survival,
       group_vars = c("group_var1", "non_existent_var")
     ),
-    "are not valid columns in the data: non_existent_var"
+    "group_vars.*contains invalid column names.*non_existent_var.*Valid column names are.*Ps, survival, group_var1, group_var2.*"
   )
 })

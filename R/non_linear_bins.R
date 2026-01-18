@@ -245,10 +245,16 @@ nonlinear_bins <- function(
 
   # check the Ps_check remains continuous
   # Check if Ps column is continuous (values between 0 and 1)
-  validate_numeric(input = Ps_check, min = 0, max = 1, type = "error")
+  validate_numeric(
+    input = Ps_check,
+    min = 0,
+    max = 1,
+    type = "error",
+    var_name = "Ps_col"
+  )
 
   # Check for missingness in the probability of survival data
-  validate_complete(input = Ps_check, type = "warning")
+  validate_complete(input = Ps_check, type = "warning", var_name = "Ps_col")
 
   # Pull and check the outcome column
   binary_data <- data |> dplyr::pull({{ outcome_col }})
@@ -258,28 +264,43 @@ nonlinear_bins <- function(
     input = binary_data,
     class_type = c("logical", "numeric", "integer"),
     logic = "or",
-    type = "error"
+    type = "error",
+    var_name = "outcome_col"
   )
 
   # Get unique non-missing values
   non_missing <- stats::na.omit(binary_data)
 
   # Provide a warning about missing values
-  validate_complete(input = binary_data, type = "warning")
+  validate_complete(
+    input = binary_data,
+    type = "warning",
+    var_name = "outcome_col"
+  )
 
   # Validate type and values
   if (is.logical(binary_data)) {
     validate_set(
       input = non_missing,
       valid_set = c(TRUE, FALSE),
-      type = "error"
+      type = "error",
+      var_name = "outcome_col"
     )
-  } else if (is.numeric(binary_data) || is.integer(binary_data)) {
+  } else if (is.numeric(binary_data)) {
     # Numeric vector: ensure strictly 0 or 1
     validate_set(
       input = non_missing,
-      valid_set = c(0, 1, 0L, 1L),
-      type = "error"
+      valid_set = c(0, 1),
+      type = "error",
+      var_name = "outcome_col"
+    )
+  } else if (is.integer(binary_data)) {
+    # Integer vector: ensure strictly 0 or 1
+    validate_set(
+      input = non_missing,
+      valid_set = c(0L, 1L),
+      type = "error",
+      var_name = "outcome_col"
     )
   }
 
