@@ -221,7 +221,7 @@ nonlinear_bins <- function(
   # Ensures the input data is a data frame or tibble.
   validate_data_structure(
     input = data,
-    structure_type = c("data.frame", "tibble"),
+    structure_type = c("data.frame", "tbl", "tbl_df"),
     logic = "or",
     type = "error"
   )
@@ -284,10 +284,14 @@ nonlinear_bins <- function(
   }
 
   # Check if all elements in group_vars are strings (i.e., character vectors)
-  validate_character_factor(input = group_vars, type = "error")
+  if (!is.null(group_vars)) {
+    validate_character_factor(input = group_vars, type = "error")
+  }
 
   # Check if all group_vars exist in the data
-  validate_names(input = group_vars, check_names = data, type = "error")
+  if (!is.null(group_vars)) {
+    validate_names(input = data, check_names = group_vars, type = "error")
+  }
 
   # Treat the column-names-as-strings as symbols
   if (!is.null(group_vars)) {

@@ -8,7 +8,8 @@ validate_date(
   input,
   na_ok = TRUE,
   null_ok = TRUE,
-  type = c("error", "warning", "message")
+  type = c("error", "warning", "message"),
+  var_name = NULL
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ validate_date(
 \item{type}{A character string specifying the type of message to be displayed
 if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
+
+\item{var_name}{Optional. A character string giving the desired variable (or
+object) name that will appear in console output in place of the how the
+object will typically be named in messages via deparse(substitute(input)).}
 }
 \value{
 NULL. The function is used for its side effects.

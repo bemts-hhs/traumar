@@ -11,7 +11,8 @@ validate_length(
   max_length = NULL,
   type = c("error", "warning", "message"),
   na_ok = TRUE,
-  null_ok = TRUE
+  null_ok = TRUE,
+  var_name = NULL
 )
 }
 \arguments{
@@ -31,6 +32,10 @@ of "error", "warning", or "message".}
 \item{na_ok}{Logical. If TRUE, NA values are allowed. Default is TRUE.}
 
 \item{null_ok}{Logical. If TRUE, NULL values are allowed. Default is TRUE.}
+
+\item{var_name}{Optional. A character string giving the desired variable (or
+object) name that will appear in console output in place of the how the
+object will typically be named in messages via deparse(substitute(input)).}
 }
 \value{
 NULL. The function is used for its side effects.

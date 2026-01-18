@@ -8,7 +8,7 @@
 #' @inheritParams validate_numeric
 #' @inheritParams validate_data_structure
 #' @param data_type A vector of data structure or class types to check. Possible
-#' values are "data.frame", "tibble", "matrix", "list", "array", "atomic
+#' values are "data.frame", "matrix", "list", "array", "atomic
 #' vector", "numeric", "integer", "logical", "character", "factor", "complex",
 #' "raw", "tbl_df", "tbl".
 #'
@@ -25,7 +25,7 @@
 #' # Validate the data frame
 #' validate_non_empty(
 #'   data,
-#'   data_type = c("data.frame", "tibble"),
+#'   data_type = c("data.frame", "tbl"),
 #'   logic = "or",
 #'   type = "warning",
 #'   na_ok = FALSE,
@@ -35,7 +35,7 @@
 #' # Validate an empty vector
 #' validate_non_empty(
 #'   character(0),
-#'   data_type = c("vector"),
+#'   data_type = c("atomic vector"),
 #'   logic = "or",
 #'   type = "error",
 #'   na_ok = TRUE,
@@ -49,7 +49,6 @@ validate_non_empty <- function(
   input,
   data_type = c(
     "data.frame",
-    "tibble",
     "matrix",
     "list",
     "array",
@@ -67,7 +66,8 @@ validate_non_empty <- function(
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
-  null_ok = TRUE
+  null_ok = TRUE,
+  var_name = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
@@ -77,7 +77,6 @@ validate_non_empty <- function(
     arg = data_type,
     choices = c(
       "data.frame",
-      "tibble",
       "matrix",
       "list",
       "array",
@@ -98,8 +97,16 @@ validate_non_empty <- function(
   # Validate the logic argument
   logic <- match.arg(arg = logic, choices = c("and", "or"))
 
-  # Get the input name
-  input_name <- deparse(substitute(input))
+  # Get the input name, optionally using var_name
+  if (is.null(var_name)) {
+    input_name <- deparse(substitute(input))
+  } else {
+    # Validate var_name
+    validate_character_factor(input = var_name, type = "error")
+
+    # Initialize input_name using var_name
+    input_name <- var_name
+  }
 
   # Check if the input is NULL
   if (is.null(input)) {

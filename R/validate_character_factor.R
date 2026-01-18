@@ -34,13 +34,22 @@ validate_character_factor <- function(
   input,
   type = c("error", "warning", "message"),
   na_ok = TRUE,
-  null_ok = TRUE
+  null_ok = TRUE,
+  var_name = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
 
-  # Get the input name
-  input_name <- deparse(substitute(input))
+  # Get the input name, optionally using var_name
+  if (is.null(var_name)) {
+    input_name <- deparse(substitute(input))
+  } else {
+    # Validate var_name
+    validate_character_factor(input = var_name, type = "error")
+
+    # Initialize input_name using var_name
+    input_name <- var_name
+  }
 
   # Check if the input is NULL
   if (is.null(input)) {

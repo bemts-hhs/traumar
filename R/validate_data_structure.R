@@ -8,8 +8,8 @@
 #'
 #' @inheritParams validate_numeric
 #' @param structure_type A vector of data structure types to check. Possible
-#' values are "data.frame", "tibble", "matrix", "list", "array",
-#' "atomic_vector".
+#' values are "data.frame", "matrix", "list", "array", "atomic_vector",
+#' "tbl_df", "tbl".
 #' @param logic The logical operator to use when combining checks. Possible
 #' values are "and" or "or".
 #'
@@ -26,7 +26,7 @@
 #' # Validate the data structure
 #' validate_data_structure(
 #'   data,
-#'   structure_type = c("data.frame", "tibble"),
+#'   structure_type = c("data.frame", "tbl", "tbl_df"),
 #'   logic = "or",
 #'   type = "warning",
 #'   na_ok = FALSE,
@@ -40,16 +40,18 @@ validate_data_structure <- function(
   input,
   structure_type = c(
     "data.frame",
-    "tibble",
     "matrix",
     "list",
     "array",
-    "atomic_vector"
+    "atomic_vector",
+    "tbl_df",
+    "tbl"
   ),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
-  null_ok = TRUE
+  null_ok = TRUE,
+  var_name = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
@@ -59,11 +61,12 @@ validate_data_structure <- function(
     arg = structure_type,
     choices = c(
       "data.frame",
-      "tibble",
       "matrix",
       "list",
       "array",
-      "atomic_vector"
+      "atomic_vector",
+      "tbl_df",
+      "tbl"
     ),
     several.ok = TRUE
   )
@@ -71,8 +74,16 @@ validate_data_structure <- function(
   # Validate the logic argument
   logic <- match.arg(arg = logic, choices = c("and", "or"))
 
-  # Get the input name
-  input_name <- deparse(substitute(input))
+  # Get the input name, optionally using var_name
+  if (is.null(var_name)) {
+    input_name <- deparse(substitute(input))
+  } else {
+    # Validate var_name
+    validate_character_factor(input = var_name, type = "error")
+
+    # Initialize input_name using var_name
+    input_name <- var_name
+  }
 
   # Check if the input is NULL
   if (is.null(input)) {
@@ -99,7 +110,8 @@ validate_data_structure <- function(
     switch(
       type,
       "data.frame" = is.data.frame(input),
-      "tibble" = tibble::is_tibble(input),
+      "tbl" = tibble::is_tibble(input),
+      "tbl_df" = tibble::is_tibble(input),
       "matrix" = is.matrix(input),
       "list" = is.list(input),
       "array" = is.array(input),

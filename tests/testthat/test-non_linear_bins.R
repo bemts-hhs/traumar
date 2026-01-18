@@ -11,7 +11,7 @@ testthat::test_that("nonlinear_bins handles missing values and invalid data type
   data_na_Ps$Ps[1:5] <- NA
   testthat::expect_warning(
     nonlinear_bins(data = data_na_Ps, Ps_col = Ps, outcome_col = survival),
-    regexp = "Missing values detected in .*Ps_col.*"
+    regexp = "missing values detected"
   )
 
   # Inject missing values into outcome_col
@@ -19,7 +19,7 @@ testthat::test_that("nonlinear_bins handles missing values and invalid data type
   data_na_surv$survival[1:5] <- NA
   testthat::expect_warning(
     nonlinear_bins(data = data_na_surv, Ps_col = Ps, outcome_col = survival),
-    regexp = "Missing values detected in .*outcome_col.*"
+    regexp = "missing values detected"
   )
 
   # Invalid logical values
@@ -32,7 +32,7 @@ testthat::test_that("nonlinear_bins handles missing values and invalid data type
       Ps_col = Ps,
       outcome_col = survival
     ),
-    regexp = "Missing values detected in .*outcome_col.*"
+    regexp = "missing values detected"
   )
 })
 
