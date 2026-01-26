@@ -1,12 +1,22 @@
+options(lifecycle_verbosity = "warning")
+
 test_that("pretty_number handles basic formatting", {
   expect_equal(pretty_number(1234), "1.23k")
   expect_equal(pretty_number(1234567), "1.23m")
   expect_equal(pretty_number(1234567890), "1.23b")
 })
 
-test_that("pretty_number respects n_decimal argument", {
-  expect_equal(pretty_number(1234, n_decimal = 1), "1.2k")
-  expect_equal(pretty_number(1234, n_decimal = 0), "1k")
+test_that("pretty_number respects the digits argument and n_decimal deprecation", {
+  expect_equal(pretty_number(1234, digits = 1), "1.2k")
+  expect_equal(pretty_number(1234, digits = 0), "1k")
+  expect_warning(
+    pretty_number(1234, n_decimal = 1),
+    regexp = "deprecated"
+  )
+  expect_warning(
+    pretty_number(1234, n_decimal = 2),
+    regexp = "deprecated"
+  )
 })
 
 test_that("pretty_number adds prefix correctly", {
@@ -31,22 +41,29 @@ test_that("pretty_number handles small numbers without formatting", {
 })
 
 test_that("pretty_number handles invalid x input", {
-  expect_error(pretty_number("abc"),
-               "x must be either <numeric> or <integer>")
-  expect_error(pretty_number(TRUE),
-               "x must be either <numeric> or <integer>")
+  expect_error(pretty_number("abc"), "x.*must be of class.*numeric, integer.*")
+  expect_error(pretty_number(TRUE), "x.*must be of class.*numeric, integer.*")
 })
 
-test_that("pretty_number validates n_decimal argument", {
-  expect_error(pretty_number(1234, n_decimal = "two"),
-               "n_decimal must be an <integer>.")
-  expect_error(pretty_number(1234, n_decimal = 2.5),
-               "n_decimal must be an <integer>.")
+test_that("pretty_number validates digits argument and warns about the deprecated n_decimal argument", {
+  expect_error(
+    pretty_number(1234, digits = "two"),
+    "digits.*must be of class.*numeric, integer.*."
+  )
+  expect_no_error(
+    pretty_number(1234, digits = 2.5)
+  )
+  expect_warning(
+    pretty_number(1234, n_decimal = 2),
+    "n_decimal.*deprecated"
+  )
 })
 
 test_that("pretty_number validates prefix argument", {
-  expect_error(pretty_number(1234, prefix = 123),
-               "You must supply a <character> vector of length 1 for the prefix argument")
+  expect_error(
+    pretty_number(1234, prefix = 123),
+    "prefix.*must be of class.*character"
+  )
 })
 
 test_that("pretty_number handles NA and NULL values gracefully", {

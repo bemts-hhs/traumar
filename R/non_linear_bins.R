@@ -238,8 +238,6 @@ nonlinear_bins <- function(
     cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # Check if Ps column is numeric
-
   # dplyr::pull the Ps data
   Ps_check <- data |> dplyr::pull({{ Ps_col }})
 
@@ -321,15 +319,17 @@ nonlinear_bins <- function(
 
   # Select and sort the column
   survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
-  total <- length(survival_data)
 
   # length of non-missing `Ps_col` must be >= 2
-  if (na.omit(total) < 2) {
-    cli::cli_abort(c(
-      "At least two non-missing values are required in {.var Ps_col} to compute survival probability intervals.",
-      "v" = "Ensure {.var Ps_col} contains at least two valid, non-missing numeric entries."
-    ))
-  }
+  validate_length(
+    input = survival_data,
+    min_length = 2,
+    max_length = Inf,
+    type = "error",
+    na_ok = TRUE,
+    null_ok = TRUE,
+    var_name = "outcome_col"
+  )
 
   # Step 1: Find indices for level thresholds
   loc_9A <- which(survival_data > threshold_1) # Everything above 0.9 or other threshold

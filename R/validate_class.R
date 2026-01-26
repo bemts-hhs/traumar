@@ -63,7 +63,7 @@ validate_class <- function(
     "character",
     "factor",
     "complex",
-    "raw",
+    "raw"
   ),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
@@ -78,7 +78,15 @@ validate_class <- function(
   # Validate the class_type argument
   class_type <- match.arg(
     arg = class_type,
-    choices = c("logical", "numeric", "integer", "factor"),
+    choices = c(
+      "numeric",
+      "integer",
+      "logical",
+      "character",
+      "factor",
+      "complex",
+      "raw"
+    ),
     several.ok = TRUE
   )
 

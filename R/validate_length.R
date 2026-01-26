@@ -91,6 +91,21 @@ validate_length <- function(
       )
     }
   } else {
+    # Handle nulls in min_length and max_length
+    # Max goes to Inf
+    max_length <- ifelse(
+      all(is.null(exact_length), is.null(max_length), !is.null(min_length)),
+      Inf,
+      max_length
+    )
+
+    # Min goes to -Inf
+    min_length <- ifelse(
+      all(is.null(exact_length), !is.null(max_length), is.null(min_length)),
+      -Inf,
+      min_length
+    )
+
     # Get required range
     required_range <- glue::glue("[{min_length}, {max_length}]")
 

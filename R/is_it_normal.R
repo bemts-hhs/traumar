@@ -164,13 +164,6 @@ is_it_normal <- function(
   # Validate the seed argument
   validate_numeric(input = seed, type = "error")
 
-  if (!is.numeric(seed)) {
-    cli::cli_abort(c(
-      "In order to set the random seed, {.var seed} must have class {.cls numeric}.",
-      "i" = "{.var seed} had class {.cls {class(seed)}}."
-    ))
-  }
-
   # Set up variables to use in purrr::map()
   vars <- rlang::enquos(...)
 

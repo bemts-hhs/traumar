@@ -7,7 +7,7 @@
 validate_class(
   input,
   class_type = c("numeric", "integer", "logical", "character", "factor", "complex",
-    "raw", ),
+    "raw"),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,

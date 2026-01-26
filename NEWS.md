@@ -12,6 +12,8 @@
 - Ensured that plenty of comments are provided throughout the functions in the
   package to enhance understanding of the code and collaboration.
 
+- `pretty_number()` now uses a `digits` argument instead of `n_decimal`.
+
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
   leverage mathematical notation in the calculation of predicted survival
