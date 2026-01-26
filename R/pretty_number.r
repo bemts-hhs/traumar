@@ -7,19 +7,16 @@
 #' a custom prefix. It supports numbers up to the decillion range.
 #'
 #' @param x A numeric value or vector to be converted into a readable format.
-#' @param digits An integer specifying the number of decimal places to
-#'   include in the output. Defaults to `2`.
+#' @param digits Number of decimal places to display. Defaults to 2.
+#' @param n_decimal `r lifecycle::badge("deprecated")` Use `digits` instead.
 #' @param prefix An optional character string to prepend to the formatted number
-#'   (e.g., "$"). Defaults to `NULL`.
+#' (e.g., "$"). Defaults to `NULL`.
 #' @param truncate A logical value indicating whether to truncate the numbers
 #' before formatting. When `TRUE`, the function uses `base::signif()` to
 #' truncate the numbers to the specified number of significant digits, making
 #' the output more concise. When `FALSE`, the function uses `base::round()` to
 #' round the numbers to the specified number of decimal places, preserving the
 #' original scale of the number. Defaults to `FALSE`.
-#' @param n_decimal `r lifecycle::badge(stage = 'deprecated')` An integer
-#' specifying the number of decimal places to include in the output. This
-#' argument is deprecated, please use `digits` in its place.
 #'
 #' @returns A character vector with the numbers formatted as abbreviated
 #' strings. If `prefix` is provided, it prepends the formatted numbers.
@@ -46,18 +43,20 @@
 pretty_number <- function(
   x,
   digits = 2,
+  n_decimal = deprecated(),
   prefix = NULL,
-  truncate = FALSE,
-  n_decimal = lifecycle::deprecated()
+  truncate = FALSE
 ) {
-  # Signal deprecation of n_decimal
+  # Handle deprecated n_decimal argument
   if (lifecycle::is_present(n_decimal)) {
+    # Issue a warning
     lifecycle::deprecate_warn(
-      "1.2.4",
-      "traumar::pretty_number(n_decimal = )",
-      "traumar::pretty_number(digits = )",
-      always = FALSE
+      when = "1.2.4",
+      what = "pretty_number(n_decimal)",
+      with = "pretty_number(digits)"
     )
+    # Handle the n_decimal value for back compatability
+    digits <- n_decimal
   }
 
   # Enforce numeric or integer class on x

@@ -7,16 +7,17 @@
 pretty_number(
   x,
   digits = 2,
+  n_decimal = lifecycle::deprecated(),
   prefix = NULL,
-  truncate = FALSE,
-  n_decimal = lifecycle::deprecated()
+  truncate = FALSE
 )
 }
 \arguments{
 \item{x}{A numeric value or vector to be converted into a readable format.}
 
-\item{digits}{An integer specifying the number of decimal places to
-include in the output. Defaults to \code{2}.}
+\item{digits}{Number of decimal places to display. Defaults to 2.}
+
+\item{n_decimal}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{digits} instead.}
 
 \item{prefix}{An optional character string to prepend to the formatted number
 (e.g., "$"). Defaults to \code{NULL}.}
@@ -27,10 +28,6 @@ truncate the numbers to the specified number of significant digits, making
 the output more concise. When \code{FALSE}, the function uses \code{base::round()} to
 round the numbers to the specified number of decimal places, preserving the
 original scale of the number. Defaults to \code{FALSE}.}
-
-\item{n_decimal}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} An integer
-specifying the number of decimal places to include in the output. This
-argument is deprecated, please use \code{digits} in its place.}
 }
 \value{
 A character vector with the numbers formatted as abbreviated

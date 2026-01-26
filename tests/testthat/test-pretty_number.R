@@ -1,21 +1,18 @@
-options(lifecycle_verbosity = "warning")
-
 test_that("pretty_number handles basic formatting", {
   expect_equal(pretty_number(1234), "1.23k")
   expect_equal(pretty_number(1234567), "1.23m")
   expect_equal(pretty_number(1234567890), "1.23b")
 })
 
-test_that("pretty_number respects the digits argument and n_decimal deprecation", {
+test_that("pretty_number respects the digits argument", {
+  # set up options
+  withr::local_options(lifecycle_verbosity = "warning")
+
+  # tests
   expect_equal(pretty_number(1234, digits = 1), "1.2k")
   expect_equal(pretty_number(1234, digits = 0), "1k")
-  lifecycle::expect_deprecated(
-    pretty_number(1234, n_decimal = 1),
-    regexp = "deprecated"
-  )
-  lifecycle::expect_deprecated(
-    pretty_number(1234, n_decimal = 2),
-    regexp = "deprecated"
+  expect_error(
+    pretty_number(1234, digits = "two")
   )
 })
 
@@ -45,17 +42,13 @@ test_that("pretty_number handles invalid x input", {
   expect_error(pretty_number(TRUE), "x.*must be of class.*numeric, integer.*")
 })
 
-test_that("pretty_number validates digits argument and warns about the deprecated n_decimal argument", {
+test_that("pretty_number validates digits argument and warns about the deprecated digits argument", {
   expect_error(
     pretty_number(1234, digits = "two"),
     "digits.*must be of class.*numeric, integer.*."
   )
   expect_no_error(
     pretty_number(1234, digits = 2.5)
-  )
-  expect_warning(
-    pretty_number(1234, n_decimal = 2),
-    "n_decimal.*deprecated"
   )
 })
 
@@ -83,4 +76,22 @@ test_that("pretty_number handles edge cases for large and small numbers", {
   expect_equal(pretty_number(1e6), "1m")
   expect_equal(pretty_number(1e-3), "0")
   expect_equal(pretty_number(0), "0")
+})
+
+test_that("n_decimal and digits give identical results", {
+  withr::local_options(lifecycle_verbosity = "quiet")
+
+  expect_equal(
+    pretty_number(1234567, n_decimal = 1),
+    pretty_number(1234567, digits = 1)
+  )
+})
+
+test_that("pretty_number() n_decimal is lifecycle-deprecated", {
+  withr::local_options(lifecycle_verbosity = "error")
+
+  expect_error(
+    pretty_number(1234, n_decimal = 1),
+    class = "lifecycle_error_deprecated"
+  )
 })

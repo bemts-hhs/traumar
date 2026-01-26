@@ -312,7 +312,7 @@ testthat::test_that("rmm function handles edge cases correctly", {
       Ps_col = Ps,
       outcome_col = survival
     ),
-    regexp = "At least two non-missing values"
+    regexp = "outcome_col.*must have a length within range.*2, Inf"
   )
 
   # Test with all NA values in Ps
