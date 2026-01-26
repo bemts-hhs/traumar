@@ -9,11 +9,11 @@ test_that("pretty_number handles basic formatting", {
 test_that("pretty_number respects the digits argument and n_decimal deprecation", {
   expect_equal(pretty_number(1234, digits = 1), "1.2k")
   expect_equal(pretty_number(1234, digits = 0), "1k")
-  expect_warning(
+  lifecycle::expect_deprecated(
     pretty_number(1234, n_decimal = 1),
     regexp = "deprecated"
   )
-  expect_warning(
+  lifecycle::expect_deprecated(
     pretty_number(1234, n_decimal = 2),
     regexp = "deprecated"
   )
