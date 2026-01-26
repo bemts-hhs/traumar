@@ -17,6 +17,9 @@
 #' the output more concise. When `FALSE`, the function uses `base::round()` to
 #' round the numbers to the specified number of decimal places, preserving the
 #' original scale of the number. Defaults to `FALSE`.
+#' @param n_decimal `r lifecycle::badge(stage = 'deprecated')` An integer
+#' specifying the number of decimal places to include in the output. This
+#' argument is deprecated, please use `digits` in its place.
 #'
 #' @returns A character vector with the numbers formatted as abbreviated
 #' strings. If `prefix` is provided, it prepends the formatted numbers.
@@ -55,7 +58,6 @@ pretty_number <- function(
       "traumar::pretty_number(digits = )",
       always = FALSE
     )
-    digits <- n_decimal
   }
 
   # Enforce numeric or integer class on x
