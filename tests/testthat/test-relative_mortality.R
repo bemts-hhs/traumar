@@ -13,7 +13,7 @@ testthat::test_that("rmm() rejects outcome_col with wrong data type", {
   df <- dplyr::tibble(Ps = runif(10), outcome = letters[1:10])
   testthat::expect_error(
     traumar::rmm(data = df, Ps_col = Ps, outcome_col = outcome),
-    "The `outcome_col` must be of type logical \\(TRUE/FALSE\\) or numeric \\(1/0\\)\\."
+    "outcome_col.*must be of class.*numeric, logical, integer"
   )
 })
 
@@ -30,14 +30,13 @@ testthat::test_that("rmm() validates bootstrap_ci is logical", {
   )
 })
 
-testthat::test_that("rmm() warns if seed is not numeric", {
+testthat::test_that("rmm() fails if seed is not numeric", {
   df <- dplyr::tibble(
     Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
     outcome = rbinom(1000, 1, 0.5)
   )
-  testthat::expect_warning(
-    traumar::rmm(data = df, Ps_col = Ps, outcome_col = outcome, seed = "foo"),
-    "The value passed to `seed` was of class"
+  testthat::expect_error(
+    traumar::rmm(data = df, Ps_col = Ps, outcome_col = outcome, seed = "foo")
   )
 })
 
@@ -50,7 +49,7 @@ testthat::test_that("rmm() validates group_vars are character vectors", {
       outcome_col = outcome,
       group_vars = list(1)
     ),
-    "All elements in `group_vars` must be strings."
+    "group_vars.*must be of class.*character.*factor"
   )
 })
 
@@ -63,7 +62,7 @@ testthat::test_that("rmm() validates group_vars exist in data", {
       outcome_col = outcome,
       group_vars = c("fake_col")
     ),
-    "The following group variable\\(s\\) are not valid columns in the data: fake_col"
+    "group_vars.*contains invalid column names.*fake_col.*Valid column names are.*Ps, outcome"
   )
 })
 
@@ -217,14 +216,16 @@ testthat::test_that("rmm function handles the pivot argument correctly", {
 })
 
 testthat::test_that("rmm function handles edge cases correctly", {
-  # Custom expectation function to test for the presence of a specific warning pattern
+  # Custom expectation function to test for the presence of a specific warning
+  # pattern
   expect_warning_present <- function(expr, pattern) {
     # Initialize an empty character vector to store warning messages
     warnings <- character()
 
     # Evaluate the expression while intercepting all warning conditions
     withCallingHandlers(
-      # Force evaluation of the expression to ensure any lazy evaluation is triggered
+      # Force evaluation of the expression to ensure any lazy evaluation is
+      # triggered
       force(expr),
 
       # Define a handler specifically for warning conditions
@@ -237,7 +238,8 @@ testthat::test_that("rmm function handles edge cases correctly", {
       }
     )
 
-    # Assert that at least one warning matches the specified regular expression pattern
+    # Assert that at least one warning matches the specified regular expression
+    # pattern
     testthat::expect_true(
       # Logical test: does any warning message match the provided pattern?
       any(stringr::str_detect(warnings, pattern)),
@@ -328,11 +330,13 @@ testthat::test_that("rmm function handles edge cases correctly", {
       outcome_col = survival # Outcome variable for the model
     ),
 
-    # Regular expression to match the expected warning message about missing Ps values
-    "Missing values detected in.*Ps_col"
+    # Regular expression to match the expected warning message about missing Ps
+    # values
+    "Ps_col.*missing values detected"
   )
 
-  # Create a dataset with deliberately missing values in the outcome column (survival)
+  # Create a dataset with deliberately missing values in the outcome column
+  # (survival)
   df_na_outcome <- data |>
     dplyr::mutate(
       survival = dplyr::if_else(Ps < 0.01, NA_real_, survival)
@@ -348,7 +352,7 @@ testthat::test_that("rmm function handles edge cases correctly", {
     ),
 
     # Regular expression to match the expected warning message about missing outcome values
-    "Missing values detected in.*outcome_col"
+    "outcome_col.*missing values detected"
   )
 })
 
@@ -491,7 +495,8 @@ testthat::test_that("rmm function handles missing values with seed and group_var
     group = rep(c("A", "B", "C", "D", "E"), each = 200) # Group variable with 5 groups
   )
 
-  # Expect a warning when running rmm() with missing values in the dataset (Ps column missing)
+  # Expect a warning when running rmm() with missing values in the dataset (Ps
+  # column missing)
   expect_warning_present(
     rmm(
       data = df_missing_values,
@@ -501,7 +506,7 @@ testthat::test_that("rmm function handles missing values with seed and group_var
       n_samples = 5,
       seed = 123
     ),
-    "Missing values detected"
+    "Ps_col.*missing values detected"
   )
 
   # Create a dataset with missing values in the *outcome* column
@@ -521,7 +526,25 @@ testthat::test_that("rmm function handles missing values with seed and group_var
       n_samples = 5,
       seed = 123
     ),
-    "Missing values detected"
+    "outcome_col.*missing values detected"
+  )
+})
+
+testthat::test_that("rm_bin_summary has correct validation of outcome_col when it is logical", {
+  set.seed(01232025)
+
+  df <- tibble::tibble(
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
+    survival = sample(
+      x = c(TRUE, FALSE),
+      size = 1000,
+      replace = TRUE,
+      prob = c(0.9, 0.1)
+    )
+  )
+
+  testthat::expect_no_error(
+    rmm(data = df, Ps_col = Ps, outcome_col = survival)
   )
 })
 
@@ -540,7 +563,7 @@ testthat::test_that("rm_bin_summary() rejects outcome_col with wrong data type",
   df <- dplyr::tibble(Ps = runif(10), outcome = letters[1:10])
   testthat::expect_error(
     traumar::rm_bin_summary(data = df, Ps_col = Ps, outcome_col = outcome),
-    "The `outcome_col` must be of type logical \\(TRUE/FALSE\\) or numeric \\(1/0\\)\\."
+    "outcome_col.*must be of class.*numeric, logical, integer"
   )
 })
 
@@ -562,14 +585,14 @@ testthat::test_that("rm_bin_summary() warns if seed is not numeric", {
     Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
     outcome = rbinom(1000, 1, 0.5)
   )
-  testthat::expect_warning(
+  testthat::expect_error(
     traumar::rm_bin_summary(
       data = df,
       Ps_col = Ps,
       outcome_col = outcome,
       seed = "foo"
     ),
-    "The value passed to `seed` was of class"
+    "seed.*must be of class.*numeric, integer"
   )
 })
 
@@ -582,7 +605,7 @@ testthat::test_that("rm_bin_summary() validates group_vars are character vectors
       outcome_col = outcome,
       group_vars = list(1)
     ),
-    "All elements in `group_vars` must be strings."
+    "group_vars.*must be of class.*character.*factor"
   )
 })
 
@@ -595,7 +618,7 @@ testthat::test_that("rm_bin_summary() validates group_vars exist in data", {
       outcome_col = outcome,
       group_vars = c("fake_col")
     ),
-    "The following group variable\\(s\\) are not valid columns in the data: fake_col"
+    "group_vars.*contains invalid column names.*fake_col.*Valid column names are.*Ps, outcome"
   )
 })
 
@@ -838,7 +861,7 @@ testthat::test_that("rm_bin_summary validates Ps_col and outcome_col correctly",
       survival,
       n_samples = 5
     ),
-    "Missing values.*Ps_col"
+    "Ps_col.*missing values detected"
   )
 
   # Introduce missing values into the outcome (survival) column
@@ -855,7 +878,7 @@ testthat::test_that("rm_bin_summary validates Ps_col and outcome_col correctly",
       survival,
       n_samples = 5
     ),
-    "Missing values.*outcome_col"
+    "outcome_col.*missing values detected"
   )
 })
 
@@ -915,4 +938,22 @@ testthat::test_that("rm_bin_summary with missing group_vars argument", {
   no_group_result <- rm_bin_summary(df, Ps, survival, n_samples = 5)
   testthat::expect_true("bin_number" %in% names(no_group_result))
   testthat::expect_true(nrow(no_group_result) > 0)
+})
+
+testthat::test_that("rm_bin_summary has correct validation of outcome_col when it is logical", {
+  set.seed(01232025)
+
+  df <- tibble::tibble(
+    Ps = plogis(rnorm(1000, mean = 2, sd = 1.5)),
+    survival = sample(
+      x = c(TRUE, FALSE),
+      size = 1000,
+      replace = TRUE,
+      prob = c(0.9, 0.1)
+    )
+  )
+
+  testthat::expect_no_error(
+    rm_bin_summary(data = df, Ps_col = Ps, outcome_col = survival)
+  )
 })

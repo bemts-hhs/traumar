@@ -7,7 +7,7 @@
 pretty_number(
   x,
   digits = 2,
-  n_decimal = lifecycle::deprecated(),
+  n_decimal = deprecated(),
   prefix = NULL,
   truncate = FALSE
 )

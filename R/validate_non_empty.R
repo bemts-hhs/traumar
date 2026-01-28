@@ -117,6 +117,7 @@ validate_non_empty <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for NA values if na_ok is FALSE

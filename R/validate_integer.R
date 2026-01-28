@@ -62,9 +62,10 @@ validate_integer <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "e"
+        type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check if the input is integer

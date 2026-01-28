@@ -45,7 +45,12 @@ validate_character_factor <- function(
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_class(
+      input = var_name,
+      class_type = c("character", "factor"),
+      logic = "or",
+      type = "error"
+    )
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -60,6 +65,7 @@ validate_character_factor <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for NA values if na_ok is FALSE
@@ -76,7 +82,7 @@ validate_character_factor <- function(
     # Call the validate_error_type function to handle the message display
     validate_error_type(
       input = input_name,
-      message = "must be of type {.cls character} or {.cls factor}.",
+      message = "must be of class {.cls character} or {.cls factor}.",
       type = type
     )
   }

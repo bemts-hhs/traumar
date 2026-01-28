@@ -9,7 +9,8 @@
 #' @inheritParams validate_numeric
 #' @inheritParams validate_data_structure
 #' @param class_type A vector of class types to check. Possible values are
-#' "numeric", "integer", "logical", "character", "factor", "complex", "raw".
+#' "numeric", "integer", "logical", "character", "factor", "complex", "raw",
+#' "date", "date-time".
 #' @param finite Logical. If TRUE, only finite values are allowed. Default is
 #' FALSE.
 #'
@@ -63,7 +64,9 @@ validate_class <- function(
     "character",
     "factor",
     "complex",
-    "raw"
+    "raw",
+    "date",
+    "date-time"
   ),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
@@ -85,7 +88,9 @@ validate_class <- function(
       "character",
       "factor",
       "complex",
-      "raw"
+      "raw",
+      "date",
+      "date-time"
     ),
     several.ok = TRUE
   )
@@ -113,6 +118,7 @@ validate_class <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for NA values if na_ok is FALSE
@@ -147,7 +153,9 @@ validate_class <- function(
       "character" = is.character(input),
       "factor" = is.factor(input),
       "complex" = is.complex(input),
-      "raw" = is.raw(input)
+      "raw" = is.raw(input),
+      "date" = lubridate::is.Date(input),
+      "date-time" = lubridate::is.POSIXct(input)
     )
   })
 

@@ -61,6 +61,7 @@ validate_set <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for NA values if na_ok is FALSE

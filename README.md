@@ -94,27 +94,48 @@ the {traumar} package.
 set.seed(123)
 
 # Parameters
-n_patients <- 5000  # Total number of patients
+n_patients <- 5000 # Total number of patients
 
 groups <- sample(x = LETTERS[1:2], size = n_patients, replace = TRUE) # Arbitrary group labels
 
-trauma_type_values <- sample(x = c("Blunt", "Penetrating"), size = n_patients, replace = TRUE) # Trauma types
+trauma_type_values <- sample(
+  x = c("Blunt", "Penetrating"),
+  size = n_patients,
+  replace = TRUE
+) # Trauma types
 
-rts_values <- sample(x = seq(from = 0, to = 7.8408, by = 0.005), size = n_patients, replace = TRUE) # RTS values
+rts_values <- sample(
+  x = seq(from = 0, to = 7.8408, by = 0.005),
+  size = n_patients,
+  replace = TRUE
+) # RTS values
 
-ages <- sample(x = seq(from = 0, to = 100, by = 1), size = n_patients, replace = TRUE) # patient ages
+ages <- sample(
+  x = seq(from = 0, to = 100, by = 1),
+  size = n_patients,
+  replace = TRUE
+) # patient ages
 
-iss_scores <- sample(x = seq(from = 0, to = 75, by = 1), size = n_patients, replace = TRUE) # ISS scores
+iss_scores <- sample(
+  x = seq(from = 0, to = 75, by = 1),
+  size = n_patients,
+  replace = TRUE
+) # ISS scores
 
 # Generate survival probabilities (Ps)
-Ps <- traumar::probability_of_survival(trauma_type = trauma_type_values, age = ages, rts = rts_values, iss = iss_scores)
+Ps <- traumar::probability_of_survival(
+  trauma_type = trauma_type_values,
+  age = ages,
+  rts = rts_values,
+  iss = iss_scores
+)
 
 # Simulate survival outcomes based on Ps
 survival_outcomes <- rbinom(n_patients, size = 1, prob = Ps)
 
 # Create data frame
 data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
-dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
+  dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
 ```
 
 ### The W-Score!
@@ -193,13 +214,15 @@ does this for you using Dr. Napoli’s method:
 ``` r
 
 # Apply the nonlinear_bins function
-results <- nonlinear_bins(data = data,
-                         Ps_col = Ps,
-                         outcome_col = survival,
-                         divisor1 = 4,
-                         divisor2 = 4,
-                         threshold_1 = 0.9,
-                         threshold_2 = 0.99)
+results <- nonlinear_bins(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  divisor1 = 4,
+  divisor2 = 4,
+  threshold_1 = 0.9,
+  threshold_2 = 0.99
+)
 
 # View intervals created by the algorithm
 results$intervals
@@ -240,13 +263,14 @@ intervals, are provided for the population in `data`, as well.
 ``` r
 
 # Example usage of the `rmm()` function
-rmm(data = data,
-    Ps_col = Ps,
-    outcome_col = survival,
-    n_samples = 250,
-    Divisor1 = 4,
-    Divisor2 = 4
-    )
+rmm(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  n_samples = 250,
+  Divisor1 = 4,
+  Divisor2 = 4
+)
 #> # A tibble: 1 × 8
 #>   population_RMM_LL population_RMM population_RMM_UL population_CI
 #>               <dbl>          <dbl>             <dbl>         <dbl>
@@ -278,13 +302,14 @@ rmm(
 
 # RMM calculated by non-linear bin range
 # `rm_bin_summary()` function
-rm_bin_summary(data = data,
-               Ps_col = Ps,
-               outcome_col = survival,
-               Divisor1 = 4,
-               Divisor2 = 4,
-               n_samples = 250
-               )
+rm_bin_summary(
+  data = data,
+  Ps_col = Ps,
+  outcome_col = survival,
+  Divisor1 = 4,
+  Divisor2 = 4,
+  n_samples = 250
+)
 #> # A tibble: 8 × 19
 #>   bin_number  TA_b  TD_b   N_b  EM_b AntiS_b AntiM_b bin_start bin_end midpoint
 #>        <int> <int> <int> <int> <dbl>   <dbl>   <dbl>     <dbl>   <dbl>    <dbl>

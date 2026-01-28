@@ -23,8 +23,8 @@
 #'   \item "Spring" for March, April, and May.
 #'   \item "Summer" for June, July, and August.
 #'   \item "Fall" for September, October, and November.
-#'   \item "Undetermined" if the input is not a valid Date or POSIXct object or if
-#'   the month is missing.
+#'   \item "Undetermined" if the input is not a valid Date or POSIXct object or
+#'   if the month is missing.
 #'}
 #'
 #' @export
@@ -38,14 +38,13 @@
 #'
 season <- function(input_date) {
   # Check if the value supplied is in fact Date or POSIXct
-  if (!lubridate::is.Date(input_date) & !lubridate::is.POSIXct(input_date)) {
-    cli::cli_abort(
-      paste0(
-        "The input to {.var input_date} must be an object of class {.cls Date} or {.cls POSIXct}, but you supplied an object of class {.cls {class(input_date)}}.",
-        "i" = "Supply a {.cls Date} object to {.fn season}."
-      )
-    )
-  }
+  validate_class(
+    input = input_date,
+    class_type = c("date", "date-time"),
+    logic = "or",
+    type = "error",
+    null_ok = TRUE
+  )
 
   # Create the month boundaries of the season based on
   # https://www.weather.gov/dvn/Climate_Astronomical_Seasons
@@ -54,9 +53,14 @@ season <- function(input_date) {
   summer_months <- c(6, 7, 8)
   fall_months <- c(9, 10, 11)
 
-  # Conduct the logical test of the values to assign the season
-  month_num <- as.numeric(format(input_date, "%m"))
+  # Format the input_date as a month number
+  month_num <- suppressWarnings(
+    # in case input_date is NA or NULL for any given row, supress warning
+    # record will be classified as "Undetermined"
+    as.numeric(format(input_date, "%m"))
+  )
 
+  # Assign the season based on the month number
   factor_result <- ifelse(
     month_num %in% winter_months,
     "Winter",
@@ -69,11 +73,19 @@ season <- function(input_date) {
         ifelse(
           month_num %in% fall_months,
           "Fall",
-          ifelse(is.na(month_num), "Undetermined", "Undetermined")
+          ifelse(
+            is.na(month_num),
+            "Undetermined",
+            "Undetermined"
+          )
         )
       )
     )
   )
 
-  factor(factor_result)
+  # Convert result to a factor
+  factor_result <- factor(factor_result)
+
+  # Return result
+  return(factor_result)
 }

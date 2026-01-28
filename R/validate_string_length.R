@@ -63,6 +63,7 @@ validate_string_length <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for NA values if na_ok is FALSE

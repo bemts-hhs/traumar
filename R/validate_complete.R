@@ -56,6 +56,7 @@ validate_complete <- function(
         type = "error"
       )
     }
+    return(NULL)
   }
 
   # Check for missing values

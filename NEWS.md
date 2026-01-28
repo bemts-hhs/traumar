@@ -13,6 +13,12 @@
   package to enhance understanding of the code and collaboration.
 
 - `pretty_number()` now uses a `digits` argument instead of `n_decimal`.
+  `n_decimal` has been deprecated and will now issue a warning, but the function
+  will still work using the `n_decimal` argument. In a later release,
+  `n_decimal` will be fully deprecated.
+
+- `rmm()` and `rm_bin_summary()` will now fail if the `seed` argument is not of
+  class numeric or integer.
 
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
