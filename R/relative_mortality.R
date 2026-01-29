@@ -329,7 +329,12 @@ rmm <- function(
   }
 
   # Pull and check the outcome column
-  binary_data <- data |> dplyr::pull({{ outcome_col }})
+  binary_data <- validate_data_pull(
+    data = data,
+    col = {{ outcome_col }},
+    calls = 5,
+    var_name = "outcome_col"
+  )
 
   # Ensure the column is either logical or numeric
   validate_class(
@@ -385,7 +390,12 @@ rmm <- function(
   # Check if Ps column is numeric
 
   # dplyr::pull the Ps data
-  Ps_check <- data |> dplyr::pull({{ Ps_col }})
+  Ps_check <- validate_data_pull(
+    data = data,
+    col = {{ Ps_col }},
+    var_name = "Ps_col",
+    calls = 5
+  )
 
   # check the Ps_check remains continuous
   # Check if Ps column is continuous (values between 0 and 1)
@@ -1013,7 +1023,12 @@ rm_bin_summary <- function(
   }
 
   # Pull and check the outcome column
-  binary_data <- data |> dplyr::pull({{ outcome_col }})
+  binary_data <- validate_data_pull(
+    data = data,
+    col = {{ outcome_col }},
+    calls = 5,
+    var_name = "outcome_col"
+  )
 
   # Ensure the column is either logical or numeric
   validate_class(
@@ -1069,7 +1084,12 @@ rm_bin_summary <- function(
   # Check if Ps column is numeric
 
   # dplyr::pull the Ps data
-  Ps_check <- data |> dplyr::pull({{ Ps_col }})
+  Ps_check <- validate_data_pull(
+    data = data,
+    col = {{ Ps_col }},
+    var_name = "Ps_col",
+    calls = 5
+  )
 
   # check the Ps_check remains continuous
   # Check if Ps column is continuous (values between 0 and 1)

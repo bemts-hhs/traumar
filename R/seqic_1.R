@@ -141,14 +141,12 @@ seqic_indicator_1 <- function(
   ###___________________________________________________________________________
 
   # validate `data`
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    logic = "or",
+    type = "error"
+  )
 
   # make the `trauma_team_activation_level` column accessible for validation
   trauma_team_activation_level_check <- tryCatch(
