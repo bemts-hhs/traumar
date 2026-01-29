@@ -533,7 +533,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
       outcome_col = survival,
       group_vars = list(1, 2)
     ),
-    "group_vars.*must be of type.*character.*or.*factor.*"
+    "group_vars.*must be of class.*character.*or.*factor"
   )
 
   # Test for non-existent group_vars
