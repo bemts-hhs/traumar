@@ -75,21 +75,20 @@
 #'
 probability_of_survival <- function(trauma_type, age, rts, iss) {
   # Ensure trauma_type is character or factor
-
-  # Set up trauma_type validity checks
+  # Set up trauma_type validity checks ----
   validate_character_factor(input = trauma_type, type = "e")
 
-  # Vector of valid trauma_type(s)
+  # Vector of valid trauma_type(s) ----
   valid_trauma_types <- c("Blunt", "Penetrating")
 
-  # Check for valid values in trauma_type, ignoring NA
+  # Check for valid values in trauma_type, ignoring NA ----
   validate_set(
     input = trauma_type,
     valid_set = valid_trauma_types,
     type = "w"
   )
 
-  # Check age
+  # Check age ----
   validate_numeric(
     input = age,
     min = 0,
@@ -98,7 +97,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     null_ok = TRUE
   )
 
-  # Check rts
+  # Check rts ----
   validate_numeric(
     input = rts,
     min = 0,
@@ -108,7 +107,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     null_ok = TRUE
   )
 
-  # Check iss
+  # Check iss ----
   validate_numeric(
     input = iss,
     min = 0,
@@ -118,11 +117,11 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     null_ok = TRUE
   )
 
-  # Assign age category
+  # Assign age category ----
   # Age points are assigned as 0 if age is less than 55, otherwise 1
   age_points <- ifelse(age < 55, 0, 1)
 
-  # Assign coefficients for b0
+  # Assign coefficients for b0 ----
   # Coefficient b0 is assigned based on trauma type
   b0 <- ifelse(
     trauma_type == "Blunt",
@@ -134,7 +133,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     )
   )
 
-  # Assign coefficients for b1
+  # Assign coefficients for b1 ----
   # Coefficient b1 is assigned based on trauma type
   b1 <- ifelse(
     trauma_type == "Blunt",
@@ -146,7 +145,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     )
   )
 
-  # Assign coefficients for b2
+  # Assign coefficients for b2 ----
   # Coefficient b2 is assigned based on trauma type
   b2 <- ifelse(
     trauma_type == "Blunt",
@@ -158,7 +157,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     )
   )
 
-  # Assign coefficients for b3
+  # Assign coefficients for b3 ----
   # Coefficient b3 is assigned based on trauma type
   b3 <- ifelse(
     trauma_type == "Blunt",
@@ -170,16 +169,16 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
     )
   )
 
-  # Perform calculation
+  # Perform calculation ----
   # Calculate the logit value using the assigned coefficients and input
   # variables
   b <- b0 + (b1 * rts) + (b2 * iss) + (b3 * age_points)
 
-  # Predicted probability of survival
+  # Predicted probability of survival ----
   # Calculate the probability of survival using the logistic function
   survival_calc <- 1 / (1 + exp(-b))
 
-  # End function
+  # End function ----
   # Return the calculated probability of survival
   return(survival_calc)
 }

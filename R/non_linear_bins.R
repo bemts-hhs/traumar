@@ -217,7 +217,7 @@ nonlinear_bins <- function(
   threshold_1 = 0.9,
   threshold_2 = 0.99
 ) {
-  # Validation checks using `cli` for robust error messaging:
+  # Validation checks using `cli` for robust error messaging: ----
   # Ensures the input data is a data frame or tibble.
   validate_data_structure(
     input = data,
@@ -226,8 +226,8 @@ nonlinear_bins <- function(
     type = "error"
   )
 
-  # Ensure Ps_col and outcome_col arguments are provided with tailored error
-  # messages
+  # Ensure Ps_col and outcome_col arguments are provided ----
+  # with tailored error messages
   if (missing(Ps_col) && missing(outcome_col)) {
     cli::cli_abort(
       "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
@@ -238,10 +238,15 @@ nonlinear_bins <- function(
     cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # dplyr::pull the Ps data
-  Ps_check <- data |> dplyr::pull({{ Ps_col }})
+  # dplyr::pull the Ps data ----
+  Ps_check <- validate_data_pull(
+    data = data,
+    col = {{ Ps_col }},
+    var_name = "Ps_col",
+    calls = 5
+  )
 
-  # check the Ps_check remains continuous
+  # check the Ps_check remains continuous ----
   # Check if Ps column is continuous (values between 0 and 1)
   validate_numeric(
     input = Ps_check,
@@ -251,13 +256,18 @@ nonlinear_bins <- function(
     var_name = "Ps_col"
   )
 
-  # Check for missingness in the probability of survival data
+  # Check for missingness in the probability of survival data ----
   validate_complete(input = Ps_check, type = "warning", var_name = "Ps_col")
 
-  # Pull and check the outcome column
-  binary_data <- data |> dplyr::pull({{ outcome_col }})
+  # Pull and check the outcome column ----
+  binary_data <- validate_data_pull(
+    data = data,
+    col = {{ outcome_col }},
+    var_name = "outcome_col",
+    calls = 5
+  )
 
-  # Ensure the column is either logical or numeric
+  # Ensure the column is either logical or numeric ----
   validate_class(
     input = binary_data,
     class_type = c("logical", "numeric", "integer"),
@@ -266,17 +276,17 @@ nonlinear_bins <- function(
     var_name = "outcome_col"
   )
 
-  # Get unique non-missing values
+  # Get unique non-missing values ----
   non_missing <- stats::na.omit(binary_data)
 
-  # Provide a warning about missing values
+  # Provide a warning about missing values ----
   validate_complete(
     input = binary_data,
     type = "warning",
     var_name = "outcome_col"
   )
 
-  # Validate type and values
+  # Validate type and values ----
   if (is.logical(binary_data)) {
     validate_set(
       input = non_missing,
@@ -302,25 +312,28 @@ nonlinear_bins <- function(
     )
   }
 
-  # Check if all elements in group_vars are strings (i.e., character vectors)
+  # Check if all elements in group_vars are strings ----
+  # (i.e., character vectors)
   if (!is.null(group_vars)) {
     validate_character_factor(input = group_vars, type = "error")
   }
 
-  # Check if all group_vars exist in the data
+  # Check if all group_vars exist in the data ----
   if (!is.null(group_vars)) {
     validate_names(input = data, check_names = group_vars, type = "error")
   }
 
-  # Treat the column-names-as-strings as symbols
+  # Treat the column-names-as-strings as symbols ----
   if (!is.null(group_vars)) {
     group_vars <- rlang::syms(group_vars)
   }
 
-  # Select and sort the column
-  survival_data <- data |> dplyr::pull({{ Ps_col }}) |> sort()
+  # Select and sort the Ps_col column ----
+  # Assumes that the user has dealt with missing values, if they exist
+  survival_data <- Ps_check |> sort()
 
-  # length of non-missing `Ps_col` must be >= 2
+  # length of non-missing `Ps_col` must be >= 2 ----
+  # It is possible for this check to succeed if missings exist
   validate_length(
     input = survival_data,
     min_length = 2,
@@ -328,19 +341,19 @@ nonlinear_bins <- function(
     type = "error",
     na_ok = TRUE,
     null_ok = TRUE,
-    var_name = "outcome_col"
+    var_name = "Ps_col"
   )
 
-  # Step 1: Find indices for level thresholds
+  # Step 1: Find indices for level thresholds ----
   loc_9A <- which(survival_data > threshold_1) # Everything above 0.9 or other threshold
   loc_9B <- which(survival_data > threshold_2) # Everything above 0.99 or other threshold
   loc_9C <- which(survival_data > threshold_1 & survival_data <= threshold_2) # Between 0.9 and 0.99 or other thresholds
 
-  # Step 2: Define step sizes based on the data
+  # Step 2: Define step sizes based on the data ----
   step1 <- round(suppressWarnings(min(loc_9A, na.rm = TRUE)) / divisor1)
   step2 <- round(length(loc_9C) / divisor2)
 
-  # Step 3: Define intervals
+  # Step 3: Define intervals ----
   # Check that loc_9A and loc_9B are finite before using them in seq()
   if (
     suppressWarnings(
@@ -394,12 +407,12 @@ nonlinear_bins <- function(
     )
   }
 
-  # Generate intervals based on these positions
+  # Generate intervals based on these positions ----
   intervals <- unique(survival_data[len])
 
-  # Step 4: Bin statistics
+  # Step 4: Bin statistics ----
 
-  # Apply binning to each group separately
+  # Apply binning to each group separately ----
   data <- data |>
     dplyr::mutate(
       bin_number = .bincode(
@@ -411,7 +424,7 @@ nonlinear_bins <- function(
       bin_end = intervals[bin_number + 1] # End of the bin
     )
 
-  # Optionally group data by dynamic group_vars
+  # Optionally group data by dynamic group_vars ----
   # Or run the bin statistics on the whole dataset
   if (!is.null(group_vars)) {
     # Group the data by the specified group_vars and bin-related columns
@@ -493,6 +506,6 @@ nonlinear_bins <- function(
       )
   }
 
-  # Return a list with intervals and the bin statistics
+  # Return a list with intervals and the bin statistics ----
   return(list(intervals = intervals, bin_stats = grouped_stats))
 }

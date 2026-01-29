@@ -14,7 +14,7 @@ validate_data_pull(data, col, var_name = NULL, calls = NULL)
 \item{var_name}{Optional. The name of the variable for error messaging.}
 
 \item{calls}{Optional. The number of callers to go back in the call stack for
-error messaging.}
+error messaging. If NULL, will default to 5.}
 }
 \value{
 The extracted column as a vector.

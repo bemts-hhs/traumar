@@ -149,16 +149,11 @@ seqic_indicator_1 <- function(
   )
 
   # make the `trauma_team_activation_level` column accessible for validation
-  trauma_team_activation_level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ trauma_team_activation_level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var trauma_team_activation_level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  trauma_team_activation_level_check <- validate_data_pull(
+    data = data,
+    col = trauma_team_activation_level,
+    var_name = "trauma_team_activation_level",
+    calls = 5
   )
 
   # validate `trauma_team_activation_level`

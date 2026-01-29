@@ -47,7 +47,7 @@ pretty_number <- function(
   prefix = NULL,
   truncate = FALSE
 ) {
-  # Handle deprecated n_decimal argument
+  # Handle deprecated n_decimal argument ----
   if (lifecycle::is_present(n_decimal)) {
     # Issue a warning
     lifecycle::deprecate_warn(
@@ -55,11 +55,11 @@ pretty_number <- function(
       what = "pretty_number(n_decimal)",
       with = "pretty_number(digits)"
     )
-    # Handle the n_decimal value for back compatability
+    # Handle the n_decimal value for back compatability ----
     digits <- n_decimal
   }
 
-  # Enforce numeric or integer class on x
+  # Enforce numeric or integer class on x ----
   validate_class(
     input = x,
     class_type = c("numeric", "integer"),
@@ -67,7 +67,7 @@ pretty_number <- function(
     type = "error"
   )
 
-  # Error check: Ensure `digits` is an integer
+  # Error check: Ensure `digits` is an integer ----
   validate_class(
     input = digits,
     class_type = c("numeric", "integer"),
@@ -75,27 +75,27 @@ pretty_number <- function(
     type = "error"
   )
 
-  # Error check: Ensure that `truncate` is logical
+  # Error check: Ensure that `truncate` is logical ----
   validate_class(input = truncate, class_type = "logical", type = "error")
 
-  # Enforce character class on prefix which can be null
+  # Enforce character class on prefix which can be null ----
   if (!is.null(prefix)) {
     validate_class(input = prefix, class_type = "character", null_ok = TRUE)
   }
 
-  # Save the current options settings to restore them later
+  # Save the current options settings to restore them later ----
   old <- options()
 
-  # Ensure that the original options are restored when the function exits,
+  # Ensure that the original options are restored when the function exits, ----
   # even if an error occurs
   on.exit(options(old))
 
-  # Set the 'scipen' option to a high value to prevent scientific notation
+  # Set the 'scipen' option to a high value to prevent scientific notation ----
   # in the output. This ensures that large numbers are displayed in their
   # full numeric form rather than in scientific notation.
   options(scipen = 9999)
 
-  # set values to different orders of magnitude
+  # set values to different orders of magnitude ----
   thousand <- 1e3
   million <- 1e6
   billion <- 1e9
@@ -108,7 +108,7 @@ pretty_number <- function(
   nonillion <- 1e30
   decillion <- 1e33
 
-  # Allow a toggle to truncate numbers so you can round something like
+  # Allow a toggle to truncate numbers so you can round something like ----
   # 555555 to "600k" with
   # > pretty_number(555555, truncate = TRUE, digits = 1)
   # "600k"
@@ -118,29 +118,29 @@ pretty_number <- function(
     # concise and consistent.
     x <- signif(x, digits = digits)
 
-    # Get the number of characters in the truncated value. This helps in
+    # Get the number of characters in the truncated value. This helps in ----
     # determining the appropriate suffix (e.g., "k", "m") based on the length of
     # the number.
     x_length <- nchar(trunc(x))
   } else {
-    # When truncation is disabled, use round() to round the numbers to the
+    # When truncation is disabled, use round() to round the numbers to the ----
     # specified number of decimal places. This preserves the original scale of
     # the number.
     x <- round(x, digits = digits)
 
-    # Get the number of characters in the rounded value. This helps in
+    # Get the number of characters in the rounded value. This helps in ----
     # determining the appropriate suffix (e.g., "k", "m") based on the length of
     # the number.
     x_length <- nchar(trunc(x))
   }
 
-  # Classify the numeric value `x` into readable abbreviated formats
+  # Classify the numeric value `x` into readable abbreviated formats ----
 
-  # Define the suffixes for different orders of magnitude
+  # Define the suffixes for different orders of magnitude ----
   suffix <- c("k", "m", "b", "t", "qd", "qt", "sxt", "spt", "oct", "non", "dec")
 
-  # Determine the appropriate suffix and format the value based on the length of
-  # `x`
+  # Determine the appropriate suffix and format the value ----
+  # based on the length of `x`
   x_val <- dplyr::case_when(
     is.na(x) ~ NA_character_,
     x_length %in% 4:6 ~
@@ -193,20 +193,20 @@ pretty_number <- function(
         round(x / decillion, digits = digits),
         suffix[11]
       ),
-    # If the length of `x` does not match any of the above
+    # If the length of `x` does not match any of the above ----
     # ranges, round `x` to the specified number of decimal
     # places
     TRUE ~ paste0(round(x, digits = digits))
   )
 
-  # If no prefix is provided, return the formatted value
+  # If no prefix is provided, return the formatted value ----
   if (is.null(prefix)) {
     return(x_val)
   }
 
-  # If a prefix is provided, prepend it to the formatted value
+  # If a prefix is provided, prepend it to the formatted value ----
   x_val <- ifelse(is.na(x_val), NA_character_, paste0(prefix, x_val))
 
-  # Return the final formatted value
+  # Return the final formatted value ----
   return(x_val)
 }

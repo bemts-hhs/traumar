@@ -35,40 +35,40 @@ normalize <- function(x, method = c("min_max", "z_score")) {
   # Ensure that x is numeric or integer
   validate_class(input = x, class_type = c("numeric", "integer"), logic = "or")
 
-  # Check for empty input
+  # Check for empty input ----
   if (length(x) < 1) {
     validate_length(input = x, min_length = 1, type = "warning")
     return(numeric(0))
   }
-  # Validate method
+  # Validate method ----
   method <- match.arg(
     arg = method,
     choices = c("min_max", "z_score"),
     several.ok = FALSE
   )
 
-  # Check if the method is "min_max"
+  # Check if the method is "min_max" ----
   if (method == "min_max") {
     # Perform min-max normalization
     normalized_data <-
       (x - base::min(x, na.rm = TRUE)) /
       (base::max(x, na.rm = TRUE) - base::min(x, na.rm = TRUE))
 
-    # Check if the method is "z_score"
+    # Check if the method is "z_score" ----
   } else if (method == "z_score") {
     # Calculate the mean of x, ignoring NA values
     mean_x <- base::mean(x, na.rm = TRUE)
 
-    # Calculate the standard deviation of x, ignoring NA values
+    # Calculate the standard deviation of x, ignoring NA values ----
     std_dev_x <- stats::sd(x, na.rm = TRUE)
 
-    # Subtract the mean from each value in x
+    # Subtract the mean from each value in x ----
     x_minus_mean <- x - mean_x
 
-    # Perform z-score normalization
+    # Perform z-score normalization ----
     normalized_data <- x_minus_mean / std_dev_x
   }
 
-  # Return the normalized data
+  # Return the normalized data ----
   return(normalized_data)
 }
