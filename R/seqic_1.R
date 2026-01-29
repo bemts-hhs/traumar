@@ -6,11 +6,11 @@
 #'
 #' This function calculates System Evaluation and Quality Improvement Committee
 #' (SEQIC) Indicator 1 (subparts a through f). These indicators assess the
-#' timeliness and type of provider response (e.g., surgeon, mid-level, physician)
-#' to trauma alerts based on trauma team activation level, hospital trauma
-#' level, and time to provider presence. Confidence intervals can optionally be
-#' calculated for the proportion, using either the Wilson or Clopper-Pearson
-#' method.
+#' timeliness and type of provider response (e.g., surgeon, mid-level,
+#' physician) to trauma alerts based on trauma team activation level, hospital
+#' trauma level, and time to provider presence. Confidence intervals can
+#' optionally be calculated for the proportion, using either the Wilson or
+#' Clopper-Pearson method.
 #'
 #' @param data A data frame containing trauma incident records.
 #' @param trauma_team_activation_level Column identifying trauma team activation
@@ -151,8 +151,8 @@ seqic_indicator_1 <- function(
   # make the `trauma_team_activation_level` column ----
   # accessible for validation
   trauma_team_activation_level_check <- validate_data_pull(
-    data = data,
-    col = trauma_team_activation_level,
+    input = data,
+    col = {{ trauma_team_activation_level }},
     var_name = "trauma_team_activation_level",
     calls = 5
   )
@@ -161,14 +161,14 @@ seqic_indicator_1 <- function(
   validate_character_factor(
     input = trauma_team_activation_level_check,
     type = "error",
-    var_name = trauma_team_activation_level
+    var_name = "trauma_team_activation_level"
   )
 
   # make the `trauma_team_physician_service_type` column ----
   # accessible for validation
   trauma_team_physician_service_type_check <- validate_data_pull(
-    data = data,
-    col = trauma_team_physician_service_type,
+    input = data,
+    col = {{ trauma_team_physician_service_type }},
     var_name = "trauma_team_physician_service_type",
     calls = 5
   )
@@ -182,8 +182,8 @@ seqic_indicator_1 <- function(
 
   # make the `unique_incident_id` column accessible for validation ----
   unique_incident_id_check <- validate_data_pull(
-    data = data,
-    col = unique_incident_id,
+    input = data,
+    col = {{ unique_incident_id }},
     var_name = "unique_incident_id",
     calls = 5
   )
@@ -199,8 +199,8 @@ seqic_indicator_1 <- function(
 
   # make the `level` column accessible for validation ----
   level_check <- validate_data_pull(
-    data = data,
-    col = level,
+    input = data,
+    col = {{ level }},
     var_name = "level",
     calls = 5
   )
@@ -217,7 +217,7 @@ seqic_indicator_1 <- function(
   # make the `response_time` column accessible for validation ----
   response_time_check <- validate_data_pull(
     input = data,
-    col = response_time,
+    col = {{ response_time }},
     var_name = "response_time",
     calls = 5
   )
@@ -234,8 +234,8 @@ seqic_indicator_1 <- function(
   # make the `trauma_team_activation_provider` column ----
   # accessible for validation
   trauma_team_activation_provider_check <- validate_data_pull(
-    data = data,
-    col = trauma_team_activation_provider,
+    input = data,
+    col = {{ trauma_team_activation_provider }},
     var_name = "trauma_team_activation_provider",
     calls = 5
   )

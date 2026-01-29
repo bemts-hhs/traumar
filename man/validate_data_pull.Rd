@@ -4,10 +4,10 @@
 \alias{validate_data_pull}
 \title{Validate Data Extraction}
 \usage{
-validate_data_pull(data, col, var_name = NULL, calls = NULL)
+validate_data_pull(input, col, var_name = NULL, calls = NULL)
 }
 \arguments{
-\item{data}{A data frame or tibble.}
+\item{input}{A data frame or tibble.}
 
 \item{col}{The column to be extracted.}
 
@@ -24,6 +24,15 @@ This function extracts a column from a data frame or tibble and returns it as
 a vector. If the column does not exist or an error occurs, it returns a clean
 error message using the cli package.
 }
+\details{
+This function is designed to validate and extract a specified column from a
+data frame or tibble. When using \code{validate_data_pull()} within custom
+functions, it is necessary to call a given bare column name  using tidy
+evaluation (e.g., \code{{{ col }}}). This allows the function to correctly capture
+and evaluate the column name within the custom function. However, when
+calling this function directly on a data frame, tidy evaluation is not
+required.
+}
 \examples{
 # Synthetic data
 data <- data.frame(
@@ -38,8 +47,23 @@ validate_data_pull(
   data,
   Trauma_Type,
   var_name = "Trauma_Type",
-  calls = 4
+  calls = 5
 )
+
+# Example of using validate_data_pull() within a custom function
+custom_function <- function(df, col) {
+  # Validate and extract the column using tidy evaluation
+extracted_col <- validate_data_pull(
+  df,
+  {{ col }},
+  var_name = deparse(substitute(col)),
+  calls = 3
+)
+  return(extracted_col)
+}
+
+# Call the custom function with the Trauma_Type column
+custom_function(df = data, col = Trauma_Type)
 
 }
 \author{

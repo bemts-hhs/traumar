@@ -240,7 +240,7 @@ nonlinear_bins <- function(
 
   # dplyr::pull the Ps data ----
   Ps_check <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ Ps_col }},
     var_name = "Ps_col",
     calls = 5
@@ -261,7 +261,7 @@ nonlinear_bins <- function(
 
   # Pull and check the outcome column ----
   binary_data <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ outcome_col }},
     var_name = "outcome_col",
     calls = 5

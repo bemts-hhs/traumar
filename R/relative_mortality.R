@@ -331,7 +331,7 @@ rmm <- function(
 
   # Pull and check the outcome column ----
   binary_data <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ outcome_col }},
     calls = 5,
     var_name = "outcome_col"
@@ -391,7 +391,7 @@ rmm <- function(
   # Check if Ps column is numeric ----
   # dplyr::pull the Ps data
   Ps_check <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ Ps_col }},
     var_name = "Ps_col",
     calls = 5
@@ -1028,7 +1028,7 @@ rm_bin_summary <- function(
 
   # Pull and check the outcome column ----
   binary_data <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ outcome_col }},
     calls = 5,
     var_name = "outcome_col"
@@ -1088,7 +1088,7 @@ rm_bin_summary <- function(
   # Check if Ps column is numeric ----
   # dplyr::pull the Ps data
   Ps_check <- validate_data_pull(
-    data = data,
+    input = data,
     col = {{ Ps_col }},
     var_name = "Ps_col",
     calls = 5
