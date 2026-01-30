@@ -11,6 +11,7 @@
 #' argument is used, then min_length and max_length are not required.
 #' @param min_length The minimum length of the vector or list.
 #' @param max_length The maximum length of the vector or list.
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -43,17 +44,21 @@ validate_length <- function(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -65,7 +70,8 @@ validate_length <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -76,7 +82,8 @@ validate_length <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -88,7 +95,8 @@ validate_length <- function(
         message = glue::glue(
           "must have an exact length of {cli::col_blue(exact_length)}."
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     }
   } else {
@@ -117,7 +125,8 @@ validate_length <- function(
         message = glue::glue(
           "must have a length within range {cli::col_blue(required_range)}."
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     }
   }

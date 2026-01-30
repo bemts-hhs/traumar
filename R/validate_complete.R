@@ -7,6 +7,7 @@
 #' parameters.
 #'
 #' @inheritParams validate_numeric
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -31,17 +32,21 @@ validate_complete <- function(
   input,
   type = c("error", "warning", "message"),
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -53,7 +58,8 @@ validate_complete <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -77,7 +83,8 @@ validate_complete <- function(
       message = glue::glue(
         "missing values detected. Found {missing_count} missing value(s) out of {total_values} total values for {prop_missing} global missingness."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

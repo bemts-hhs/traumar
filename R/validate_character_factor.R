@@ -7,6 +7,7 @@
 #' parameters.
 #'
 #' @inheritParams validate_numeric
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -35,10 +36,14 @@ validate_character_factor <- function(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
@@ -49,7 +54,8 @@ validate_character_factor <- function(
       input = var_name,
       class_type = c("character", "factor"),
       logic = "or",
-      type = "error"
+      type = "error",
+      calls = calls
     )
 
     # Initialize input_name using var_name
@@ -62,7 +68,8 @@ validate_character_factor <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -73,7 +80,8 @@ validate_character_factor <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -83,7 +91,8 @@ validate_character_factor <- function(
     validate_error_type(
       input = input_name,
       message = "must be of class {.cls character} or {.cls factor}.",
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

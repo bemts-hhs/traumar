@@ -73,10 +73,14 @@ validate_class <- function(
   na_ok = TRUE,
   null_ok = TRUE,
   finite = FALSE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 5, calls)
 
   # Validate the class_type argument
   class_type <- match.arg(
@@ -103,7 +107,7 @@ validate_class <- function(
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -115,7 +119,8 @@ validate_class <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -126,7 +131,8 @@ validate_class <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -139,7 +145,8 @@ validate_class <- function(
     validate_error_type(
       input = input_name,
       message = "must contain only finite values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -173,7 +180,8 @@ validate_class <- function(
       message = glue::glue(
         "must be of class {cli::col_blue(paste0('(', paste(class_type, collapse = ', '), ')'))}."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

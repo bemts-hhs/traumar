@@ -10,6 +10,7 @@
 #' colnames(input) to get the expected column names.
 #' @param check_names A vector of column names as strings to check against
 #' input.
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -40,17 +41,21 @@ validate_names <- function(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- rlang::as_name(rlang::enquo(check_names))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -62,7 +67,8 @@ validate_names <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -73,7 +79,8 @@ validate_names <- function(
     validate_error_type(
       input = input_name,
       message = "must not be a missing value.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -82,11 +89,12 @@ validate_names <- function(
     input = input,
     structure_type = c("data.frame", "tibble"),
     logic = "or",
-    type = "error"
+    type = "error",
+    calls = calls
   )
 
   # Validate check_names, ensure it has class character
-  validate_character_factor(input = check_names, type = "error")
+  validate_character_factor(input = check_names, type = "error", calls = 1)
 
   # Get the column names of the target data
   valid_set <- colnames(input)
@@ -104,7 +112,8 @@ validate_names <- function(
         message = glue::glue(
           "contains invalid column names: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     } else {
       # Call the validate_error_type function to handle the message display
@@ -119,7 +128,8 @@ validate_names <- function(
         message = glue::glue(
           "contains invalid column names: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ',...', ')'))}"
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     }
   }

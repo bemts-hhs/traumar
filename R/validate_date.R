@@ -7,6 +7,7 @@
 #' arguments allow for checking NA values and NULL values.
 #'
 #' @inheritParams validate_numeric
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -32,17 +33,21 @@ validate_date <- function(
   na_ok = TRUE,
   null_ok = TRUE,
   type = c("error", "warning", "message"),
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -53,7 +58,8 @@ validate_date <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "e"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -63,7 +69,8 @@ validate_date <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -74,7 +81,8 @@ validate_date <- function(
     validate_error_type(
       input = input_name,
       message = "must be a valid {.cls Date}.",
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

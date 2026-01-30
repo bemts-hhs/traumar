@@ -64,7 +64,8 @@ pretty_number <- function(
     input = x,
     class_type = c("numeric", "integer"),
     logic = "or",
-    type = "error"
+    type = "error",
+    calls = 2
   )
 
   # Error check: Ensure `digits` is an integer ----
@@ -72,15 +73,26 @@ pretty_number <- function(
     input = digits,
     class_type = c("numeric", "integer"),
     logic = "or",
-    type = "error"
+    type = "error",
+    calls = 2
   )
 
   # Error check: Ensure that `truncate` is logical ----
-  validate_class(input = truncate, class_type = "logical", type = "error")
+  validate_class(
+    input = truncate,
+    class_type = "logical",
+    type = "error",
+    calls = 2
+  )
 
   # Enforce character class on prefix which can be null ----
   if (!is.null(prefix)) {
-    validate_class(input = prefix, class_type = "character", null_ok = TRUE)
+    validate_class(
+      input = prefix,
+      class_type = "character",
+      null_ok = TRUE,
+      calls = 2
+    )
   }
 
   # Save the current options settings to restore them later ----

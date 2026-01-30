@@ -19,6 +19,7 @@
 #' @param var_name Optional. A character string giving the desired variable (or
 #' object) name that will appear in console output in place of the how the
 #' object will typically be named in messages via deparse(substitute(input)).
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -51,17 +52,21 @@ validate_numeric <- function(
   null_ok = TRUE,
   finite = FALSE,
   type = c("error", "warning", "message"),
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
-  type <- match.arg(type, choices = c("error", "warning", "message"))
+  type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 5, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -73,7 +78,8 @@ validate_numeric <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -84,7 +90,8 @@ validate_numeric <- function(
     validate_error_type(
       input = input_name,
       message = "must be {.cls numeric}.",
-      type = type
+      type = type,
+      calls = calls
     )
   }
 
@@ -93,7 +100,8 @@ validate_numeric <- function(
     validate_error_type(
       input = input_name,
       message = "must contain only finite values.",
-      type = "e"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -102,7 +110,8 @@ validate_numeric <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "e"
+      type = "e",
+      calls = calls
     )
   }
 
@@ -144,7 +153,8 @@ validate_numeric <- function(
       message = glue::glue(
         "values must be greater than or equal to {cli::col_blue(min)}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 
@@ -155,7 +165,8 @@ validate_numeric <- function(
       message = glue::glue(
         "values must be less than or equal to {cli::col_blue(max)}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 
@@ -170,7 +181,8 @@ validate_numeric <- function(
       message = glue::glue(
         "values must be contained within range {cli::col_blue(required_range)}. {dynamic_text} of this input was {cli::col_grey(observed_range)}."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

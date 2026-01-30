@@ -10,7 +10,8 @@ validate_set(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ of "error", "warning", or "message".}
 \item{var_name}{Optional. A character string giving the desired variable (or
 object) name that will appear in console output in place of the how the
 object will typically be named in messages via deparse(substitute(input)).}
+
+\item{calls}{Optional. The number of callers to go back in the call stack for
+error messaging. If NULL, will default to 5.}
 }
 \value{
 NULL. The function is used for its side effects.

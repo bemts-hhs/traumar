@@ -4,7 +4,12 @@
 \alias{validate_error_type}
 \title{Validate Error Type}
 \usage{
-validate_error_type(input, message, type = c("error", "warning", "message"))
+validate_error_type(
+  input,
+  message,
+  type = c("error", "warning", "message"),
+  calls = NULL
+)
 }
 \arguments{
 \item{input}{The data to be validated.}
@@ -14,6 +19,9 @@ validate_error_type(input, message, type = c("error", "warning", "message"))
 \item{type}{A character string specifying the type of message to be displayed
 if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
+
+\item{calls}{Optional. The number of callers to go back in the call stack for
+error messaging. If NULL, will default to 5.}
 }
 \value{
 NULL. The function is used for its side effects.

@@ -12,6 +12,7 @@
 #' "tbl_df", "tbl".
 #' @param logic The logical operator to use when combining checks. Possible
 #' values are "and" or "or".
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -51,10 +52,14 @@ validate_data_structure <- function(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Validate the structure_type argument
   structure_type <- match.arg(
@@ -79,7 +84,7 @@ validate_data_structure <- function(
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -91,7 +96,8 @@ validate_data_structure <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -102,7 +108,8 @@ validate_data_structure <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -134,7 +141,8 @@ validate_data_structure <- function(
       message = glue::glue(
         "must be of type {cli::col_blue(paste0('(', paste(structure_type, collapse = ', '), ')'))}."
       ),
-      type = type
+      type = type,
+      calls = calls
     )
   }
 }

@@ -169,8 +169,7 @@ seqic_indicator_1 <- function(
   trauma_team_physician_service_type_check <- validate_data_pull(
     input = data,
     col = {{ trauma_team_physician_service_type }},
-    var_name = "trauma_team_physician_service_type",
-    calls = 5
+    var_name = "trauma_team_physician_service_type"
   )
 
   # validate `trauma_team_physician_service_type` ----
@@ -184,8 +183,7 @@ seqic_indicator_1 <- function(
   unique_incident_id_check <- validate_data_pull(
     input = data,
     col = {{ unique_incident_id }},
-    var_name = "unique_incident_id",
-    calls = 5
+    var_name = "unique_incident_id"
   )
 
   # validate `unique_incident_id` ----
@@ -201,8 +199,7 @@ seqic_indicator_1 <- function(
   level_check <- validate_data_pull(
     input = data,
     col = {{ level }},
-    var_name = "level",
-    calls = 5
+    var_name = "level"
   )
 
   # validate `level` ----
@@ -218,8 +215,7 @@ seqic_indicator_1 <- function(
   response_time_check <- validate_data_pull(
     input = data,
     col = {{ response_time }},
-    var_name = "response_time",
-    calls = 5
+    var_name = "response_time"
   )
 
   # validate `response_time` ----
@@ -236,8 +232,7 @@ seqic_indicator_1 <- function(
   trauma_team_activation_provider_check <- validate_data_pull(
     input = data,
     col = {{ trauma_team_activation_provider }},
-    var_name = "trauma_team_activation_provider",
-    calls = 5
+    var_name = "trauma_team_activation_provider"
   )
 
   # validate `trauma_team_activation_provider` ----
@@ -268,28 +263,13 @@ seqic_indicator_1 <- function(
   # - If not NULL, must be either "wilson" or "clopper-pearson"
   # - Use match.arg() to enforce allowed values
   # - Catch invalid input silently and report cleanly with cli
-
-  if (!is.null(calculate_ci)) {
-    validate_set(input = calculate_ci, valid_set = )
-    # Attempt to match the argument against allowed choices ----
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
-
-    # If match.arg failed, provide a user-friendly error message ----
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-
-    # If valid, overwrite calculate_ci with standardized value ----
-    calculate_ci <- attempt
-  }
+  validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE
+  )
 
   # Validate the `included_levels` argument ----
   validate_class(

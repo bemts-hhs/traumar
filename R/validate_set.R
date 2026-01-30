@@ -7,6 +7,7 @@
 #'
 #' @inheritParams validate_numeric
 #' @param valid_set A vector of valid values.
+#' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
 #'
@@ -36,17 +37,21 @@ validate_set <- function(
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
-  var_name = NULL
+  var_name = NULL,
+  calls = NULL
 ) {
   # Validate the type argument
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
+
+  # Define number of callers to go back
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
     input_name <- deparse(substitute(input))
   } else {
     # Validate var_name
-    validate_character_factor(input = var_name, type = "error")
+    validate_character_factor(input = var_name, type = "error", calls = 1)
 
     # Initialize input_name using var_name
     input_name <- var_name
@@ -58,7 +63,8 @@ validate_set <- function(
       validate_error_type(
         input = input_name,
         message = "must not be NULL.",
-        type = "error"
+        type = "error",
+        calls = calls
       )
     }
     return(NULL)
@@ -69,7 +75,8 @@ validate_set <- function(
     validate_error_type(
       input = input_name,
       message = "must not contain NA values.",
-      type = "error"
+      type = "error",
+      calls = calls
     )
   }
 
@@ -86,7 +93,8 @@ validate_set <- function(
         message = glue::glue(
           "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     } else {
       # Call the validate_error_type function to handle the message display
@@ -101,7 +109,8 @@ validate_set <- function(
         message = glue::glue(
           "contains invalid values: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), '...', ')'))}"
         ),
-        type = type
+        type = type,
+        calls = calls
       )
     }
   }

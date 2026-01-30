@@ -4,10 +4,20 @@
 \alias{validate_data_pull}
 \title{Validate Data Extraction}
 \usage{
-validate_data_pull(input, col, var_name = NULL, calls = NULL)
+validate_data_pull(
+  input,
+  type = c("error", "warning", "message"),
+  col,
+  var_name = NULL,
+  calls = NULL
+)
 }
 \arguments{
 \item{input}{A data frame or tibble.}
+
+\item{type}{A character string specifying the type of message to be displayed
+if the input is not numeric or if the values are out of range. Must be one
+of "error", "warning", or "message".}
 
 \item{col}{The column to be extracted.}
 
