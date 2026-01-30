@@ -23,6 +23,12 @@
 - Added section headers throughout the code base to make navigation within most
   modern IDEs easier.
 
+- Error/warning messages will now directly name the function in the call stack
+  that is most helpful. For example, if some data validation triggers an error
+  within `traumar::seqic_indicator1()`, then `traumar::seqic_indicator1()` will
+  show up in the error message, instead of some other function such as a `cli`
+  function or one of the new `validate_*()` functions.
+
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
   leverage mathematical notation in the calculation of predicted survival

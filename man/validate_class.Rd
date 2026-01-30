@@ -7,7 +7,7 @@
 validate_class(
   input,
   class_type = c("numeric", "integer", "logical", "character", "factor", "complex",
-    "raw", "date", "date-time"),
+    "raw", "date", "date-time", "hms"),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
@@ -22,7 +22,7 @@ validate_class(
 
 \item{class_type}{A vector of class types to check. Possible values are
 "numeric", "integer", "logical", "character", "factor", "complex", "raw",
-"date", "date-time".}
+"date", "date-time", "hms".}
 
 \item{logic}{The logical operator to use when combining checks. Possible
 values are "and" or "or".}

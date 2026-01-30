@@ -10,7 +10,7 @@
 #' @inheritParams validate_data_structure
 #' @param class_type A vector of class types to check. Possible values are
 #' "numeric", "integer", "logical", "character", "factor", "complex", "raw",
-#' "date", "date-time".
+#' "date", "date-time", "hms".
 #' @param finite Logical. If TRUE, only finite values are allowed. Default is
 #' FALSE.
 #'
@@ -66,7 +66,8 @@ validate_class <- function(
     "complex",
     "raw",
     "date",
-    "date-time"
+    "date-time",
+    "hms"
   ),
   logic = c("and", "or"),
   type = c("error", "warning", "message"),
@@ -94,7 +95,8 @@ validate_class <- function(
       "complex",
       "raw",
       "date",
-      "date-time"
+      "date-time",
+      "hms"
     ),
     several.ok = TRUE
   )
@@ -162,7 +164,8 @@ validate_class <- function(
       "complex" = is.complex(input),
       "raw" = is.raw(input),
       "date" = lubridate::is.Date(input),
-      "date-time" = lubridate::is.POSIXct(input)
+      "date-time" = lubridate::is.POSIXct(input),
+      "hms" = hms::is_hms(input)
     )
   })
 

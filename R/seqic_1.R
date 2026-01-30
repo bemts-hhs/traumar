@@ -153,8 +153,7 @@ seqic_indicator_1 <- function(
   trauma_team_activation_level_check <- validate_data_pull(
     input = data,
     col = {{ trauma_team_activation_level }},
-    var_name = "trauma_team_activation_level",
-    calls = 5
+    var_name = "trauma_team_activation_level"
   )
 
   # validate `trauma_team_activation_level` ----
@@ -243,13 +242,12 @@ seqic_indicator_1 <- function(
   )
 
   # Check if all elements in groups are strings (i.e., character vectors) ----
-  if (!is.null(groups)) {
-    validate_character_factor(
-      input = groups,
-      type = "error",
-      var_name = "groups"
-    )
-  }
+  validate_character_factor(
+    input = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
 
   # Check if all groups exist in the `data` ----
   validate_names(
@@ -263,7 +261,7 @@ seqic_indicator_1 <- function(
   # - If not NULL, must be either "wilson" or "clopper-pearson"
   # - Use match.arg() to enforce allowed values
   # - Catch invalid input silently and report cleanly with cli
-  validate_choice(
+  calculate_ci <- validate_choice(
     input = calculate_ci,
     choices = c("wilson", "clopper-pearson"),
     several.ok = FALSE,
