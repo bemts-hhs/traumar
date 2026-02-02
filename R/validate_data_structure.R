@@ -139,7 +139,7 @@ validate_data_structure <- function(
     validate_error_type(
       input = input_name,
       message = glue::glue(
-        "must be of type {cli::col_blue(paste0('(', paste(structure_type, collapse = ', '), ')'))}."
+        "must be of class {cli::col_blue(paste0('(', paste(structure_type, collapse = ', '), ')'))}."
       ),
       type = type,
       calls = calls
