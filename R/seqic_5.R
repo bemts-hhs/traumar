@@ -92,165 +92,108 @@ seqic_indicator_5 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Validate if `data` is a data frame or tibble.
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_5())
-      )
-    }
-  )
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(
-      c(
-        "{.var level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
-      )
-    )
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_5())
-      )
-    }
+  # Validate if `data` is a data frame or tibble. ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    type = "error",
+    logic = "or"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # Validate `blood_alcohol_content`
-  blood_alcohol_content_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ blood_alcohol_content }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var blood_alcohol_content}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_5())
-      )
-    }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
   )
-  if (!is.numeric(blood_alcohol_content_check)) {
-    cli::cli_abort(
-      c(
-        "{.var blood_alcohol_content} must be of class {.cls numeric}.",
-        "i" = "{.var blood_alcohol_content} was an object of class {.cls {class(blood_alcohol_content_check)}}."
-      )
-    )
-  }
 
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
+  )
+
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
+  )
+
+  # Validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "integer", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
+
+  # Ensure `blood_alcohol_content` can be validated ----
+  blood_alcohol_content_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ blood_alcohol_content }},
+    var_name = "blood_alcohol_content"
+  )
+
+  # Validate `blood_alcohol_content` ----
+  validate_numeric(
+    input = blood_alcohol_content_check,
+    min = 0,
+    type = "error",
+    var_name = "blood_alcohol_content"
+  )
+
+  # Ensure `drug_screen` can be validated
+  drug_screen_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ drug_screen }},
+    var_name = "drug_screen"
+  )
   # Validate `drug_screen`
-  drug_screen_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ drug_screen }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var drug_screen}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_5())
-      )
-    }
+  validate_character_factor(
+    input = drug_screen_check,
+    type = "error",
+    var_name = "drug_screen"
   )
-  if (!is.character(drug_screen_check) && !is.factor(drug_screen_check)) {
-    cli::cli_abort(
-      c(
-        "{.var drug_screen} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var drug_screen} was an object of class {.cls {class(drug_screen_check)}}."
-      )
-    )
-  }
 
-  # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
-  # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  # Check if all `groups` exist in the `data`.
+  validate_names(input = data, check_names = groups, type = "error")
 
-  # Validate `calculate_ci`
-  if (!is.null(calculate_ci)) {
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
+  # Validate the `calculate_ci` argument ----
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE,
+    var_name = "calculate_ci"
+  )
 
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-
-    calculate_ci <- attempt
-  }
-
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor", "integer"),
+    type = "error",
+    logic = "or"
+  )
 
   ###___________________________________________________________________________
-  ### Set up drug-related keyword matching via regular expressions
+  ### Set up drug-related keyword matching via regular expressions ----
   ###___________________________________________________________________________
 
-  # Options are consistent with the National Trauma Data Bank Data Dictionary
+  # Options are consistent with the National Trauma Data Bank ----
   # responses as of the 2025 release
   # Define keyword vectors
   drug_keywords <- c(
@@ -283,26 +226,27 @@ seqic_indicator_5 <- function(
     "other"
   )
 
-  # keywords for a positive test
+  # keywords for a positive test ----
   positive_drug_keywords <- setdiff(drug_keywords, "none")
 
-  # Collapse into regular expression strings
+  # Collapse into regular expression strings ----
   drug_pattern_terms <- stringr::str_c(drug_keywords, collapse = "|")
   positive_drug_pattern_terms <- stringr::str_c(
     positive_drug_keywords,
     collapse = "|"
   )
 
-  # Final patterns (case-insensitive, non-capturing)
+  # Final patterns (case-insensitive, non-capturing) ----
   drug_pattern <- sprintf("(?:%s)", drug_pattern_terms)
   positive_drug_pattern <- sprintf("(?:%s)", positive_drug_pattern_terms)
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
   ###___________________________________________________________________________
-  ### Compute numerator and denominator for each SEQIC Indicator 5 sub-measure
+  ### Compute numerator and denominator ----
+  ### for each SEQIC Indicator 5 sub-measure
   ###___________________________________________________________________________
   seqic_5 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
@@ -317,7 +261,7 @@ seqic_indicator_5 <- function(
         NA_real_
       ),
 
-      # 5b: Among those tested, proportion with BAC > 0
+      # 5b: Among those tested, proportion with BAC > 0 ----
       numerator_5b = sum({{ blood_alcohol_content }} > 0, na.rm = TRUE),
       denominator_5b = sum(!is.na({{ blood_alcohol_content }})),
       seqic_5b = dplyr::if_else(
@@ -326,7 +270,7 @@ seqic_indicator_5 <- function(
         NA_real_
       ),
 
-      # 5c: Proportion with any drug result (positive, none, or other)
+      # 5c: Proportion with any drug result (positive, none, or other) ----
       numerator_5c = sum(
         grepl(
           pattern = drug_pattern,
@@ -342,7 +286,8 @@ seqic_indicator_5 <- function(
         NA_real_
       ),
 
-      # 5d: Among those with a result, proportion with a positive drug result
+      # 5d: Among those with a result, proportion with a positive  ----
+      # drug result
       numerator_5d = sum(
         grepl(
           pattern = positive_drug_pattern,
@@ -411,14 +356,15 @@ seqic_indicator_5 <- function(
           dplyr::select(lower_ci, upper_ci) |>
           dplyr::rename(lower_ci_5d = lower_ci, upper_ci_5d = upper_ci)
       ) |>
-      # Relocate CI columns immediately after their respective proportion columns
+      # Relocate CI columns immediately after their respective proportion ----
+      # columns
       dplyr::relocate(lower_ci_5a, upper_ci_5a, .after = seqic_5a) |>
       dplyr::relocate(lower_ci_5b, upper_ci_5b, .after = seqic_5b) |>
       dplyr::relocate(lower_ci_5c, upper_ci_5c, .after = seqic_5c) |>
       dplyr::relocate(lower_ci_5d, upper_ci_5d, .after = seqic_5d)
   }
 
-  # Assign label for ungrouped reporting, or sort grouped reporting
+  # Assign label for ungrouped reporting, or sort grouped reporting ----
   if (is.null(groups)) {
     seqic_5 <- seqic_5 |>
       tibble::add_column(data = "population/sample", .before = "numerator_5a")
@@ -427,5 +373,6 @@ seqic_indicator_5 <- function(
       dplyr::arrange(!!!rlang::syms(groups))
   }
 
+  # Return the final summarized data for Indicator 5. ----
   return(seqic_5)
 }

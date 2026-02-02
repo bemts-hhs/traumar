@@ -64,7 +64,7 @@ validate_non_empty <- function(
     "tbl_df",
     "tbl"
   ),
-  logic = c("and", "or"),
+  logic = c("or", "and"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,

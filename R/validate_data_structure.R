@@ -11,7 +11,7 @@
 #' values are "data.frame", "matrix", "list", "array", "atomic_vector",
 #' "tbl_df", "tbl".
 #' @param logic The logical operator to use when combining checks. Possible
-#' values are "and" or "or".
+#' values are "or", and "and".
 #' @inheritParams validate_data_pull
 #'
 #' @return NULL. The function is used for its side effects.
@@ -48,7 +48,7 @@ validate_data_structure <- function(
     "tbl_df",
     "tbl"
   ),
-  logic = c("and", "or"),
+  logic = c("or", "and"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
@@ -77,7 +77,7 @@ validate_data_structure <- function(
   )
 
   # Validate the logic argument
-  logic <- match.arg(arg = logic, choices = c("and", "or"))
+  logic <- match.arg(arg = logic, choices = c("or", "and"))
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {

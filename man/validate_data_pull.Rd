@@ -24,7 +24,7 @@ of "error", "warning", or "message".}
 \item{var_name}{Optional. The name of the variable for error messaging.}
 
 \item{calls}{Optional. The number of callers to go back in the call stack for
-error messaging. If NULL, will default to 5.}
+error messaging. If NULL, will default to 2.}
 }
 \value{
 The extracted column as a vector.

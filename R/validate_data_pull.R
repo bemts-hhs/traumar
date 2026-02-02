@@ -10,7 +10,7 @@
 #' @param col The column to be extracted.
 #' @param var_name Optional. The name of the variable for error messaging.
 #' @param calls Optional. The number of callers to go back in the call stack for
-#' error messaging. If NULL, will default to 5.
+#' error messaging. If NULL, will default to 2.
 #'
 #' @return The extracted column as a vector.
 #'
@@ -77,9 +77,6 @@ validate_data_pull <- function(
   } else {
     input_name <- var_name
   }
-
-  # Define number of callers to go back
-  calls <- ifelse(is.null(calls), 5, calls)
 
   # Extract the column and handle errors
   result <- try(

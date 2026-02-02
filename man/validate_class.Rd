@@ -8,7 +8,7 @@ validate_class(
   input,
   class_type = c("numeric", "integer", "logical", "character", "factor", "complex",
     "raw", "date", "date-time", "hms"),
-  logic = c("and", "or"),
+  logic = c("or", "and"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
@@ -25,7 +25,7 @@ validate_class(
 "date", "date-time", "hms".}
 
 \item{logic}{The logical operator to use when combining checks. Possible
-values are "and" or "or".}
+values are "or", and "and".}
 
 \item{type}{A character string specifying the type of message to be displayed
 if the input is not numeric or if the values are out of range. Must be one
@@ -43,7 +43,7 @@ object) name that will appear in console output in place of the how the
 object will typically be named in messages via deparse(substitute(input)).}
 
 \item{calls}{Optional. The number of callers to go back in the call stack for
-error messaging. If NULL, will default to 5.}
+error messaging. If NULL, will default to 2.}
 }
 \value{
 NULL. The function is used for its side effects.

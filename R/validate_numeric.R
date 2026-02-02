@@ -59,7 +59,7 @@ validate_numeric <- function(
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
 
   # Define number of callers to go back
-  calls <- ifelse(is.null(calls), 5, calls)
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {

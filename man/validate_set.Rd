@@ -32,7 +32,7 @@ object) name that will appear in console output in place of the how the
 object will typically be named in messages via deparse(substitute(input)).}
 
 \item{calls}{Optional. The number of callers to go back in the call stack for
-error messaging. If NULL, will default to 5.}
+error messaging. If NULL, will default to 2.}
 }
 \value{
 NULL. The function is used for its side effects.

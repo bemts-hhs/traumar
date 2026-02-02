@@ -21,7 +21,7 @@ if the input is not numeric or if the values are out of range. Must be one
 of "error", "warning", or "message".}
 
 \item{calls}{Optional. The number of callers to go back in the call stack for
-error messaging. If NULL, will default to 5.}
+error messaging. If NULL, will default to 2.}
 }
 \value{
 NULL. The function is used for its side effects.

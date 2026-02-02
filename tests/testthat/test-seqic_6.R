@@ -169,7 +169,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = gcs_low,
       time_from_injury_to_arrival = time_to_arrival
     ),
-    regexp = "must be of class.*data.frame.*tibble"
+    regexp = "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 
   # Test: Invalid `level` (not character or factor)
@@ -198,7 +198,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = gcs_low,
       time_from_injury_to_arrival = time_to_arrival
     ),
-    regexp = "must be of class.*character.*numeric.*factor"
+    regexp = "unique_incident_id.*must be of class.*numeric, integer, character, factor"
   )
 
   # Test: Invalid `transfer_out_indicator` (not character, factor, or logical)
@@ -212,7 +212,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = gcs_low,
       time_from_injury_to_arrival = time_to_arrival
     ),
-    regexp = "must be of class.*character.*factor.*logical"
+    regexp = "transfer_out_indicator.*must be of class.*logical, character, factor"
   )
 
   # Test: Invalid `receiving_indicator` (not character, factor, or logical)
@@ -226,7 +226,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = gcs_low,
       time_from_injury_to_arrival = time_to_arrival
     ),
-    regexp = "must be of class.*character.*factor.*logical"
+    regexp = "receiving_indicator.*must be of class.*logical, character, factor"
   )
 
   # Test: Invalid `low_GCS_indicator` (not character, factor, or logical)
@@ -240,7 +240,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = time_to_arrival, # Using `time_to_arrival`, which is numeric, should be `gcs_low`
       time_from_injury_to_arrival = time_to_arrival
     ),
-    regexp = "must be of class.*character.*factor.*logical"
+    regexp = "low_GCS_indicator.*must be of class.*logical, character, factor"
   )
 
   # Test: Invalid `time_from_injury_to_arrival` (not numeric)
@@ -254,7 +254,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       low_GCS_indicator = gcs_low,
       time_from_injury_to_arrival = gcs_low # Using `gcs_low`, which is logical, should be numeric
     ),
-    regexp = "must be of class.*numeric"
+    regexp = "time_from_injury_to_arrival.*must be.*numeric"
   )
 
   # Test: Invalid `groups` (not a character vector)
@@ -269,7 +269,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       time_from_injury_to_arrival = time_to_arrival,
       groups = 123 # Invalid: groups must be a character vector
     ),
-    regexp = "All elements in.*groups.*must be strings."
+    regexp = "groups.*must be of class.*character.*factor"
   )
 
   # Test: Invalid `groups` (columns not present in `data`)
@@ -284,7 +284,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       time_from_injury_to_arrival = time_to_arrival,
       groups = c("nonexistent_column") # Invalid: `nonexistent_column` does not exist in the data
     ),
-    regexp = "are not valid columns in"
+    regexp = "groups.*contains invalid column names.*nonexistent_column.*Valid column names are.*id, trauma_level, transfer_out, transfer_in, gcs_low, time_to_arrival"
   )
 
   # Test: Invalid `calculate_ci` (not NULL, "wilson", or "clopper-pearson")
@@ -299,7 +299,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       time_from_injury_to_arrival = time_to_arrival,
       calculate_ci = "invalid_ci" # Invalid: must be NULL, "wilson", or "clopper-pearson"
     ),
-    regexp = "If.*calculate_ci.*is not.*NULL.*it must be.*wilson.*clopper-pearson"
+    regexp = "calculate_ci.*contains invalid values.*invalid_ci.*Valid values are.*wilson, clopper-pearson"
   )
 
   # Test: Valid `included_levels` (should pass)
@@ -328,7 +328,7 @@ test_that("Data validation for seqic_indicator_6 works correctly", {
       time_from_injury_to_arrival = time_to_arrival,
       included_levels = TRUE # Invalid: should be character, factor, or numeric
     ),
-    regexp = ".*included_levels.*must be of class.*character.*factor.*numeric"
+    regexp = "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 })
 

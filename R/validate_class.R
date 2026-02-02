@@ -69,7 +69,7 @@ validate_class <- function(
     "date-time",
     "hms"
   ),
-  logic = c("and", "or"),
+  logic = c("or", "and"),
   type = c("error", "warning", "message"),
   na_ok = TRUE,
   null_ok = TRUE,
@@ -81,7 +81,7 @@ validate_class <- function(
   type <- match.arg(arg = type, choices = c("error", "warning", "message"))
 
   # Define number of callers to go back
-  calls <- ifelse(is.null(calls), 5, calls)
+  calls <- ifelse(is.null(calls), 2, calls)
 
   # Validate the class_type argument
   class_type <- match.arg(
@@ -102,7 +102,7 @@ validate_class <- function(
   )
 
   # Validate the logic argument
-  logic <- match.arg(arg = logic, choices = c("and", "or"))
+  logic <- match.arg(arg = logic, choices = c("or", "and"))
 
   # Get the input name, optionally using var_name
   if (is.null(var_name)) {
