@@ -85,7 +85,7 @@ testthat::test_that("seqic_indicator_8() data validation - data must be a data.f
       mortality_indicator = mortality,
       risk_group = risk
     ),
-    "data.*must be a data frame or tibble"
+    "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 })
 
@@ -104,7 +104,7 @@ testthat::test_that("seqic_indicator_8() data validation - level must be charact
       mortality_indicator = mortality,
       risk_group = risk
     ),
-    "level.*must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 })
 
@@ -142,7 +142,7 @@ testthat::test_that("seqic_indicator_8() data validation - mortality_indicator m
       mortality_indicator = mortality,
       risk_group = risk
     ),
-    "mortality_indicator.*must be character, factor, or logical"
+    "mortality_indicator.*must be of class.*logical, character, factor"
   )
 })
 
@@ -161,7 +161,7 @@ testthat::test_that("seqic_indicator_8() data validation - risk_group must be ch
       mortality_indicator = mortality,
       risk_group = risk
     ),
-    "risk_group.*must be character or factor"
+    "risk_group.*must be of class.*character.*factor"
   )
 })
 
@@ -181,7 +181,7 @@ testthat::test_that("seqic_indicator_8() data validation - groups must be charac
       risk_group = risk,
       groups = 1
     ),
-    "groups.*must be strings"
+    "groups.*must be of class.*character.*factor"
   )
 })
 
@@ -201,7 +201,7 @@ testthat::test_that("seqic_indicator_8() data validation - all groups must exist
       risk_group = risk,
       groups = c("nonexistent_var")
     ),
-    "Invalid grouping variable"
+    "groups.*contains invalid column names.*nonexistent_var.*Valid column names are.*trauma_level, id, mortality, risk"
   )
 })
 
@@ -221,7 +221,7 @@ testthat::test_that("seqic_indicator_8() data validation - calculate_ci must be 
       risk_group = risk,
       calculate_ci = "invalid"
     ),
-    "must be.*wilson.*clopper-pearson"
+    "calculate_ci.*contains invalid values.*invalid.*Valid values are.*wilson, clopper-pearson"
   )
 })
 
