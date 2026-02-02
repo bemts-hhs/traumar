@@ -113,13 +113,14 @@ testthat::test_that("seqic_indicator_3: input validation", {
     survival_prob = c(0.95, 0.9)
   )
 
-  expect_no_error(
+  expect_error(
     traumar::seqic_indicator_3(
       data = bad_data,
       level = level,
       trauma_type = trauma_type,
       unique_incident_id = unique_id,
-      probability_of_survival = survival_prob
+      probability_of_survival = survival_prob,
+      regex = "level.*must be of class.*character.*factor"
     )
   )
 

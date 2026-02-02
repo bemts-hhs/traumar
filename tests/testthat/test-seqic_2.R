@@ -53,7 +53,7 @@ testthat::test_that("seqic_indicator_2() validates `data` input type", {
       level = trauma_level,
       incident_time = incident_time
     ),
-    "data.*must be of type.*data.frame, tbl, tbl_df"
+    "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 })
 

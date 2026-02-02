@@ -69,10 +69,10 @@ seqic_indicator_2 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # validate `data`
+  # validate `data` ----
   validate_data_structure(
     input = data,
     structure_type = c("data.frame", "tbl", "tbl_df"),
@@ -80,7 +80,7 @@ seqic_indicator_2 <- function(
     type = "error"
   )
 
-  # make the `unique_incident_id` column accessible for validation
+  # make the `unique_incident_id` column accessible for validation ----
   unique_incident_id_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -88,7 +88,7 @@ seqic_indicator_2 <- function(
     var_name = "unique_incident_id"
   )
 
-  # validate `unique_incident_id`
+  # validate `unique_incident_id` ----
   validate_class(
     input = unique_incident_id_check,
     class_type = c("numeric", "factor", "character"),
@@ -96,7 +96,7 @@ seqic_indicator_2 <- function(
     type = "error"
   )
 
-  # make the `incident_time` column accessible for validation
+  # make the `incident_time` column accessible for validation ----
   incident_time_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -104,7 +104,7 @@ seqic_indicator_2 <- function(
     var_name = "incident_time"
   )
 
-  # validate `incident_time`
+  # validate `incident_time` ----
   validate_class(
     input = incident_time_check,
     class_type = c("date", "date-time", "hms", "character"),
@@ -112,7 +112,7 @@ seqic_indicator_2 <- function(
     type = "error"
   )
 
-  # make the `level` column accessible for validation
+  # make the `level` column accessible for validation ----
   level_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -120,17 +120,17 @@ seqic_indicator_2 <- function(
     var_name = "level"
   )
 
-  # validate `level`
+  # validate `level` ----
   validate_character_factor(
     input = level_check,
     type = "error",
     var_name = "level"
   )
 
-  # Check if all elements in groups are strings (i.e., character vectors)
+  # Check if all elements in groups are strings (i.e., character vectors) ----
   validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
-  # Check if all groups exist in the `data`
+  # Check if all groups exist in the `data` ----
   validate_names(
     input = data,
     check_names = groups,
@@ -150,7 +150,7 @@ seqic_indicator_2 <- function(
     null_ok = TRUE
   )
 
-  # Validate the `included_levels` argument
+  # Validate the `included_levels` argument ----
   validate_class(
     input = included_levels,
     class_type = c("numeric", "character", "factor"),
@@ -159,16 +159,18 @@ seqic_indicator_2 <- function(
   )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Summarize the data for Indicator 2:
+  # Summarize the data for Indicator 2: ----
   # - Filter records to include only Level I–IV trauma centers.
-  # - Remove duplicate incidents, keeping the first occurrence of each unique `unique_incident_id`.
+  # - Remove duplicate incidents, keeping the first occurrence of each unique
+  #   `unique_incident_id`.
   # - Summarize the data by calculating:
   #   - `numerator_2`: The number of incidents with missing `incident_time`.
   #   - `denominator_2`: The total number of unique incidents.
-  #   - `seqic_2`: The proportion of incidents with missing `incident_time` (rounded to 3 decimal places).
+  #   - `seqic_2`: The proportion of incidents with missing `incident_time`
+  #     (rounded to 3 decimal places).
   #   - Optionally, group results by columns specified in the `groups` argument.
   seqic_2 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
@@ -184,9 +186,11 @@ seqic_indicator_2 <- function(
       .by = {{ groups }} # Group by the specified columns (if any).
     )
 
-  # Optionally calculate confidence intervals for the proportions:
-  # - If `calculate_ci` is provided, apply a binomial confidence interval method (Wilson or Clopper-Pearson).
-  # - `nemsqa_binomial_confint()` calculates the confidence intervals for the proportion.
+  # Optionally calculate confidence intervals for the proportions: ----
+  # - If `calculate_ci` is provided, apply a binomial confidence interval method
+  #   (Wilson or Clopper-Pearson).
+  # - `nemsqa_binomial_confint()` calculates the confidence intervals for the
+  #   proportion.
   # - Select only the relevant columns and rename the CI columns for clarity.
   if (!is.null(calculate_ci)) {
     seqic_2 <- seqic_2 |>
@@ -203,7 +207,8 @@ seqic_indicator_2 <- function(
       )
   }
 
-  # Assign a label to indicate whether the data represents population or sample-level results:
+  # Assign a label to indicate whether the data represents population or ----
+  # sample-level results:
   # - If no grouping is applied, label the data as "Population/Sample".
   if (is.null(groups)) {
     seqic_2 <- seqic_2 |>
@@ -213,6 +218,6 @@ seqic_indicator_2 <- function(
       dplyr::arrange(!!!rlang::syms(groups))
   }
 
-  # Return the final summary dataframe for Indicator 2.
+  # Return the final summary dataframe for Indicator 2. ----
   return(seqic_2)
 }

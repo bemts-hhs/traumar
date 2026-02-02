@@ -125,7 +125,7 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
       response_time = response_minutes,
       trauma_team_activation_provider = provider
     ),
-    "data.*must be of type.*data\\.frame, tbl, tbl_df"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   # trauma_team_activation_level is not character or factor

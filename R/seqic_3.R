@@ -44,7 +44,8 @@
 #' # Create a synthetic test dataset
 #' test_data <- tibble::tibble(
 #'   unique_id = as.character(1:10),
-#'   trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I", "II"),
+#'   trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I",
+#'   "II"),
 #'   trauma_category = c("Blunt", "Penetrating", "Burn", "Blunt", "Penetrating",
 #'                       "Burn", "Blunt", "Penetrating", "Blunt", "Blunt"),
 #'   survival_prob = c(0.95, 0.89, NA, 0.76, NA, 0.92, 0.88, NA, 0.97, 0.91)
@@ -76,7 +77,7 @@ seqic_indicator_3 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
   # Validate if `data` is a data frame or tibble.
@@ -87,7 +88,7 @@ seqic_indicator_3 <- function(
     logic = "or"
   )
 
-  # Make the `trauma_type` column accessible for validation.
+  # Make the `trauma_type` column accessible for validation. ----
   trauma_type_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -95,14 +96,14 @@ seqic_indicator_3 <- function(
     var_name = "trauma_type"
   )
 
-  # Validate `trauma_type` to ensure it's either character or factor.
+  # Validate `trauma_type` to ensure it's either character or factor. ----
   validate_character_factor(
     input = trauma_type_check,
     type = "error",
     var_name = "trauma_type"
   )
 
-  # make the `unique_incident_id` column accessible for validation
+  # make the `unique_incident_id` column accessible for validation ----
   unique_incident_id_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -110,7 +111,7 @@ seqic_indicator_3 <- function(
     var_name = "unique_incident_id"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
+  # Validate `unique_incident_id` ----
   validate_class(
     input = unique_incident_id_check,
     class_type = c("numeric", "integer", "character", "factor"),
@@ -119,7 +120,7 @@ seqic_indicator_3 <- function(
     var_name = "unique_incident_id"
   )
 
-  # Make the `probability_of_survival` column accessible for validation.
+  # Make the `probability_of_survival` column accessible for validation. ----
   probability_of_survival_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -127,8 +128,7 @@ seqic_indicator_3 <- function(
     var_name = "probability_of_survival"
   )
 
-  # Validate `probability_of_survival` to ensure it's either character or
-  # factor.
+  # Validate `probability_of_survival` ----
   validate_numeric(
     input = probability_of_survival_check,
     min = 0,
@@ -137,7 +137,7 @@ seqic_indicator_3 <- function(
     var_name = "probability_of_survival"
   )
 
-  # make the `level` column accessible for validation
+  # make the `level` column accessible for validation ----
   level_check <- validate_data_pull(
     input = data,
     type = "error",
@@ -145,14 +145,20 @@ seqic_indicator_3 <- function(
     var_name = "level"
   )
 
-  # Check if all elements in groups are strings (i.e., character vectors)
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
+  )
+
+  # Check if all elements in groups are strings (i.e., character vectors) ----
   validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
   # Check if all `groups` exist in the `data`.
   validate_names(input = data, check_names = groups, type = "error")
 
-  # Validate the `calculate_ci` argument to ensure it's either "wilson" or
-  # "clopper-pearson".
+  # Validate the `calculate_ci` argument ----
   calculate_ci <- validate_choice(
     input = calculate_ci,
     choices = c("wilson", "clopper-pearson"),
@@ -162,7 +168,7 @@ seqic_indicator_3 <- function(
     var_name = "calculate_ci"
   )
 
-  # Validate the `included_levels` argument
+  # Validate the `included_levels` argument ----
   validate_class(
     input = included_levels,
     class_type = c("numeric", "character", "factor", "integer"),
@@ -171,10 +177,10 @@ seqic_indicator_3 <- function(
   )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Filter the data for valid levels and exclude "Burn" trauma types.
+  # Filter the data for valid levels and exclude "Burn" trauma types. ----
   seqic_3 <- data |>
     dplyr::filter(
       {{ level }} %in% included_levels,
@@ -184,7 +190,7 @@ seqic_indicator_3 <- function(
       {{ unique_incident_id }},
       .keep_all = TRUE
     ) |>
-    # Calculate the numerator and denominator for Indicator 3.
+    # Calculate the numerator and denominator for Indicator 3. ----
     dplyr::summarize(
       numerator_3 = sum(!is.na({{ probability_of_survival }})), # Count non-missing values in `probability_of_survival`.
       denominator_3 = dplyr::n(), # Count the total number of unique incidents.
@@ -196,7 +202,7 @@ seqic_indicator_3 <- function(
       .by = {{ groups }} # Optionally group by specified columns.
     )
 
-  # Optionally calculate confidence intervals for the proportions:
+  # Optionally calculate confidence intervals for the proportions: ----
   if (!is.null(calculate_ci)) {
     seqic_3 <- seqic_3 |>
       dplyr::bind_cols(
@@ -212,7 +218,8 @@ seqic_indicator_3 <- function(
       )
   }
 
-  # Add a label column to indicate whether the data represents population or sample-level results.
+  # Add a label column ----
+  # to indicate whether the data represents population or sample-level results.
   if (is.null(groups)) {
     seqic_3 <- seqic_3 |>
       tibble::add_column(data = "population/sample", .before = "numerator_3") # Add the label column.
@@ -221,6 +228,6 @@ seqic_indicator_3 <- function(
       dplyr::arrange(!!!rlang::syms(groups)) # Arrange the results by the specified grouping variables.
   }
 
-  # Return the final summarized data for Indicator 3.
+  # Return the final summarized data for Indicator 3. ----
   return(seqic_3)
 }

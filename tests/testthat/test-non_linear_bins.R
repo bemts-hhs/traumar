@@ -489,7 +489,7 @@ testthat::test_that("nonlinear_bins performs all validation checks correctly", {
   # Test for non-data.frame input
   testthat::expect_error(
     nonlinear_bins(matrix(1:10, ncol = 2), Ps_col = Ps, outcome_col = survival),
-    "data.*must be of type.*data\\.frame, tbl, tbl_df.*"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df.*"
   )
 
   # Test for missing Ps_col and outcome_col

@@ -113,224 +113,153 @@ seqic_indicator_4 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Validate if `data` is a data frame or tibble.
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
+  # Validate if `data` is a data frame or tibble. ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    type = "error"
   )
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(
-      c(
-        "{.var level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
-      )
-    )
-  }
 
-  # Validate `ed_disposition`
-  ed_disp_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ ed_disposition }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var ed_disposition}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
   )
-  if (!is.character(ed_disp_check) && !is.factor(ed_disp_check)) {
-    cli::cli_abort(
-      c(
-        "{.var ed_disposition} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var ed_disposition} was an object of class {.cls {class(ed_disp_check)}}."
-      )
-    )
-  }
 
-  # Validate `hospital_disposition`
-  hospital_disp_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ hospital_disposition }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var hospital_disposition}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
   )
-  if (!is.character(hospital_disp_check) && !is.factor(hospital_disp_check)) {
-    cli::cli_abort(
-      c(
-        "{.var hospital_disposition} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var hospital_disposition} was an object of class {.cls {class(hospital_disp_check)}}."
-      )
-    )
-  }
+
+  # Ensure that `ed_disposition` can be validated ----
+  ed_disp_check <- validate_data_pull(
+    input = data,
+    col = {{ ed_disposition }},
+    type = "error",
+    var_name = "ed_disposition"
+  )
+
+  # Validate `ed_disposition` ----
+  validate_character_factor(
+    input = ed_disp_check,
+    type = "error",
+    var_name = "ed_disposition"
+  )
+
+  # Ensure that `hospital_disposition` can be validated ----
+  hospital_disp_check <- validate_data_pull(
+    input = data,
+    col = {{ hospital_disposition }},
+    type = "error",
+    var_name = "hospital_disposition"
+  )
+
+  # Validate `hospital_disposition` ----
+  validate_character_factor(
+    input = hospital_disp_check,
+    type = "error",
+    var_name = "hospital_disposition"
+  )
+
+  # Ensure that ed_LOS can be validated ----
+  ed_los_check <- validate_data_pull(
+    input = data,
+    col = {{ ed_LOS }},
+    type = "error",
+    var_name = "ed_LOS"
+  )
 
   # Validate `ed_LOS`
-  ed_los_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ ed_LOS }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var ed_LOS}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
-  )
-  if (!is.numeric(ed_los_check)) {
-    cli::cli_abort(
-      c(
-        "{.var ed_LOS} must be of class {.cls numeric}.",
-        "i" = "{.var ed_LOS} was an object of class {.cls {class(ed_los_check)}}."
-      )
-    )
-  }
-
-  # Validate `hospital_LOS`
-  hospital_los_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ hospital_LOS }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var hospital_LOS}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
-  )
-  if (!is.numeric(hospital_los_check)) {
-    cli::cli_abort(
-      c(
-        "{.var hospital_LOS} must be of class {.cls numeric}.",
-        "i" = "{.var hospital_LOS} was an object of class {.cls {class(hospital_los_check)}}."
-      )
-    )
-  }
-
-  # Validate `autopsy`
-  autopsy_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ autopsy }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var autopsy}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
-  )
-  if (!is.character(autopsy_check) && !is.factor(autopsy_check)) {
-    cli::cli_abort(
-      c(
-        "{.var autopsy} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var autopsy} was an object of class {.cls {class(autopsy_check)}}."
-      )
-    )
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_4())
-      )
-    }
+  validate_numeric(
+    input = ed_los_check,
+    min = NULL,
+    max = NULL,
+    type = "error",
+    var_name = "ed_LOS"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
+  # Ensure `hospital_LOS` can be validated ----
+  hospital_los_check <- validate_data_pull(
+    input = data,
+    col = {{ hospital_LOS }},
+    type = "error",
+    var_name = "hospital_LOS"
+  )
 
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
+  # Validate `hospital_LOS` ----
+  validate_numeric(
+    input = hospital_los_check,
+    min = NULL,
+    max = NULL,
+    type = "error",
+    var_name = "hospital_LOS"
+  )
 
-    # Check if all groups exist in the `data`
-    if (!all(groups %in% names(data))) {
-      invalid_vars <- groups[!groups %in% names(data)]
-      cli::cli_abort(
-        "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
-      )
-    }
-  }
+  # Ensure that `autopsy` can be validated ----
+  autopsy_check <- validate_data_pull(
+    input = data,
+    col = {{ autopsy }},
+    type = "error",
+    var_name = "autopsy"
+  )
 
-  # Validate `calculate_ci`
-  if (!is.null(calculate_ci)) {
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
+  # Validate `autopsy` ----
+  validate_character_factor(
+    input = autopsy_check,
+    type = "error",
+    var_name = "autopsy"
+  )
 
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
+  )
 
-    calculate_ci <- attempt
-  }
+  # Validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "integer", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
 
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
+
+  # Check if all `groups` exist in the `data`.
+  validate_names(input = data, check_names = groups, type = "error")
+
+  # Validate the `calculate_ci` argument ----
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE,
+    var_name = "calculate_ci"
+  )
+
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor", "integer"),
+    type = "error",
+    logic = "or"
+  )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
   ###___________________________________________________________________________
@@ -360,7 +289,7 @@ seqic_indicator_4 <- function(
       .by = {{ groups }}
     )
 
-  # Optional confidence intervals for 4a
+  # Optional confidence intervals for 4a ----
   if (!is.null(calculate_ci)) {
     seqic_4a <- seqic_4a |>
       dplyr::bind_cols(
@@ -379,7 +308,7 @@ seqic_indicator_4 <- function(
   }
 
   ###___________________________________________________________________________
-  # Indicator 4B - No Autopsy + Long LOS in Deceased Patients
+  # Indicator 4B - No Autopsy + Long LOS in Deceased Patients ----
   ###___________________________________________________________________________
   seqic_4b <- data |>
     dplyr::filter(
@@ -404,7 +333,7 @@ seqic_indicator_4 <- function(
       .by = {{ groups }}
     )
 
-  # Optional confidence intervals for 4b
+  # Optional confidence intervals for 4b ----
   if (!is.null(calculate_ci)) {
     seqic_4b <- seqic_4b |>
       dplyr::bind_cols(
@@ -422,7 +351,7 @@ seqic_indicator_4 <- function(
       dplyr::relocate(upper_ci_4b, .after = lower_ci_4b)
   }
 
-  # Combine 4a and 4b results; assign label for ungrouped reporting.
+  # Combine 4a and 4b results; assign label for ungrouped reporting. ----
   if (is.null(groups)) {
     seqic_4 <- dplyr::bind_cols(
       seqic_4a,
@@ -435,5 +364,6 @@ seqic_indicator_4 <- function(
       dplyr::arrange(!!!rlang::syms(groups))
   }
 
+  # Return the final summarized data for Indicator 4. ----
   return(seqic_4)
 }
