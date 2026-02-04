@@ -30,16 +30,16 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 small_count_label <- function(var, cutoff, replacement) {
-  # Check if var is numeric
+  # Check if var is numeric ----
   validate_numeric(input = var, type = "error")
 
-  # Check if cutoff is numeric
+  # Check if cutoff is numeric ----
   validate_numeric(input = cutoff, type = "error")
 
-  # Ensure cutoff has length >= 1
+  # Ensure cutoff has length >= 1 ----
   validate_length(input = cutoff, exact_length = 1, type = "error")
 
-  # Check if replacement is of a valid type
+  # Check if replacement is of a valid type ----
   validate_class(
     input = replacement,
     class_type = c("numeric", "character", "logical"),
@@ -48,7 +48,7 @@ small_count_label <- function(var, cutoff, replacement) {
     na_ok = TRUE
   )
 
-  # Perform the replacement based on the cutoff
+  # Perform the replacement based on the cutoff ----
   # Check if all values in 'var' are greater than or equal to the `cutoff`
   if (all(var >= cutoff, na.rm = TRUE)) {
     # If true, keep the original `var` as `output`
@@ -59,5 +59,6 @@ small_count_label <- function(var, cutoff, replacement) {
     output <- ifelse(var < cutoff, replacement, var)
   }
 
+  # End function ----
   return(output)
 }

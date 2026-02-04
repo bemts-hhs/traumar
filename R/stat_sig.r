@@ -28,7 +28,7 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 stat_sig <- function(p_val_data) {
-  # Check if the input is numeric
+  # Check if the input is numeric ----
   validate_numeric(
     input = p_val_data,
     min = 0,
@@ -37,7 +37,7 @@ stat_sig <- function(p_val_data) {
     null_ok = FALSE
   )
 
-  # Assign significance codes based on p-value thresholds
+  # Assign significance codes based on p-value thresholds ----
   significance_values <- ifelse(
     # Assign NA if p_val_data is NA or NULL
     is.na(p_val_data) | is.null(p_val_data),
@@ -62,6 +62,6 @@ stat_sig <- function(p_val_data) {
     )
   )
 
-  # End function
+  # End function ----
   return(significance_values)
 }
