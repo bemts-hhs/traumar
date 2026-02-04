@@ -62,7 +62,7 @@ validate_names <- function(
   }
 
   # Check if the input is NULL
-  if (is.null(input)) {
+  if (is.null(check_names)) {
     if (!null_ok) {
       validate_error_type(
         input = input_name,

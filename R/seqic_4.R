@@ -238,7 +238,13 @@ seqic_indicator_4 <- function(
   validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
   # Check if all `groups` exist in the `data`.
-  validate_names(input = data, check_names = groups, type = "error")
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
 
   # Validate the `calculate_ci` argument ----
   calculate_ci <- validate_choice(

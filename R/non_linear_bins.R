@@ -319,9 +319,13 @@ nonlinear_bins <- function(
   }
 
   # Check if all group_vars exist in the data ----
-  if (!is.null(group_vars)) {
-    validate_names(input = data, check_names = group_vars, type = "error")
-  }
+  validate_names(
+    input = data,
+    check_names = group_vars,
+    type = "error",
+    var_name = "group_vars",
+    null_ok = TRUE
+  )
 
   # Treat the column-names-as-strings as symbols ----
   if (!is.null(group_vars)) {

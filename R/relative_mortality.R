@@ -433,6 +433,7 @@ rmm <- function(
     input = data,
     check_names = group_vars,
     type = "error",
+    var_name = "group_vars",
     null_ok = TRUE
   )
 
@@ -1130,6 +1131,7 @@ rm_bin_summary <- function(
     input = data,
     check_names = group_vars,
     type = "error",
+    var_name = "group_vars",
     null_ok = TRUE
   )
 

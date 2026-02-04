@@ -101,7 +101,7 @@ probability_of_survival <- function(trauma_type, age, rts, iss) {
   validate_numeric(
     input = rts,
     min = 0,
-    max = 7.84,
+    max = 7.8408,
     type = "warning",
     na_ok = TRUE,
     null_ok = TRUE

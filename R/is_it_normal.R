@@ -101,7 +101,13 @@ is_it_normal <- function(
     validate_character_factor(input = group_vars, type = "error")
 
     # Enforce requirement that group_vars are always column names in df
-    validate_names(input = df, check_names = group_vars, type = "error")
+    validate_names(
+      input = df,
+      check_names = group_vars,
+      type = "error",
+      var_name = "group_vars",
+      null_ok = TRUE
+    )
   }
 
   # validate the `normality_test` ----

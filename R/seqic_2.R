@@ -135,6 +135,7 @@ seqic_indicator_2 <- function(
     input = data,
     check_names = groups,
     type = "error",
+    var_name = "groups",
     null_ok = TRUE
   )
 

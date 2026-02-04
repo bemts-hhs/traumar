@@ -254,7 +254,8 @@ seqic_indicator_1 <- function(
     input = data,
     check_names = groups,
     type = "error",
-    var_name = "groups"
+    var_name = "groups",
+    null_ok = TRUE
   )
 
   # Validate the `calculate_ci` argument ----

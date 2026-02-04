@@ -135,6 +135,7 @@ traumar::seqic_indicator_10(
 )
 
 # Run the function, this will fail
+# Only one of `iss` or `nfti` arguments can be passed, not both
 try(
   traumar::seqic_indicator_10(
   data = test_data,
