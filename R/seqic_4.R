@@ -176,7 +176,7 @@ seqic_indicator_4 <- function(
     var_name = "ed_LOS"
   )
 
-  # Validate `ed_LOS`
+  # Validate `ed_LOS` ----
   validate_numeric(
     input = ed_los_check,
     min = NULL,
@@ -237,7 +237,7 @@ seqic_indicator_4 <- function(
   # Check if all elements in groups are strings (i.e., character vectors) ----
   validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
-  # Check if all `groups` exist in the `data`.
+  # Check if all `groups` exist in the `data` ----
   validate_names(
     input = data,
     check_names = groups,
