@@ -74,7 +74,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       unique_incident_id = id,
       data_entry_time = data_entry_delay
     ),
-    "must be a data frame"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   bad_id <- data |> dplyr::mutate(id = logical(3))
@@ -86,7 +86,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       unique_incident_id = id,
       data_entry_time = data_entry_delay
     ),
-    "must be of class.*character.*numeric.*factor"
+    "unique_incident_id.*must be of class.*numeric.*integer.*character.*factor"
   )
 
   testthat::expect_error(
@@ -98,7 +98,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       data_entry_standard = "60"
     ),
-    "must be numeric"
+    "data_entry_standard.*must be.*numeric"
   )
 
   testthat::expect_error(
@@ -110,7 +110,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       groups = 123
     ),
-    "must be strings"
+    "groups.*must be of class.*character.*factor"
   )
 
   testthat::expect_error(
@@ -122,7 +122,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       groups = "group"
     ),
-    "Invalid grouping variable\\(s\\)"
+    "groups.*contains invalid column names.*group.*Valid column names are.*id, trauma_level, facility, data_entry_delay"
   )
 
   testthat::expect_error(
@@ -134,7 +134,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       unique_incident_id = id,
       data_entry_time = data_entry_delay
     ),
-    "must be of class.*character.*factor.*numeric"
+    "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 
   testthat::expect_error(
@@ -146,7 +146,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       exclude_facility_list = c(T, F, NA)
     ),
-    "must be character.*numeric.*factor"
+    "exclude_facility_list.*must be of class.*numeric, character, factor"
   )
 
   bad_data <- data |> dplyr::mutate(trauma_level = as.numeric(1:3))
@@ -158,7 +158,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       unique_incident_id = id,
       data_entry_time = data_entry_delay
     ),
-    "must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 
   bad_data2 <- data |> dplyr::mutate(facility = list(1, 2, 3))
@@ -182,7 +182,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       unique_incident_id = id,
       data_entry_time = data_entry_delay
     ),
-    "must be of class"
+    "data_entry_time.*must be.*numeric"
   )
 
   testthat::expect_error(
@@ -194,7 +194,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       groups = c("nonexistent")
     ),
-    "Invalid grouping variable"
+    "groups.*contains invalid column names.*nonexistent.*Valid column names are.*id, trauma_level, facility, data_entry_delay"
   )
 
   testthat::expect_error(
@@ -206,7 +206,7 @@ testthat::test_that("seqic_indicator_12: input validation", {
       data_entry_time = data_entry_delay,
       calculate_ci = "fake"
     ),
-    "must be"
+    "calculate_ci.*contains invalid values.*fake.*Valid values are.*wilson, clopper-pearson"
   )
 })
 

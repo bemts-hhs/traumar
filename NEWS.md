@@ -29,6 +29,9 @@
   show up in the error message, instead of some other function such as a `cli`
   function or one of the new `validate_*()` functions.
 
+- Improved `small_count_label()` code readability in the control flow chunk
+  where values less than the cutoff are manipulated depending on user input.
+
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
   leverage mathematical notation in the calculation of predicted survival

@@ -29,31 +29,39 @@
 #'
 stat_sig <- function(p_val_data) {
   # Check if the input is numeric
-  if (!is.numeric(p_val_data)) {
-    cli::cli_abort(
-      "The input {.var p_val_data} must be a numeric vector, but you supplied an object of class {.cls {class(p_val_data)}}."
-    )
-  }
-
-  # Check if the p-values are between 0 and 1
-  if (any(p_val_data < 0 | p_val_data > 1, na.rm = T)) {
-    cli::cli_abort("The p-values in {.var p_val_data} must be between 0 and 1.")
-  }
+  validate_numeric(
+    input = p_val_data,
+    min = 0,
+    max = 1,
+    type = "error",
+    null_ok = FALSE
+  )
 
   # Assign significance codes based on p-value thresholds
   significance_values <- ifelse(
-    p_val_data <= 0.05 & p_val_data > 0.01,
-    "*",
+    # Assign NA if p_val_data is NA or NULL
+    is.na(p_val_data) | is.null(p_val_data),
+    NA,
+    # Check if p-value is less than or equal to 0.001
     ifelse(
-      p_val_data <= 0.01 & p_val_data > 0.001,
-      "**",
+      p_val_data <= 0.001,
+      "***", # Assign "***" for p-values <= 0.001
       ifelse(
-        p_val_data <= 0.001,
-        "***",
-        ifelse(p_val_data <= 0.1 & p_val_data > 0.05, ".", "<>")
+        p_val_data <= 0.01,
+        "**", # Assign "**" for p-values <= 0.01
+        ifelse(
+          p_val_data <= 0.05,
+          "*", # Assign "*" for p-values <= 0.05
+          ifelse(
+            p_val_data <= 0.1,
+            ".", # Assign "." for p-values <= 0.1
+            "<>" # Assign "<>" for p-values > 0.1
+          )
+        )
       )
     )
   )
 
+  # End function
   return(significance_values)
 }

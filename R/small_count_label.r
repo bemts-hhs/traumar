@@ -31,41 +31,32 @@
 #'
 small_count_label <- function(var, cutoff, replacement) {
   # Check if var is numeric
-  if (!is.numeric(var)) {
-    cli::cli_abort(
-      paste0(
-        "The input {.var var} must be a numeric vector, but you supplied an object of class {.cls {class(var)}}."
-      )
-    )
-  }
+  validate_numeric(input = var, type = "error")
 
   # Check if cutoff is numeric
-  if (!is.numeric(cutoff) || length(cutoff) != 1) {
-    cli::cli_abort(
-      paste0(
-        "The {.var cutoff} must be a single numeric value, but you supplied an object of class {.cls {class(cutoff)}}."
-      )
-    )
-  }
+  validate_numeric(input = cutoff, type = "error")
+
+  # Ensure cutoff has length >= 1
+  validate_length(input = cutoff, exact_length = 1, type = "error")
 
   # Check if replacement is of a valid type
-  if (!is.character(replacement) && !is.numeric(replacement)) {
-    cli::cli_abort(
-      paste0(
-        "The {.var replacement} must be either a string or a numeric value, but you supplied an object of class {.cls {class(replacement)}}."
-      )
-    )
-  }
+  validate_class(
+    input = replacement,
+    class_type = c("numeric", "character", "logical"),
+    logic = "or",
+    type = "error",
+    na_ok = TRUE
+  )
 
   # Perform the replacement based on the cutoff
-  if (
-    !is.character(replacement) ||
-
-      (is.character(replacement) && all(var >= cutoff, na.rm = T))
-  ) {
-    output <- ifelse(var < cutoff, replacement, var)
+  # Check if all values in 'var' are greater than or equal to the `cutoff`
+  if (all(var >= cutoff, na.rm = TRUE)) {
+    # If true, keep the original `var` as `output`
+    output <- var
   } else {
-    output <- ifelse(var < cutoff, replacement, as.character(var))
+    # Otherwise, replace values in `var` that are less than `cutoff` with
+    # `replacement`
+    output <- ifelse(var < cutoff, replacement, var)
   }
 
   return(output)
