@@ -51,7 +51,7 @@ testthat::test_that("Non-numeric Ps column throws error", {
 
   testthat::expect_error(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = survival),
-    regexp = "column must be numeric"
+    regexp = "Ps_col.*must be.*numeric"
   )
 })
 
@@ -66,15 +66,15 @@ testthat::test_that("Ps values outside 0-1 range throw error", {
 
   testthat::expect_error(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = death),
-    regexp = "values must be between 0 and 1"
+    regexp = "Ps_col.*values must be contained within range.*0, 1.*Range of this input was.*-10, 200"
   )
 })
 
 # Test 6: Non-data frame input should throw an error
 testthat::test_that("Invalid df input throws error", {
   testthat::expect_error(
-    trauma_case_mix(NULL, Ps_col = Ps, outcome_col = death),
-    "The first argument must be a dataframe"
+    trauma_case_mix(df = NULL, Ps_col = Ps, outcome_col = death),
+    "df.*must not be NULL"
   )
 })
 
@@ -89,7 +89,7 @@ testthat::test_that("NA values are correctly handled", {
 
   testthat::expect_warning(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = death),
-    regexp = "please apply an appropriate treatment to the missings and rerun"
+    regexp = "Ps_col.*missing values detected.*Found 1 missing value\\(s\\) out of 5 total values for 20% global missingness"
   )
 
   Ps <- c(0.85, 0.2, 0.75, 0.6, 0.91)
@@ -98,7 +98,7 @@ testthat::test_that("NA values are correctly handled", {
     dplyr::mutate(death = dplyr::if_else(survival == 1, 0, 1))
   testthat::expect_warning(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = death),
-    regexp = "please apply an appropriate treatment to the missings and rerun"
+    regexp = "outcome_col.*missing values detected.*Found 1 missing value\\(s\\) out of 5 total values for 20% global missingness"
   )
 })
 
@@ -112,6 +112,6 @@ testthat::test_that("non-logical and non-numeric argument to outcome_col do not 
 
   testthat::expect_error(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = survival),
-    regexp = "must be of type logical.*or numeric"
+    regexp = "outcome_col.*must be of class.*numeric, logical, integer"
   )
 })
