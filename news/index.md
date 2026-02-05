@@ -2,6 +2,8 @@
 
 ## traumar 1.2.4
 
+CRAN release: 2026-02-05
+
 - Added the functions to perform all data validation. These functions
   take the form of `validate_*()`, such as
   [`validate_character_factor()`](https://bemts-hhs.github.io/traumar/reference/validate_character_factor.md).
