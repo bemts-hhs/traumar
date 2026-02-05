@@ -87,3 +87,53 @@ testthat::test_that("trauma_performance handles edge case of empty dataframe", {
   testthat::expect_equal(nrow(result), 1) # Verify that 9 rows are in the result
   testthat::expect_equal(ncol(result), 9) # Verify that there are 2 columns
 })
+
+# Test missing Ps_col and outcome_col columns and logical binary data
+testthat::test_that("trauma_performance correctly validates missing Ps_col and outcome_col columns and logical binary data", {
+  set.seed(123)
+  n_patients <- 100
+  Ps <- c(0.85, NA, 0.75, 0.6, 0.91)
+  survival_outcomes <- as.character(c(1, 0, 0, 1, 0))
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_performance(data),
+    regexp = "Both.*arguments must be provided"
+  )
+
+  testthat::expect_error(
+    trauma_performance(data, Ps_col = Ps),
+    regexp = "argument must be provided"
+  )
+
+  testthat::expect_error(
+    trauma_performance(data, outcome_col = survival),
+    regexp = "argument must be provided"
+  )
+
+  survival_outcomes <- c(1L, 2L, 2L, 1L, 2L)
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_performance(data, Ps_col = Ps, outcome_col = survival),
+    regexp = "outcome_col.*contains invalid values such as.*Valid values are"
+  )
+
+  Ps <- c(0.85, 1, 0.75, 0.6, 0.91)
+  survival_outcomes <- c(T, F, T, F, T)
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_s3_class(
+    trauma_performance(data, Ps_col = Ps, outcome_col = survival),
+    class = "tbl_df"
+  )
+
+  Ps <- c(0.85, NA, 0.75, 0.6, 0.91)
+  survival_outcomes <- as.character(c(1, 0, 0, 1, 0))
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_performance(data, Ps_col = Ps, outcome_col = survival),
+    regexp = "outcome_col.*must be of class.*numeric, logical, integer"
+  )
+})

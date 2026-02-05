@@ -215,11 +215,6 @@ trauma_performance <- function(
       type = "error",
       var_name = "outcome_col"
     )
-  } else {
-    # Not logical or numeric ----
-    cli::cli_abort(
-      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric/integer (1/0)."
-    )
   }
 
   # Warn if missing ----

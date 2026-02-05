@@ -185,11 +185,6 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
       type = "error",
       var_name = "outcome_col"
     )
-  } else {
-    # Not logical or numeric ----
-    cli::cli_abort(
-      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric/integer (1/0)."
-    )
   }
 
   # Warn if missing ----

@@ -115,3 +115,50 @@ testthat::test_that("non-logical and non-numeric argument to outcome_col do not 
     regexp = "outcome_col.*must be of class.*numeric, logical, integer"
   )
 })
+
+# Test 9: missing Ps_col and outcome_col columns and logical binary data
+testthat::test_that("trauma_case_mix correctly validates missing Ps_col and outcome_col columns and logical binary data", {
+  set.seed(123)
+  n_patients <- 100
+  Ps <- c(0.85, NA, 0.75, 0.6, 0.91)
+  survival_outcomes <- as.character(c(1, 0, 0, 1, 0))
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_case_mix(data),
+    regexp = "Both.*arguments must be provided"
+  )
+
+  testthat::expect_error(
+    trauma_case_mix(data, Ps_col = Ps),
+    regexp = "argument must be provided"
+  )
+
+  testthat::expect_error(
+    trauma_case_mix(data, outcome_col = survival),
+    regexp = "argument must be provided"
+  )
+
+  survival_outcomes <- c(1L, 2L, 2L, 1L, 2L)
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_case_mix(data, Ps_col = Ps, outcome_col = survival),
+    regexp = "outcome_col.*contains invalid values such as.*Valid values are"
+  )
+
+  survival_outcomes <- c(T, F, T, F, T)
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_warning(
+    trauma_case_mix(data, Ps_col = Ps, outcome_col = survival)
+  )
+
+  survival_outcomes <- as.character(c(1, 0, 0, 1, 0))
+  data <- data.frame(Ps = Ps, survival = survival_outcomes)
+
+  testthat::expect_error(
+    trauma_case_mix(data, Ps_col = Ps, outcome_col = survival),
+    regexp = "outcome_col.*must be of class.*numeric, logical, integer"
+  )
+})
