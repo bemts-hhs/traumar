@@ -1,3 +1,5 @@
+# traumar (development version)
+
 # traumar 1.2.4
 - Added the functions to perform all data validation. These functions take the
   form of `validate_*()`, such as `validate_character_factor()`. After exploring
