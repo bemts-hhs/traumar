@@ -55,7 +55,8 @@ Imports:
     tibble (>= 3.3.0),
     tidyr (>= 1.3.1),
     tidyselect (>= 1.2.1),
-    utils
+    utils,
+    withr
 Suggests: 
     broom,
     testthat (>= 3.0.0)
