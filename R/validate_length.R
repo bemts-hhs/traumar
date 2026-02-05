@@ -15,24 +15,6 @@
 #'
 #' @return NULL. The function is used for its side effects.
 #'
-#' @examples
-#' # Synthetic data
-#' data <- list(
-#'   a = 1:5,
-#'   b = 1:10,
-#'   c = 1:15
-#' )
-#'
-#' # Validate the length of the list elements
-#' validate_length(
-#'   data$a,
-#'   min_length = 3,
-#'   max_length = 7,
-#'   type = "warning",
-#'   na_ok = FALSE,
-#'   null_ok = FALSE
-#' )
-#'
 #' @author
 #' Nicolas Foss, Ed.D., MS
 #'

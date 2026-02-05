@@ -16,24 +16,6 @@
 #'
 #' @return NULL. The function is used for its side effects.
 #'
-#' @examples
-#' # Synthetic data
-#' data <- data.frame(
-#'   a = 1:5,
-#'   b = 1:10,
-#'   c = 1:15
-#' )
-#'
-#' # Validate the data structure
-#' validate_data_structure(
-#'   data,
-#'   structure_type = c("data.frame", "tbl", "tbl_df"),
-#'   logic = "or",
-#'   type = "warning",
-#'   na_ok = FALSE,
-#'   null_ok = FALSE
-#' )
-#'
 #' @author
 #' Nicolas Foss, Ed.D., MS
 #'

@@ -50,8 +50,8 @@ data <- data.frame(
 )
 
 # Validate the Trauma_Type input
-validate_character_factor(
-  data$Trauma_Type,
+traumar::validate_character_factor(
+  input = data$Trauma_Type,
   type = "warning",
   na_ok = FALSE,
   null_ok = FALSE

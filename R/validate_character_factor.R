@@ -11,23 +11,6 @@
 #'
 #' @return NULL. The function is used for its side effects.
 #'
-#' @examples
-#' # Synthetic data
-#' data <- data.frame(
-#'   Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-#'   Patient_Age_Years = c(30, 60, 45, 50),
-#'   RTS = c(7.84, 6.90, 7.00, 6.50),
-#'   ISS = c(10, 25, 15, 20)
-#' )
-#'
-#' # Validate the Trauma_Type input
-#' validate_character_factor(
-#'   data$Trauma_Type,
-#'   type = "warning",
-#'   na_ok = FALSE,
-#'   null_ok = FALSE
-#' )
-#'
 #' @author
 #' Nicolas Foss, Ed.D., MS
 #'
