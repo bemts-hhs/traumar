@@ -116,7 +116,11 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 trauma_case_mix <- function(df, Ps_col, outcome_col) {
-  # Check if the dataframe is valid
+  ###___________________________________________________________________________
+  ### Data validation ----
+  ###___________________________________________________________________________
+
+  # Check if the dataframe is valid ----
   validate_data_structure(
     input = df,
     structure_type = c("data.frame", "tbl", "tbl_df"),
@@ -217,7 +221,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
   # Warn if any missings in Ps_col ----
   validate_complete(input = Ps_check, type = "warning", var_name = "Ps_col")
 
-  # Set the Ps range order for the function
+  # Set the Ps range order for the function ----
   Ps_range_order <- c(
     "0.96 - 1.00",
     "0.91 - 0.95",
@@ -227,7 +231,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
     "0.00 - 0.25"
   )
 
-  # Define the MTOS Ps distribution
+  # Define the MTOS Ps distribution ----
   MTOS_distribution <- tibble::tibble(
     Ps_range = factor(
       c(
@@ -243,7 +247,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
     MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
   )
 
-  # Bin patients into Ps ranges and calculate current fractions
+  # Bin patients into Ps ranges and calculate current fractions ----
   fractions_set <- df |>
     # Mutate the dataframe to add new columns
     dplyr::mutate(
@@ -257,7 +261,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
         TRUE ~ "0.00 - 0.25" # Default case for Ps_col < 0.26
       )
     ) |>
-    # Summarize the dataframe to calculate various statistics
+    # Summarize the dataframe to calculate various statistics ----
     dplyr::summarize(
       # Calculate the number of survivals
       survivals = sum({{ outcome_col }} == 1, na.rm = TRUE),
@@ -274,7 +278,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
       # Group by Ps_range
       .by = Ps_range
     ) |>
-    # Join the summarized dataframe with MTOS_distribution by Ps_range
+    # Join the summarized dataframe with MTOS_distribution by Ps_range ----
     dplyr::left_join(MTOS_distribution, by = dplyr::join_by(Ps_range)) |>
     # Arrange the dataframe by Ps_range
     dplyr::arrange(Ps_range) |>
@@ -284,6 +288,6 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
     dplyr::relocate(MTOS_distribution, .after = current_fraction) |>
     tibble::as_tibble()
 
-  # Return the result as a tibble
+  # Return the result as a tibble ----
   return(fractions_set)
 }

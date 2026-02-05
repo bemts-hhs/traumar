@@ -32,6 +32,11 @@
 - Improved `small_count_label()` code readability in the control flow chunk
   where values less than the cutoff are manipulated depending on user input.
 
+- `trauma_performance()` now acts as a wrapper for `trauma_case_mix()` as
+  `trauma_performance()` now calls `trauma_case_mix()` under the hood instead of
+  explicitly performing the same operations. This makes the functionality more
+  maintainable for any future iterations.
+
 # traumar 1.2.3
 - `probability_of_survival()` was updated to enhance code readability and
   leverage mathematical notation in the calculation of predicted survival
