@@ -64,8 +64,8 @@ validate_data_pull(
 custom_function <- function(df, col) {
   # Validate and extract the column using tidy evaluation
 extracted_col <- validate_data_pull(
-  df,
-  {{ col }},
+  input = df,
+  col = {{ col }},
   var_name = deparse(substitute(col)),
   calls = 3
 )
