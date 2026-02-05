@@ -98,7 +98,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       blood_alcohol_content = bac,
       drug_screen = drug
     ),
-    "must be of class.*character.*numeric.*or.*factor"
+    "unique_incident_id.*must be of class.*numeric, integer, character, factor"
   )
 
   # blood_alcohol_content must be numeric
@@ -111,7 +111,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       blood_alcohol_content = bac,
       drug_screen = drug
     ),
-    "must be of class.*numeric"
+    "blood_alcohol_content.*must be.*numeric"
   )
 
   # drug_screen must be character or factor
@@ -140,7 +140,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       drug_screen = drug,
       groups = 123
     ),
-    "All elements in .*groups.* must be strings"
+    "groups.*must be of class.*character.*factor"
   )
 
   # groups must exist in data
@@ -153,7 +153,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       drug_screen = drug,
       groups = "nonexistent_column"
     ),
-    "not valid columns in .*data"
+    "groups.*contains invalid column names.*nonexistent_column).*Valid column names are.*level, id, bac, drug"
   )
 
   # calculate_ci must be "wilson", "clopper-pearson", or NULL
@@ -166,7 +166,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       drug_screen = drug,
       calculate_ci = "bootstrap"
     ),
-    "must be.*wilson.*or.*clopper-pearson"
+    "calculate_ci.*contains invalid values.*bootstrap.*Valid values are.*wilson, clopper-pearson"
   )
 
   # included_levels must be character, numeric, or factor
@@ -179,7 +179,7 @@ testthat::test_that("seqic_indicator_5() data validation errors", {
       drug_screen = drug,
       included_levels = list("I", "II")
     ),
-    "must be of class.*character.*factor.*or.*numeric"
+    "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 })
 

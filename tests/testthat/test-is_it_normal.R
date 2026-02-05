@@ -127,7 +127,7 @@ testthat::test_that("seed must be numeric", {
       seed = "not_a_number",
       normality_test = NULL
     ),
-    regexp = "In order to set the random seed"
+    regexp = "seed.*must be.*numeric"
   )
 
   testthat::expect_no_error(

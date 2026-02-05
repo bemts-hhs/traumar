@@ -116,80 +116,107 @@
 #' @author Nicolas Foss, Ed.D., MS
 #'
 trauma_case_mix <- function(df, Ps_col, outcome_col) {
-  # Evaluate column names passed in
-  Ps_col <- rlang::enquo(Ps_col)
-  outcome_col <- rlang::enquo(outcome_col)
+  ###___________________________________________________________________________
+  ### Data validation ----
+  ###___________________________________________________________________________
 
-  # Check if the dataframe is valid
-  if (!is.data.frame(df)) {
-    cli::cli_abort("The first argument must be a dataframe.")
-  }
+  # Check if the dataframe is valid ----
+  validate_data_structure(
+    input = df,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    logic = "or",
+    type = "error",
+    null_ok = FALSE
+  )
 
-  # Pull and check the outcome column
-  binary_data <- df |> dplyr::pull(!!outcome_col)
-
-  # Ensure the column is either logical or numeric
-  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
+  # Ensure Ps_col and outcome_col arguments are provided  ----
+  # with tailored error messages
+  if (missing(Ps_col) && missing(outcome_col)) {
     cli::cli_abort(
-      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
+      "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
     )
+  } else if (missing(Ps_col)) {
+    cli::cli_abort("The {.var Ps_col} argument must be provided.")
+  } else if (missing(outcome_col)) {
+    cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # Get unique non-missing values
+  # Pull and check the outcome column ----
+  binary_data <- validate_data_pull(
+    input = df,
+    col = {{ outcome_col }},
+    var_name = "outcome_col"
+  )
+
+  # Ensure the column is either logical or numeric ----
+  validate_class(
+    input = binary_data,
+    class_type = c("numeric", "logical", "integer"),
+    logic = "or",
+    type = "error",
+    var_name = "outcome_col"
+  )
+
+  # Get unique non-missing values to use in subsequent data validation ----
   non_missing <- stats::na.omit(binary_data)
 
-  # Validate type and values
-  if (is.logical(binary_data)) {
+  # Validate type and values ----
+  if (is.logical(non_missing)) {
     # Logical vector: ensure only TRUE/FALSE (no coercion needed)
-    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
-      )
-    }
-  } else if (is.numeric(binary_data)) {
-    # Numeric vector: ensure strictly 0 or 1
-    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
-      )
-    }
-  } else {
-    # Not logical or numeric
-    cli::cli_abort(
-      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    validate_set(
+      input = non_missing,
+      valid_set = c(TRUE, FALSE),
+      type = "error",
+      var_name = "outcome_col"
+    )
+  } else if (is.numeric(non_missing)) {
+    # Numeric vector: ensure strictly 0 or 1 ----
+    validate_set(
+      input = non_missing,
+      valid_set = c(0, 1),
+      type = "error",
+      var_name = "outcome_col"
+    )
+  } else if (is.integer(non_missing)) {
+    # Integer vector: ensure strictly 0 or 1 ----
+    validate_set(
+      input = non_missing,
+      valid_set = c(0L, 1L),
+      type = "error",
+      var_name = "outcome_col"
     )
   }
 
-  # Warn if missing
-  if (any(is.na(binary_data))) {
-    cli::cli_warn(
-      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_case_mix}."
-    )
-  }
+  # Warn if missing ----
+  validate_complete(
+    input = binary_data,
+    type = "warning",
+    var_name = "outcome_col"
+  )
 
-  # Check if Ps column is numeric
-  Ps_data <- df |> dplyr::pull(!!Ps_col)
-  if (!is.numeric(Ps_data)) {
-    cli::cli_abort("The probability of survival (Ps) column must be numeric.")
-  }
+  # Check if Ps column is numeric ----
+  # dplyr::pull the Ps data
+  Ps_check <- validate_data_pull(
+    input = df,
+    col = {{ Ps_col }},
+    var_name = "Ps_col",
+    calls = 5
+  )
 
+  # check the Ps_check remains continuous ----
   # Check if Ps column is continuous (values between 0 and 1)
-  if (any(Ps_data < 0 | Ps_data > 1, na.rm = T)) {
-    cli::cli_abort(
-      "The probability of survival (Ps) values must be between 0 and 1."
-    )
-  }
+  validate_numeric(
+    input = Ps_check,
+    min = 0,
+    max = 1,
+    type = "error",
+    var_name = "Ps_col"
+  )
 
-  # Check if Ps column is missing
-  if (any(is.na(Ps_data))) {
-    cli::cli_warn(
-      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_case_mix}."
-    )
-  }
+  # Warn if any missings in Ps_col ----
+  validate_complete(input = Ps_check, type = "warning", var_name = "Ps_col")
 
-  # Set the Ps range order for the function
+  # Set the Ps range order for the function ----
   Ps_range_order <- c(
     "0.96 - 1.00",
     "0.91 - 0.95",
@@ -199,7 +226,7 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
     "0.00 - 0.25"
   )
 
-  # Define the MTOS Ps distribution
+  # Define the MTOS Ps distribution ----
   MTOS_distribution <- tibble::tibble(
     Ps_range = factor(
       c(
@@ -215,34 +242,47 @@ trauma_case_mix <- function(df, Ps_col, outcome_col) {
     MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
   )
 
-  # Bin patients into Ps ranges and calculate current fractions
+  # Bin patients into Ps ranges and calculate current fractions ----
   fractions_set <- df |>
+    # Mutate the dataframe to add new columns
     dplyr::mutate(
-      !!Ps_col := Ps_data,
-      !!outcome_col := binary_data,
+      # Create a new column Ps_range based on the value of Ps_col
       Ps_range = dplyr::case_when(
-        !!Ps_col >= 0.96 ~ "0.96 - 1.00",
-        !!Ps_col >= 0.91 ~ "0.91 - 0.95",
-        !!Ps_col >= 0.76 ~ "0.76 - 0.90",
-        !!Ps_col >= 0.51 ~ "0.51 - 0.75",
-        !!Ps_col >= 0.26 ~ "0.26 - 0.50",
-        TRUE ~ "0.00 - 0.25"
+        {{ Ps_col }} >= 0.96 ~ "0.96 - 1.00", # Ps_col >= 0.96
+        {{ Ps_col }} >= 0.91 ~ "0.91 - 0.95", # Ps_col >= 0.91
+        {{ Ps_col }} >= 0.76 ~ "0.76 - 0.90", # Ps_col >= 0.76
+        {{ Ps_col }} >= 0.51 ~ "0.51 - 0.75", # Ps_col >= 0.51
+        {{ Ps_col }} >= 0.26 ~ "0.26 - 0.50", # Ps_col >= 0.26
+        TRUE ~ "0.00 - 0.25" # Default case for Ps_col < 0.26
       )
     ) |>
+    # Summarize the dataframe to calculate various statistics ----
     dplyr::summarize(
-      survivals = sum(!!outcome_col == 1, na.rm = TRUE),
-      predicted_survivals = sum(!!Ps_col, na.rm = TRUE),
-      deaths = sum(!!outcome_col == 0, na.rm = TRUE),
-      predicted_deaths = sum(1 - !!Ps_col, na.rm = TRUE),
+      # Calculate the number of survivals
+      survivals = sum({{ outcome_col }} == 1, na.rm = TRUE),
+      # Calculate the predicted number of survivals
+      predicted_survivals = sum({{ Ps_col }}, na.rm = TRUE),
+      # Calculate the number of deaths
+      deaths = sum({{ outcome_col }} == 0, na.rm = TRUE),
+      # Calculate the predicted number of deaths
+      predicted_deaths = sum(1 - {{ Ps_col }}, na.rm = TRUE),
+      # Count the number of rows in each Ps_range
       count = dplyr::n(),
+      # Calculate the current fraction of each Ps_range
       current_fraction = dplyr::n() / nrow(df),
+      # Group by Ps_range
       .by = Ps_range
     ) |>
+    # Join the summarized dataframe with MTOS_distribution by Ps_range ----
     dplyr::left_join(MTOS_distribution, by = dplyr::join_by(Ps_range)) |>
+    # Arrange the dataframe by Ps_range
     dplyr::arrange(Ps_range) |>
+    # Relocate the current_fraction column to be after Ps_range
     dplyr::relocate(current_fraction, .after = Ps_range) |>
-    dplyr::relocate(MTOS_distribution, .after = current_fraction)
+    # Relocate the MTOS_distribution column to be after current_fraction
+    dplyr::relocate(MTOS_distribution, .after = current_fraction) |>
+    tibble::as_tibble()
 
-  # Return the result as a tibble
+  # Return the result as a tibble ----
   return(fractions_set)
 }

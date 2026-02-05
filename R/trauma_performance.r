@@ -146,208 +146,207 @@ trauma_performance <- function(
   outcome_col,
   z_method = c("survival", "mortality")
 ) {
-  if (length(z_method) > 1) {
-    z_method <- "survival"
-  }
+  ###___________________________________________________________________________
+  ### Data validation ----
+  ###___________________________________________________________________________
 
-  # Evaluate column names passed in
-  Ps_col <- rlang::enquo(Ps_col)
-  outcome_col <- rlang::enquo(outcome_col)
+  # Check if the dataframe is valid ----
+  validate_data_structure(
+    input = df,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    logic = "or",
+    type = "error",
+    null_ok = FALSE
+  )
 
-  # Check if the dataframe is valid
-  if (!is.data.frame(df)) {
-    cli::cli_abort("The first argument must be a dataframe.")
-  }
-
-  # Pull and check the outcome column
-  binary_data <- df |> dplyr::pull(!!outcome_col)
-
-  # Ensure the column is either logical or numeric
-  if (!is.logical(binary_data) && !is.numeric(binary_data)) {
+  # Ensure Ps_col and outcome_col arguments are provided  ----
+  # with tailored error messages
+  if (missing(Ps_col) && missing(outcome_col)) {
     cli::cli_abort(
-      "The {.var outcome_col} must be of type logical (TRUE/FALSE) or numeric (1/0)."
+      "Both {.var Ps_col} and {.var outcome_col} arguments must be provided."
     )
+  } else if (missing(Ps_col)) {
+    cli::cli_abort("The {.var Ps_col} argument must be provided.")
+  } else if (missing(outcome_col)) {
+    cli::cli_abort("The {.var outcome_col} argument must be provided.")
   }
 
-  # Get unique non-missing values
+  # Pull and check the outcome column ----
+  binary_data <- validate_data_pull(
+    input = df,
+    col = {{ outcome_col }},
+    var_name = "outcome_col"
+  )
+
+  # Ensure the column is either logical or numeric ----
+  validate_class(
+    input = binary_data,
+    class_type = c("numeric", "logical", "integer"),
+    logic = "or",
+    type = "error",
+    var_name = "outcome_col"
+  )
+
+  # Get unique non-missing values to use in subsequent data validation ----
   non_missing <- stats::na.omit(binary_data)
 
-  # Validate type and values
-  if (is.logical(binary_data)) {
+  # Validate type and values ----
+  if (is.logical(non_missing)) {
     # Logical vector: ensure only TRUE/FALSE (no coercion needed)
-    invalid_vals <- setdiff(unique(non_missing), c(TRUE, FALSE))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains invalid logical values: {.val {invalid_vals}}."
-      )
-    }
-  } else if (is.numeric(binary_data)) {
-    # Numeric vector: ensure strictly 0 or 1
-    invalid_vals <- setdiff(unique(non_missing), c(0, 1))
-    if (length(invalid_vals) > 0) {
-      cli::cli_abort(
-        "The {.var outcome_col} contains numeric values other than 0 and 1: {.val {invalid_vals}}."
-      )
-    }
-  } else {
-    # Not logical or numeric
-    cli::cli_abort(
-      "The {.var outcome_col} must be either logical (TRUE/FALSE) or numeric (1/0)."
+    validate_set(
+      input = non_missing,
+      valid_set = c(TRUE, FALSE),
+      type = "error",
+      var_name = "outcome_col"
+    )
+  } else if (is.numeric(non_missing)) {
+    # Numeric vector: ensure strictly 0 or 1 ----
+    validate_set(
+      input = non_missing,
+      valid_set = c(0, 1),
+      type = "error",
+      var_name = "outcome_col"
+    )
+  } else if (is.integer(non_missing)) {
+    # Integer vector: ensure strictly 0 or 1 ----
+    validate_set(
+      input = non_missing,
+      valid_set = c(0L, 1L),
+      type = "error",
+      var_name = "outcome_col"
     )
   }
 
-  # Warn if missing
-  if (any(is.na(binary_data))) {
-    cli::cli_warn(
-      "Missing values detected in {.var outcome_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_performance}."
-    )
-  }
-  # Check if Ps column is numeric
+  # Warn if missing ----
+  validate_complete(
+    input = binary_data,
+    type = "warning",
+    var_name = "outcome_col"
+  )
 
+  # Check if Ps column is numeric ----
   # dplyr::pull the Ps data
-  Ps_data <- df |> dplyr::pull(!!Ps_col)
+  Ps_check <- validate_data_pull(
+    input = df,
+    col = {{ Ps_col }},
+    var_name = "Ps_col",
+    calls = 5
+  )
 
-  # check to ensure Ps_data is numeric
-  if (!is.numeric(Ps_data)) {
-    cli::cli_abort("The probability of survival (Ps) column must be numeric.")
-  }
+  # check the Ps_check remains continuous ----
+  # Check if Ps column is continuous (values between 0 and 1)
+  validate_numeric(
+    input = Ps_check,
+    min = 0,
+    max = 1,
+    type = "error",
+    var_name = "Ps_col"
+  )
 
-  # Check if Ps column is continuous (values between 0 and 1 or 0 and 100)
-  if (any(Ps_data < 0 | Ps_data > 1, na.rm = T)) {
-    cli::cli_abort(
-      "The probability of survival (Ps) values must be between 0 and 1."
-    )
-  }
+  # Warn if any missings in Ps_col ----
+  validate_complete(input = Ps_check, type = "warning", var_name = "Ps_col")
 
-  # Check if Ps column is missing
-  if (any(is.na(Ps_data))) {
-    cli::cli_warn(
-      "Missing values detected in {.var Ps_col}; please apply an appropriate treatment to the missings and rerun {.fn trauma_performance}."
-    )
-  }
+  # Validate the `z_method` argument
+  z_method <- validate_choice(
+    input = z_method,
+    choices = c("survival", "mortality"),
+    several.ok = FALSE,
+    type = "error"
+  )
 
-  ### Initiate calculation of the W-Score
+  ### Initiate calculation of the W-Score ----
 
-  # Total number of patients
+  # Total number of patients ----
   total_patients <- df |>
     nrow()
 
-  # get n survivors
+  # get n survivors ----
   total_survivors <- df |>
-    dplyr::summarize(survivors = sum(!!outcome_col == 0, na.rm = TRUE)) |>
+    dplyr::summarize(survivors = sum({{ outcome_col }} == 0, na.rm = TRUE)) |>
     dplyr::pull(survivors)
 
-  # Number of patients who died
+  # Number of patients who died ----
   total_deaths <- df |>
     dplyr::summarize(
-      total_deaths = sum(!!outcome_col == 1, na.rm = TRUE)
+      total_deaths = sum({{ outcome_col }} == 1, na.rm = TRUE)
     ) |>
     dplyr::pull(total_deaths)
 
   # Sum of Ps values for the patients
   sum_Ps <- df |>
-    dplyr::summarize(sum_Ps = sum(!!Ps_col, na.rm = TRUE)) |>
+    dplyr::summarize(sum_Ps = sum({{ Ps_col }}, na.rm = TRUE)) |>
     dplyr::pull(sum_Ps)
 
   # Calculate W-score
   W_score <- (total_patients - total_deaths - sum_Ps) / (total_patients / 100)
 
-  ### Initiate process to calculate M-score
-
-  Ps_range_order <- c(
-    "0.96 - 1.00",
-    "0.91 - 0.95",
-    "0.76 - 0.90",
-    "0.51 - 0.75",
-    "0.26 - 0.50",
-    "0.00 - 0.25"
-  )
-
-  # Define the MTOS Ps distribution
-  MTOS_distribution <- tibble::tibble(
-    Ps_range = factor(
-      c(
-        "0.96 - 1.00",
-        "0.91 - 0.95",
-        "0.76 - 0.90",
-        "0.51 - 0.75",
-        "0.26 - 0.50",
-        "0.00 - 0.25"
-      ),
-      levels = Ps_range_order
-    ),
-    MTOS_distribution = c(0.842, 0.053, 0.052, 0, 0.043, 0.01)
-  )
-
+  ### Initiate process to calculate M-score ----
   # Bin patients into Ps ranges and calculate current fractions
-  fractions_set <- df |>
-    dplyr::mutate(
-      Ps_range = dplyr::case_when(
-        !!Ps_col >= 0.96 ~ "0.96 - 1.00",
-        !!Ps_col >= 0.91 ~ "0.91 - 0.95",
-        !!Ps_col >= 0.76 ~ "0.76 - 0.90",
-        !!Ps_col >= 0.51 ~ "0.51 - 0.75",
-        !!Ps_col >= 0.26 ~ "0.26 - 0.50",
-        TRUE ~ "0.00 - 0.25"
-      )
-    ) |>
-    dplyr::summarize(
-      current_fraction = dplyr::n() / nrow(df),
-      .by = Ps_range
-    ) |>
-    dplyr::left_join(MTOS_distribution, by = dplyr::join_by(Ps_range)) |>
-    dplyr::arrange(Ps_range)
+  # Leverage the `trauma_case_mix` function from this package
+  fractions_set <- trauma_case_mix(
+    df = df,
+    Ps_col = {{ Ps_col }},
+    outcome_col = {{ outcome_col }}
+  )
 
-  # Take the M-Score
+  # Take the M-Score ----
   M_score <- fractions_set |>
     dplyr::mutate(smallest_val = pmin(current_fraction, MTOS_distribution)) |>
     dplyr::summarize(M_score = sum(smallest_val, na.rm = TRUE)) |>
     dplyr::pull(M_score)
 
-  ### Initiate process to calculate the Z-Score
+  ### Initiate process to calculate the Z-Score ----
   ### from Boyd et al. (1987)
-
   # get key statistics
   z_data <- df |>
     dplyr::mutate(
-      prob_death = 1 - !!Ps_col,
-      scale_factor = !!Ps_col * prob_death # scale factor to account for statistical variation
+      prob_death = 1 - {{ Ps_col }},
+      # scale factor to account for statistical variation ----
+      scale_factor = {{ Ps_col }} * prob_death
     )
 
-  # extract probability of death
+  # extract probability of death ----
   probability_death <- z_data$prob_death
 
   if (z_method == "mortality") {
-    # get Z-Score, studying mortality (negative Z-Score is desired)
+    # get Z-Score, studying mortality (negative Z-Score is desired) ----
     Z_score <- z_data |>
       dplyr::summarize(
+        # scale factor implemented ----
         z_score = (total_deaths - sum(prob_death, na.rm = TRUE)) /
-          sqrt(sum(scale_factor)) # scale factor implemented
+          sqrt(sum(scale_factor))
       ) |>
       dplyr::pull(z_score)
   } else if (z_method == "survival") {
-    # get Z-Score, studying survival (positive Z-Score is desired)
+    # get Z-Score, studying survival (positive Z-Score is desired) ----
     Z_score <- z_data |>
       dplyr::summarize(
-        z_score = (total_survivors - sum(!!Ps_col, na.rm = TRUE)) /
-          sqrt(sum(scale_factor, na.rm = TRUE)) # scale factor implemented
+        z_score = (total_survivors - sum({{ Ps_col }}, na.rm = TRUE)) /
+          sqrt(sum(scale_factor, na.rm = TRUE)) # scale factor implemented ----
       ) |>
       dplyr::pull(z_score)
   }
 
-  # Return the scores as a dplyr::tibble
+  # Return the scores as a dplyr::tibble ----
   result <- dplyr::tibble(
     N_Patients = total_patients,
     N_Survivors = total_survivors,
     N_Deaths = total_deaths,
     Predicted_Survivors = sum_Ps,
     Predicted_Deaths = sum(probability_death, na.rm = TRUE),
+    # Positive patient estimate - Patients who survived, were predicted to die
+    # Negative patient estimate - Patients who died, were predicted to survive
     Patient_Estimate = W_score * (total_patients / 100),
+    # Number of patients that lived (positive) or died (negative) out of every
+    # 100 patients treated in the sample
     W_Score = W_score,
+    # M >= 0.88 is considered to indicate that the sample supplied by the user
+    # is statistically similar to the MTOS probability of survival distribution
     M_Score = M_score,
+    # z <= -1.96 and z >= 1.96 indicate statistically significant results
     Z_Score = Z_score
   )
 
-  # Return the result
+  # Return the result ----
   return(result)
 }

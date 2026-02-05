@@ -89,7 +89,8 @@ library(traumar)
 # Create a synthetic test dataset
 test_data <- tibble::tibble(
   unique_id = as.character(1:10),
-  trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I", "II"),
+  trauma_level = c("I", "II", "III", "IV", "I", "II", "III", "IV", "I",
+  "II"),
   trauma_category = c("Blunt", "Penetrating", "Burn", "Blunt", "Penetrating",
                       "Burn", "Blunt", "Penetrating", "Blunt", "Blunt"),
   survival_prob = c(0.95, 0.89, NA, 0.76, NA, 0.92, 0.88, NA, 0.97, 0.91)

@@ -4,9 +4,16 @@ test_that("pretty_number handles basic formatting", {
   expect_equal(pretty_number(1234567890), "1.23b")
 })
 
-test_that("pretty_number respects n_decimal argument", {
-  expect_equal(pretty_number(1234, n_decimal = 1), "1.2k")
-  expect_equal(pretty_number(1234, n_decimal = 0), "1k")
+test_that("pretty_number respects the digits argument", {
+  # set up options
+  options(lifecycle_verbosity = "warning")
+
+  # tests
+  expect_equal(pretty_number(1234, digits = 1), "1.2k")
+  expect_equal(pretty_number(1234, digits = 0), "1k")
+  expect_error(
+    pretty_number(1234, digits = "two")
+  )
 })
 
 test_that("pretty_number adds prefix correctly", {
@@ -31,22 +38,25 @@ test_that("pretty_number handles small numbers without formatting", {
 })
 
 test_that("pretty_number handles invalid x input", {
-  expect_error(pretty_number("abc"),
-               "x must be either <numeric> or <integer>")
-  expect_error(pretty_number(TRUE),
-               "x must be either <numeric> or <integer>")
+  expect_error(pretty_number("abc"), "x.*must be of class.*numeric, integer.*")
+  expect_error(pretty_number(TRUE), "x.*must be of class.*numeric, integer.*")
 })
 
-test_that("pretty_number validates n_decimal argument", {
-  expect_error(pretty_number(1234, n_decimal = "two"),
-               "n_decimal must be an <integer>.")
-  expect_error(pretty_number(1234, n_decimal = 2.5),
-               "n_decimal must be an <integer>.")
+test_that("pretty_number validates digits argument and warns about the deprecated digits argument", {
+  expect_error(
+    pretty_number(1234, digits = "two"),
+    "digits.*must be of class.*numeric, integer.*."
+  )
+  expect_no_error(
+    pretty_number(1234, digits = 2.5)
+  )
 })
 
 test_that("pretty_number validates prefix argument", {
-  expect_error(pretty_number(1234, prefix = 123),
-               "You must supply a <character> vector of length 1 for the prefix argument")
+  expect_error(
+    pretty_number(1234, prefix = 123),
+    "prefix.*must be of class.*character"
+  )
 })
 
 test_that("pretty_number handles NA and NULL values gracefully", {
@@ -66,4 +76,22 @@ test_that("pretty_number handles edge cases for large and small numbers", {
   expect_equal(pretty_number(1e6), "1m")
   expect_equal(pretty_number(1e-3), "0")
   expect_equal(pretty_number(0), "0")
+})
+
+test_that("n_decimal and digits give identical results", {
+  options(lifecycle_verbosity = "quiet")
+
+  expect_equal(
+    pretty_number(1234567, n_decimal = 1),
+    pretty_number(1234567, digits = 1)
+  )
+})
+
+test_that("pretty_number() n_decimal is lifecycle-deprecated", {
+  options(lifecycle_verbosity = "error")
+
+  expect_error(
+    pretty_number(1234, n_decimal = 1),
+    class = "lifecycle_error_deprecated"
+  )
 })

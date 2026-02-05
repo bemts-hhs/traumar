@@ -153,7 +153,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       unique_incident_id = id,
       autopsy = autopsy_done
     ),
-    "must be of class.*data.frame.*tibble"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   # level must be character or factor
@@ -265,7 +265,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       unique_incident_id = id,
       autopsy = autopsy_done
     ),
-    "unique_incident_id.*character.*numeric.*factor"
+    "unique_incident_id.*must be of class.*numeric, integer, character, factor"
   )
 
   # groups must be character vector and present in data
@@ -281,7 +281,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       autopsy = autopsy_done,
       groups = list()
     ),
-    ".*groups.*strings"
+    "groups.*must be of class.*character.*factor"
   )
 
   expect_error(
@@ -296,7 +296,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       autopsy = autopsy_done,
       groups = c("bad_col")
     ),
-    "not valid columns in.*data"
+    "groups.*contains invalid column names.*bad_col.*Valid column names are.*trauma_level, ed_disp, ed_los, hosp_disp, hosp_los, autopsy_done, id, group_var"
   )
 
   # calculate_ci must be NULL, "wilson", or "clopper-pearson"
@@ -312,7 +312,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       autopsy = autopsy_done,
       calculate_ci = "jackknife"
     ),
-    "must be.*wilson.*clopper-pearson"
+    "calculate_ci.*contains invalid values.*jackknife.*Valid values are.*wilson, clopper-pearson"
   )
 
   # included_levels must be character, factor, or numeric
@@ -328,7 +328,7 @@ testthat::test_that("seqic_indicator_4() input validation works as expected", {
       autopsy = autopsy_done,
       included_levels = list("I", "II")
     ),
-    "included_levels.*character.*factor.*numeric"
+    "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 })
 

@@ -1,4 +1,8 @@
 utils::globalVariables(c(
+  "MTOS_distribution",
+  "valid_trauma_types",
+  "type",
+  "column_name",
   "b0",
   "b1",
   "b2",

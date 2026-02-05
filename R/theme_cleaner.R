@@ -98,142 +98,225 @@ theme_cleaner <-
     draw_panel_border = FALSE,
     ...
   ) {
+    # If facets are not enabled, apply the following theme settings
     if (!facets) {
       ggplot2::theme(
+        # Remove axis ticks
         axis.ticks = ggplot2::element_blank(),
+        # Remove background for the legend
         legend.background = ggplot2::element_blank(),
+        # Remove background for the legend keys
         legend.key = ggplot2::element_blank(),
+        # Remove background for the panel
         panel.background = ggplot2::element_blank(),
+        # Remove border for the panel
         panel.border = ggplot2::element_blank(),
+        # Remove background for the strip (facet labels)
         strip.background = ggplot2::element_blank(),
+        # Remove background for the plot
         plot.background = ggplot2::element_blank(),
+        # Indicate that this theme is complete and should override other themes
         complete = TRUE,
+        # Set text properties for the plot
         text = ggplot2::element_text(
-          family = base_family,
-          face = "bold",
-          color = base_color
+          family = base_family, # Font family
+          face = "bold", # Font face (bold)
+          color = base_color # Font color
         ),
-        # Adjust font color
 
-        axis.text = ggplot2::element_text(color = base_color, size = base_size),
+        # Adjust font color for various plot elements
+
+        # Set font color and size for axis text
+        axis.text = ggplot2::element_text(
+          color = base_color, # Color for axis text
+          size = base_size # Font size for axis text
+        ),
+
+        # Set font color and size for axis titles
         axis.title = ggplot2::element_text(
-          color = base_color_title,
-          size = base_size
+          color = base_color_title, # Color for axis titles
+          size = base_size # Font size for axis titles
         ),
+
+        # Set font color and size for legend titles
         legend.title = ggplot2::element_text(
-          color = base_color_title,
-          size = base_size
+          color = base_color_title, # Color for legend titles
+          size = base_size # Font size for legend titles
         ),
+
+        # Set font color and size for legend text
         legend.text = ggplot2::element_text(
-          color = base_color,
-          size = base_size
+          color = base_color, # Color for legend text
+          size = base_size # Font size for legend text
         ),
+
+        # Set font color, size, and alignment for plot title
         plot.title = ggplot2::element_text(
-          color = base_color_title,
-          size = title_text_size,
-          face = "bold",
-          hjust = hjust_title,
-          vjust = vjust_title
+          color = base_color_title, # Color for plot title
+          size = title_text_size, # Font size for plot title
+          face = "bold", # Font face (bold) for plot title
+          hjust = hjust_title, # Horizontal justification for plot title
+          vjust = vjust_title # Vertical justification for plot title
         ),
+
+        # Set font color, size, and alignment for plot subtitle
         plot.subtitle = ggplot2::element_text(
-          color = base_color,
-          size = subtitle_text_size,
-          hjust = hjust_subtitle,
-          vjust = vjust_subtitle
+          color = base_color, # Color for plot subtitle
+          size = subtitle_text_size, # Font size for plot subtitle
+          hjust = hjust_subtitle, # Horizontal justification for plot subtitle
+          vjust = vjust_subtitle # Vertical justification for plot subtitle
         ),
+
+        # Set font color, size, and alignment for plot caption
         plot.caption = ggplot2::element_text(
-          size = base_size,
-          color = caption_color,
-          hjust = 0
+          size = base_size, # Font size for plot caption
+          color = caption_color, # Color for plot caption
+          hjust = 0 # Horizontal justification for plot caption
         ),
+        # Set the position of the legend
         legend.position = legend_position,
+
+        # Center the legend within its position
         legend.justification = "center",
+
+        # Remove all grid lines from the panel
         panel.grid = ggplot2::element_blank(),
+
+        # Remove major grid lines from the panel
         panel.grid.major = ggplot2::element_blank(),
+
+        # Remove minor grid lines from the panel
         panel.grid.minor = ggplot2::element_blank(),
+
+        # Set the color of the axis lines
         axis.line = ggplot2::element_line(
           color = dplyr::if_else(
-            axis_lines == TRUE,
-            base_color,
-            "transparent"
+            axis_lines == TRUE, # Check if axis lines should be drawn
+            base_color, # Use base_color if axis lines are enabled
+            "transparent" # Otherwise, make axis lines transparent
           )
         ),
+
+        # Additional arguments passed to ggplot2::theme for customization
         ...
       )
+
+      # If facets are enabled, apply the following theme settings
     } else if (facets) {
       ggplot2::theme(
+        # Remove axis ticks
         axis.ticks = ggplot2::element_blank(),
+        # Remove background for the legend
         legend.background = ggplot2::element_blank(),
+        # Remove background for the legend keys
         legend.key = ggplot2::element_blank(),
+        # Remove background for the panel
         panel.background = ggplot2::element_blank(),
+        # Set border for the panel based on draw_panel_border parameter
         panel.border = ggplot2::element_rect(
           color = dplyr::if_else(
-            draw_panel_border == F,
-            "transparent",
-            base_color
+            draw_panel_border == FALSE, # Check if panel border should be drawn
+            "transparent", # Make border transparent if not drawn
+            base_color # Use base_color if border is drawn
           ),
-          fill = NA
+          fill = NA # No fill for the panel border
         ),
+        # Remove background for the plot
         plot.background = ggplot2::element_blank(),
+        # Indicate that this theme is complete and should override other themes
         complete = TRUE,
+        # Set text properties for the plot
         text = ggplot2::element_text(
-          family = base_family,
-          face = "bold",
-          color = base_color
+          family = base_family, # Font family
+          face = "bold", # Font face (bold)
+          color = base_color # Font color
         ),
-        # Adjust font color
+        # Adjust font color for various plot elements
 
-        axis.text = ggplot2::element_text(color = base_color, size = base_size),
+        # Set font color and size for axis text
+        axis.text = ggplot2::element_text(
+          color = base_color, # Color for axis text
+          size = base_size # Font size for axis text
+        ),
+
+        # Set font color and size for axis titles
         axis.title = ggplot2::element_text(
-          color = base_color_title,
-          size = base_size
+          color = base_color_title, # Color for axis titles
+          size = base_size # Font size for axis titles
         ),
+
+        # Set font color and size for legend titles
         legend.title = ggplot2::element_text(
-          color = base_color_title,
-          size = base_size
+          color = base_color_title, # Color for legend titles
+          size = base_size # Font size for legend titles
         ),
+
+        # Set font color and size for legend text
         legend.text = ggplot2::element_text(
-          color = base_color,
-          size = base_size
+          color = base_color, # Color for legend text
+          size = base_size # Font size for legend text
         ),
+
+        # Set font color, size, and alignment for plot title
         plot.title = ggplot2::element_text(
-          color = base_color_title,
-          size = title_text_size,
-          face = "bold",
-          hjust = hjust_title,
-          vjust = vjust_title
+          color = base_color_title, # Color for plot title
+          size = title_text_size, # Font size for plot title
+          face = "bold", # Font face (bold) for plot title
+          hjust = hjust_title, # Horizontal justification for plot title
+          vjust = vjust_title # Vertical justification for plot title
         ),
+
+        # Set font color, size, and alignment for plot subtitle
         plot.subtitle = ggplot2::element_text(
-          color = base_color,
-          size = subtitle_text_size,
-          hjust = hjust_subtitle,
-          vjust = vjust_subtitle
+          color = base_color, # Color for plot subtitle
+          size = subtitle_text_size, # Font size for plot subtitle
+          hjust = hjust_subtitle, # Horizontal justification for plot subtitle
+          vjust = vjust_subtitle # Vertical justification for plot subtitle
         ),
+
+        # Set font color, size, and alignment for plot caption
         plot.caption = ggplot2::element_text(
-          size = base_size,
-          color = caption_color,
-          hjust = 0
+          size = base_size, # Font size for plot caption
+          color = caption_color, # Color for plot caption
+          hjust = 0 # Horizontal justification for plot caption
         ),
+        # Set the position of the legend
         legend.position = legend_position,
+
+        # Center the legend within its position
         legend.justification = "center",
+
+        # Remove all grid lines from the panel
         panel.grid = ggplot2::element_blank(),
+
+        # Remove major grid lines from the panel
         panel.grid.major = ggplot2::element_blank(),
+
+        # Remove minor grid lines from the panel
         panel.grid.minor = ggplot2::element_blank(),
+
+        # Set the color of the axis lines
         axis.line = ggplot2::element_line(
           color = dplyr::if_else(
-            axis_lines == TRUE,
-            base_color,
-            "transparent"
+            axis_lines == TRUE, # Check if axis lines should be drawn
+            base_color, # Use base_color if axis lines are enabled
+            "transparent" # Otherwise, make axis lines transparent
           )
         ),
+
+        # Set the background color for facet strips
         strip.background = ggplot2::element_rect(
-          fill = "#2A6357",
-          color = "#B9E1DA"
+          fill = "#2A6357", # Background color for facet strips
+          color = "#B9E1DA" # Border color for facet strips
         ),
+
+        # Set the text properties for facet strips
         strip.text = ggplot2::element_text(
-          color = "ghostwhite",
-          size = facet_text_size
+          color = "ghostwhite", # Text color for facet strips
+          size = facet_text_size # Font size for facet strips
         ),
+
+        # Additional arguments passed to ggplot2::theme for customization
         ...
       )
     }

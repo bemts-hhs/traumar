@@ -84,11 +84,11 @@ indicator. 95\% confidence intervals are provided optionally.
 
 This function calculates System Evaluation and Quality Improvement Committee
 (SEQIC) Indicator 1 (subparts a through f). These indicators assess the
-timeliness and type of provider response (e.g., surgeon, mid-level, physician)
-to trauma alerts based on trauma team activation level, hospital trauma
-level, and time to provider presence. Confidence intervals can optionally be
-calculated for the proportion, using either the Wilson or Clopper-Pearson
-method.
+timeliness and type of provider response (e.g., surgeon, mid-level,
+physician) to trauma alerts based on trauma team activation level, hospital
+trauma level, and time to provider presence. Confidence intervals can
+optionally be calculated for the proportion, using either the Wilson or
+Clopper-Pearson method.
 }
 \details{
 This function filters and summarizes trauma records to calculate

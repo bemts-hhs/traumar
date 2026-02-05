@@ -18,8 +18,8 @@ factor levels are:
 \item "Spring" for March, April, and May.
 \item "Summer" for June, July, and August.
 \item "Fall" for September, October, and November.
-\item "Undetermined" if the input is not a valid Date or POSIXct object or if
-the month is missing.
+\item "Undetermined" if the input is not a valid Date or POSIXct object or
+if the month is missing.
 }
 }
 \description{

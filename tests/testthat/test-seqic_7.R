@@ -231,7 +231,7 @@ test_that("Invalid group column throws error", {
       transfer_out_indicator = transfer_out,
       groups = "not_a_column"
     ),
-    "not valid columns"
+    "groups.*contains invalid column names.*not_a_column.*Valid column names are.*id, trauma_level, time_to_arrival, transfer_out"
   )
 })
 

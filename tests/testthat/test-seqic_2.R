@@ -53,7 +53,7 @@ testthat::test_that("seqic_indicator_2() validates `data` input type", {
       level = trauma_level,
       incident_time = incident_time
     ),
-    "data.*must be of class"
+    "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 })
 
@@ -122,7 +122,7 @@ testthat::test_that("seqic_indicator_2() validates `groups` is character vector"
       incident_time = incident_time,
       groups = list(123)
     ),
-    "All elements in.*groups.*must be strings"
+    "groups.*must be of class.*character.*factor"
   )
 })
 
@@ -140,7 +140,7 @@ testthat::test_that("seqic_indicator_2() validates `groups` exist in data", {
       incident_time = incident_time,
       groups = c("nonexistent_column")
     ),
-    "group variable.*are not valid columns"
+    "groups.*contains invalid column names.*nonexistent_column.*Valid column names are.*incident_id, trauma_level, incident_time"
   )
 })
 
@@ -158,7 +158,7 @@ testthat::test_that("seqic_indicator_2() validates `calculate_ci` options", {
       incident_time = incident_time,
       calculate_ci = "invalid_method"
     ),
-    "calculate_ci.*must be.*wilson.*clopper-pearson"
+    "calculate_ci.*contains invalid values.*invalid_method.*Valid values are.*wilson, clopper-pearson"
   )
 })
 

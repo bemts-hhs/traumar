@@ -82,38 +82,35 @@ is_it_normal <- function(
   plot_theme = traumar::theme_cleaner
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Validate the `df` argument
-  if (!is.data.frame(df) && !tibble::is_tibble(df)) {
-    cli::cli_abort(c(
-      "Input to argument {.strong {.var df}} was not of the correct class. {.fn is_it_normal} does not know what to do with it!",
-      "x" = "You supplied an object of class {.cls {class(df)}}.",
-      "i" = "Please use an object of class {.cls data.frame} or {.cls tibble}."
-    ))
-  }
+  # Validate the `df` argument ----
+  validate_data_structure(
+    input = df,
+    structure_type = c("data.frame", "tibble"),
+    logic = "or",
+    type = "error",
+    na_ok = TRUE,
+    null_ok = FALSE
+  )
 
-  # Validate group_vars
+  # Validate group_vars ----
   if (!is.null(group_vars)) {
-    if (!is.character(group_vars)) {
-      cli::cli_abort(c(
-        "Argument {.var group_vars} must be {.cls character} or {.val NULL}.",
-        "x" = "You supplied an object of class {.cls {class(group_vars)}}."
-      ))
-    }
+    # Enforce requirement that group_vars is a character vector
+    validate_character_factor(input = group_vars, type = "error")
 
-    missing_vars <- setdiff(group_vars, names(df))
-    if (length(missing_vars) > 0) {
-      cli::cli_abort(c(
-        "Some values in {.var group_vars} are not columns in {.var df}.",
-        "x" = "Missing column(s): {.val {missing_vars}}.",
-        "i" = "Check that all values in {.var group_vars} match column names in {.var df}."
-      ))
-    }
+    # Enforce requirement that group_vars are always column names in df
+    validate_names(
+      input = df,
+      check_names = group_vars,
+      type = "error",
+      var_name = "group_vars",
+      null_ok = TRUE
+    )
   }
 
-  # validate the `normality_test`
+  # validate the `normality_test` ----
   if (!is.null(normality_test)) {
     # Normalize aliases
     normality_test <- tolower(normality_test)
@@ -130,6 +127,7 @@ is_it_normal <- function(
       normality_test # if not an alias, keep original
     )
 
+    # Use match.arg to check normality_test ----
     attempt <- try(
       match.arg(
         normality_test,
@@ -158,7 +156,7 @@ is_it_normal <- function(
     normality_test <- attempt
   }
 
-  # Check if plot_theme is a function
+  # Check if plot_theme is a function ----
   if (include_plots && !is.function(plot_theme)) {
     cli::cli_abort(c(
       "Input to argument {.strong {.var plot_theme}} was not of the correct class.",
@@ -169,23 +167,19 @@ is_it_normal <- function(
     chosen_theme <- as.function(plot_theme)
   }
 
-  if (!is.numeric(seed)) {
-    cli::cli_abort(c(
-      "In order to set the random seed, {.var seed} must have class {.cls numeric}.",
-      "i" = "{.var seed} had class {.cls {class(seed)}}."
-    ))
-  }
+  # Validate the seed argument ----
+  validate_numeric(input = seed, type = "error")
 
-  # Set up variables to use in purrr::map()
+  # Set up variables to use in purrr::map() ----
   vars <- rlang::enquos(...)
 
-  # Dynamically generate the variable names
+  # Dynamically generate the variable names ----
   var_names <- purrr::map_chr(vars, ~ rlang::as_label(.))
 
-  # Check if multiple columns were provided
+  # Check if multiple columns were provided ----
   multiple_columns <- if (length(vars) > 1) TRUE else FALSE
 
-  # Callout for the variables passed
+  # Callout for the variables passed ----
   cli::cli_h1("Output Summary")
   cli::cli_h3("Descriptive Statistics")
   cli::cli_inform(c(
@@ -195,10 +189,10 @@ is_it_normal <- function(
     )
   ))
 
-  # Messaging related to normality testing
+  # Messaging related to normality testing ----
   cli::cli_h3("Normality Tests")
 
-  # Issue a warning if data violates any normality test choice assumptions
+  # Issue a warning if data violates any normality test choice assumptions ----
   if (
     !is.null(normality_test) &&
       normality_test %in%
@@ -210,7 +204,7 @@ is_it_normal <- function(
           "lilliefors"
         )
   ) {
-    # Default values for tests
+    # Default values for tests ----
     test_info <- list(
       "shapiro-wilk" = list(
         min_n = 3,
@@ -239,7 +233,7 @@ is_it_normal <- function(
       )
     )[[normality_test]]
 
-    # Perform the test within each group
+    # Perform the test within each group ----
     group_status <- df |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
       dplyr::group_modify(
@@ -252,7 +246,7 @@ is_it_normal <- function(
             vec <- dplyr::pull(group_data, !!var)
             n_complete <- sum(!is.na(vec))
 
-            # control structure for no group
+            # control structure for no group ----
             if (!is.null(group_vars)) {
               group_label <- paste(
                 purrr::map2_chr(
@@ -283,7 +277,7 @@ is_it_normal <- function(
         }
       )
 
-    # Explicit check for any actual messages
+    # Explicit check for any actual messages ----
     violations_exist <- any(!is.na(group_status$var_status))
 
     if (violations_exist) {
@@ -302,18 +296,18 @@ is_it_normal <- function(
       )
     }
   } else if (is.null(normality_test)) {
-    # When no normality test procedure is requested, return a message
+    # When no normality test procedure is requested, return a message ----
     cli::cli_alert_info("No normality test requested.")
   } else {
-    # Data limits do not apply to other tests in these ways.
+    # Data limits do not apply to other tests in these ways. ----
     cli::cli_alert_info(
       "No issues reported with the univariate tests of normality. Proceeding."
     )
   }
 
-  # Summary on grouping behavior of the function
+  # Summary on grouping behavior of the function ----
   cli::cli_h3("Strata")
-  # Callout for the grouping applied (or no grouping if NULL)
+  # Callout for the grouping applied (or no grouping if NULL) ----
   if (is.null(group_vars) || length(group_vars) == 0) {
     cli::cli_inform(
       c(
@@ -332,16 +326,16 @@ is_it_normal <- function(
   }
 
   ###___________________________________________________________________________
-  ### Create some convention functions for plotting
+  ### Create some convention functions for plotting ----
   ###___________________________________________________________________________
 
-  # A utility function to check the length of a vector
+  # A utility function to check the length of a vector ----
   is_valid_for_plotting <- function(vec, min_n = 2) {
     vec <- vec[!is.na(vec)]
     length(vec) >= min_n && all(is.finite(vec))
   }
 
-  # Utility function for a density plot
+  # Utility function for a density plot ----
   make_density_plot <- function(data, vec, var, var_name, group_label = NULL) {
     if (!is_valid_for_plotting(vec)) {
       cli::cli_alert_danger(
@@ -385,7 +379,7 @@ is_it_normal <- function(
       chosen_theme()
   }
 
-  # Utility function for a histogram plot
+  # Utility function for a histogram plot ----
   make_hist_plot <- function(data, vec, var, var_name, group_label = NULL) {
     if (!is_valid_for_plotting(vec)) {
       cli::cli_alert_danger(
@@ -394,8 +388,10 @@ is_it_normal <- function(
       return(NULL)
     }
 
+    # Deftaul bin width ----
     bin_width <- (max(vec, na.rm = TRUE) - min(vec, na.rm = TRUE)) / 15
 
+    # Histogram ----
     ggplot2::ggplot(data, ggplot2::aes(x = !!var)) +
       ggplot2::geom_histogram(
         binwidth = bin_width,
@@ -404,14 +400,17 @@ is_it_normal <- function(
         na.rm = TRUE
       ) +
       ggplot2::ggtitle(
-        if (is.null(group_label)) paste0("Histogram of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Histogram of ", var_name)
+        } else {
           paste0("Histogram (", group_label, ")")
+        }
       ) +
       ggplot2::labs(x = var_name) +
       chosen_theme()
   }
 
-  # Utility function for a boxplot
+  # Utility function for a boxplot ----
   make_boxplot <- function(data, vec, var, var_name, group_label = NULL) {
     if (!is_valid_for_plotting(vec)) {
       cli::cli_alert_danger(
@@ -420,6 +419,7 @@ is_it_normal <- function(
       return(NULL)
     }
 
+    # Boxplot ----
     ggplot2::ggplot(data, ggplot2::aes(x = !!var, y = "")) +
       ggplot2::geom_jitter(
         color = "#03617A",
@@ -436,15 +436,17 @@ is_it_normal <- function(
       ) +
       ggplot2::stat_boxplot(geom = "errorbar", width = 0.5) +
       ggplot2::ggtitle(
-        if (is.null(group_label))
-          paste0("Boxplot with scatterplot of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Boxplot with scatterplot of ", var_name)
+        } else {
           paste0("Boxplot (", group_label, ")")
+        }
       ) +
       ggplot2::labs(x = var_name, y = "") +
       chosen_theme()
   }
 
-  # Utility function for a Q-Q plot
+  # Utility function for a Q-Q plot ----
   make_qq_plot <- function(data, vec, var, var_name, group_label = NULL) {
     if (!is_valid_for_plotting(vec)) {
       cli::cli_alert_danger(
@@ -467,23 +469,26 @@ is_it_normal <- function(
         na.rm = TRUE
       ) +
       ggplot2::ggtitle(
-        if (is.null(group_label)) paste0("Normal Q-Q Plot of ", var_name) else
+        if (is.null(group_label)) {
+          paste0("Normal Q-Q Plot of ", var_name)
+        } else {
           paste0("Normal Q-Q Plot (", group_label, ")")
+        }
       ) +
       chosen_theme()
   }
 
   ###___________________________________________________________________________
-  ### Initialize the output list
+  ### Initialize the output list ----
   ###___________________________________________________________________________
 
   output_list <- list()
 
   ###___________________________________________________________________________
-  ### Generate descriptive statistics
+  ### Generate descriptive statistics ----
   ###___________________________________________________________________________
 
-  # Iterate over the provided columns
+  # Iterate over the provided columns ----
   results <- purrr::map(vars, function(var) {
     var_name <- rlang::as_label(var)
 
@@ -510,27 +515,27 @@ is_it_normal <- function(
     df_summarized
   })
 
-  # set names
+  # set names ----
   names(results) <- purrr::map_chr(vars, rlang::as_label)
 
-  # Pivot results wider
+  # Pivot results wider ----
   results <- results |>
     purrr::list_rbind()
 
-  # Assign results to the output_list
+  # Assign results to the output_list ----
   output_list$descriptive_statistics <- results
 
   ###___________________________________________________________________________
-  ### Optional: Perform the test of normality on variables
+  ### Optional: Perform the test of normality on variables ----
   ###___________________________________________________________________________
 
   if (!is.null(normality_test)) {
-    # Only set the random seed if normality test is done
+    # Only set the random seed if normality test is done ----
     set.seed(seed)
 
-    # Grouping (if any) applied before normality test
+    # Grouping (if any) applied before normality test ----
     if (!is.null(group_vars) && length(group_vars) > 0) {
-      # Group data by the specified group_vars
+      # Group data by the specified group_vars ----
       df <- df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(group_vars)))
     }
@@ -540,18 +545,18 @@ is_it_normal <- function(
     test_results <- purrr::map(vars, function(var) {
       var_name <- rlang::as_label(var)
 
-      # Perform normality test within each group
+      # Perform normality test within each group ----
       test_result <- df |>
         dplyr::group_modify(function(sub_df, group) {
           vec <- dplyr::pull(sub_df, !!var)
 
-          # get complete observations
+          # get complete observations ----
           n_complete <- sum(!is.na(vec))
 
-          # Try to perform the normality test and handle any errors
+          # Try to perform the normality test and handle any errors ----
           test_result <- tryCatch(
             {
-              # Shapiro-Wilk
+              # Shapiro-Wilk ----
               if (normality_test == "shapiro-wilk") {
                 test_result <- shapiro.test(vec) |>
                   broom::tidy() |>
@@ -563,7 +568,7 @@ is_it_normal <- function(
                     )
                   )
 
-                # Kolmogorov-Smirnov
+                # Kolmogorov-Smirnov ----
               } else if (normality_test == "kolmogorov-smirnov") {
                 test_result <- ks.test(vec, y = "pnorm") |>
                   broom::tidy() |>
@@ -575,7 +580,7 @@ is_it_normal <- function(
                     )
                   )
 
-                # Anderson-Darling
+                # Anderson-Darling ----
               } else if (normality_test == "anderson-darling") {
                 test_result <- nortest::ad.test(vec) |>
                   broom::tidy() |>
@@ -587,7 +592,7 @@ is_it_normal <- function(
                     )
                   )
 
-                # Lilliefors
+                # Lilliefors ----
               } else if (normality_test == "lilliefors") {
                 test_result <- nortest::lillie.test(vec) |>
                   broom::tidy() |>
@@ -599,7 +604,7 @@ is_it_normal <- function(
                     )
                   )
 
-                # Cramer-von Mises
+                # Cramer-von Mises ----
               } else if (normality_test == "cramer-von mises") {
                 test_result <- nortest::cvm.test(vec) |>
                   broom::tidy() |>
@@ -610,7 +615,7 @@ is_it_normal <- function(
                       "Normal distribution"
                     )
                   )
-                # Pearson
+                # Pearson ----
               } else if (normality_test == "pearson") {
                 test_result <- nortest::pearson.test(vec) |>
                   broom::tidy() |>
@@ -621,7 +626,7 @@ is_it_normal <- function(
                       "Normal distribution"
                     )
                   )
-                # Shapiro-Francia
+                # Shapiro-Francia ----
               } else if (normality_test == "shapiro-francia") {
                 test_result <- nortest::sf.test(vec) |>
                   broom::tidy() |>
@@ -635,7 +640,7 @@ is_it_normal <- function(
               }
             },
             error = function(e) {
-              # Return a tibble indicating the test was skipped
+              # Return a tibble indicating the test was skipped ----
               tibble::tibble(
                 variable = var_name,
                 test = "Test Skipped",
@@ -646,7 +651,7 @@ is_it_normal <- function(
             }
           )
 
-          # Return the results in a tibble, including the group
+          # Return the results in a tibble, including the group ----
           suppressWarnings(
             tibble::tibble(
               variable = var_name,
@@ -658,29 +663,30 @@ is_it_normal <- function(
           )
         })
 
-      # Return the test results for the variable
+      # Return the test results for the variable ----
       test_result
     })
 
-    # Combine the individual variable results into a single data frame
+    # Combine the individual variable results into a single data frame ----
     test_results <- purrr::list_rbind(test_results)
 
-    # Store the final results in the output list
+    # Store the final results in the output list ----
     output_list$normality_test <- test_results
   } else {
     output_list$normality_test <- NULL
   }
 
   ###___________________________________________________________________________
-  ### Optional plots - only available if one variable is passed to `variables`
+  ### Optional plots  ----
+  ### only available if one variable is passed to `variables`
   ###___________________________________________________________________________
 
   if (include_plots && !multiple_columns) {
-    # Extract data programmatically
+    # Extract data programmatically ----
     var <- vars[[1]]
     var_name <- rlang::as_label(var)
 
-    # Header for the plotting section
+    # Header for the plotting section ----
     cli::cli_h3("Visualizations")
 
     if (nrow(df) > 5000) {
@@ -697,7 +703,7 @@ is_it_normal <- function(
       )
     }
 
-    # Grouped plotting can be computationally expensive
+    # Grouped plotting can be computationally expensive ----
     # Ensure the user is aware and provide them a way out
     if (!is.null(group_vars)) {
       cli::cli_alert_warning(
@@ -710,15 +716,15 @@ is_it_normal <- function(
       )
 
       ###_______________________________________________________________________
-      ### Plotting functionality
+      ### Plotting functionality ----
       ###_______________________________________________________________________
 
-      # Group the data
+      # Group the data <-
       grouped_data <- df |>
         dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
         dplyr::group_split()
 
-      # Get labels for outside the loop
+      # Get labels for outside the loop ----
       plot_list_labels <- grouped_data |>
         purrr::map_chr(
           ~ {
@@ -733,7 +739,7 @@ is_it_normal <- function(
           }
         )
 
-      # Create the plots with dynamic names
+      # Create the plots with dynamic names ----
       output_list$plots <- grouped_data |>
         purrr::map(function(group_data) {
           group_keys <- dplyr::distinct(
@@ -749,13 +755,13 @@ is_it_normal <- function(
             collapse = ", "
           )
 
-          # Get the data as a vector
+          # Get the data as a vector ----
           vec <- dplyr::pull(group_data, !!var)
 
-          # QQ Plot
+          # QQ Plot ----
           qqplot <- make_qq_plot(group_data, vec, var, var_name, group_label)
 
-          # Histogram
+          # Histogram ----
           hist_plot <- make_hist_plot(
             group_data,
             vec,
@@ -764,7 +770,7 @@ is_it_normal <- function(
             group_label
           )
 
-          # Kernel Density Plot with line at the median
+          # Kernel Density Plot with line at the median ----
           density_plot <- make_density_plot(
             group_data,
             vec,
@@ -773,7 +779,7 @@ is_it_normal <- function(
             group_label
           )
 
-          # Boxplot with scatterplot
+          # Boxplot with scatterplot ----
           boxplot_plot <- make_boxplot(
             group_data,
             vec,
@@ -782,7 +788,7 @@ is_it_normal <- function(
             group_label
           )
 
-          # Set up list of plots, remove NULL objects
+          # Set up list of plots, remove NULL objects ----
           valid_plots <- purrr::compact(
             list(
               qqplot,
@@ -792,7 +798,7 @@ is_it_normal <- function(
             )
           )
 
-          # Set up the patchwork
+          # Set up the patchwork ----
           patchwork::wrap_plots(valid_plots) +
             patchwork::plot_annotation(
               title = paste0(
@@ -806,24 +812,24 @@ is_it_normal <- function(
         purrr::set_names(plot_list_labels) |>
         purrr::compact()
 
-      # Plot a single variable without grouped output
+      # Plot a single variable without grouped output ----
     } else {
-      # Get the data of interest as a vector
+      # Get the data of interest as a vector ----
       vec <- df |> dplyr::pull(!!var)
 
-      # QQ Plot
+      # QQ Plot ----
       qqplot <- make_qq_plot(df, vec, var, var_name)
 
-      # Histogram
+      # Histogram ----
       hist_plot <- make_hist_plot(df, vec, var, var_name)
 
-      # Kernel Density Plot
+      # Kernel Density Plot ----
       density_plot <- make_density_plot(df, vec, var, var_name)
 
-      # Boxplot with scatterplot
+      # Boxplot with scatterplot ----
       boxplot_plot <- make_boxplot(df, vec, var, var_name)
 
-      # Combine, remove NULL objects
+      # Combine, remove NULL objects ----
       plot_list <- purrr::compact(list(
         qqplot,
         hist_plot,
@@ -831,7 +837,7 @@ is_it_normal <- function(
         boxplot_plot
       ))
 
-      # Patchwork
+      # Patchwork ----
       combined_plots <- patchwork::wrap_plots(plot_list) +
         patchwork::plot_annotation(
           title = paste0(
@@ -842,14 +848,14 @@ is_it_normal <- function(
           theme = chosen_theme()
         )
 
-      # Add to the list
+      # Add to the list ----
       output_list$plots <- combined_plots
     }
   } else if (include_plots && multiple_columns) {
-    # Header for the plotting section
+    # Header for the plotting section ----
     cli::cli_h3("Visualizations")
 
-    # If multiple_columns, then do not include plots
+    # If multiple_columns, then do not include plots ----
     include_plots <- FALSE
 
     cli::cli_alert_info(
@@ -857,9 +863,9 @@ is_it_normal <- function(
     )
   }
 
-  # Line to separate output for cleaner presentation
+  # Line to separate output for cleaner presentation ----
   cli::cli_rule()
 
-  # Return outputs as a list
+  # Return outputs as a list ----
   return(output_list)
 }

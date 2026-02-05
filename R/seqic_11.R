@@ -104,206 +104,151 @@ seqic_indicator_11 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Ensure input is a data frame or tibble
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(c(
-      "{.var data} must be a data frame or tibble.",
-      "i" = "You provided an object of class {.cls {class(data)}}."
-    ))
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_11())
-      )
-    }
-  )
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(c(
-      "{.var level} must be character or factor.",
-      "i" = "Provided class: {.cls {class(level_check)}}."
-    ))
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_11())
-      )
-    }
+  # Validate if `data` is a data frame or tibble. ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    type = "error"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # Validate that `iss` is numeric.
-  iss_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ iss }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var iss}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_11())
-      )
-    }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
   )
-  if (!is.numeric(iss_check)) {
-    cli::cli_abort(c(
-      "{.var iss} must be numeric when provided.",
-      "i" = "Provided class: {.cls {class(iss_check)}}."
-    ))
-  }
 
-  # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ transfer_out_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_11())
-      )
-    }
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
   )
-  if (
-    !is.character(transfer_out_indicator_check) &&
-      !is.factor(transfer_out_indicator_check) &&
-      !is.logical(transfer_out_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var transfer_out_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var transfer_out_indicator} was an object of class {.cls {class(transfer_out_indicator_check)}}."
-      )
-    )
-  }
 
-  # Validate that `receiving_indicator` is character, factor, or logical.
-  receiving_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ receiving_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var receiving_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_11())
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
   )
-  if (
-    !is.character(receiving_indicator_check) &&
-      !is.factor(receiving_indicator_check) &&
-      !is.logical(receiving_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var receiving_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var receiving_indicator} was an object of class {.cls {class(receiving_indicator_check)}}."
-      )
-    )
-  }
 
-  # Validate `ed_LOS`
-  ed_los_check <- # Validate `ed_LOS`
-    ed_los_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ ed_LOS }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var ed_LOS}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_11())
-        )
-      }
-    )
-  if (!is.numeric(ed_los_check)) {
-    cli::cli_abort(
-      c(
-        "{.var ed_LOS} must be of class {.cls numeric}.",
-        "i" = "{.var ed_LOS} was an object of class {.cls {class(ed_los_check)}}."
-      )
-    )
-  }
+  # Validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "integer", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
 
-  # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  # Ensure that `iss` can be validated ----
+  iss_check <- validate_data_pull(
+    input = data,
+    col = {{ iss }},
+    type = "error",
+    var_name = "iss"
+  )
 
-  # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  # Validation of `iss` ----
+  validate_numeric(
+    input = iss_check,
+    min = 0,
+    max = 75,
+    type = "error",
+    var_name = "iss"
+  )
 
-  # Validate confidence interval method
-  if (!is.null(calculate_ci)) {
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(c(
-        "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
-        "i" = "Provided value: {.val {calculate_ci}}"
-      ))
-    }
-    calculate_ci <- attempt
-  }
+  # Ensure that `transfer_out_indicator` can be validated  ----
+  transfer_out_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ transfer_out_indicator }},
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
 
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate `transfer_out_indicator` ----
+  validate_class(
+    input = transfer_out_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
+
+  # Ensure that `receiving_indicator` can be validated
+  receiving_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ receiving_indicator }},
+    type = "error",
+    var_name = "receiving_indicator"
+  )
+
+  # Validate that `receiving_indicator` is character, factor, or logical. ----
+  validate_class(
+    input = receiving_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "receiving_indicator"
+  )
+
+  # Ensure that ed_LOS can be validated ----
+  ed_los_check <- validate_data_pull(
+    input = data,
+    col = {{ ed_LOS }},
+    type = "error",
+    var_name = "ed_LOS"
+  )
+
+  # Validate `ed_LOS` ----
+  validate_numeric(
+    input = ed_los_check,
+    min = NULL,
+    max = NULL,
+    type = "error",
+    var_name = "ed_LOS"
+  )
+
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
+
+  # Check if all `groups` exist in the `data` ----
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
+
+  # Validate the `calculate_ci` argument ----
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE,
+    var_name = "calculate_ci"
+  )
+
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor", "integer"),
+    type = "error",
+    logic = "or"
+  )
 
   ###___________________________________________________________________________
-  ### Data preparation
+  ### Data preparation ----
   ###___________________________________________________________________________
 
-  # Dynamically classify patients using either ISS or NFTI logic
+  # Dynamically classify patients using ISS logic ----
   data_prep <- data |>
     dplyr::filter(
       {{ level }} %in% included_levels,
@@ -318,10 +263,10 @@ seqic_indicator_11 <- function(
     )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # state 11
+  # state 11 ----
   seqic_11 <- data_prep |>
     dplyr::summarize(
       numerator_11 = sum(
@@ -338,7 +283,7 @@ seqic_indicator_11 <- function(
       .by = {{ groups }}
     )
 
-  # Optionally calculate confidence intervals for the proportions:
+  # Optionally calculate confidence intervals for the proportions: ----
   # - If `calculate_ci` is provided, apply a binomial confidence interval method (Wilson or Clopper-Pearson).
   # - `nemsqa_binomial_confint()` calculates the confidence intervals for the proportion.
   # - Select only the relevant columns and rename the CI columns for clarity.
@@ -357,7 +302,8 @@ seqic_indicator_11 <- function(
       )
   }
 
-  # Assign a label to indicate whether the data represents population or sample-level results:
+  # Assign a label ----
+  # to indicate whether the data represents population or sample-level results:
   # - If no grouping is applied, label the data as "Population/Sample".
   if (is.null(groups)) {
     seqic_11 <- seqic_11 |>

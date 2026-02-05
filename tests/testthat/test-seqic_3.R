@@ -82,7 +82,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
       unique_incident_id = unique_id,
       probability_of_survival = survival_prob
     ),
-    "must be of class"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   # Set up error prone logical unique id
@@ -119,9 +119,9 @@ testthat::test_that("seqic_indicator_3: input validation", {
       level = level,
       trauma_type = trauma_type,
       unique_incident_id = unique_id,
-      probability_of_survival = survival_prob
-    ),
-    regexp = "must be of class.*character.*or.*factor"
+      probability_of_survival = survival_prob,
+      regex = "level.*must be of class.*character.*factor"
+    )
   )
 
   # Invalid groups
@@ -141,7 +141,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
       probability_of_survival = survival_prob,
       groups = list(1, 2) # not character strings
     ),
-    regexp = "All elements in .*groups.* must be strings"
+    regexp = "groups.*must be of class.*character.*factor"
   )
 
   # Invalid trauma_type
@@ -167,7 +167,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
       unique_incident_id = unique_id,
       probability_of_survival = survival_prob
     ),
-    "probability_of_survival.*must be of class"
+    "probability_of_survival.*must be.*numeric"
   )
 
   # Invalid group var
@@ -180,7 +180,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
       probability_of_survival = survival_prob,
       groups = "bad_col"
     ),
-    "not valid columns"
+    "groups.*contains invalid column names.*bad_col.*Valid column names are.*trauma_level, trauma_category, unique_id, survival_prob"
   )
 
   # Invalid calculate_ci
@@ -193,7 +193,7 @@ testthat::test_that("seqic_indicator_3: input validation", {
       probability_of_survival = survival_prob,
       calculate_ci = "not_a_method"
     ),
-    "must be"
+    "calculate_ci.*contains invalid values.*not_a_method.*Valid values are.*wilson, clopper-pearson"
   )
 })
 

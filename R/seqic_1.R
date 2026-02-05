@@ -6,11 +6,11 @@
 #'
 #' This function calculates System Evaluation and Quality Improvement Committee
 #' (SEQIC) Indicator 1 (subparts a through f). These indicators assess the
-#' timeliness and type of provider response (e.g., surgeon, mid-level, physician)
-#' to trauma alerts based on trauma team activation level, hospital trauma
-#' level, and time to provider presence. Confidence intervals can optionally be
-#' calculated for the proportion, using either the Wilson or Clopper-Pearson
-#' method.
+#' timeliness and type of provider response (e.g., surgeon, mid-level,
+#' physician) to trauma alerts based on trauma team activation level, hospital
+#' trauma level, and time to provider presence. Confidence intervals can
+#' optionally be calculated for the proportion, using either the Wilson or
+#' Clopper-Pearson method.
 #'
 #' @param data A data frame containing trauma incident records.
 #' @param trauma_team_activation_level Column identifying trauma team activation
@@ -137,232 +137,153 @@ seqic_indicator_1 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation  ----
   ###___________________________________________________________________________
 
-  # validate `data`
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
-
-  # make the `trauma_team_activation_level` column accessible for validation
-  trauma_team_activation_level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ trauma_team_activation_level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var trauma_team_activation_level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # validate `data` ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    logic = "or",
+    type = "error"
   )
 
-  # validate `trauma_team_activation_level`
-  if (
-    !is.character(trauma_team_activation_level_check) &&
-      !is.factor(trauma_team_activation_level_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var trauma_team_activation_level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var trauma_team_activation_level} was an object of class {.cls {class(trauma_team_activation_level_check)}}."
-      )
-    )
-  }
-
-  # make the `trauma_team_physician_service_type` column accessible for validation
-  trauma_team_physician_service_type_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ trauma_team_physician_service_type }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var trauma_team_physician_service_type}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # make the `trauma_team_activation_level` column ----
+  # accessible for validation
+  trauma_team_activation_level_check <- validate_data_pull(
+    input = data,
+    col = {{ trauma_team_activation_level }},
+    var_name = "trauma_team_activation_level"
   )
 
-  # validate `trauma_team_physician_service_type`
-  if (
-    !is.character(trauma_team_physician_service_type_check) &&
-      !is.factor(trauma_team_physician_service_type_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var trauma_team_physician_service_type} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var trauma_team_physician_service_type} was an object of class {.cls {class(trauma_team_physician_service_type_check)}}."
-      )
-    )
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # validate `trauma_team_activation_level` ----
+  validate_character_factor(
+    input = trauma_team_activation_level_check,
+    type = "error",
+    var_name = "trauma_team_activation_level"
   )
 
-  # validate `unique_incident_id`
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # make the `trauma_team_physician_service_type` column ----
+  # accessible for validation
+  trauma_team_physician_service_type_check <- validate_data_pull(
+    input = data,
+    col = {{ trauma_team_physician_service_type }},
+    var_name = "trauma_team_physician_service_type"
   )
 
-  # validate `level`
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(
-      c(
-        "{.var level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
-      )
-    )
-  }
-
-  # make the `response_time` column accessible for validation
-  response_time_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ response_time }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var response_time}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # validate `trauma_team_physician_service_type` ----
+  validate_character_factor(
+    input = trauma_team_physician_service_type_check,
+    type = "error",
+    var_name = "trauma_team_physician_service_type"
   )
 
-  # validate `response_time`
-  if (!is.numeric(response_time_check)) {
-    cli::cli_abort(
-      c(
-        "{.var response_time} must be of class {.cls numeric}.",
-        "i" = "{.var response_time} was an object of class {.cls {class(response_time_check)}}."
-      )
-    )
-  }
-
-  # make the `trauma_team_activation_provider` column accessible for validation
-  trauma_team_activation_provider_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ trauma_team_activation_provider }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var trauma_team_activation_provider}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_1())
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
   )
 
-  # validate `trauma_team_activation_provider`
-  if (
-    !is.character(trauma_team_activation_provider_check) &&
-      !is.factor(trauma_team_activation_provider_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var trauma_team_activation_provider} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var trauma_team_activation_provider} was an object of class {.cls {class(trauma_team_activation_provider_check)}}."
-      )
-    )
-  }
+  # validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("character", "factor", "numeric"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
 
-  # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    col = {{ level }},
+    var_name = "level"
+  )
 
-  # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  # validate `level` ----
+  validate_class(
+    input = level_check,
+    class_type = c("character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "level"
+  )
 
-  # Validate the `calculate_ci` argument
+  # make the `response_time` column accessible for validation ----
+  response_time_check <- validate_data_pull(
+    input = data,
+    col = {{ response_time }},
+    var_name = "response_time"
+  )
+
+  # validate `response_time` ----
+  validate_numeric(
+    input = response_time_check,
+    min = NULL,
+    max = NULL,
+    type = "error",
+    var_name = "response_time"
+  )
+
+  # make the `trauma_team_activation_provider` column ----
+  # accessible for validation
+  trauma_team_activation_provider_check <- validate_data_pull(
+    input = data,
+    col = {{ trauma_team_activation_provider }},
+    var_name = "trauma_team_activation_provider"
+  )
+
+  # validate `trauma_team_activation_provider` ----
+  validate_character_factor(
+    input = trauma_team_activation_provider_check,
+    type = "error",
+    var_name = "trauma_team_activation_provider"
+  )
+
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(
+    input = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
+
+  # Check if all groups exist in the `data` ----
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
+
+  # Validate the `calculate_ci` argument ----
   # - If not NULL, must be either "wilson" or "clopper-pearson"
   # - Use match.arg() to enforce allowed values
   # - Catch invalid input silently and report cleanly with cli
-  if (!is.null(calculate_ci)) {
-    # Attempt to match the argument against allowed choices
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE
+  )
 
-    # If match.arg failed, provide a user-friendly error message
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-
-    # If valid, overwrite calculate_ci with standardized value
-    calculate_ci <- attempt
-  }
-
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("character", "numeric", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "included_levels"
+  )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Indicator 1a – Proportion of Level 1 activations at Level I/II centers
+  # Indicator 1a – Proportion of Level 1 activations at Level I/II centers ----
   # where the first arriving Surgery/Trauma provider arrived within 15 minutes.
   seqic_1a <- data |>
     dplyr::filter(
@@ -384,7 +305,7 @@ seqic_indicator_1 <- function(
       .by = {{ groups }}
     )
 
-  # optionally calculate the confidence intervals for 1a
+  # optionally calculate the confidence intervals for 1a ----
   if (!is.null(calculate_ci)) {
     seqic_1a <- seqic_1a |>
       dplyr::bind_cols(
@@ -400,7 +321,7 @@ seqic_indicator_1 <- function(
       )
   }
 
-  # Indicator 1b – Same as 1a but for Level I/II/III centers and 30-minute
+  # Indicator 1b – Same as 1a but for Level I/II/III centers and 30-minute ----
   # threshold.
   seqic_1b <- data |>
     dplyr::filter(
@@ -423,7 +344,7 @@ seqic_indicator_1 <- function(
       .by = {{ groups }}
     )
 
-  # optionally calculate the confidence intervals for 1b
+  # optionally calculate the confidence intervals for 1b ----
   if (!is.null(calculate_ci)) {
     seqic_1b <- seqic_1b |>
       dplyr::bind_cols(
@@ -439,7 +360,7 @@ seqic_indicator_1 <- function(
       )
   }
 
-  # Indicator 1c – Proportion of Level 1 activations where arrival time is
+  # Indicator 1c – Proportion of Level 1 activations where arrival time is ----
   # missing.
   seqic_1c <- data |>
     dplyr::filter(
@@ -463,7 +384,7 @@ seqic_indicator_1 <- function(
       .by = {{ groups }}
     )
 
-  # optionally calculate the confidence intervals for 1c
+  # optionally calculate the confidence intervals for 1c ----
   if (!is.null(calculate_ci)) {
     seqic_1c <- seqic_1c |>
       dplyr::bind_cols(
@@ -479,7 +400,7 @@ seqic_indicator_1 <- function(
       )
   }
 
-  # Combine 1a, 1b, and 1c results; assign label for state-level reporting.
+  # Combine 1a, 1b, and 1c results; assign label for state-level reporting. ----
   if (is.null(groups)) {
     seqic_1abc <- dplyr::bind_cols(
       seqic_1a,
@@ -493,7 +414,7 @@ seqic_indicator_1 <- function(
       dplyr::full_join(seqic_1c, by = dplyr::join_by(!!!rlang::syms(groups)))
   }
 
-  # Create a provider group string vector to clean up code
+  # Create a provider group string vector to clean up code ----
   provider_group_1de <- c(
     "Surgery/Trauma",
     "Emergency Medicine",
@@ -505,7 +426,7 @@ seqic_indicator_1 <- function(
     "Internal Medicine"
   )
 
-  # Indicators 1d and 1e – Broader provider group, Level I-IV centers.
+  # Indicators 1d and 1e – Broader provider group, Level I-IV centers. ----
   # 1d: Arrival within 5 minutes; 1e: Arrival within 20 minutes.
   seqic_1de <- data |>
     dplyr::filter(
@@ -534,7 +455,7 @@ seqic_indicator_1 <- function(
       .by = {{ groups }}
     )
 
-  # optionally calculate the confidence intervals for 1de
+  # optionally calculate the confidence intervals for 1de ----
   if (!is.null(calculate_ci)) {
     seqic_1de <- seqic_1de |>
       dplyr::bind_cols(
@@ -561,7 +482,7 @@ seqic_indicator_1 <- function(
       dplyr::relocate(upper_ci_1d, .after = lower_ci_1d)
   }
 
-  # Indicator 1f – Proportion of activations in 1d/e where arrival time is
+  # Indicator 1f – Proportion of activations in 1d/e where arrival time is ----
   # missing.
   seqic_1f <- data |>
     dplyr::filter(
@@ -585,7 +506,7 @@ seqic_indicator_1 <- function(
       .by = {{ groups }}
     )
 
-  # optionally calculate the confidence intervals for 1f
+  # optionally calculate the confidence intervals for 1f ----
   if (!is.null(calculate_ci)) {
     seqic_1f <- seqic_1f |>
       dplyr::bind_cols(
@@ -601,7 +522,7 @@ seqic_indicator_1 <- function(
       )
   }
 
-  # Combine 1d, 1e, and 1f results; assign label for state-level reporting.
+  # Combine 1d, 1e, and 1f results; assign label for state-level reporting. ----
   if (is.null(groups)) {
     seqic_1def <- dplyr::bind_cols(seqic_1de, seqic_1f) |>
       tibble::add_column(
@@ -613,7 +534,7 @@ seqic_indicator_1 <- function(
       dplyr::full_join(seqic_1f, by = dplyr::join_by(!!!rlang::syms(groups)))
   }
 
-  # Final combination of all indicators into single summary.
+  # Final combination of all indicators into single summary. ----
   if (is.null(groups)) {
     seqic_1 <- dplyr::bind_cols(seqic_1abc, seqic_1def[, -1])
   } else {

@@ -69,166 +69,109 @@ seqic_indicator_2 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # validate `data`
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_2())
-      )
-    }
+  # validate `data` ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    logic = "or",
+    type = "error"
   )
 
-  # validate `unique_incident_id`
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # make the `incident_time` column accessible for validation
-  incident_time_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ incident_time }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var incident_time}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_2())
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
   )
 
-  # validate `incident_time`
-  if (
-    !lubridate::is.POSIXct(incident_time_check) &&
-      !lubridate::is.POSIXlt(incident_time_check) &&
-      !hms::is_hms(incident_time_check) &&
-      !is.character(incident_time_check) &&
-      !inherits(incident_time_check, "hms")
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var incident_time} must be of class {.cls POSIXct}, {.cls POSIXlt}, {.cls hms}, or {.cls character}.",
-        "i" = "{.var incident_time} was an object of class {.cls {class(incident_time_check)}}."
-      )
-    )
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_2())
-      )
-    }
+  # validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "factor", "character"),
+    logic = "or",
+    type = "error"
   )
 
-  # validate `level`
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(
-      c(
-        "{.var level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
-      )
-    )
-  }
+  # make the `incident_time` column accessible for validation ----
+  incident_time_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ incident_time }},
+    var_name = "incident_time"
+  )
 
-  # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  # validate `incident_time` ----
+  validate_class(
+    input = incident_time_check,
+    class_type = c("date", "date-time", "hms", "character"),
+    logic = "or",
+    type = "error"
+  )
 
-  # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
+  )
 
-  # Validate the `calculate_ci` argument
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
+  )
+
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
+
+  # Check if all groups exist in the `data` ----
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
+
+  # Validate the `calculate_ci` argument ----
   # - If not NULL, must be either "wilson" or "clopper-pearson"
   # - Use match.arg() to enforce allowed values
   # - Catch invalid input silently and report cleanly with cli
-  if (!is.null(calculate_ci)) {
-    # Attempt to match the argument against allowed choices
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE
+  )
 
-    # If match.arg failed, provide a user-friendly error message
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-
-    # If valid, overwrite calculate_ci with standardized value
-    calculate_ci <- attempt
-  }
-
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor"),
+    logic = "or",
+    type = "error"
+  )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Summarize the data for Indicator 2:
+  # Summarize the data for Indicator 2: ----
   # - Filter records to include only Level I–IV trauma centers.
-  # - Remove duplicate incidents, keeping the first occurrence of each unique `unique_incident_id`.
+  # - Remove duplicate incidents, keeping the first occurrence of each unique
+  #   `unique_incident_id`.
   # - Summarize the data by calculating:
   #   - `numerator_2`: The number of incidents with missing `incident_time`.
   #   - `denominator_2`: The total number of unique incidents.
-  #   - `seqic_2`: The proportion of incidents with missing `incident_time` (rounded to 3 decimal places).
+  #   - `seqic_2`: The proportion of incidents with missing `incident_time`
+  #     (rounded to 3 decimal places).
   #   - Optionally, group results by columns specified in the `groups` argument.
   seqic_2 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
@@ -244,9 +187,11 @@ seqic_indicator_2 <- function(
       .by = {{ groups }} # Group by the specified columns (if any).
     )
 
-  # Optionally calculate confidence intervals for the proportions:
-  # - If `calculate_ci` is provided, apply a binomial confidence interval method (Wilson or Clopper-Pearson).
-  # - `nemsqa_binomial_confint()` calculates the confidence intervals for the proportion.
+  # Optionally calculate confidence intervals for the proportions: ----
+  # - If `calculate_ci` is provided, apply a binomial confidence interval method
+  #   (Wilson or Clopper-Pearson).
+  # - `nemsqa_binomial_confint()` calculates the confidence intervals for the
+  #   proportion.
   # - Select only the relevant columns and rename the CI columns for clarity.
   if (!is.null(calculate_ci)) {
     seqic_2 <- seqic_2 |>
@@ -263,7 +208,8 @@ seqic_indicator_2 <- function(
       )
   }
 
-  # Assign a label to indicate whether the data represents population or sample-level results:
+  # Assign a label to indicate whether the data represents population or ----
+  # sample-level results:
   # - If no grouping is applied, label the data as "Population/Sample".
   if (is.null(groups)) {
     seqic_2 <- seqic_2 |>
@@ -273,6 +219,6 @@ seqic_indicator_2 <- function(
       dplyr::arrange(!!!rlang::syms(groups))
   }
 
-  # Return the final summary dataframe for Indicator 2.
+  # Return the final summary dataframe for Indicator 2. ----
   return(seqic_2)
 }

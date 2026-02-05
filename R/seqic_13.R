@@ -87,102 +87,69 @@ seqic_indicator_13 <-
     ### Data validation
     ###___________________________________________________________________________
 
-    # Ensure input is a data frame or tibble
-    if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-      cli::cli_abort(c(
-        "{.var data} must be a data frame or tibble.",
-        "i" = "You provided an object of class {.cls {class(data)}}."
-      ))
-    }
-
-    # make the `level` column accessible for validation
-    level_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ level }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var level}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_13())
-        )
-      }
-    )
-    if (!is.character(level_check) && !is.factor(level_check)) {
-      cli::cli_abort(c(
-        "{.var level} must be character or factor.",
-        "i" = "Provided class: {.cls {class(level_check)}}."
-      ))
-    }
-
-    # make the `unique_incident_id` column accessible for validation
-    unique_incident_id_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ unique_incident_id }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_13())
-        )
-      }
+    # Validate if `data` is a data frame or tibble. ----
+    validate_data_structure(
+      input = data,
+      structure_type = c("data.frame", "tbl", "tbl_df"),
+      type = "error"
     )
 
-    # Validate `unique_incident_id` to ensure it's either character or factor.
-    if (
-      !is.character(unique_incident_id_check) &&
-        !is.factor(unique_incident_id_check) &&
-        !is.numeric(unique_incident_id_check)
-    ) {
-      cli::cli_abort(
-        c(
-          "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-          "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-        )
-      )
-    }
+    # make the `level` column accessible for validation ----
+    level_check <- validate_data_pull(
+      input = data,
+      type = "error",
+      col = {{ level }},
+      var_name = "level"
+    )
+
+    # validate `level` ----
+    validate_character_factor(
+      input = level_check,
+      type = "error",
+      var_name = "level"
+    )
+
+    # make the `unique_incident_id` column accessible for validation ----
+    unique_incident_id_check <- validate_data_pull(
+      input = data,
+      type = "error",
+      col = {{ unique_incident_id }},
+      var_name = "unique_incident_id"
+    )
+
+    # Validate `unique_incident_id` ----
+    validate_class(
+      input = unique_incident_id_check,
+      class_type = c("numeric", "integer", "character", "factor"),
+      logic = "or",
+      type = "error",
+      var_name = "unique_incident_id"
+    )
+
+    # Ensure that `validity_score` can be validated
+    validity_score_check <- validate_data_pull(
+      input = data,
+      col = {{ validity_score }},
+      type = "error",
+      var_name = "validity_score"
+    )
 
     # Validate that validity_score is numeric
-    validity_score_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ validity_score }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var validity_score}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_13())
-        )
-      }
+    validate_numeric(
+      input = validity_score_check,
+      min = 0,
+      max = 100,
+      type = "error",
+      var_name = "validity_score"
     )
-    if (!is.numeric(validity_score_check)) {
-      cli::cli_abort(
-        c(
-          "{.var validity_score} must be of class {.cls numeric}.",
-          "i" = "{.var validity_score} was an object of class {.cls {class(validity_score_check)}}."
-        )
-      )
-    }
-
-    if (
-      any(validity_score_check < 0, na.rm = TRUE) ||
-        any(validity_score_check > 100, na.rm = TRUE)
-    ) {
-      cli::cli_abort(
-        c(
-          "{.var validity_score} must have a range of [{cli::col_blue('0, 100')}].",
-          "i" = "{.var validity_score} was out of range, with a range of [{cli::col_red(round(min(validity_score_check, na.rm = TRUE), digits = 3))}, {cli::col_red(round(max(validity_score_check, na.rm = TRUE), digits = 3))}]."
-        )
-      )
-    }
 
     # Validate that validity_threshold is numeric
-    if (!is.numeric({{ validity_threshold }})) {
-      cli::cli_abort(
-        c(
-          "{.var validity_threshold} must be of class {.cls numeric}.",
-          "i" = "{.var validity_threshold} was an object of class {.cls {class({{ validity_threshold }})}}."
-        )
-      )
-    }
+    validate_numeric(
+      input = validity_threshold,
+      min = 0,
+      max = 100,
+      type = "error"
+    )
 
     # Check if all elements in groups are strings (i.e., character vectors)
     if (!is.null(groups)) {
@@ -194,72 +161,69 @@ seqic_indicator_13 <-
       }
     }
 
-    # Check if all groups exist in the `data`
-    if (!all(groups %in% names(data))) {
-      invalid_vars <- groups[!groups %in% names(data)]
-      cli::cli_abort(
-        "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
-      )
-    }
+    # Check if all elements in groups are strings (i.e., character vectors) ----
+    validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
-    # Validate the `included_levels` argument
-    if (
-      !is.character(included_levels) &&
-        !is.numeric(included_levels) &&
-        !is.factor(included_levels)
-    ) {
-      cli::cli_abort(
-        c(
-          "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-          "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-        )
-      )
-    }
+    # Check if all `groups` exist in the `data` ----
+    validate_names(
+      input = data,
+      check_names = groups,
+      type = "error",
+      var_name = "groups",
+      null_ok = TRUE
+    )
 
-    # Validate confidence interval method
-    if (!is.null(calculate_ci)) {
-      attempt <- try(
-        match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-        silent = TRUE
-      )
-      if (inherits(attempt, "try-error")) {
-        cli::cli_abort(c(
-          "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "Provided value: {.val {calculate_ci}}"
-        ))
-      }
-      calculate_ci <- attempt
-    }
+    # Validate the `calculate_ci` argument ----
+    calculate_ci <- validate_choice(
+      input = calculate_ci,
+      choices = c("wilson", "clopper-pearson"),
+      several.ok = FALSE,
+      type = "error",
+      null_ok = TRUE,
+      var_name = "calculate_ci"
+    )
+
+    # Validate the `included_levels` argument ----
+    validate_class(
+      input = included_levels,
+      class_type = c("numeric", "character", "factor", "integer"),
+      type = "error",
+      logic = "or"
+    )
 
     ###_________________________________________________________________________
-    ### Calculations
+    ### Calculations ----
     ###_________________________________________________________________________
 
     seqic_13 <- data |>
-      # Filter the dataset to include only records from facilities matching
+      # Filter the dataset to include only records from facilities matching ----
       # the trauma levels specified in `included_levels` (default: I–IV).
       dplyr::filter({{ level }} %in% included_levels) |>
 
-      # Deduplicate the dataset to ensure each trauma incident is represented
-      # only once. This is essential to avoid overcounting when calculating proportions.
-      # The `unique_incident_id` column is assumed to uniquely identify each incident.
+      # Deduplicate the dataset to ensure each trauma incident ----
+      # is represented only once. This is essential to avoid overcounting when
+      # calculating proportions. The `unique_incident_id` column is assumed to
+      # uniquely identify each incident.
       dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
 
-      # Summarize the filtered and deduplicated dataset:
+      # Summarize the filtered and deduplicated dataset: ----
       dplyr::summarize(
-        # Count the number of valid records that meet or exceed the threshold
-        # set by the `validity` argument (default: 85). Missing values are ignored.
+        # Count the number of valid records ----
+        # that meet or exceed the threshold set by the `validity` argument
+        # (default: 85). Missing values are ignored.
         numerator_13 = sum(
           {{ validity_score }} >= {{ validity_threshold }},
           na.rm = TRUE
         ),
 
-        # Count the total number of records in the denominator after filtering
-        # and deduplication. This represents all valid candidate records.
+        # Count the total number of records in the denominator ----
+        # after filtering and deduplication. This represents all valid candidate
+        # records.
         denominator_13 = dplyr::n(),
 
-        # Calculate the proportion of valid records (numerator / denominator),
-        # rounded to 3 decimal places for reporting clarity.
+        # Calculate the proportion of valid records ----
+        # (numerator / denominator), rounded to 3 decimal places for reporting
+        # clarity.
         seqic_13 = dplyr::if_else(
           denominator_13 > 0,
           numerator_13 / denominator_13,
@@ -268,9 +232,9 @@ seqic_indicator_13 <-
         .by = {{ groups }}
       )
 
-    # Optionally calculate confidence intervals for the proportions:
-    # - If `calculate_ci` is provided, apply a binomial confidence interval method
-    # (Wilson or Clopper-Pearson).
+    # Optionally calculate confidence intervals for the proportions: ----
+    # - If `calculate_ci` is provided, apply a binomial confidence interval
+    #   method (Wilson or Clopper-Pearson).
     # - `nemsqa_binomial_confint()` calculates the confidence intervals for the
     # proportion.
     # - Select only the relevant columns and rename the CI columns for clarity.
@@ -289,8 +253,9 @@ seqic_indicator_13 <-
         )
     }
 
-    # Assign a label to indicate whether the data represents population or sample-level results:
-    # - If no grouping is applied, label the data as "Population/Sample".
+    # Assign a label to indicate whether the data represents population or ----
+    # sample-level results:
+    # - If no grouping is applied, label the data as "Population/Sample". ----
     if (is.null(groups)) {
       seqic_13 <- seqic_13 |>
         tibble::add_column(data = "population/sample", .before = "numerator_13") # Add the label column.
@@ -299,5 +264,6 @@ seqic_indicator_13 <-
         dplyr::arrange(!!!rlang::syms(groups))
     }
 
+    # Return SEQIC Indicator 13 results as a tibble ----
     return(seqic_13)
   }

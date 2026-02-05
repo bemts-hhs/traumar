@@ -28,7 +28,7 @@ testthat::test_that("seqic_indicator_13() correctly expects columns to be in the
       validity_score = validity,
       validity_threshold = 85
     ),
-    regexp = "included_levels.*must be of class.*character.*factor.*numeric"
+    regexp = "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 
   testthat::expect_error(
@@ -79,7 +79,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       unique_incident_id = id,
       validity_score = validity
     ),
-    "must be a data frame"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   testthat::expect_error(
@@ -89,7 +89,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       unique_incident_id = id,
       validity_score = validity
     ),
-    "must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 
   bad_id <- data |> dplyr::mutate(id = c(T, T, F, F))
@@ -110,7 +110,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       unique_incident_id = id,
       validity_score = validity
     ),
-    "must be of class"
+    "validity_score.*must be.*numeric"
   )
 
   testthat::expect_error(
@@ -120,7 +120,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       unique_incident_id = id,
       validity_score = validity
     ),
-    "must have a range"
+    "validity_score.*values must be contained within range.*0, 100.*Range of this input was.*-1, 105"
   )
 
   testthat::expect_error(
@@ -131,7 +131,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       validity_score = validity,
       validity_threshold = "high"
     ),
-    "must be of class"
+    "validity_threshold.*must be.*numeric"
   )
 
   testthat::expect_error(
@@ -153,7 +153,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       validity_score = validity,
       groups = c("nope")
     ),
-    "Invalid grouping variable"
+    "groups.*contains invalid column names.*nope.*Valid column names are.*id, trauma_level, validity"
   )
 
   testthat::expect_error(
@@ -164,7 +164,7 @@ testthat::test_that("seqic_indicator_13: input validation", {
       validity_score = validity,
       calculate_ci = "bogus"
     ),
-    "must be"
+    "calculate_ci.*contains invalid values.*bogus.*Valid values are.*wilson, clopper-pearson"
   )
 })
 

@@ -16,7 +16,8 @@ test_that("normalize handles NA values correctly", {
   x <- c(10, 20, NA, 40, 50)
 
   # Min-max normalization
-  expected_min_max <- (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+  expected_min_max <- (x - min(x, na.rm = TRUE)) /
+    (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
   result_min_max <- normalize(x, method = "min_max")
   expect_equal(result_min_max, expected_min_max)
 
@@ -39,7 +40,6 @@ test_that("normalize handles invalid method input by defaulting to min-max norma
   x <- c(10, 20, 30, 40, 50)
   expected <- (x - min(x)) / (max(x) - min(x))
   expect_error(normalize(x, method = "invalid"))
-
 })
 
 test_that("normalize raises an error for non-numeric inputs", {
@@ -61,14 +61,13 @@ test_that("normalize handles integer inputs correctly", {
 test_that("normalize handles empty input gracefully", {
   x <- numeric(0)
 
-  expect_message(
+  expect_warning(
     result <- normalize(x, method = "min_max")
   )
   expect_equal(result, numeric(0))
 
-  expect_message(
+  expect_warning(
     result <- normalize(x, method = "z_score")
   )
   expect_equal(result, numeric(0))
 })
-

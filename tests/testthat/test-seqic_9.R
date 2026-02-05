@@ -221,7 +221,7 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
       ed_decision_LOS = ed_decision,
       ed_decision_discharge_LOS = ed_discharge
     ),
-    "must be a data frame or tibble"
+    "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 
   # level column invalid type
@@ -240,7 +240,7 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
       ed_decision_LOS = ed_decision,
       ed_decision_discharge_LOS = ed_discharge
     ),
-    "must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 
   # unique_incident_id wrong class
@@ -259,7 +259,7 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
       ed_decision_LOS = ed_decision,
       ed_decision_discharge_LOS = ed_discharge
     ),
-    "must be of class .*character.*numeric.*factor"
+    "unique_incident_id.*must be of class.*numeric, integer, character, factor"
   )
 
   # transfer_out_indicator wrong class
@@ -297,7 +297,7 @@ testthat::test_that("seqic_indicator_9() validates input types correctly", {
       ed_decision_LOS = ed_decision,
       ed_decision_discharge_LOS = ed_discharge
     ),
-    "ed_LOS.*must be of class"
+    "ed_LOS.*must be.*numeric"
   )
 })
 
@@ -329,7 +329,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_LOS = ed_decision_LOS,
       ed_decision_discharge_LOS = ed_decision_discharge_LOS
     ),
-    "ed_decision_LOS.*class.*character"
+    "ed_decision_LOS.*must be.*numeric"
   )
 
   # ed_decision_discharge_LOS must be numeric
@@ -348,7 +348,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_LOS = ed_decision_LOS,
       ed_decision_discharge_LOS = ed_decision_discharge_LOS
     ),
-    "ed_decision_discharge_LOS.*class.*character"
+    "ed_decision_discharge_LOS.*must be.*numeric"
   )
 
   # trauma_team_activated must be character, factor, or logical
@@ -366,7 +366,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_LOS = ed_decision_LOS,
       ed_decision_discharge_LOS = ed_decision_discharge_LOS
     ),
-    "trauma_team_activated.*class.*integer"
+    "trauma_team_activated.*must be of class.*character, factor, logical"
   )
 
   # risk_group must be character or factor
@@ -384,7 +384,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_LOS = ed_decision_LOS,
       ed_decision_discharge_LOS = ed_decision_discharge_LOS
     ),
-    "risk_group.*character or factor"
+    "risk_group.*must be of class.*character.*factor"
   )
 
   # groups must be character vector
@@ -403,7 +403,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_discharge_LOS = ed_decision_discharge_LOS,
       groups = 123
     ),
-    "groups.*strings"
+    "groups.*must be of class.*character.*factor"
   )
 
   # groups must exist in data
@@ -421,7 +421,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_discharge_LOS = ed_decision_discharge_LOS,
       groups = c("not_a_column")
     ),
-    "Invalid grouping variable"
+    "groups.*contains invalid column names.*not_a_column.*Valid column names are.*incident_id, probability_of_survival, trauma_center_level, transfer_out, transport_method, ed_LOS, ed_decision_LOS, ed_decision_discharge_LOS, trauma_team_activated, risk_group"
   )
 
   # calculate_ci must be "wilson" or "clopper-pearson"
@@ -439,7 +439,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_discharge_LOS = ed_decision_discharge_LOS,
       calculate_ci = "bootstrap"
     ),
-    "must be.*wilson.*clopper-pearson"
+    "calculate_ci.*contains invalid values.*bootstrap.*Valid values are.*wilson, clopper-pearson"
   )
 
   # included_levels must be character, numeric, or factor
@@ -457,7 +457,7 @@ testthat::test_that("seqic_indicator_9() input validation: remaining checks", {
       ed_decision_discharge_LOS = ed_decision_discharge_LOS,
       included_levels = as.Date("2024-01-01")
     ),
-    "included_levels.*class.*Date"
+    "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 })
 

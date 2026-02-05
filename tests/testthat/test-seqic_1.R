@@ -125,7 +125,7 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
       response_time = response_minutes,
       trauma_team_activation_provider = provider
     ),
-    "data.*must be of class"
+    "data.*must be of class.*data\\.frame, tbl, tbl_df"
   )
 
   # trauma_team_activation_level is not character or factor
@@ -200,7 +200,7 @@ testthat::test_that("seqic_indicator_1() validates input types correctly", {
       response_time = response_minutes,
       trauma_team_activation_provider = provider
     ),
-    "response_time.*must be of class"
+    "response_time.*must be.*numeric"
   )
 
   # trauma_team_activation_provider is not character or factor
@@ -242,7 +242,7 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
       trauma_team_activation_provider = provider,
       groups = list(123)
     ),
-    "All elements in.*groups.*must be strings"
+    "groups.*must be of class.*character.*or.*factor"
   )
 
   # groups contains a string not found in data
@@ -257,7 +257,7 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
       trauma_team_activation_provider = provider,
       groups = c("not_a_col")
     ),
-    "not valid columns in"
+    "groups.*contains invalid column names.*not_a_col.*Valid column names are.*"
   )
 
   # calculate_ci is invalid
@@ -272,7 +272,7 @@ testthat::test_that("seqic_indicator_1() validates groups and calculate_ci", {
       trauma_team_activation_provider = provider,
       calculate_ci = "wrong"
     ),
-    "it must be"
+    "calculate_ci.*contains invalid values.*wrong.*Valid values are.*wilson, clopper-pearson"
   )
 })
 

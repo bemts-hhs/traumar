@@ -12,10 +12,19 @@ test_that("season returns correct season for valid POSIXct input", {
   expect_equal(season(as.POSIXct("2025-09-30 00:00:00")), factor("Fall"))
 })
 
-test_that("season returns Undetermined for invalid input", {
-  expect_error(season("2025-01-15"), regexp = "must be an object of class")
-  expect_error(season(20250115), regexp = "must be an object of class")
-  expect_error(season(NULL), regexp = "must be an object of class")
+test_that("season returns errors for non-dates and Undetermined for NA/NULL input", {
+  expect_error(
+    season("2025-01-15"),
+    regexp = "input_date.*must be of class.*date, date-time"
+  )
+  expect_error(
+    season(20250115),
+    regexp = "input_date.*must be of class.*date, date-time"
+  )
+  expect_equal(
+    season(NULL),
+    expected = factor("Undetermined")
+  )
 })
 
 test_that("season handles NA input correctly", {

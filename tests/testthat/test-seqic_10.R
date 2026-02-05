@@ -148,7 +148,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be a data frame or tibble"
+    "data.*must be of class.*data.frame, tbl, tbl_df"
   )
 
   # Level not character or factor
@@ -164,7 +164,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 
   # unique_incident_id wrong class
@@ -196,7 +196,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be character or factor"
+    "trauma_team_activation_level: must be of class.*character.*factor"
   )
 
   # trauma_team_activation_level not character/factor
@@ -212,7 +212,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be of class.*character.*factor.*logical"
+    "transfer_out_indicator: must be of class.*logical, character, factor"
   )
 
   # iss is not numeric
@@ -228,7 +228,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be numeric"
+    "iss.*must be.*numeric"
   )
 
   # nfti wrong class
@@ -244,7 +244,7 @@ test_that("data validation fails appropriately", {
       iss = iss,
       nfti = nfti
     ),
-    "must be character, factor, or logical"
+    "nfti.* must be of class.*character, factor, logical"
   )
 
   # groups not character
@@ -260,7 +260,7 @@ test_that("data validation fails appropriately", {
       nfti = nfti,
       groups = 1:2
     ),
-    "must be strings"
+    "groups.* must be of class.*character.*factor"
   )
 
   # groups has invalid column names
@@ -276,7 +276,7 @@ test_that("data validation fails appropriately", {
       nfti = nfti,
       groups = c("region", "nonexistent_col")
     ),
-    "Invalid grouping variable"
+    "groups.*contains invalid column names.*nonexistent_col.*Valid column names are.*id, trauma_level, acute_transfer, activation, iss, nfti, region"
   )
 
   # calculate_ci invalid
@@ -292,7 +292,7 @@ test_that("data validation fails appropriately", {
       nfti = nfti,
       calculate_ci = "banana"
     ),
-    "must be.*wilson.*clopper-pearson"
+    "calculate_ci.* contains invalid values.*banana.*Valid values are.*wilson.*clopper-pearson"
   )
 
   # included_levels wrong type

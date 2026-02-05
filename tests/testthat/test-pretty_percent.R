@@ -2,16 +2,25 @@ test_that("pretty_percent handles numeric input", {
   expect_equal(pretty_percent(0.12345), "12.3%")
   expect_equal(pretty_percent(0.12345, n_decimal = 2), "12.35%")
   expect_equal(pretty_percent(0.12345, n_decimal = 0), "12%")
-  expect_equal(pretty_percent(c(0.1, 0.25, 0.3333), n_decimal = 1), c("10%", "25%", "33.3%"))
+  expect_equal(
+    pretty_percent(c(0.1, 0.25, 0.3333), n_decimal = 1),
+    c("10%", "25%", "33.3%")
+  )
 })
 
 test_that("pretty_percent handles non-numeric input", {
-  expect_error(pretty_percent("text"), "The `variable` argument must be numeric.")
-  expect_error(pretty_percent(list(1, 2, 3)), "The `variable` argument must be numeric.")
+  expect_error(pretty_percent("text"), "variable.*must be.*numeric")
+  expect_error(
+    pretty_percent(list(1, 2, 3)),
+    "variable.*must be.*numeric"
+  )
 })
 
 test_that("pretty_percent handles n_decimal input correctly", {
-  expect_error(pretty_percent(0.5, n_decimal = -1), "positive numeric value.")
+  expect_error(
+    pretty_percent(0.5, n_decimal = -1),
+    "values must be greater than or equal to 0"
+  )
   expect_equal(pretty_percent(0.5, n_decimal = 0), "50%")
 })
 
@@ -36,4 +45,15 @@ test_that("pretty_percent handles vector input correctly", {
   input <- c(0.1, 0.25, 0.3333, 0.5)
   expected <- c("10%", "25%", "33.3%", "50%")
   expect_equal(pretty_percent(input, n_decimal = 1), expected)
+})
+
+test_that("pretty_percent handles NA values gracefully", {
+  expect_equal(
+    pretty_percent(c(0.1, 0.2, NA, NA)),
+    c("10%", "20%", NA_character_, NA_character_)
+  )
+  expect_equal(
+    pretty_percent(c(0.1, NA, 0.5), n_decimal = 1),
+    c("10%", NA, "50%")
+  )
 })

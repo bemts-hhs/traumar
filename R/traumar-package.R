@@ -15,5 +15,6 @@
 #' @importFrom stats shapiro.test
 #' @importFrom utils head
 #' @importFrom utils tail
+#' @importFrom nemsqar nemsqa_binomial_confint
 ## usethis namespace: end
 NULL

@@ -4,19 +4,30 @@
 \alias{pretty_number}
 \title{Convert Numbers into Readable Abbreviated Formats}
 \usage{
-pretty_number(x, n_decimal = 2, prefix = NULL, truncate = FALSE)
+pretty_number(
+  x,
+  digits = 2,
+  n_decimal = deprecated(),
+  prefix = NULL,
+  truncate = FALSE
+)
 }
 \arguments{
 \item{x}{A numeric value or vector to be converted into a readable format.}
 
-\item{n_decimal}{An integer specifying the number of decimal places to
-include in the output. Defaults to \code{2}.}
+\item{digits}{Number of decimal places to display. Defaults to 2.}
+
+\item{n_decimal}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{digits} instead.}
 
 \item{prefix}{An optional character string to prepend to the formatted number
 (e.g., "$"). Defaults to \code{NULL}.}
 
-\item{truncate}{A logical value indicating whether to truncate the numbers before
-formatting. Defaults to \code{FALSE}.}
+\item{truncate}{A logical value indicating whether to truncate the numbers
+before formatting. When \code{TRUE}, the function uses \code{base::signif()} to
+truncate the numbers to the specified number of significant digits, making
+the output more concise. When \code{FALSE}, the function uses \code{base::round()} to
+round the numbers to the specified number of decimal places, preserving the
+original scale of the number. Defaults to \code{FALSE}.}
 }
 \value{
 A character vector with the numbers formatted as abbreviated
@@ -34,7 +45,7 @@ pretty_number(1234567)            # "1.23m"
 pretty_number(1234567890)         # "1.23b"
 
 # Adjusting decimal places
-pretty_number(1234, n_decimal = 1) # "1.2k"
+pretty_number(1234, digits = 1) # "1.2k"
 
 # Adding a prefix
 pretty_number(1234, prefix = "$")  # "$1.23k"

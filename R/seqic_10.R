@@ -94,6 +94,7 @@
 #' )
 #'
 #' # Run the function, this will fail
+#' # Only one of `iss` or `nfti` arguments can be passed, not both
 #' try(
 #'   traumar::seqic_indicator_10(
 #'   data = test_data,
@@ -143,212 +144,155 @@ seqic_indicator_10 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Ensure input is a data frame or tibble
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(c(
-      "{.var data} must be a data frame or tibble.",
-      "i" = "You provided an object of class {.cls {class(data)}}."
-    ))
-  }
-
-  # Validate the `level` column
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_10())
-      )
-    }
+  # Validate if `data` is a data frame or tibble. ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    type = "error"
   )
 
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(c(
-      "{.var level} must be character or factor.",
-      "i" = "Provided class: {.cls {class(level_check)}}."
-    ))
-  }
-
-  # Make the `unique_incident_id` column accessible for validation.
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_10())
-      )
-    }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ transfer_out_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_10())
-      )
-    }
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
   )
 
-  if (
-    !is.character(transfer_out_indicator_check) &&
-      !is.factor(transfer_out_indicator_check) &&
-      !is.logical(transfer_out_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var transfer_out_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var transfer_out_indicator} was an object of class {.cls {class(transfer_out_indicator_check)}}."
-      )
-    )
-  }
-
-  # Validate that `trauma_team_activation_level` is character, factor, or logical.
-  trauma_team_activation_level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ trauma_team_activation_level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var trauma_team_activation_level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_10())
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
   )
 
-  if (
-    !is.character(trauma_team_activation_level_check) &&
-      !is.factor(trauma_team_activation_level_check)
-  ) {
-    cli::cli_abort(c(
-      "{.var trauma_team_activation_level} must be character or factor.",
-      "i" = "Provided class: {.cls {class(trauma_team_activation_level_check)}}."
-    ))
-  }
+  # Validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "integer", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
 
-  # Validate that `iss` is numeric.
+  # Ensure that `transfer_out_indicator` can be validated  ----
+  transfer_out_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ transfer_out_indicator }},
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
+
+  # Validate `transfer_out_indicator` ----
+  validate_class(
+    input = transfer_out_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
+
+  # Ensure that `trauma_team_activation_level` can be validated ----
+  trauma_team_activation_level_check <- validate_data_pull(
+    input = data,
+    col = {{ trauma_team_activation_level }},
+    type = "error",
+    var_name = "trauma_team_activation_level"
+  )
+
+  # Validate that `trauma_team_activation_level` ----
+  validate_character_factor(
+    input = trauma_team_activation_level_check,
+    type = "error",
+    var_name = "trauma_team_activation_level"
+  )
+
+  # Validate that `iss` is numeric. ----
   if (!rlang::quo_is_null(rlang::enquo(iss))) {
-    iss_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ iss }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var iss}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_10())
-        )
-      }
+    # Ensure that `iss` can be validated ----
+    iss_check <- validate_data_pull(
+      input = data,
+      col = {{ iss }},
+      type = "error",
+      var_name = "iss"
     )
 
-    if (!is.numeric(iss_check)) {
-      cli::cli_abort(c(
-        "{.var iss} must be numeric when provided.",
-        "i" = "Provided class: {.cls {class(iss_check)}}."
-      ))
-    }
+    # Validation of `iss` ----
+    validate_numeric(
+      input = iss_check,
+      min = 0,
+      max = 75,
+      type = "error",
+      var_name = "iss"
+    )
   }
 
   # Validate that `nfti` is character, factor, or logical.
   if (!rlang::quo_is_null(rlang::enquo(nfti))) {
-    nfti_check <- tryCatch(
-      {
-        data |> dplyr::pull({{ nfti }})
-      },
-      error = function(e) {
-        cli::cli_abort(
-          "It was not possible to validate {.var nfti}, please check this column in the function call.",
-          call = rlang::expr(seqic_indicator_10())
-        )
-      }
+    # Ensure that `nfti` can be validated
+    nfti_check <- validate_data_pull(
+      input = data,
+      col = {{ nfti }},
+      type = "error",
+      var_name = "nfti"
     )
 
-    if (
-      !is.character(nfti_check) &&
-        !is.factor(nfti_check) &&
-        !is.logical(nfti_check)
-    ) {
-      cli::cli_abort(c(
-        "{.var nfti} must be character, factor, or logical when provided.",
-        "i" = "Provided class: {.cls {class(nfti_check)}}."
-      ))
-    }
+    # Validate `nfti`
+    validate_class(
+      input = nfti_check,
+      class_type = c("character", "factor", "logical"),
+      logic = "or",
+      type = "error",
+      var_name = "nfti"
+    )
   }
 
   # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
   # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "Invalid grouping variable(s): {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
 
-  # Validate confidence interval method
-  if (!is.null(calculate_ci)) {
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(c(
-        "If {.var calculate_ci} is not NULL, it must be {.val wilson} or {.val clopper-pearson}.",
-        "i" = "Provided value: {.val {calculate_ci}}"
-      ))
-    }
-    calculate_ci <- attempt
-  }
+  # Validate the `calculate_ci` argument ----
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE,
+    var_name = "calculate_ci"
+  )
 
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor", "integer"),
+    type = "error",
+    logic = "or"
+  )
+
   ###___________________________________________________________________________
-  ### Data preparation
+  ### Data preparation ----
   ###___________________________________________________________________________
 
-  # Preprocess the input dataset:
+  # Preprocess the input dataset: ----
   # - Remove duplicate incidents to avoid double-counting (based on unique
   # incident ID)
   # - Restrict analysis to Level I-IV trauma centers
@@ -369,7 +313,7 @@ seqic_indicator_10 <- function(
         ignore.case = TRUE
       ),
 
-      # Define low activation:
+      # Define low activation: ----
       # - Activation not recorded; assume no activation called
       # - Any level other than "Level 1"
       limited_no_activation = is.na({{ trauma_team_activation_level }}) |
@@ -380,7 +324,7 @@ seqic_indicator_10 <- function(
         )
     )
 
-  # Dynamically classify patients using either ISS or NFTI logic
+  # Dynamically classify patients using either ISS or NFTI logic ----
   if (
     !rlang::quo_is_null(rlang::enquo(iss)) &&
       rlang::quo_is_null(rlang::enquo(nfti))
@@ -418,7 +362,7 @@ seqic_indicator_10 <- function(
     )
   }
 
-  # Get an identifier of how the triage classification was performed
+  # Get an identifier of how the triage classification was performed ----
   # Determine triage logic source as a scalar
   triage_logic_source <- if (
     !rlang::quo_is_null(rlang::enquo(nfti)) &&
@@ -440,13 +384,13 @@ seqic_indicator_10 <- function(
   }
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Initiate the list for output
+  # Initiate the list for output ----
   seqic_10 <- list()
 
-  # --- Measure 10a: undertriage ---
+  # Measure 10a: undertriage ----
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all limited-to-no trauma team activation cases
   # Numerator: major_trauma AND limited_no_activation
@@ -467,7 +411,7 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     )
 
-  # --- Measure 10b: overtriage ---
+  # Measure 10b: overtriage ----
   # Patients who did NOT meet triage criteria (negative) but received highest
   # activation
   # Denominator: all full trauma team activations
@@ -487,7 +431,7 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     )
 
-  # --- Measure 10c: undertriage ---
+  # Measure 10c: undertriage ----
   # Patients who met triage criteria (positive) but received low activation
   # Denominator: all major trauma cases
   # Numerator: major_trauma AND limited_no_activation
@@ -510,7 +454,7 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     )
 
-  # --- Model Diagnostic Testing ---
+  # Model Diagnostic Testing ----
   # Cribari 2x2 matrix to produce model diagnostic tests
   # Based on methods in Peng & Xiang (2016)
 
@@ -548,60 +492,62 @@ seqic_indicator_10 <- function(
       .by = {{ groups }}
     ) |>
     dplyr::mutate(
-      # Total number of classified records
+      # Total number of classified records ----
       # N here is total records not missing classification information
       N = full_minor + full_major + limited_minor + limited_major,
 
-      # Sensitivity = b / (b + d)
+      # Sensitivity = b / (b + d) ----
       sensitivity = dplyr::if_else(
         (full_major + limited_major) > 0,
         full_major / (full_major + limited_major),
         NA_real_
       ),
 
-      # Specificity = c / (a + c)
+      # Specificity = c / (a + c) ----
       specificity = dplyr::if_else(
         (full_minor + limited_minor) > 0,
         limited_minor / (full_minor + limited_minor),
         NA_real_
       ),
 
-      # Positive Predictive Value (PPV) = b / (a + b)
+      # Positive Predictive Value (PPV) = b / (a + b) <-
       positive_predictive_value = dplyr::if_else(
         (full_minor + full_major) > 0,
         full_major / (full_minor + full_major),
         NA_real_
       ),
 
-      # Negative Predictive Value (NPV) = c / (c + d)
+      # Negative Predictive Value (NPV) = c / (c + d) ----
       negative_predictive_value = dplyr::if_else(
         (limited_minor + limited_major) > 0,
         limited_minor / (limited_minor + limited_major),
         NA_real_
       ),
 
-      # False Negative Rate (FNR) = d / (b + d); 1 - Sensitivity
+      # False Negative Rate (FNR) = d / (b + d); 1 - Sensitivity ----
       false_negative_rate = dplyr::if_else(
         (full_major + limited_major) > 0,
         limited_major / (full_major + limited_major),
         NA_real_
       ),
 
-      # False Positive Rate (FPR) = a / (a + c); 1 - Specificity
+      # False Positive Rate (FPR) = a / (a + c); 1 - Specificity ----
       false_positive_rate = dplyr::if_else(
         (full_minor + limited_minor) > 0,
         full_minor / (full_minor + limited_minor),
         NA_real_
       ),
 
-      # False Discovery Rate (FDR) = a / (a + b); 1 - Positive Predictive Value
+      # False Discovery Rate (FDR) = a / (a + b); ----
+      # 1 - Positive Predictive Value
       false_discovery_rate = dplyr::if_else(
         (full_minor + full_major) > 0,
         full_minor / (full_minor + full_major),
         NA_real_
       ),
 
-      # False Omission Rate (FOR) = d / (c + d); 1 - Negative Predictive Value
+      # False Omission Rate (FOR) = d / (c + d); ----
+      # 1 - Negative Predictive Value
       false_omission_rate = dplyr::if_else(
         (limited_minor + limited_major) > 0,
         limited_major / (limited_minor + limited_major),
@@ -609,11 +555,11 @@ seqic_indicator_10 <- function(
       )
     )
 
-  # Optionally compute confidence intervals
+  # Optionally compute confidence intervals ----
   if (!is.null(calculate_ci)) {
     # Apply 95% confidence interval function
 
-    # 10a CIs
+    # 10a CIs ----
     seqic_10a <- seqic_10a |>
       dplyr::bind_cols(
         nemsqar::nemsqa_binomial_confint(
@@ -627,7 +573,7 @@ seqic_indicator_10 <- function(
           dplyr::rename(lower_ci_10a = lower_ci, upper_ci_10a = upper_ci)
       )
 
-    # 10b CIs
+    # 10b CIs ----
     seqic_10b <- seqic_10b |>
       dplyr::bind_cols(
         nemsqar::nemsqa_binomial_confint(
@@ -641,7 +587,7 @@ seqic_indicator_10 <- function(
           dplyr::rename(lower_ci_10b = lower_ci, upper_ci_10b = upper_ci)
       )
 
-    # 10c CIs
+    # 10c CIs ----
     seqic_10c <- seqic_10c |>
       dplyr::bind_cols(
         nemsqar::nemsqa_binomial_confint(
@@ -656,7 +602,7 @@ seqic_indicator_10 <- function(
       )
   }
 
-  # Add label if ungrouped
+  # Add label if ungrouped ----
   if (is.null(groups)) {
     seqic_10$seqic_10 <-
       tibble::tibble(
@@ -671,7 +617,7 @@ seqic_indicator_10 <- function(
     ) |>
       dplyr::bind_cols(diagnostics)
   } else {
-    # Arrange by grouping variables
+    # Arrange by grouping variables ----
     seqic_10$seqic_10 <- tibble::tibble(
       triage_logic = triage_logic_source
     ) |>
@@ -693,6 +639,6 @@ seqic_indicator_10 <- function(
       dplyr::arrange(!!!rlang::syms(groups))
   }
 
-  # Return both measures as a tibble
+  # Return measures in a tibble ----
   return(seqic_10)
 }

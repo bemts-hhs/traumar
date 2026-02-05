@@ -156,7 +156,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "level.*must be character or factor"
+    "level.*must be of class.*character.*factor"
   )
 
   bad_id <- data |> dplyr::mutate(id = rep(TRUE, 6))
@@ -170,7 +170,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "unique_incident_id.*must be of class.*character.*numeric.*factor"
+    "unique_incident_id.*must be of class.*numeric, integer, character, factor"
   )
 
   bad_transfer_indicator <- data |>
@@ -185,7 +185,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "transfer_out_indicator.*must be of class.*character.*factor.*logical"
+    "transfer_out_indicator.*must be of class.*logical.*character.*factor"
   )
 
   bad_receiving_indicator <- data |>
@@ -200,7 +200,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "receiving_indicator.*must be of class.*character.*factor.*logical"
+    "receiving_indicator.*must be of class.*logical, character, factor"
   )
 
   bad_los <- data |>
@@ -215,7 +215,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "ed_LOS.*must be of class.*numeric"
+    "ed_LOS.*must be.*numeric"
   )
 
   testthat::expect_error(
@@ -229,7 +229,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       ed_LOS = ed_LOS,
       groups = 1
     ),
-    "You passed an object of class.*numeric"
+    "groups.*must be of class.*character.*factor"
   )
 
   testthat::expect_error(
@@ -243,7 +243,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       ed_LOS = ed_LOS,
       groups = "group"
     ),
-    "Invalid grouping variable\\(s\\)"
+    "groups.*contains invalid column names.*group.*Valid column names are.*id, trauma_level, transferred_out, received, iss, ed_LOS, region"
   )
 
   testthat::expect_error(
@@ -257,7 +257,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       ed_LOS = ed_LOS,
       calculate_ci = "z"
     ),
-    "is not NULL, it must be"
+    "calculate_ci.*contains invalid values.*z.*Valid values are.*wilson, clopper-pearson"
   )
 
   testthat::expect_error(
@@ -271,7 +271,7 @@ testthat::test_that("seqic_indicator_11 correctly validates columns", {
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "must be of class.*character.*factor.*numeric"
+    "included_levels.*must be of class.*numeric, character, factor, integer"
   )
 })
 
@@ -321,7 +321,7 @@ testthat::test_that("seqic_indicator_11 fails with both invalid and missing argu
       iss = iss,
       ed_LOS = ed_LOS
     ),
-    "must be numeric"
+    "iss.*must be.*numeric"
   )
 })
 

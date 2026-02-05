@@ -99,217 +99,150 @@ seqic_indicator_6 <- function(
   ...
 ) {
   ###___________________________________________________________________________
-  ### Data validation
+  ### Data validation ----
   ###___________________________________________________________________________
 
-  # Validate that `data` is a data frame or tibble.
-  if (!is.data.frame(data) && !tibble::is_tibble(data)) {
-    cli::cli_abort(
-      c(
-        "{.var data} must be of class {.cls data.frame} or {.cls tibble}.",
-        "i" = "{.var data} was an object of class {.cls {class(data)}}."
-      )
-    )
-  }
-
-  # make the `level` column accessible for validation
-  level_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ level }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var level}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
-  )
-  if (!is.character(level_check) && !is.factor(level_check)) {
-    cli::cli_abort(
-      c(
-        "{.var level} must be of class {.cls character} or {.cls factor}.",
-        "i" = "{.var level} was an object of class {.cls {class(level_check)}}."
-      )
-    )
-  }
-
-  # make the `unique_incident_id` column accessible for validation
-  unique_incident_id_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ unique_incident_id }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var unique_incident_id}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
+  # Validate if `data` is a data frame or tibble. ----
+  validate_data_structure(
+    input = data,
+    structure_type = c("data.frame", "tbl", "tbl_df"),
+    type = "error"
   )
 
-  # Validate `unique_incident_id` to ensure it's either character or factor.
-  if (
-    !is.character(unique_incident_id_check) &&
-      !is.factor(unique_incident_id_check) &&
-      !is.numeric(unique_incident_id_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var unique_incident_id} must be of class {.cls character}, {.cls numeric}, or {.cls factor}.",
-        "i" = "{.var unique_incident_id} was an object of class {.cls {class(unique_incident_id_check)}}."
-      )
-    )
-  }
-
-  # Validate that `transfer_out_indicator` is character, factor, or logical.
-  transfer_out_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ transfer_out_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var transfer_out_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
+  # make the `level` column accessible for validation ----
+  level_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ level }},
+    var_name = "level"
   )
-  if (
-    !is.character(transfer_out_indicator_check) &&
-      !is.factor(transfer_out_indicator_check) &&
-      !is.logical(transfer_out_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var transfer_out_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var transfer_out_indicator} was an object of class {.cls {class(transfer_out_indicator_check)}}."
-      )
-    )
-  }
 
-  # Validate that `receiving_indicator` is character, factor, or logical.
-  receiving_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ receiving_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var receiving_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
+  # validate `level` ----
+  validate_character_factor(
+    input = level_check,
+    type = "error",
+    var_name = "level"
   )
-  if (
-    !is.character(receiving_indicator_check) &&
-      !is.factor(receiving_indicator_check) &&
-      !is.logical(receiving_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var receiving_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var receiving_indicator} was an object of class {.cls {class(receiving_indicator_check)}}."
-      )
-    )
-  }
 
-  # Validate that `low_GCS_indicator` is character, factor, or logical.
-  low_GCS_indicator_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ low_GCS_indicator }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var low_GCS_indicator}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
+  # make the `unique_incident_id` column accessible for validation ----
+  unique_incident_id_check <- validate_data_pull(
+    input = data,
+    type = "error",
+    col = {{ unique_incident_id }},
+    var_name = "unique_incident_id"
   )
-  if (
-    !is.character(low_GCS_indicator_check) &&
-      !is.factor(low_GCS_indicator_check) &&
-      !is.logical(low_GCS_indicator_check)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var low_GCS_indicator} must be of class {.cls character}, {.cls factor}, or {.cls logical}.",
-        "i" = "{.var low_GCS_indicator} was an object of class {.cls {class(low_GCS_indicator_check)}}."
-      )
-    )
-  }
+
+  # Validate `unique_incident_id` ----
+  validate_class(
+    input = unique_incident_id_check,
+    class_type = c("numeric", "integer", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "unique_incident_id"
+  )
+
+  # Ensure that `transfer_out_indicator` can be validated  ----
+  transfer_out_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ transfer_out_indicator }},
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
+
+  # Validate `transfer_out_indicator` ----
+  validate_class(
+    input = transfer_out_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "transfer_out_indicator"
+  )
+
+  # Ensure that `receiving_indicator` can be validated
+  receiving_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ receiving_indicator }},
+    type = "error",
+    var_name = "receiving_indicator"
+  )
+
+  # Validate that `receiving_indicator` is character, factor, or logical. ----
+  validate_class(
+    input = receiving_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "receiving_indicator"
+  )
+
+  # Ensure that `low_GCS_indicator` can be validated ----
+  low_GCS_indicator_check <- validate_data_pull(
+    input = data,
+    col = {{ low_GCS_indicator }},
+    type = "error",
+    var_name = "low_GCS_indicator"
+  )
+
+  # Validate that `low_GCS_indicator` is character, factor, or logical ----
+  validate_class(
+    input = low_GCS_indicator_check,
+    class_type = c("logical", "character", "factor"),
+    logic = "or",
+    type = "error",
+    var_name = "low_GCS_indicator"
+  )
+
+  # Ensure that `time_from_injury_to_arrival` can be validated
+  time_from_injury_to_arrival_check <- validate_data_pull(
+    input = data,
+    col = {{ time_from_injury_to_arrival }},
+    type = "error",
+    var_name = "time_from_injury_to_arrival"
+  )
 
   # Validate that `time_from_injury_to_arrival` is numeric.
-  time_from_injury_to_arrival_check <- tryCatch(
-    {
-      data |> dplyr::pull({{ time_from_injury_to_arrival }})
-    },
-    error = function(e) {
-      cli::cli_abort(
-        "It was not possible to validate {.var time_from_injury_to_arrival}, please check this column in the function call.",
-        call = rlang::expr(seqic_indicator_6())
-      )
-    }
+  validate_numeric(
+    input = time_from_injury_to_arrival_check,
+    type = "error",
+    var_name = "time_from_injury_to_arrival"
   )
-  if (!is.numeric(time_from_injury_to_arrival_check)) {
-    cli::cli_abort(
-      c(
-        "{.var time_from_injury_to_arrival} must be of class {.cls numeric}.",
-        "i" = "{.var time_from_injury_to_arrival} was an object of class {.cls {class(time_from_injury_to_arrival_check)}}."
-      )
-    )
-  }
 
-  # Check if all elements in groups are strings (i.e., character vectors)
-  if (!is.null(groups)) {
-    if (!is.character(groups)) {
-      cli::cli_abort(c(
-        "All elements in {.var groups} must be strings.",
-        "i" = "You passed an object of class {.cls {class(groups)}} to {.var groups}."
-      ))
-    }
-  }
+  # Check if all elements in groups are strings (i.e., character vectors) ----
+  validate_character_factor(input = groups, type = "error", null_ok = TRUE)
 
-  # Check if all groups exist in the `data`
-  if (!all(groups %in% names(data))) {
-    invalid_vars <- groups[!groups %in% names(data)]
-    cli::cli_abort(
-      "The following group variable(s) are not valid columns in {.var data}: {paste(invalid_vars, collapse = ', ')}"
-    )
-  }
+  # Check if all `groups` exist in the `data`.
+  validate_names(
+    input = data,
+    check_names = groups,
+    type = "error",
+    var_name = "groups",
+    null_ok = TRUE
+  )
 
-  # Validate `calculate_ci` argument: must be NULL or "wilson" or "clopper-pearson".
-  if (!is.null(calculate_ci)) {
-    attempt <- try(
-      match.arg(calculate_ci, choices = c("wilson", "clopper-pearson")),
-      silent = TRUE
-    )
-    if (inherits(attempt, "try-error")) {
-      cli::cli_abort(
-        c(
-          "If {.var calculate_ci} is not {cli::col_blue('NULL')}, it must be {.val wilson} or {.val clopper-pearson}.",
-          "i" = "{.var calculate_ci} was {.val {calculate_ci}}."
-        )
-      )
-    }
-    calculate_ci <- attempt
-  }
+  # Validate the `calculate_ci` argument ----
+  calculate_ci <- validate_choice(
+    input = calculate_ci,
+    choices = c("wilson", "clopper-pearson"),
+    several.ok = FALSE,
+    type = "error",
+    null_ok = TRUE,
+    var_name = "calculate_ci"
+  )
 
-  # Validate the `included_levels` argument
-  if (
-    !is.character(included_levels) &&
-      !is.numeric(included_levels) &&
-      !is.factor(included_levels)
-  ) {
-    cli::cli_abort(
-      c(
-        "{.var included_levels} must be of class {.cls character}, {.cls factor}, or {.cls numeric}.",
-        "i" = "{.var included_levels} was an object of class {.cls {class(included_levels)}}."
-      )
-    )
-  }
+  # Validate the `included_levels` argument ----
+  validate_class(
+    input = included_levels,
+    class_type = c("numeric", "character", "factor", "integer"),
+    type = "error",
+    logic = "or"
+  )
 
   ###___________________________________________________________________________
-  ### Calculations
+  ### Calculations ----
   ###___________________________________________________________________________
 
-  # Filter for trauma levels I-IV, deduplicate by `unique_incident_id`, then summarize.
+  # Filter for trauma levels I-IV, deduplicate by `unique_incident_id` ----
+  # then summarize.
   seqic_6 <- data |>
     dplyr::filter({{ level }} %in% included_levels) |>
     dplyr::distinct({{ unique_incident_id }}, .keep_all = TRUE) |>
@@ -335,7 +268,7 @@ seqic_indicator_6 <- function(
       .by = {{ groups }} # Grouping if applicable
     )
 
-  # Optional: Add binomial confidence intervals if requested.
+  # Optional: Add binomial confidence intervals if requested. ----
   if (!is.null(calculate_ci)) {
     seqic_6 <- seqic_6 |>
       dplyr::bind_cols(
@@ -351,7 +284,8 @@ seqic_indicator_6 <- function(
       )
   }
 
-  # Add a `Data` label if not grouped, or arrange output by grouping variables.
+  # Add a `Data` label if not grouped ----
+  # or arrange output by grouping variables.
   if (is.null(groups)) {
     seqic_6 <- seqic_6 |>
       tibble::add_column(data = "population/sample", .before = "numerator_6")
@@ -360,6 +294,6 @@ seqic_indicator_6 <- function(
       dplyr::arrange(!!!rlang::syms(groups)) # Order rows based on group vars.
   }
 
-  # Return the final summarized dataset.
+  # Return the final summarized dataset. ----
   return(seqic_6)
 }
