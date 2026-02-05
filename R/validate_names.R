@@ -105,17 +105,23 @@ validate_names <- function(
   # Check to ensure the invalid_values are not empty
   if (length(invalid_values) > 0) {
     if (length(valid_set) <= 10) {
+      # Clip invalid_values down to a length of <= 10
+      invalid_values <- head(invalid_values, n = 10)
+
       # Call the validate_error_type function to handle the message display
       # For small valid_set
       validate_error_type(
         input = input_name,
         message = glue::glue(
-          "contains invalid column names: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
+          "contains invalid column names such as {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}."
         ),
         type = type,
         calls = calls
       )
     } else {
+      # Clip invalid_values down to a length of <= 10
+      invalid_values <- head(invalid_values, n = 10)
+
       # Call the validate_error_type function to handle the message display
       # For large valid_set
 
@@ -126,7 +132,7 @@ validate_names <- function(
       validate_error_type(
         input = input_name,
         message = glue::glue(
-          "contains invalid column names: {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ',...', ')'))}"
+          "contains invalid column names such as {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid column names are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ',...', ')'))}."
         ),
         type = type,
         calls = calls

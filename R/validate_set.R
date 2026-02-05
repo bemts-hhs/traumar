@@ -85,27 +85,16 @@ validate_set <- function(
 
   # Check to ensure the invalid_values are not empty
   if (length(invalid_values) > 0) {
-    # Protect from printing very long output
-    invalid_values <- ifelse(
-      length(invalid_values) > 10,
-      head(invalid_values, n = 10),
-      invalid_values
-    )
-
-    # dynamic message for invalid_values
-    invalid_message <- ifelse(
-      length(invalid_values) > 10,
-      "contains invalid values, such as:",
-      "contains invalid values:"
-    )
-
     if (length(valid_set) <= 10) {
+      # Clip invalid_values down to a length of <= 10
+      invalid_values <- head(invalid_values, n = 10)
+
       # Call the validate_error_type function to handle the message display
       # For small valid_set
       validate_error_type(
         input = input_name,
         message = glue::glue(
-          "{invalid_message} {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}"
+          " contains invalid values such as {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), ')'))}."
         ),
         type = type,
         calls = calls
@@ -117,11 +106,14 @@ validate_set <- function(
       # Clip valid_set down to a length of <= 10
       valid_set <- head(valid_set, n = 10)
 
+      # Clip invalid_values down to a length of <= 10
+      invalid_values <- head(invalid_values, n = 10)
+
       # Modified messaging
       validate_error_type(
         input = input_name,
         message = glue::glue(
-          "{invalid_message} {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), '...', ')'))}"
+          " contains invalid values such as {cli::col_grey(paste0('(', paste0(invalid_values, collapse = ', '), ')'))}. Some examples of valid values are: {cli::col_blue(paste0('(', paste0(valid_set, collapse = ', '), '...', ')'))}."
         ),
         type = type,
         calls = calls

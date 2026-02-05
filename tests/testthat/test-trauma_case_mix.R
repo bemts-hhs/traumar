@@ -23,7 +23,7 @@ testthat::test_that("Ps values > 1 cause an error", {
 
   testthat::expect_error(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = death),
-    regexp = "values must be between 0 and 1"
+    regexp = "Ps_col.*values must be contained within range.*0, 1.*Range of this input was.*4, 99"
   )
 })
 
@@ -37,7 +37,7 @@ testthat::test_that("Invalid binary outcome column throws error", {
 
   testthat::expect_error(
     trauma_case_mix(data, Ps_col = Ps, outcome_col = survival),
-    regexp = "contains numeric values other than 0 and 1"
+    regexp = "outcome_col: contains invalid values such as.*Valid values are.*0, 1"
   )
 })
 
