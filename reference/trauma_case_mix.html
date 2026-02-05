@@ -15,7 +15,7 @@ used in these calculations, please see Flora (1978) and Boyd et al. (1987)."><me
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -170,20 +170,16 @@ feature.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare the current case mix with the MTOS case mix</span></span></span>
 <span class="r-in"><span><span class="fu">trauma_case_mix</span><span class="op">(</span><span class="va">data</span>, Ps_col <span class="op">=</span> <span class="va">Ps</span>, outcome_col <span class="op">=</span> <span class="va">death</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Ps_range current_fraction MTOS_distribution survivals predicted_survivals</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00 - 0.25           0.5414             0.010      2534            187.9191</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.26 - 0.50           0.1432             0.043       468            269.5871</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.51 - 0.75           0.1278             0.000       217            405.8877</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.76 - 0.90           0.0870             0.052        58            366.1312</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.91 - 0.95           0.0508             0.053        18            237.6390</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.96 - 1.00           0.0498             0.842         4            243.4833</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   deaths predicted_deaths count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    173      2519.080869  2707</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    248       446.412896   716</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    422       233.112251   639</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    377        68.868790   435</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    236        16.361033   254</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    245         5.516716   249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Ps_range    current_fraction MTOS_distribution survivals predicted_survivals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 0.00 - 0.25           0.541              0.01       <span style="text-decoration: underline;">2</span>534                188.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 0.26 - 0.50           0.143              0.043       468                270.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 0.51 - 0.75           0.128              0           217                406.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 0.76 - 0.90           0.087              0.052        58                366.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 0.91 - 0.95           0.050<span style="text-decoration: underline;">8</span>             0.053        18                238.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 0.96 - 1.00           0.049<span style="text-decoration: underline;">8</span>             0.842         4                243.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 3 more variables: deaths &lt;int&gt;, predicted_deaths &lt;dbl&gt;, count &lt;int&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

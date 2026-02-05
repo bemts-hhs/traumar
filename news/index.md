@@ -1,6 +1,58 @@
 # Changelog
 
-## traumar (development version)
+## traumar 1.2.4
+
+- Added the functions to perform all data validation. These functions
+  take the form of `validate_*()`, such as
+  [`validate_character_factor()`](https://bemts-hhs.github.io/traumar/reference/validate_character_factor.md).
+  After exploring options from other packages to lean on existing
+  methods to validate data via functional programming, the decision was
+  made to create functions “in-house” to avoid issues with adding
+  another dependency. The `validate_*()` family of functions is not
+  exported from `traumar`.
+
+- Updated unit tests throughout the package given the addition of new
+  data validation methodology.
+
+- Ensured that plenty of comments are provided throughout the functions
+  in the package to enhance understanding of the code and collaboration.
+
+- [`pretty_number()`](https://bemts-hhs.github.io/traumar/reference/pretty_number.md)
+  now uses a `digits` argument instead of `n_decimal`. `n_decimal` has
+  been deprecated and will now issue a warning, but the function will
+  still work using the `n_decimal` argument. In a later release,
+  `n_decimal` will be fully deprecated.
+
+- [`rmm()`](https://bemts-hhs.github.io/traumar/reference/rmm.md) and
+  [`rm_bin_summary()`](https://bemts-hhs.github.io/traumar/reference/rm_bin_summary.md)
+  will now fail if the `seed` argument is not of class numeric or
+  integer.
+
+- Added section headers throughout the code base to make navigation
+  within most modern IDEs easier.
+
+- Error/warning messages will now directly name the function in the call
+  stack that is most helpful. For example, if some data validation
+  triggers an error within `traumar::seqic_indicator1()`, then
+  `traumar::seqic_indicator1()` will show up in the error message,
+  instead of some other function such as a `cli` function or one of the
+  new `validate_*()` functions.
+
+- Improved
+  [`small_count_label()`](https://bemts-hhs.github.io/traumar/reference/small_count_label.md)
+  code readability in the control flow chunk where values less than the
+  cutoff are manipulated depending on user input.
+
+- [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
+  now acts as a wrapper for
+  [`trauma_case_mix()`](https://bemts-hhs.github.io/traumar/reference/trauma_case_mix.md)
+  as
+  [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
+  now calls
+  [`trauma_case_mix()`](https://bemts-hhs.github.io/traumar/reference/trauma_case_mix.md)
+  under the hood instead of explicitly performing the same operations.
+  This makes the functionality more maintainable for any future
+  iterations.
 
 ## traumar 1.2.3
 

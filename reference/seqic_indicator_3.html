@@ -15,7 +15,7 @@ proportion of incidents with a valid probability of survival value."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -157,7 +157,8 @@ identifiers or timestamps.</p>
 <span class="r-in"><span><span class="co"># Create a synthetic test dataset</span></span></span>
 <span class="r-in"><span><span class="va">test_data</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  unique_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  trauma_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span>, <span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span>, <span class="st">"I"</span>, <span class="st">"II"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  trauma_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span>, <span class="st">"I"</span>, <span class="st">"II"</span>, <span class="st">"III"</span>, <span class="st">"IV"</span>, <span class="st">"I"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"II"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  trauma_category <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Blunt"</span>, <span class="st">"Penetrating"</span>, <span class="st">"Burn"</span>, <span class="st">"Blunt"</span>, <span class="st">"Penetrating"</span>,</span></span>
 <span class="r-in"><span>                      <span class="st">"Burn"</span>, <span class="st">"Blunt"</span>, <span class="st">"Penetrating"</span>, <span class="st">"Blunt"</span>, <span class="st">"Blunt"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  survival_prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.89</span>, <span class="cn">NA</span>, <span class="fl">0.76</span>, <span class="cn">NA</span>, <span class="fl">0.92</span>, <span class="fl">0.88</span>, <span class="cn">NA</span>, <span class="fl">0.97</span>, <span class="fl">0.91</span><span class="op">)</span></span></span>

@@ -8,7 +8,13 @@ range.
 ## Usage
 
 ``` r
-pretty_number(x, n_decimal = 2, prefix = NULL, truncate = FALSE)
+pretty_number(
+  x,
+  digits = 2,
+  n_decimal = deprecated(),
+  prefix = NULL,
+  truncate = FALSE
+)
 ```
 
 ## Arguments
@@ -17,10 +23,13 @@ pretty_number(x, n_decimal = 2, prefix = NULL, truncate = FALSE)
 
   A numeric value or vector to be converted into a readable format.
 
+- digits:
+
+  Number of decimal places to display. Defaults to 2.
+
 - n_decimal:
 
-  An integer specifying the number of decimal places to include in the
-  output. Defaults to `2`.
+  **\[deprecated\]** Use `digits` instead.
 
 - prefix:
 
@@ -30,7 +39,13 @@ pretty_number(x, n_decimal = 2, prefix = NULL, truncate = FALSE)
 - truncate:
 
   A logical value indicating whether to truncate the numbers before
-  formatting. Defaults to `FALSE`.
+  formatting. When `TRUE`, the function uses
+  [`base::signif()`](https://rdrr.io/r/base/Round.html) to truncate the
+  numbers to the specified number of significant digits, making the
+  output more concise. When `FALSE`, the function uses
+  [`base::round()`](https://rdrr.io/r/base/Round.html) to round the
+  numbers to the specified number of decimal places, preserving the
+  original scale of the number. Defaults to `FALSE`.
 
 ## Value
 
@@ -53,7 +68,7 @@ pretty_number(1234567890)         # "1.23b"
 #> [1] "1.23b"
 
 # Adjusting decimal places
-pretty_number(1234, n_decimal = 1) # "1.2k"
+pretty_number(1234, digits = 1) # "1.2k"
 #> [1] "1.2k"
 
 # Adding a prefix

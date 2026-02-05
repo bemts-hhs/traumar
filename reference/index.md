@@ -73,5 +73,27 @@
 - [`trauma_performance()`](https://bemts-hhs.github.io/traumar/reference/trauma_performance.md)
   : Calculate Trauma Hospital Performance Based on Robust and Validated
   Measures
+- [`validate_character_factor()`](https://bemts-hhs.github.io/traumar/reference/validate_character_factor.md)
+  : Validate a Character or Factor Input
+- [`validate_choice()`](https://bemts-hhs.github.io/traumar/reference/validate_choice.md)
+  : Validate Choice
+- [`validate_class()`](https://bemts-hhs.github.io/traumar/reference/validate_class.md)
+  : Validate Class
+- [`validate_complete()`](https://bemts-hhs.github.io/traumar/reference/validate_complete.md)
+  : Validate Complete Input
+- [`validate_data_pull()`](https://bemts-hhs.github.io/traumar/reference/validate_data_pull.md)
+  : Validate Data Extraction
+- [`validate_data_structure()`](https://bemts-hhs.github.io/traumar/reference/validate_data_structure.md)
+  : Validate Data Structure
+- [`validate_error_type()`](https://bemts-hhs.github.io/traumar/reference/validate_error_type.md)
+  : Validate Error Type
+- [`validate_length()`](https://bemts-hhs.github.io/traumar/reference/validate_length.md)
+  : Validate Length of an Input
+- [`validate_names()`](https://bemts-hhs.github.io/traumar/reference/validate_names.md)
+  : Validate Column Names
+- [`validate_numeric()`](https://bemts-hhs.github.io/traumar/reference/validate_numeric.md)
+  : Validate Numeric Input
+- [`validate_set()`](https://bemts-hhs.github.io/traumar/reference/validate_set.md)
+  : Validate Set Equality
 - [`weekend()`](https://bemts-hhs.github.io/traumar/reference/weekend.md)
   : Classify Dates as Weekday or Weekend

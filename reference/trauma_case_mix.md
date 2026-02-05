@@ -139,18 +139,14 @@ data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
-#>      Ps_range current_fraction MTOS_distribution survivals predicted_survivals
-#> 1 0.00 - 0.25           0.5414             0.010      2534            187.9191
-#> 2 0.26 - 0.50           0.1432             0.043       468            269.5871
-#> 3 0.51 - 0.75           0.1278             0.000       217            405.8877
-#> 4 0.76 - 0.90           0.0870             0.052        58            366.1312
-#> 5 0.91 - 0.95           0.0508             0.053        18            237.6390
-#> 6 0.96 - 1.00           0.0498             0.842         4            243.4833
-#>   deaths predicted_deaths count
-#> 1    173      2519.080869  2707
-#> 2    248       446.412896   716
-#> 3    422       233.112251   639
-#> 4    377        68.868790   435
-#> 5    236        16.361033   254
-#> 6    245         5.516716   249
+#> # A tibble: 6 × 8
+#>   Ps_range    current_fraction MTOS_distribution survivals predicted_survivals
+#>   <chr>                  <dbl>             <dbl>     <int>               <dbl>
+#> 1 0.00 - 0.25           0.541              0.01       2534                188.
+#> 2 0.26 - 0.50           0.143              0.043       468                270.
+#> 3 0.51 - 0.75           0.128              0           217                406.
+#> 4 0.76 - 0.90           0.087              0.052        58                366.
+#> 5 0.91 - 0.95           0.0508             0.053        18                238.
+#> 6 0.96 - 1.00           0.0498             0.842         4                243.
+#> # ℹ 3 more variables: deaths <int>, predicted_deaths <dbl>, count <int>
 ```

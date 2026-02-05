@@ -48,6 +48,5 @@ normalize(data, method = "z_score")
 
 # Default behavior (min-max normalization)
 normalize(data)
-#> ℹ As no method was supplied, `normalize()` will default to min-max normalization methods.
 #> [1] 0.00 0.25 0.50 0.75 1.00   NA
 ```
