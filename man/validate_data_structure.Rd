@@ -50,25 +50,6 @@ Depending on the specified type, it will either throw an error, issue a
 warning, or send a message. It also checks for NULL and NA values based on
 the specified parameters.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  a = 1:5,
-  b = 1:10,
-  c = 1:15
-)
-
-# Validate the data structure
-validate_data_structure(
-  data,
-  structure_type = c("data.frame", "tbl", "tbl_df"),
-  logic = "or",
-  type = "warning",
-  na_ok = FALSE,
-  null_ok = FALSE
-)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

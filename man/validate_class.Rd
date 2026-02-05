@@ -54,43 +54,6 @@ Depending on the specified type, it will either throw an error, issue a
 warning, or send a message. It also checks for NULL and NA values based on
 the specified parameters.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  a = 1:5,
-  b = 1:10,
-  c = 1:15
-)
-
-# Validate the class of the data frame columns
-validate_class(
-  data$a,
-  class_type = c("numeric"),
-  type = "warning",
-  na_ok = FALSE,
-  null_ok = FALSE,
-  finite = TRUE
-)
-
-validate_class(
-  data$b,
-  class_type = c("integer"),
-  type = "error",
-  na_ok = TRUE,
-  null_ok = TRUE,
-  finite = FALSE
-)
-
-validate_class(
-  data$c,
-  class_type = c("factor"),
-  type = "message",
-  na_ok = TRUE,
-  null_ok = TRUE,
-  finite = FALSE
-)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

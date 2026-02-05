@@ -53,17 +53,6 @@ against the allowed choices. Please see the documentation for
 \code{\link[base]{match.arg}} for more details about how matching is
 performed.
 }
-\examples{
-# Validate the calculate_ci input
-validate_choice(
-  input = "wilson",
-  choices = c("wilson", "clopper-pearson"),
-  several.ok = FALSE,
-  type = "error",
-  var_name = "calculate_ci"
-)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

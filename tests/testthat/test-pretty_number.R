@@ -6,7 +6,7 @@ test_that("pretty_number handles basic formatting", {
 
 test_that("pretty_number respects the digits argument", {
   # set up options
-  withr::local_options(lifecycle_verbosity = "warning")
+  options(lifecycle_verbosity = "warning")
 
   # tests
   expect_equal(pretty_number(1234, digits = 1), "1.2k")
@@ -79,7 +79,7 @@ test_that("pretty_number handles edge cases for large and small numbers", {
 })
 
 test_that("n_decimal and digits give identical results", {
-  withr::local_options(lifecycle_verbosity = "quiet")
+  options(lifecycle_verbosity = "quiet")
 
   expect_equal(
     pretty_number(1234567, n_decimal = 1),
@@ -88,7 +88,7 @@ test_that("n_decimal and digits give identical results", {
 })
 
 test_that("pretty_number() n_decimal is lifecycle-deprecated", {
-  withr::local_options(lifecycle_verbosity = "error")
+  options(lifecycle_verbosity = "error")
 
   expect_error(
     pretty_number(1234, n_decimal = 1),

@@ -43,39 +43,6 @@ and evaluate the column name within the custom function. However, when
 calling this function directly on a data frame, tidy evaluation is not
 required.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-  Patient_Age_Years = c(30, 60, 45, 50),
-  RTS = c(7.84, 6.90, 7.00, 6.50),
-  ISS = c(10, 25, 15, 20)
-)
-
-# Validate and extract the Trauma_Type column
-validate_data_pull(
-  data,
-  Trauma_Type,
-  var_name = "Trauma_Type",
-  calls = 5
-)
-
-# Example of using validate_data_pull() within a custom function
-custom_function <- function(df, col) {
-  # Validate and extract the column using tidy evaluation
-extracted_col <- validate_data_pull(
-  input = df,
-  col = {{ col }},
-  var_name = deparse(substitute(col)),
-  calls = 3
-)
-  return(extracted_col)
-}
-
-# Call the custom function with the Trauma_Type column
-custom_function(df = data, col = Trauma_Type)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

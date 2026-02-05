@@ -16,6 +16,5 @@
 #' @importFrom utils head
 #' @importFrom utils tail
 #' @importFrom nemsqar nemsqa_binomial_confint
-#' @importFrom withr local_options
 ## usethis namespace: end
 NULL

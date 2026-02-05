@@ -37,21 +37,6 @@ on the specified type, it will either throw an error, issue a warning, or
 send a message. It also checks for NULL values based on the specified
 parameters.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  a = c(1, 2, NA, 4, 5),
-  b = c(1, NA, 3, 4, 5),
-  c = c(1, 2, 3, 4, 5)
-)
-
-# Validate the data frame
-validate_complete(data, type = "warning", null_ok = FALSE)
-
-# Validate a vector with missing values
-validate_complete(c(1, 2, NA, 4, 5), type = "error", null_ok = TRUE)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

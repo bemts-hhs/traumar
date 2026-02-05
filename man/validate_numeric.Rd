@@ -50,26 +50,6 @@ values are within a specified range. Depending on the specified type, it will
 either throw an error, issue a warning, or send a message. Additional
 arguments allow  for checking NA values, NULL values, and finite values.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-  Patient_Age_Years = c(30, 60, 45, 50),
-  RTS = c(7.84, 6.90, 7.00, 6.50),
-  ISS = c(10, 25, 15, 20)
-)
-
-# Validate the Patient_Age_Years column
-validate_numeric(data$Patient_Age_Years,
-min = 0,
-max = 100,
-na_ok = TRUE,
-null_ok = FALSE,
-finite = FALSE,
-type = "warning"
-)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }

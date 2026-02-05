@@ -44,25 +44,6 @@ This function checks if all column names of a data frame or tibble are within
 a specified set of valid values. Depending on the specified type, it will
 either throw an error, issue a warning, or send a message.
 }
-\examples{
-# Synthetic data
-data <- data.frame(
-  Trauma_Type = c("Blunt", "Penetrating", "Blunt", "Unknown"),
-  Patient_Age_Years = c(30, 60, 45, 50),
-  RTS = c(7.84, 6.90, 7.00, 6.50),
-  ISS = c(10, 25, 15, 20)
-)
-
-# Validate the column names
-validate_names(
-  input = data,
-  check_names = c("Trauma_Type", "Patient_Age_Years", "RTS", "ISS"),
-  type = "warning",
-  na_ok = FALSE,
-  null_ok = FALSE
-)
-
-}
 \author{
 Nicolas Foss, Ed.D., MS
 }
