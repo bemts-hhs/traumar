@@ -7,3 +7,9 @@ docs
 .quarto
 .Renviron
 /.quarto/
+
+# .NET ignores
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
