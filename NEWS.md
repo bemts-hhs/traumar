@@ -1,5 +1,7 @@
 # traumar (development version)
 
+- **New Platform Support**: Added the `traumar` .NET Framework 4.7.2 class library (`dotnet/Traumar.NET/`). This NuGet-ready library provides strongly-typed C# implementations of the R package's core features, including survival probability (TRISS), Relative Mortality Measure (RMM), Non-linear bins algorithm, trauma performance (W/M/Z-scores), and all 13 SEQIC quality indicators. Features 100% logic parity and an extensive xUnit test suite.
+
 # traumar 1.2.4
 - Added the functions to perform all data validation. These functions take the
   form of `validate_*()`, such as `validate_character_factor()`. After exploring

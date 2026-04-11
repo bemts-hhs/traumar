@@ -33,6 +33,6 @@
 - [x] T018c [US4] 撰寫 SEQIC 指標 9~13 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators9to13Tests.cs`)
 
 ## Phase 7: Polish
-- [ ] T019 更新 `README.md`，提供 API 對照表與說明 (檔案: `dotnet/Traumar.NET/Traumar/README.md`)
-- [ ] T020 更新 R 套件 `NEWS.md`，記錄新增 `dotnet/Traumar.NET/` 子目錄及其用途 (檔案: `NEWS.md`，對應 Constitution §6 Gate Condition)
-- [ ] T021 建立範例主控台專案，驗證 `Traumar.dll` 可在 .NET 4.7.2 環境正常引用，確認 SC-004 通過 (檔案: `dotnet/Traumar.NET/Traumar.Sample/Traumar.Sample.csproj`)
+- [x] T019 更新 `README.md`，提供 API 對照表與說明 (檔案: `dotnet/Traumar.NET/Traumar/README.md`)
+- [x] T020 更新 R 套件 `NEWS.md`，記錄新增 `dotnet/Traumar.NET/` 子目錄及其用途 (檔案: `NEWS.md`，對應 Constitution §6 Gate Condition)
+- [x] T021 建立範例主控台專案，驗證 `Traumar.dll` 可在 .NET 4.7.2 環境正常引用，確認 SC-004 通過 (檔案: `dotnet/Traumar.NET/Traumar.Sample/Traumar.Sample.csproj`)
