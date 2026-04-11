@@ -24,13 +24,13 @@
 - [x] T013 [US3] 撰寫 `CalculateTraumaPerformance` 測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Core/PerformanceCalculatorTests.cs`)
 
 ## Phase 6: User Stories (US4 - SEQIC 1~13)
-- [ ] T014 [US4] [P] 建立各指標 `IndicatorNInput` 與 `IndicatorNResult` DTOs (檔案: `dotnet/Traumar.NET/Traumar/Models/SeqicModels.cs`)
-- [ ] T015 [US4] 實作 SEQIC 1~4 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators1to4.cs`)
-- [ ] T016 [US4] 實作 SEQIC 5~8 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators5to8.cs`)
-- [ ] T017 [US4] 實作 SEQIC 9~13 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators9to13.cs`)
-- [ ] T018a [US4] 撰寫 SEQIC 指標 1~4 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators1to4Tests.cs`)
-- [ ] T018b [US4] 撰寫 SEQIC 指標 5~8 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators5to8Tests.cs`)
-- [ ] T018c [US4] 撰寫 SEQIC 指標 9~13 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators9to13Tests.cs`)
+- [x] T014 [US4] [P] 建立各指標 `IndicatorNInput` 與 `IndicatorNResult` DTOs (檔案: `dotnet/Traumar.NET/Traumar/Models/SeqicModels.cs`)
+- [x] T015 [US4] 實作 SEQIC 1~4 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators1to4.cs`)
+- [x] T016 [US4] 實作 SEQIC 5~8 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators5to8.cs`)
+- [x] T017 [US4] 實作 SEQIC 9~13 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators9to13.cs`)
+- [x] T018a [US4] 撰寫 SEQIC 指標 1~4 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators1to4Tests.cs`)
+- [x] T018b [US4] 撰寫 SEQIC 指標 5~8 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators5to8Tests.cs`)
+- [x] T018c [US4] 撰寫 SEQIC 指標 9~13 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators9to13Tests.cs`)
 
 ## Phase 7: Polish
 - [ ] T019 更新 `README.md`，提供 API 對照表與說明 (檔案: `dotnet/Traumar.NET/Traumar/README.md`)
