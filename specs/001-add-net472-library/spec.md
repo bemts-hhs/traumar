@@ -95,12 +95,12 @@
 
 - **FR-001**：系統必須提供一個 .NET Framework 4.7.2 Class Library（`.dll`），可被其他 .NET 專案引用。
 - **FR-002**：Library 必須提供 `ProbabilityOfSurvival` 方法，根據 TRISS 方法論（Boyd et al., 1987）計算病患存活機率。
-- **FR-003**：Library 必須提供非線性分箱（Nonlinear Bins）演算法，實作 Napoli et al. (2017) 的分箱邏輯。
-- **FR-004**：Library 必須提供 `CalculateRmm` 方法，完整計算相對死亡率指標（RMM）、Population CI 及 Bootstrap CI（95% 信賴區間）。Bootstrap CI 採重抽樣（Bootstrap sampling）實作，以種子值控制可重現性。方法必須接受以下參數：`minSampleSize`（int，預設 10，低於門檻拋出 `ArgumentException`）；`nSamples`（int，預設 100，對應 R 版本 `n_samples`）；`seed`（int?，可為 null，對應 R 版本 `seed`）。輸出欄位命名對應 R 輸出：Population CI 組 —— `population_RMM`、`population_RMM_LL`、`population_RMM_UL`、`population_CI`；Bootstrap CI 組 —— `bootstrap_RMM`、`bootstrap_RMM_LL`、`bootstrap_RMM_UL`、`bootstrap_CI`。若 Bootstrap 某次抑樣失敗（Ps 分佈過於集中），.NET 版本應跨過該次並繼續（對應 R **BUG-003** 的修待）。
-- **FR-005**：Library 必須提供 `CalculateTraumaPerformance` 方法，計算 W Score、M Score 與 Z Score。方法必須接受 `minSampleSize`（int，預設 10）參數，低於門檻即拋出 `ArgumentException`。此外必須主動防範 Z-Score 除以零場景：當 `sum(Ps*(1-Ps)) = 0`（即全部 Ps = 0 或 1）時必須拋出 `InvalidOperationException`，不得靜默回傳 NaN（特定對應 R 版本 **BUG-002** 的修待）。
-- **FR-006**：所有公開方法必須包含輸入驗證，對非法輸入拋出具說明性的例外（`ArgumentException` 或 `ArgumentOutOfRangeException`）。例外訊息必須包含實際值與合法值域。
+- **FR-003**：Library 必須提供非線性分箱（Nonlinear Bins）演算法，實作 Napoli et al. (2017) 的分箱邏輯。該分箱方法與相關模型（如 `BinStatistics`）應設計為 **internal**，僅供內部核心邏輯（如 `CalculateRmm`）使用，不對外公開。
+- **FR-004**：Library 必須提供 `CalculateRmm` 方法，完整計算相對死亡率指標（RMM）、Population CI 及 Bootstrap CI（95% 信賴區間）。**Bootstrap CI 永遠執行，無可選開關**。Bootstrap CI 採重抽樣（Bootstrap sampling）實作，以種子值控制可重現性。方法簽名：`RmmResult CalculateRmm(IEnumerable<PatientRecord> records, int minSampleSize = 10, int nSamples = 100, int? seed = null)`。輸出欄位命名對應 R 輸出：Population CI 組 —— `PopulationRMM`、`PopulationRMM_LL`、`PopulationRMM_UL`、`PopulationCI`；Bootstrap CI 組 —— `BootstrapRMM`、`BootstrapRMM_LL`、`BootstrapRMM_UL`、`BootstrapCI`；上述 8 個屬性在回傳的 `RmmResult` 中**永遠有值**。若 Bootstrap 某次抽樣失敗（Ps 分佈過於集中），.NET 版本應跳過該次並繼續（對應 R **BUG-003** 的修正）。
+- **FR-005**：Library 必須提供 `CalculateTraumaPerformance` 方法，計算 W Score、M Score 與 Z Score。方法簽名：`TraumaPerformanceResult CalculateTraumaPerformance(IEnumerable<PatientRecord> records, int minSampleSize = 10)`。低於門檻即拋出 `ArgumentException`。此外必須主動防範 Z-Score 除以零場景：當 `sum(Ps*(1-Ps)) = 0`（即全部 Ps = 0 或 1）時必須拋出 `InvalidOperationException`，不得靜默回傳 NaN（對應 R 版本 **BUG-002** 的修正）。
+- **FR-006**：所有公開方法必須包含輸入驗證，對非法輸入拋出具說明性的例外（`ArgumentException` 或 `ArgumentOutOfRangeException`）。例外訊息必須統一以**繁體中文**撰寫，並包含實際值與合法值域。
 - **FR-007**：Library 的所有計算結果必須與 R 套件 `traumar` 參考實作保持一致：數值型輸出誤差 < 0.0001；非數值型輸出（如 M Score 分佈比例、SEQIC 分類指標）必須依照 R 版本邏輯實作，不得自訂輸出範圍或格式。
-- **FR-008**：Library 可引用第三方 NuGet 套件，但必須限於有積極維護的 .NET Framework 4.7.2 相容套件。每個新增依賴須在 `plan.md` 中列出名稱與理由。
+- **FR-008**：Library 可引用第三方 NuGet 套件，但必須限於有積極維護的 .NET Framework 4.7.2 相容套件。**目前已明確核准使用 `MathNet.Numerics` 處理進階數學與統計計算以確保精度。**每個新增依賴須在 `plan.md` 中列出名稱與理由。
 - **FR-009**：Library 必須提供對應 13 項 SEQIC 品質指標的計算方法（對應 R 版本 `seqic_indicator_1()` 至 `seqic_indicator_13()`）。**每個指標方法接受各自獨立的強型別輸入 DTO（`Indicator1Input`…`Indicator13Input`），並回傳對應的強型別結果 DTO（`Indicator1Result`…`Indicator13Result`）**；輸入 DTO 的必填屬性使用非 nullable 型別，選填屬性使用 nullable 型別；輸出 DTO 的屬性名稱對應 R tibble 輸出欄位，數值型屬性使用 `double`，分類型屬性使用 `string`。**所有指標方法必須接受 `minSampleSize`（int，預設 10）參數**，低於門檻拋出 `ArgumentException`。各指標的計算邏輯與輸出結果必須與 R 套件 `traumar` 的對應函數在相同輸入下保持一致（FR-007 精度要求同樣適用）。
 - **FR-010**：Library 目錄下必須包含 `README.md`，以表格形式說明所有 .NET 公開方法與對應 R 函數的映射關係，內容包含：.NET 方法名稱、對應 R 函數名稱、主要參數對照（含型別差異說明）及簡短範例用法。至少須涵蓋 `ProbabilityOfSurvival`、`CalculateRmm`、`CalculateTraumaPerformance`，以及全部 13 個 SEQIC 指標方法。
 
@@ -109,8 +109,8 @@
 - **PatientInput**：純輸入 DTO，包含 `InjuryType`（`enum InjuryType { Blunt, Penetrating }`）、`Age`（`int`）、`Rts`（`double`）、`Iss`（`int`）。不含計算結果欄位，確保語意明確。
 - **PatientRecord**：包含 `PatientInput` 的全部屬性，加上 `Ps`（`double`，由 `ProbabilityOfSurvival` 計算填入）與 `Outcome`（`int`，0 或 1）。`ProbabilityOfSurvival` 接受 `PatientInput` 並回傳 `PatientRecord`，避免混淆「未計算的 Ps=0」與「確定死亡的 Ps=0」。
 - **TraumaPerformanceResult**：W Score、M Score、Z Score 的結果容器。
-- **RmmResult**：RMM 及信賴區間的結果容器。屬性名稱對應 R `rmm()` 輸出欄位：Population CI 組 —— `PopulationRMM`、`PopulationRMM_LL`、`PopulationRMM_UL`、`PopulationCI`；Bootstrap CI 組 —— `BootstrapRMM`、`BootstrapRMM_LL`、`BootstrapRMM_UL`、`BootstrapCI`（僅當 bootstrapCI = true 時填入）。
-- **BinStatistics**：非線性分箱的單一分箱統計資料。
+- **RmmResult**：RMM 及信賴區間的結果容器。屬性名稱對應 R `rmm()` 輸出欄位：Population CI 組 —— `PopulationRMM`、`PopulationRMM_LL`、`PopulationRMM_UL`、`PopulationCI`；Bootstrap CI 組 —— `BootstrapRMM`、`BootstrapRMM_LL`、`BootstrapRMM_UL`、`BootstrapCI`。**以上 8 個屬性永遠填入（無 nullable）**，因為 Bootstrap CI 永遠執行。
+- **BinStatistics**：非線性分箱的單一分箱統計資料（**Internal** 模型，僅供內部計算使用）。
 - **IndicatorNInput**（N = 1~13）：SEQIC 各指標各自獨立的強型別輸入 DTO，屬性命名對應 R 函數的參數欄位；必填屬性為非 nullable 型別，選填屬性為 nullable 型別。
 - **IndicatorNResult**（N = 1~13）：SEQIC 各指標各自獨立的強型別輸出 DTO，屬性對應 R tibble 輸出欄位名稱；數值型屬性使用 `double`，分類型屬性使用 `string`。
 
@@ -135,7 +135,8 @@
 - **A3**：Library 不需要提供資料視覺化（ggplot2 對應）功能，僅提供數值計算。
 - **A4**：Library 專案位於**同一倉庫**的 `dotnet/Traumar.NET/` 子目錄。`.Rbuildignore` 必須排除 `^dotnet/` 以避免干擾 `R CMD check`。
 - **A5**：單元測試專案使用 **xUnit + .NET Framework 4.7.2** 目標框架；不支援多目標框架建置。
-- **A6 （Outcome 編碼規範）**：全部 .NET 方法對 outcome 的編碼統一採用 `non_linear_bins.R` 的規範：**`outcome = 1` 代表存活（alive）、`outcome = 0` 代表死亡（dead）**。R 套件的 `trauma_performance.r` 使用相反編碼（BUG-001），.NET 版本已修待此一致性問題，因此 `CalculateTraumaPerformance` 的 W-Score 與 Z-Score 公式需處對應調整，對應結果不得与未修待的 R 版本比對。
+- **A6 （Outcome 編碼規範）**：全部 .NET 方法對 outcome 的編碼統一採用 `non_linear_bins.R` 的規範：**`outcome = 1` 代表存活（alive）、`outcome = 0` 代表死亡（dead）**。R 套件的 `trauma_performance.r` 使用相反編碼（BUG-001），.NET 版本已修正此一致性問題，因此 `CalculateTraumaPerformance` 的 W-Score 與 Z-Score 公式需對應調整，計算結果不得與未修正的 R 版本直接比對。
+- **A7（命名空間結構）**：Library 採分層命名空間設計：`Traumar.Core`（Ps/RMM/W-M-Z 核心計算服務）、`Traumar.Seqic`（13 項 SEQIC 指標計算服務）、`Traumar.Models`（所有公開 DTO，包含 `PatientInput`、`PatientRecord`、`RmmResult`、`TraumaPerformanceResult`、`IndicatorNInput`、`IndicatorNResult`）。呼叫端需個別引入所需命名空間。
 
 ---
 
@@ -165,3 +166,9 @@
 | Q13 | `RmmResult` Bootstrap CI 屬性命名規則？ | **對應 R 輸出欄位**：`BootstrapRMM`、`BootstrapRMM_LL`、`BootstrapRMM_UL`、`BootstrapCI` | RmmResult 實體註明完整屬性清單、US2 AC1 补充 Bootstrap CI 屬性 |
 | Q14 | 全同 outcome 的邊界行為？ | **與 R 版本一致**：不拋出例外，回傳數學結果；並發現 R 源碼 3 個 Bug（詳見 A6） | 邊界情境路徑更新、FR-005 加入 Z-Score 除以零保護、FR-004 加入 Bootstrap 容錯機制、新增 A6 |
 | Q15 | SEQIC 指標方法是否需要 `minSampleSize`？ | **是**，預設 10，低於門檻拋出 `ArgumentException` | FR-009 补充 `minSampleSize` 參數定義 |
+| Q16 | `NonLinearBins` 方法與實體的可見度？ | **設為 internal**，僅供內部使用 | FR-003 補充內部存取限制、核心實體 `BinStatistics` 標註為 internal |
+| Q17 | 第三方數學計算套件容許度？ | **允許**引入 `MathNet.Numerics` | FR-008 新增對 `MathNet.Numerics` 的明確核淮 |
+| Q18 | 例外訊息的語系？ | **繁體中文** | FR-006 加入「以繁體中文撰寫」規定 |
+| Q19 | Bootstrap CI 是否為可選？ | **永遠執行**，移除 `bootstrapCI` 開關 | FR-004 移除 `bootstrapCI bool` 參數、補充方法簽名、`RmmResult` 8 個屬性改為永遠非 null |
+| Q20 | `CalculateRmm` 與 `CalculateTraumaPerformance` 的輸入介面？ | **`IEnumerable<PatientRecord>`** | FR-004、FR-005 補充方法簽名；呼叫端自行組合 `PatientRecord`（含 Outcome）後傳入 |
+| Q21 | C# 命名空間結構？ | **分層**：`Traumar.Core` / `Traumar.Seqic` / `Traumar.Models` | 新增 A7 說明各 namespace 職責 |
