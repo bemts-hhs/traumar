@@ -5,6 +5,8 @@
 **狀態**：已澄清
 **輸入**：「新增一個 .net framework 4.7.2 的 library 專案，將目前的程式改為 .net framework 4.7.2 的版本」
 
+> ⚠️ **憲法豁免聲明**：本 feature 為 .NET 子專案，超出 Constitution 定義的 R 語言技術棧範疇。Tech Stack Constraints（§3）與 GP-03/GP-04 等 R 特定原則**不適用**於本 feature；學術嚴謹性（GP-01）、可測試性（GP-05）、友好錯誤（GP-06）等通用原則仍然適用。本 feature 採平行治理，與 R 套件主線互不干擾。
+
 ---
 
 ## 使用場景與測試 *(mandatory)*
@@ -12,7 +14,7 @@
 ### 使用者故事 1 — 計算個別病患存活率 (Priority: P1)
 
 **描述**：  
-臨床資料分析師擁有單一或批量病患的傷傷類型（鈍傷/穿刺傷）、年齡、修正創傷評分（RTS）、傷害嚴重度評分（ISS）資料，他需要呼叫 .NET Library 的方法，取得每位病患的 TRISS 存活機率（Ps），以便進一步計算績效指標。
+臨床資料分析師擁有單一或批量病患的傷害類型（鈍傷/穿刺傷）、年齡、修正創傷評分（RTS）、傷害嚴重度評分（ISS）資料，他需要呼叫 .NET Library 的方法，取得每位病患的 TRISS 存活機率（Ps），以便進一步計算績效指標。
 
 **為何此優先**：Ps 是後續所有指標（W Score、RMM）的基礎輸入，必須先可用。
 
@@ -51,7 +53,7 @@
 
 **為何此優先**：提供完整指標套件，但對 Library 核心功能非阻塞性需求。
 
-**獨立測試**：傳入已知 Ps 和 outcome 資料，驗證 W Score 為數值型結果，且 M Score 的計算邏輯與 R 版本 `trauma_performance()` 在相同輸入下的輸出結果一致（不自訂範圍限制）。
+**獨立測試**：傳入已知 Ps 和 outcome 資料，驗證 W Score 為數值型結果，且 M Score 的計算邏輯與 R 版本 `trauma_performance()` 在相同輸入下的輸出結果一致（不自訂範圍限制）。M Score 為固定長度向量（對應固定 bin 數），驗收條件為每個 bin 的比例值與 R 版本輸出的誤差 < 0.0001。
 
 **驗收情境**：
 
@@ -101,18 +103,19 @@
 - **FR-006**：所有公開方法必須包含輸入驗證，對非法輸入拋出具說明性的例外（`ArgumentException` 或 `ArgumentOutOfRangeException`）。例外訊息必須統一以**繁體中文**撰寫，並包含實際值與合法值域。
 - **FR-007**：Library 的所有計算結果必須與 R 套件 `traumar` 參考實作保持一致：數值型輸出誤差 < 0.0001；非數值型輸出（如 M Score 分佈比例、SEQIC 分類指標）必須依照 R 版本邏輯實作，不得自訂輸出範圍或格式。
 - **FR-008**：Library 可引用第三方 NuGet 套件，但必須限於有積極維護的 .NET Framework 4.7.2 相容套件。**目前已明確核准使用 `MathNet.Numerics` 處理進階數學與統計計算以確保精度。**每個新增依賴須在 `plan.md` 中列出名稱與理由。
-- **FR-009**：Library 必須提供對應 13 項 SEQIC 品質指標的計算方法（對應 R 版本 `seqic_indicator_1()` 至 `seqic_indicator_13()`）。**每個指標方法接受各自獨立的強型別輸入 DTO（`Indicator1Input`…`Indicator13Input`），並回傳對應的強型別結果 DTO（`Indicator1Result`…`Indicator13Result`）**；輸入 DTO 的必填屬性使用非 nullable 型別，選填屬性使用 nullable 型別；輸出 DTO 的屬性名稱對應 R tibble 輸出欄位，數值型屬性使用 `double`，分類型屬性使用 `string`。**所有指標方法必須接受 `minSampleSize`（int，預設 10）參數**，低於門檻拋出 `ArgumentException`。各指標的計算邏輯與輸出結果必須與 R 套件 `traumar` 的對應函數在相同輸入下保持一致（FR-007 精度要求同樣適用）。
+- **FR-009**：Library 必須提供對應 13 項 SEQIC 品質指標的計算方法（對應 R 版本 `seqic_indicator_1()` 至 `seqic_indicator_13()`）。**每個指標方法接受各自獨立的強型別輸入 DTO（`Indicator1Input`…`Indicator13Input`），並回傳對應的強型別結果 DTO（`Indicator1Result`…`Indicator13Result`）**；輸入 DTO 的必填屬性使用非 nullable 型別，選填屬性使用 nullable 型別；輸出 DTO 的屬性名稱對應 R tibble 輸出欄位，數值型屬性使用 `double`。分類字串欄位（如 Yes/No, High/Low, Level 1/2 等）必須一律轉換為強型別 C# Enum 以確保編譯期安全。針對具有子指標或子表結構的輸出結果，應採用巢狀類別 (Nested DTOs) 實作以保持結構清晰。**所有指標方法必須接受 `minSampleSize`（int，預設 10）參數**，低於門檻拋出 `ArgumentException`。各指標的計算邏輯與輸出結果必須與 R 套件 `traumar` 的對應函數在相同輸入下保持一致（FR-007 精度要求同樣適用）。
 - **FR-010**：Library 目錄下必須包含 `README.md`，以表格形式說明所有 .NET 公開方法與對應 R 函數的映射關係，內容包含：.NET 方法名稱、對應 R 函數名稱、主要參數對照（含型別差異說明）及簡短範例用法。至少須涵蓋 `ProbabilityOfSurvival`、`CalculateRmm`、`CalculateTraumaPerformance`，以及全部 13 個 SEQIC 指標方法。
 
 ### 核心實體
 
-- **PatientInput**：純輸入 DTO，包含 `InjuryType`（`enum InjuryType { Blunt, Penetrating }`）、`Age`（`int`）、`Rts`（`double`）、`Iss`（`int`）。不含計算結果欄位，確保語意明確。
-- **PatientRecord**：包含 `PatientInput` 的全部屬性，加上 `Ps`（`double`，由 `ProbabilityOfSurvival` 計算填入）與 `Outcome`（`int`，0 或 1）。`ProbabilityOfSurvival` 接受 `PatientInput` 並回傳 `PatientRecord`，避免混淆「未計算的 Ps=0」與「確定死亡的 Ps=0」。
+> 詳細欄位定義請參閱 [`data-model.md`](./data-model.md)（唯一資料模型來源）。以下為摘要。
+
+- **PatientInput**：純輸入 DTO，包含 `InjuryType`（`enum InjuryType { Blunt, Penetrating }`）、`Age`（`int`）、`Rts`（`double`）、`Iss`（`int`）。
+- **PatientRecord**：含 `PatientInput` 屬性加上 `Ps`（`double`）與 `Outcome`（`int`，0 或 1）。
 - **TraumaPerformanceResult**：W Score、M Score、Z Score 的結果容器。
-- **RmmResult**：RMM 及信賴區間的結果容器。屬性名稱對應 R `rmm()` 輸出欄位：Population CI 組 —— `PopulationRMM`、`PopulationRMM_LL`、`PopulationRMM_UL`、`PopulationCI`；Bootstrap CI 組 —— `BootstrapRMM`、`BootstrapRMM_LL`、`BootstrapRMM_UL`、`BootstrapCI`。**以上 8 個屬性永遠填入（無 nullable）**，因為 Bootstrap CI 永遠執行。
-- **BinStatistics**：非線性分箱的單一分箱統計資料（**Internal** 模型，僅供內部計算使用）。
-- **IndicatorNInput**（N = 1~13）：SEQIC 各指標各自獨立的強型別輸入 DTO，屬性命名對應 R 函數的參數欄位；必填屬性為非 nullable 型別，選填屬性為 nullable 型別。
-- **IndicatorNResult**（N = 1~13）：SEQIC 各指標各自獨立的強型別輸出 DTO，屬性對應 R tibble 輸出欄位名稱；數值型屬性使用 `double`，分類型屬性使用 `string`。
+- **RmmResult**：RMM 及信賴區間的結果容器（8 個屬性永遠非 nullable）。
+- **BinStatistics**：非線性分箱統計（**Internal**，僅供內部計算）。
+- **IndicatorNInput / IndicatorNResult**（N = 1~13）：SEQIC 各指標獨立強型別 DTO，詳見 `data-model.md`。
 
 ---
 
@@ -159,7 +162,7 @@
 | Q5 | Bootstrap 抽樣次數預設值？ | **100 次**（對應 R 版本 `n_samples = 100`），可由 `nSamples` 參數覆蓋 | FR-004 補充 `nSamples` 參數定義 |
 | Q6 | M Score 有效範圍？ | **不限制**，以 R 版本 `trauma_performance()` 輸出邏輯為準 | US3 獨立測試描述更新、FR-007 強調邏輯一致性要求 |
 | Q7 | SEQIC 13 個指標的輸入資料模型？ | **各指標獨立強型別 DTO**（`Indicator1Input`…`Indicator13Input`） | FR-009 補充 DTO 定義、US4 AC2 改為「必填屬性為非 nullable」、新增核心實體 `IndicatorNInput` |
-| Q8 | `PatientRecord` 傷傷類型的資料型別？ | **`enum InjuryType { Blunt, Penetrating }`** | US1 AC3 改為編譯期保證、`PatientRecord` 實體描述更新、FR-006 執行期驗證不涵蓋傷傷類型 |
+| Q8 | `PatientRecord` 傷害類型的資料型別？ | **`enum InjuryType { Blunt, Penetrating }`** | US1 AC3 改為編譯期保證、`PatientRecord` 實體描述更新、FR-006 執行期驗證不涵蓋傷害類型 |
 | Q9 | 單元測試專案的框架與目標框架？ | **xUnit + .NET Framework 4.7.2** | SC-005 補充測試框架說明、新增 A5 |
 | Q10 | SEQIC 指標的回傳型別結構？ | **各指標獨立強型別結果 DTO**（`Indicator1Result`…`Indicator13Result`） | FR-009 補充回傳型別、US4 AC1 更新、新增核心實體 `IndicatorNResult` |
 | Q11 | `PatientRecord` 是否分離輸入與輸出？ | **分離**：`PatientInput`（純輸入）+ `PatientRecord`（含 Ps 與 Outcome） | 核心實體新增 `PatientInput`、`ProbabilityOfSurvival` 簽名改為接受 `PatientInput` 回傳 `PatientRecord` |
@@ -172,3 +175,5 @@
 | Q19 | Bootstrap CI 是否為可選？ | **永遠執行**，移除 `bootstrapCI` 開關 | FR-004 移除 `bootstrapCI bool` 參數、補充方法簽名、`RmmResult` 8 個屬性改為永遠非 null |
 | Q20 | `CalculateRmm` 與 `CalculateTraumaPerformance` 的輸入介面？ | **`IEnumerable<PatientRecord>`** | FR-004、FR-005 補充方法簽名；呼叫端自行組合 `PatientRecord`（含 Outcome）後傳入 |
 | Q21 | C# 命名空間結構？ | **分層**：`Traumar.Core` / `Traumar.Seqic` / `Traumar.Models` | 新增 A7 說明各 namespace 職責 |
+| Q22 | SEQIC 指標輸出結果的結構設計？ | **1A: 採用巢狀結構類別 (Nested DTOs)** | FR-009 補充巢狀類別實作；`data-model.md` 更新輸出說明 |
+| Q23 | 分類字串欄位是否轉為 Enum？ | **2A: 全部轉為強型別 Enum** | FR-009 更新；`data-model.md` 特別標註欄位轉 Enum 實作 |

@@ -3,7 +3,7 @@
 ## Phase 1: Setup
 - [ ] T001 [P] 建立 .NET 4.7.2 類別庫 `dotnet/Traumar.NET/Traumar` 及安裝 `MathNet.Numerics` (檔案: `dotnet/Traumar.NET/Traumar/Traumar.csproj`)
 - [ ] T002 [P] 建立 xUnit 測試專案 `dotnet/Traumar.NET/Traumar.Tests` 並連結主專案 (檔案: `dotnet/Traumar.NET/Traumar.Tests/Traumar.Tests.csproj`)
-- [ ] T003 修改 `.Rbuildignore` 排除 `^dotnet/` 以避免干擾 R CMD check (檔案: `.Rbuildignore`)
+- [ ] T003 修改 `.Rbuildignore` 排除 `^dotnet/` 以避免干擾 R CMD check，完成後須執行 `R CMD check --as-cran` 確認仍通過（0 errors, 0 warnings，對應 SC-DEF-01）(檔案: `.Rbuildignore`)
 
 ## Phase 2: Foundations
 - [ ] T004 建立 `PatientInput` 與 `PatientRecord` DTOs (檔案: `dotnet/Traumar.NET/Traumar/Models/PatientModels.cs`)
@@ -28,7 +28,11 @@
 - [ ] T015 [US4] 實作 SEQIC 1~4 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators1to4.cs`)
 - [ ] T016 [US4] 實作 SEQIC 5~8 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators5to8.cs`)
 - [ ] T017 [US4] 實作 SEQIC 9~13 指標計算 (檔案: `dotnet/Traumar.NET/Traumar/Seqic/Indicators9to13.cs`)
-- [ ] T018 [US4] 撰寫 SEQIC 指標對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/IndicatorTests.cs`)
+- [ ] T018a [US4] 撰寫 SEQIC 指標 1~4 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators1to4Tests.cs`)
+- [ ] T018b [US4] 撰寫 SEQIC 指標 5~8 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators5to8Tests.cs`)
+- [ ] T018c [US4] 撰寫 SEQIC 指標 9~13 對應之測試案例 (含繁體中文例外驗證) (檔案: `dotnet/Traumar.NET/Traumar.Tests/Seqic/Indicators9to13Tests.cs`)
 
 ## Phase 7: Polish
 - [ ] T019 更新 `README.md`，提供 API 對照表與說明 (檔案: `dotnet/Traumar.NET/Traumar/README.md`)
+- [ ] T020 更新 R 套件 `NEWS.md`，記錄新增 `dotnet/Traumar.NET/` 子目錄及其用途 (檔案: `NEWS.md`，對應 Constitution §6 Gate Condition)
+- [ ] T021 建立範例主控台專案，驗證 `Traumar.dll` 可在 .NET 4.7.2 環境正常引用，確認 SC-004 通過 (檔案: `dotnet/Traumar.NET/Traumar.Sample/Traumar.Sample.csproj`)
