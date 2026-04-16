@@ -1,4 +1,4 @@
-# traumar (development version)
+# traumar 1.2.5
 
 # traumar 1.2.4
 - Added the functions to perform all data validation. These functions take the
