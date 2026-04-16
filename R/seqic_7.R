@@ -203,7 +203,10 @@ seqic_indicator_7 <- function(
           arrive_greater_than_180 == TRUE,
         na.rm = TRUE
       ),
-      denominator_7 = dplyr::n(),
+      denominator_7 = sum(
+        {{ transfer_out_indicator }} %in% c(FALSE, "No"),
+        na.rm = TRUE
+      ),
       seqic_7 = dplyr::if_else(
         denominator_7 > 0,
         numerator_7 / denominator_7,
