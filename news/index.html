@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="traumar-development-version">traumar (development version)<a class="anchor" aria-label="anchor" href="#traumar-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.5" id="traumar-125">traumar 1.2.5<a class="anchor" aria-label="anchor" href="#traumar-125"></a></h2>
+<ul><li>An update was made to <code><a href="../reference/seqic_indicator_7.html">traumar::seqic_indicator_7()</a></code> in the portion of the code where the <code>denominator_7</code> is calculated. The denominator is no longer calculated as <code><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">dplyr::n()</a></code>, and instead uses the following in order to accurately calculate the denominator that reflects the definitive care population:</li>
+</ul><p><code>denominator_7 = sum({{ transfer_out_indicator }}} %in% c(FALSE, "No"), na.rm = TRUE)</code></p>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.4" id="traumar-124">traumar 1.2.4<a class="anchor" aria-label="anchor" href="#traumar-124"></a></h2><p class="text-muted">CRAN release: 2026-02-05</p>
@@ -48,7 +50,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.3" id="traumar-123">traumar 1.2.3<a class="anchor" aria-label="anchor" href="#traumar-123"></a></h2><p class="text-muted">CRAN release: 2026-01-08</p>
-<ul><li><p><code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code> was updated to enhance code readability and leverage mathematical notation in the calculation of predicted survival probabilities. The function now aligns with the coefficients published in Norouzi et al. (2013) and Merchant et al. (2023). Consistent with Boyd et al. (1987), the function does not treat patients under 15 years of age differently and accounts for penetrating injuries similarly to other age groups. This update ensures a standardized approach to calculating survival probabilities for both blunt and penetrating traumas.</p></li>
+<ul><li><p><code><a href="../reference/probability_of_survival.html">probability_of_survival()</a></code> was updated to enhance code readability and leverage mathematical notation in the calculation of predicted survival probabilities. The function now aligns with the coefficients published in Norouzi et al. (2013) and Merchant et al. (2023). Consistent with Boyd et al. (1987), the function does not treat patients under 15 years of age differently and accounts for penetrating injuries similarly to other age groups. This update ensures a standardized approach to calculating survival probabilities for both blunt and penetrating traumas.</p></li>
 <li><p>From this release forward, all development of <code>traumar</code> will be done in the IDE Positron!</p></li>
 </ul></div>
     <div class="section level2">

@@ -1,6 +1,16 @@
 # Changelog
 
-## traumar (development version)
+## traumar 1.2.5
+
+- An update was made to
+  [`traumar::seqic_indicator_7()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_7.md)
+  in the portion of the code where the `denominator_7` is calculated.
+  The denominator is no longer calculated as
+  [`dplyr::n()`](https://dplyr.tidyverse.org/reference/context.html),
+  and instead uses the following in order to accurately calculate the
+  denominator that reflects the definitive care population:
+
+`denominator_7 = sum({{ transfer_out_indicator }}} %in% c(FALSE, "No"), na.rm = TRUE)`
 
 ## traumar 1.2.4
 
@@ -66,8 +76,8 @@ CRAN release: 2026-01-08
   was updated to enhance code readability and leverage mathematical
   notation in the calculation of predicted survival probabilities. The
   function now aligns with the coefficients published in Norouzi et
-  al. (2013) and Merchant et al. (2023). Consistent with Boyd et al.
-  (1987), the function does not treat patients under 15 years of age
+  al. (2013) and Merchant et al. (2023). Consistent with Boyd et
+  al. (1987), the function does not treat patients under 15 years of age
   differently and accounts for penetrating injuries similarly to other
   age groups. This update ensures a standardized approach to calculating
   survival probabilities for both blunt and penetrating traumas.
