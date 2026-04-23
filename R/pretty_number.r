@@ -48,7 +48,7 @@ pretty_number <- function(
   truncate = FALSE
 ) {
   # Handle deprecated n_decimal argument ----
-  if (lifecycle::is_present(n_decimal)) {
+  if (!missing(n_decimal)) {
     # Issue a warning
     lifecycle::deprecate_warn(
       when = "1.2.4",

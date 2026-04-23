@@ -39,7 +39,7 @@ pretty_percent <- function(variable, n_decimal = 1) {
   options(scipen = 9999)
 
   # Ensure the input is numeric ----
-  validate_numeric(input = variable, min = -1, max = 1, type = "error")
+  validate_numeric(input = variable, type = "error")
 
   # Ensure n_decimal is valid ----
   validate_numeric(input = n_decimal, min = 0, type = "error")
