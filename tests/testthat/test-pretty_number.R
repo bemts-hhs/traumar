@@ -78,12 +78,9 @@ test_that("pretty_number handles edge cases for large and small numbers", {
   expect_equal(pretty_number(0), "0")
 })
 
-test_that("n_decimal and digits give identical results", {
-  options(lifecycle_verbosity = "quiet")
-
-  expect_equal(
-    pretty_number(1234567, n_decimal = 1),
-    pretty_number(1234567, digits = 1)
+test_that("n_decimal throws an error", {
+  testthat::expect_error(
+    pretty_number(1234567, n_decimal = 1)
   )
 })
 
