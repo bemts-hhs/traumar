@@ -16,7 +16,7 @@
 #'
 #' @author
 #' Nicolas Foss, Ed.D., MS
-#' 
+#'
 #' @keywords internal
 #' @noRd
 #'

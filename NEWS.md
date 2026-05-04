@@ -1,6 +1,11 @@
 # traumar 1.2.6
+- Deprecate the `n_decimal` argument for `pretty_number()`, use `digits`
+  instead. This is a full deprecation which will now produce an error.
+- Remove limits on `pretty_percent()` so that it can handle negative numbers as
+  well as positive. Removed limits bounding the input at [0, 1]. 
 - Added tests for `validate_set()`, `validate_numeric()` tests were improved,
-  `validate_names()`.
+  `validate_names()`, added tests for `validate_length()` and
+  `validate_error_type()`. 
 - Removed documentation for the `validate_*()` family of functions and used
   keyword internal in their documentation.
 
