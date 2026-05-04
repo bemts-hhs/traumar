@@ -1,3 +1,9 @@
+# traumar 1.2.6
+- Added tests for `validate_set()`, `validate_numeric()` tests were improved,
+  `validate_names()`.
+- Removed documentation for the `validate_*()` family of functions and used
+  keyword internal in their documentation.
+
 # traumar 1.2.5
 
 - An update was made to `traumar::seqic_indicator_7()` in the portion of the code where the `denominator_7` is calculated. The denominator is no longer calculated as `dplyr::n()`, and instead uses the following in order to accurately calculate the denominator that reflects the definitive care population:
