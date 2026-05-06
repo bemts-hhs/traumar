@@ -8,6 +8,9 @@
   `validate_error_type()`. 
 - Removed documentation for the `validate_*()` family of functions and used
   keyword internal in their documentation.
+- Implemented `usethis::use_tidy_*` package helpers to clean up various parts of
+  the package such as workflows and using `Air` as the code formatter
+  throughout. 
 
 # traumar 1.2.5
 
