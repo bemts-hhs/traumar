@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">traumar</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,13 +32,21 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.6" id="traumar-126">traumar 1.2.6<a class="anchor" aria-label="anchor" href="#traumar-126"></a></h2>
+<ul><li>Deprecate the <code>n_decimal</code> argument for <code><a href="../reference/pretty_number.html">pretty_number()</a></code>, use <code>digits</code> instead. This is a full deprecation which will now produce an error.</li>
+<li>Remove limits on <code><a href="../reference/pretty_percent.html">pretty_percent()</a></code> so that it can handle negative numbers as well as positive. Removed limits bounding the input at [0, 1].</li>
+<li>Added tests for <code>validate_set()</code>, <code>validate_numeric()</code> tests were improved, <code>validate_names()</code>, added tests for <code>validate_length()</code> and <code>validate_error_type()</code>.</li>
+<li>Removed documentation for the <code>validate_*()</code> family of functions and used keyword internal in their documentation.</li>
+<li>Implemented <code>usethis::use_tidy_*</code> package helpers to clean up various parts of the package such as workflows and using <code>Air</code> as the code formatter throughout.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.5" id="traumar-125">traumar 1.2.5<a class="anchor" aria-label="anchor" href="#traumar-125"></a></h2><p class="text-muted">CRAN release: 2026-04-16</p>
 <ul><li>An update was made to <code><a href="../reference/seqic_indicator_7.html">traumar::seqic_indicator_7()</a></code> in the portion of the code where the <code>denominator_7</code> is calculated. The denominator is no longer calculated as <code><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">dplyr::n()</a></code>, and instead uses the following in order to accurately calculate the denominator that reflects the definitive care population:</li>
 </ul><p><code>denominator_7 = sum({{ transfer_out_indicator }}} %in% c(FALSE, "No"), na.rm = TRUE)</code></p>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.2.4" id="traumar-124">traumar 1.2.4<a class="anchor" aria-label="anchor" href="#traumar-124"></a></h2><p class="text-muted">CRAN release: 2026-02-05</p>
-<ul><li><p>Added the functions to perform all data validation. These functions take the form of <code>validate_*()</code>, such as <code><a href="../reference/validate_character_factor.html">validate_character_factor()</a></code>. After exploring options from other packages to lean on existing methods to validate data via functional programming, the decision was made to create functions “in-house” to avoid issues with adding another dependency. The <code>validate_*()</code> family of functions is not exported from <code>traumar</code>.</p></li>
+<ul><li><p>Added the functions to perform all data validation. These functions take the form of <code>validate_*()</code>, such as <code>validate_character_factor()</code>. After exploring options from other packages to lean on existing methods to validate data via functional programming, the decision was made to create functions “in-house” to avoid issues with adding another dependency. The <code>validate_*()</code> family of functions is not exported from <code>traumar</code>.</p></li>
 <li><p>Updated unit tests throughout the package given the addition of new data validation methodology.</p></li>
 <li><p>Ensured that plenty of comments are provided throughout the functions in the package to enhance understanding of the code and collaboration.</p></li>
 <li><p><code><a href="../reference/pretty_number.html">pretty_number()</a></code> now uses a <code>digits</code> argument instead of <code>n_decimal</code>. <code>n_decimal</code> has been deprecated and will now issue a warning, but the function will still work using the <code>n_decimal</code> argument. In a later release, <code>n_decimal</code> will be fully deprecated.</p></li>

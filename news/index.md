@@ -1,5 +1,24 @@
 # Changelog
 
+## traumar 1.2.6
+
+- Deprecate the `n_decimal` argument for
+  [`pretty_number()`](https://bemts-hhs.github.io/traumar/reference/pretty_number.md),
+  use `digits` instead. This is a full deprecation which will now
+  produce an error.
+- Remove limits on
+  [`pretty_percent()`](https://bemts-hhs.github.io/traumar/reference/pretty_percent.md)
+  so that it can handle negative numbers as well as positive. Removed
+  limits bounding the input at \[0, 1\].
+- Added tests for `validate_set()`, `validate_numeric()` tests were
+  improved, `validate_names()`, added tests for `validate_length()` and
+  `validate_error_type()`.
+- Removed documentation for the `validate_*()` family of functions and
+  used keyword internal in their documentation.
+- Implemented `usethis::use_tidy_*` package helpers to clean up various
+  parts of the package such as workflows and using `Air` as the code
+  formatter throughout.
+
 ## traumar 1.2.5
 
 CRAN release: 2026-04-16
@@ -20,12 +39,11 @@ CRAN release: 2026-02-05
 
 - Added the functions to perform all data validation. These functions
   take the form of `validate_*()`, such as
-  [`validate_character_factor()`](https://bemts-hhs.github.io/traumar/reference/validate_character_factor.md).
-  After exploring options from other packages to lean on existing
-  methods to validate data via functional programming, the decision was
-  made to create functions “in-house” to avoid issues with adding
-  another dependency. The `validate_*()` family of functions is not
-  exported from `traumar`.
+  `validate_character_factor()`. After exploring options from other
+  packages to lean on existing methods to validate data via functional
+  programming, the decision was made to create functions “in-house” to
+  avoid issues with adding another dependency. The `validate_*()` family
+  of functions is not exported from `traumar`.
 
 - Updated unit tests throughout the package given the addition of new
   data validation methodology.
