@@ -32,6 +32,7 @@ Nicolas Foss, Ed.D., MS
 ## Examples
 
 ``` r
+
 # Example vectors
 x <- c("apple", "banana", "cherry")
 y <- c("banana", "grape")

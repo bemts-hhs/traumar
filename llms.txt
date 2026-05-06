@@ -20,6 +20,7 @@ You can install the development version of `traumar` from
 [GitHub](https://github.com/bemts-hhs/traumar) with:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("bemts-hhs/traumar")
 ```
@@ -27,6 +28,7 @@ remotes::install_github("bemts-hhs/traumar")
 Additionally, you can install the CRAN version of `traumar` via:
 
 ``` r
+
 install.packages("traumar")
 ```
 
@@ -71,6 +73,7 @@ the {traumar} package.
 ### First, we will create the data for these examples
 
 ``` r
+
 
 # Generate example data
 set.seed(123)
@@ -124,6 +127,7 @@ data <- data.frame(Ps = Ps, survival = survival_outcomes, groups = groups) |>
 
 ``` r
 
+
 # Calculate trauma performance (W, M, Z scores)
 trauma_performance(data, Ps_col = Ps, outcome_col = death)
 #> # A tibble: 1 × 9
@@ -147,6 +151,7 @@ function does this under the hood for you, so you can get a read out of
 how much confidence you can put into the Z score.
 
 ``` r
+
 
 # Compare the current case mix with the MTOS case mix
 trauma_case_mix(data, Ps_col = Ps, outcome_col = death)
@@ -191,6 +196,7 @@ of survival distribution, and make it non-linear. The {traumar} package
 does this for you using Dr. Napoli’s method:
 
 ``` r
+
 
 # Apply the nonlinear_bins function
 results <- nonlinear_bins(
@@ -243,6 +249,7 @@ sampling with `n_samples` to simulate an RMM distribution and estimate
 intervals, are provided for the population in `data`, as well.
 
 ``` r
+
 
 # Example usage of the `rmm()` function
 rmm(

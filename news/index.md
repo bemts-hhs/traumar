@@ -2,6 +2,8 @@
 
 ## traumar 1.2.5
 
+CRAN release: 2026-04-16
+
 - An update was made to
   [`traumar::seqic_indicator_7()`](https://bemts-hhs.github.io/traumar/reference/seqic_indicator_7.md)
   in the portion of the code where the `denominator_7` is calculated.

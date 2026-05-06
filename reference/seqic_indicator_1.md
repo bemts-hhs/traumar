@@ -172,6 +172,7 @@ Nicolas Foss, Ed.D., MS
 ## Examples
 
 ``` r
+
 # Packages
 library(dplyr)
 #> 

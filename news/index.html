@@ -28,11 +28,11 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/bemts-hhs/traumar/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/bemts-hhs/traumar/blob/v1.2.5/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.2.5" id="traumar-125">traumar 1.2.5<a class="anchor" aria-label="anchor" href="#traumar-125"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.5" id="traumar-125">traumar 1.2.5<a class="anchor" aria-label="anchor" href="#traumar-125"></a></h2><p class="text-muted">CRAN release: 2026-04-16</p>
 <ul><li>An update was made to <code><a href="../reference/seqic_indicator_7.html">traumar::seqic_indicator_7()</a></code> in the portion of the code where the <code>denominator_7</code> is calculated. The denominator is no longer calculated as <code><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">dplyr::n()</a></code>, and instead uses the following in order to accurately calculate the denominator that reflects the definitive care population:</li>
 </ul><p><code>denominator_7 = sum({{ transfer_out_indicator }}} %in% c(FALSE, "No"), na.rm = TRUE)</code></p>
 </div>

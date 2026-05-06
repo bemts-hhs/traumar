@@ -1,8 +1,8 @@
-pandoc: 3.1.11
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2026-04-16T21:35Z
+last_built: 2026-05-06T18:58Z
 urls:
   reference: https://bemts-hhs.github.io/traumar/reference
   article: https://bemts-hhs.github.io/traumar/articles
