@@ -1,7 +1,9 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 notes
 
-* This is a patch release to address an update to the way the denominator is
-  calculated in the function seqic_indicator_7() to match the population that
-  the numerator points to.
+* checking for future file timestamps ... NOTE
+  unable to verify current time
+* This is a patch release.
+* Breaking changes are expected in `pretty_number()` due to deprecating an
+  argument.

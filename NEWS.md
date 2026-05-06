@@ -1,3 +1,17 @@
+# traumar 1.2.6
+- Deprecate the `n_decimal` argument for `pretty_number()`, use `digits`
+  instead. This is a full deprecation which will now produce an error.
+- Remove limits on `pretty_percent()` so that it can handle negative numbers as
+  well as positive. Removed limits bounding the input at [0, 1]. 
+- Added tests for `validate_set()`, `validate_numeric()` tests were improved,
+  `validate_names()`, added tests for `validate_length()` and
+  `validate_error_type()`. 
+- Removed documentation for the `validate_*()` family of functions and used
+  keyword internal in their documentation.
+- Implemented `usethis::use_tidy_*` package helpers to clean up various parts of
+  the package such as workflows and using `Air` as the code formatter
+  throughout. 
+
 # traumar 1.2.5
 
 - An update was made to `traumar::seqic_indicator_7()` in the portion of the code where the `denominator_7` is calculated. The denominator is no longer calculated as `dplyr::n()`, and instead uses the following in order to accurately calculate the denominator that reflects the definitive care population:

@@ -48,15 +48,13 @@ pretty_number <- function(
   truncate = FALSE
 ) {
   # Handle deprecated n_decimal argument ----
-  if (lifecycle::is_present(n_decimal)) {
+  if (!missing(n_decimal)) {
     # Issue a warning
-    lifecycle::deprecate_warn(
-      when = "1.2.4",
+    lifecycle::deprecate_stop(
+      when = "1.2.6",
       what = "pretty_number(n_decimal)",
       with = "pretty_number(digits)"
     )
-    # Handle the n_decimal value for back compatability ----
-    digits <- n_decimal
   }
 
   # Enforce numeric or integer class on x ----
