@@ -1,3 +1,5 @@
+# traumar (development version)
+
 # traumar 1.2.6
 - Deprecate the `n_decimal` argument for `pretty_number()`, use `digits`
   instead. This is a full deprecation which will now produce an error.
