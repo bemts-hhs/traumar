@@ -2,6 +2,8 @@
 
 ## traumar 1.2.6
 
+CRAN release: 2026-05-07
+
 - Deprecate the `n_decimal` argument for
   [`pretty_number()`](https://bemts-hhs.github.io/traumar/reference/pretty_number.md),
   use `digits` instead. This is a full deprecation which will now
