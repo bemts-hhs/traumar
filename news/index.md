@@ -1,5 +1,7 @@
 # Changelog
 
+## traumar (development version)
+
 ## traumar 1.2.6
 
 CRAN release: 2026-05-07
