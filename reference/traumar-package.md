@@ -48,6 +48,10 @@ Useful links:
 
 **Maintainer**: Nicolas Foss <nicolas.foss@hhs.iowa.gov>
 
+Authors:
+
+- Nicolas Foss <nicolas.foss@hhs.iowa.gov>
+
 Other contributors:
 
 - Iowa Department of Health and Human Services \[copyright holder\]
