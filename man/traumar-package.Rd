@@ -22,6 +22,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Nicolas Foss \email{nicolas.foss@hhs.iowa.gov}
 
+Authors:
+\itemize{
+  \item Nicolas Foss \email{nicolas.foss@hhs.iowa.gov}
+}
+
 Other contributors:
 \itemize{
   \item Iowa Department of Health and Human Services [copyright holder]
