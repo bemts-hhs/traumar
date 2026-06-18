@@ -1,7 +1,12 @@
 #' @title Check if Elements Are Not in a Vector
 #'
-#' @description This function returns a logical vector indicating whether each
-#'   element of `x` is not in `y`.
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `%not_in%` has been **deprecated** because base R (≥ 4.6.0) now provides the
+#' `%notin%` operator.
+#'
+#' Please use `%notin%` from `base` instead.
 #'
 #' @param x A vector of values to be checked.
 #'
@@ -31,6 +36,12 @@
 #' @export
 #'
 `%not_in%` <- function(x, y) {
+  # this function is now deprecated as of 1.2.7
+  lifecycle::deprecate_warn(
+    when = "1.2.7",
+    what = "`%not_in%`()",
+    with = "base::`%notin%`()",
+    details = "`base` R includes the %notin% operator as of R >= 4.6.0."
+  )
   !(x %in% y)
-
 }

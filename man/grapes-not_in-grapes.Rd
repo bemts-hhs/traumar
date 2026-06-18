@@ -17,8 +17,12 @@ the corresponding element in \code{x} is not found in \code{y}, and \code{FALSE}
 it is found in \code{y}.
 }
 \description{
-This function returns a logical vector indicating whether each
-element of \code{x} is not in \code{y}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\verb{\%not_in\%} has been \strong{deprecated} because base R (≥ 4.6.0) now provides the
+\verb{\%notin\%} operator.
+
+Please use \verb{\%notin\%} from \code{base} instead.
 }
 \examples{
 
