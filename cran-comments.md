@@ -1,9 +1,6 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* checking for future file timestamps ... NOTE
-  unable to verify current time
-* This is a patch release.
-* Breaking changes are expected in `pretty_number()` due to deprecating an
-  argument.
+* This is a patch release. It deprecates the %not_in% function and refers users
+  to base R's %notin%.
