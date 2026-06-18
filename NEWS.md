@@ -1,4 +1,7 @@
-# traumar (development version)
+# traumar 1.2.7
+- Deprecated `%not_in%` in favor of the `base` R `%notin%` operator (available
+  in `R 4.6.0`). Calls to `%not_in%` now produce a deprecation warning, and
+  users are encouraged to migrate to the `base` operator.  
 
 # traumar 1.2.6
 - Deprecate the `n_decimal` argument for `pretty_number()`, use `digits`
