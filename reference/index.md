@@ -3,7 +3,7 @@
 ## All functions
 
 - [`` `%not_in%` ``](https://bemts-hhs.github.io/traumar/reference/grapes-not_in-grapes.md)
-  : Check if Elements Are Not in a Vector
+  **\[deprecated\]** : Check if Elements Are Not in a Vector
 - [`impute()`](https://bemts-hhs.github.io/traumar/reference/impute.md)
   : Impute Numeric Column Values
 - [`is_it_normal()`](https://bemts-hhs.github.io/traumar/reference/is_it_normal.md)

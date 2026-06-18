@@ -1,7 +1,11 @@
 # Check if Elements Are Not in a Vector
 
-This function returns a logical vector indicating whether each element
-of `x` is not in `y`.
+**\[deprecated\]**
+
+`%not_in%` has been **deprecated** because base R (\>= 4.6.0) now
+provides the `%notin%` operator.
+
+Please use `%notin%` from `base` instead.
 
 ## Usage
 
@@ -39,6 +43,9 @@ y <- c("banana", "grape")
 
 # Check which elements in `x` are not in `y`
 x %not_in% y
+#> Warning: `%not_in%()` was deprecated in traumar 1.2.7.
+#> ℹ Please use `base::%notin%()` instead.
+#> ℹ `base` R includes the %notin% operator as of R >= 4.6.0.
 #> [1]  TRUE FALSE  TRUE
 
 # Example with numeric values
