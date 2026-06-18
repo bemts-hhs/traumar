@@ -3,7 +3,7 @@
 #' @description
 #' `r lifecycle::badge("deprecated")`
 #'
-#' `%not_in%` has been **deprecated** because base R (≥ 4.6.0) now provides the
+#' `%not_in%` has been **deprecated** because base R (>= 4.6.0) now provides the
 #' `%notin%` operator.
 #'
 #' Please use `%notin%` from `base` instead.
